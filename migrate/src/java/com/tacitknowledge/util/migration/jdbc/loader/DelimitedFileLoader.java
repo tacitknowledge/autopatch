@@ -118,8 +118,8 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
     
     /**
      * Returns the table name from the full path name 
-     * by parsing it out of a file in the format: 
-     * name_db.(some extension)
+     * by parsing it out of a file in the format
+     * name_db<period>(some extension)
      * 
      * @return the name of the table to add data to
      */
