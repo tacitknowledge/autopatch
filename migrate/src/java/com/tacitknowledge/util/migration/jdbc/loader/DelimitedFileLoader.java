@@ -69,7 +69,8 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
     
     /**
      * Parses a line of data, and sets the prepared statement with the 
-     * values.  
+     * values.  If a token contains "<null>" then a null value is passed 
+     * in. 
      * 
      * @param data the tokenized string that is mapped to a row
      * @param stmt the statement to populate with data to be inserted
@@ -90,7 +91,14 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
         while (st.hasMoreTokens())
         {
             String colVal = st.nextToken();
-            stmt.setString(counter, colVal);
+            if (colVal.equalsIgnoreCase("<null>"))
+            {
+                stmt.setString(counter, null);
+            }
+            else
+            {
+                stmt.setString(counter, colVal);
+            }
             counter++;
         }
         return true;
