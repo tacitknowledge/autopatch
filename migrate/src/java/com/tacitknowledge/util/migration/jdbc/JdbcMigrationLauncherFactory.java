@@ -1,9 +1,9 @@
 /* Copyright 2005 Tacit Knowledge LLC
- * 
+ *
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
  * obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,33 +47,32 @@ public class JdbcMigrationLauncherFactory
 {
     /**
      * Creates and configures a new <code>JdbcMigrationContext</code> based on the
-     * values in the <em>migration.properties</em> file for the given system.  
-     * 
+     * values in the <em>migration.properties</em> file for the given system.
+     *
      * @param  systemName the system to patch
      * @return a fully configured <code>JdbcMigrationContext</code>.
      * @throws MigrationException if an unexpected error occurs
      */
-    public JdbcMigrationLauncher createMigrationLauncher(String systemName) 
+    public JdbcMigrationLauncher createMigrationLauncher(String systemName)
         throws MigrationException
     {
-        DataSourceMigrationContext context = new DataSourceMigrationContext();
-        context.setSystemName(systemName);
-        JdbcMigrationLauncher launcher = new JdbcMigrationLauncher(context);
-        configureFromMigrationProperties(launcher);
+        JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
+        configureFromMigrationProperties(launcher, systemName);
         return launcher;
     }
 
     /**
      * Loads the configuration from the migration config properties file.
-     * 
+     *
      * @param  launcher the launcher to configure
+     * @param systemName
      * @throws MigrationException if an unexpected error occurs
      */
-    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher)
+    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String systemName)
         throws MigrationException
     {
-        DataSourceMigrationContext context
-            = (DataSourceMigrationContext) launcher.getJdbcMigrationContext();
+        DataSourceMigrationContext context = new DataSourceMigrationContext();
+        context.setSystemName(systemName);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         InputStream is = cl.getResourceAsStream(MigrationContext.MIGRATION_CONFIG_FILE);
         if (is != null)
@@ -82,10 +81,9 @@ public class JdbcMigrationLauncherFactory
             {
                 Properties props = new Properties();
                 props.load(is);
-                
-                String systemName = context.getSystemName();
+
                 launcher.setPatchPath(getRequiredParam(props, systemName + ".patch.path"));
-                
+
                 // Set up the JDBC migration context; accepts on of two property names
                 String databaseType = getRequiredParam(props,
                     systemName + ".jdbc.database.type", systemName + ".jdbc.dialect");
@@ -98,6 +96,9 @@ public class JdbcMigrationLauncherFactory
                 dataSource.setUsername(getRequiredParam(props, systemName + ".jdbc.username"));
                 dataSource.setPassword(getRequiredParam(props, systemName + ".jdbc.password"));
                 context.setDataSource(dataSource);
+
+                // done reading in config, set launcher's context
+                launcher.setJdbcMigrationContext(context);
             }
             catch (IOException e)
             {
@@ -121,11 +122,11 @@ public class JdbcMigrationLauncherFactory
                     + MigrationContext.MIGRATION_CONFIG_FILE + "'");
         }
     }
-    
+
     /**
      * Returns the value of the specified configuration parameter.
-     * 
-     * @param  props the properties file containing the values 
+     *
+     * @param  props the properties file containing the values
      * @param  param the parameter to return
      * @return the value of the specified configuration parameter
      * @throws IllegalArgumentException if the parameter does not exist
@@ -144,8 +145,8 @@ public class JdbcMigrationLauncherFactory
 
     /**
      * Returns the value of the specified configuration parameter.
-     * 
-     * @param  props the properties file containing the values 
+     *
+     * @param  props the properties file containing the values
      * @param  param the parameter to return
      * @param  alternate the alternate parameter to return
      * @return the value of the specified configuration parameter
