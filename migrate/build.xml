@@ -1,4 +1,4 @@
-<project name="milestone" default="compile" basedir=".">
+<project name="migrate" default="compile" basedir=".">
 
 <!--
     Tacit Knowledge Migrate
