@@ -203,6 +203,10 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                             statements.add(currentStatement.toString().trim());
                             currentStatement = new StringBuffer();
                         }
+                        else
+                        {
+                            currentStatement.append(sqlChars[i]);
+                        }
                         break;
                     default :
                         currentStatement.append(sqlChars[i]);

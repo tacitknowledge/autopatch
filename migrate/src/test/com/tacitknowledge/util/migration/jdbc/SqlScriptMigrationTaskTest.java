@@ -53,7 +53,7 @@ public class SqlScriptMigrationTaskTest extends TestCase
             + "role_code, project_id) \n\t\t\tvalues (nextval('role_id_seq'),3, 'SYSA', 3)",
             l.get(1).toString());
         assertEquals("insert into user_role_assoc (user_role_id, application_user_id, "
-            + "role_code, project_id) \n\t\t\tvalues (nextval('role_--id_seq'),4, 'SYSA', 3)",
+            + "role_code, project_id) \n\t\t\tvalues (nextval('role_--id_seq;'),4, 'SYSA', 3)",
             l.get(2).toString());
 
         is = getClass().getResourceAsStream("patch0002.sql");
