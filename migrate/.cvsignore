@@ -1,6 +1,7 @@
 .checkstyle
 .classpath
 .project
+.clover
 bin
 build
 dist
