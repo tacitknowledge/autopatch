@@ -22,27 +22,11 @@ package com.tacitknowledge.util.migration;
 public class MigrationException extends Exception
 {
     /**
-     * @see Exception#Exception() 
-     */
-    public MigrationException()
-    {
-        super();
-    }
-
-    /**
      * @see Exception#Exception(String) 
      */
     public MigrationException(String message)
     {
         super(message);
-    }
-
-    /**
-     * @see Exception#Exception(Throwable) 
-     */
-    public MigrationException(Throwable cause)
-    {
-        super(cause);
     }
 
     /**

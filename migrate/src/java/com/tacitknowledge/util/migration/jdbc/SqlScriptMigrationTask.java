@@ -128,7 +128,8 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
         catch (Exception e)
         {
-            log.error(getName() + ": Error running SQL \"" + sqlStatement + "\"", e);
+            String message = getName() + ": Error running SQL \"" + sqlStatement + "\"";
+            log.error(message, e);
             
             if (e instanceof SQLException)
             {
@@ -138,7 +139,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                 }
             }
             
-            throw new MigrationException(e);
+            throw new MigrationException(message, e);
         }
         finally
         {

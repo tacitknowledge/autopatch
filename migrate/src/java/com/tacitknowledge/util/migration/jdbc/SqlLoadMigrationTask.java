@@ -81,7 +81,8 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
         }
         catch (Exception e)
         {
-            log.error(getName() + ": Error running SQL \"" + getStatmentSql() + "\"", e);
+            String message = getName() + ": Error running SQL \"" + getStatmentSql() + "\"";
+            log.error(message, e);
             if (e instanceof SQLException)
             {
                 if (((SQLException) e).getNextException() != null)
@@ -90,7 +91,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
                 }
             }
             
-            throw new MigrationException(e);
+            throw new MigrationException(message, e);
         }
     }
     
