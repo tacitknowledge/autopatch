@@ -77,6 +77,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
 	                }
                 }
             }
+            stmt.executeBatch();
         }
         catch (Exception e)
         {
