@@ -75,32 +75,49 @@ public class WebAppMigrationLauncher implements ServletContextListener
      */
     public void contextInitialized(ServletContextEvent sce)
     {
-        // WEB-INF/classes and WEB-INF/lib aren't in the classpath defined by
-        // System.getProperty("java.class.path"); add it to the search path here
-        if (firstRun)
-        { 
-            ClassDiscoveryUtil.addResourceListSource(
-                new WebAppResourceListSource(sce.getServletContext().getRealPath("/WEB-INF")));
-        }
-        firstRun = false;
-        
-        String systemName = getRequiredParam("migration.systemname", sce);
-        
-        // The MigrationLauncher is responsible for handling the interaction
-        // between the PatchTable and the underlying MigrationTasks; as each
-        // task is executed, the patch level is incremented, etc.
         try
         {
-            MigrationLauncher launcher = new MigrationLauncher(systemName);
-            launcher.doMigrations();
+
+            // WEB-INF/classes and WEB-INF/lib aren't in the classpath defined by
+            // System.getProperty("java.class.path"); add it to the search path here
+            if (firstRun)
+            {
+                ClassDiscoveryUtil.addResourceListSource(
+                    new WebAppResourceListSource(sce.getServletContext().getRealPath("/WEB-INF")));
+            }
+            firstRun = false;
+            
+            String systemName = getRequiredParam("migration.systemname", sce);
+            
+            // The MigrationLauncher is responsible for handling the interaction
+            // between the PatchTable and the underlying MigrationTasks; as each
+            // task is executed, the patch level is incremented, etc.
+            try
+            {
+                MigrationLauncher launcher = new MigrationLauncher(systemName);
+                launcher.doMigrations();
+            }
+            catch (MigrationException e)
+            {
+                // Runtime exceptions coming from a ServletContextListener prevent the
+                // application from being deployed.  In this case, the intention is
+                // for migration-enabled applications to fail-fast if there are any
+                // errors during migration.
+                throw new RuntimeException("Migration exception caught during migration", e);
+            }
         }
-        catch (MigrationException e)
+        catch (Exception e)
         {
-            // Runtime exceptions coming from a ServletContextListener prevent the
-            // application from being deployed.  In this case, the intention is
-            // for migration-enabled applications to fail-fast if there are any
-            // errors during migration.
-            throw new RuntimeException("Migration exception caught during migration", e);
+            // Catch all exceptions for the sole reason of logging in
+            // as many places as possible - debugging migration
+            // problems requires detection first, and that means
+            // getting the word of failures out.
+            System.out.println(e.getMessage());
+            e.printStackTrace(System.out);
+            System.err.println(e.getMessage());
+            e.printStackTrace(System.err);
+            
+            throw e;
         }
     }
 
