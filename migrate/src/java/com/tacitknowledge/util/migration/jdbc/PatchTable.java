@@ -313,45 +313,4 @@ public class PatchTable
             SqlUtil.close(null, stmt, null);
         }
     }
-
-    /**
-     * Returns the <code>Properties</code> contained in the given resource bundle.
-     * 
-     * @param  filename the name of the resource bundle to load, relative to this
-     *         package
-     * @return the properties contained in the specified resource bundle, or
-     *         <code>null</code> if the bundle could not be loaded
-     */
-    private Properties getResources(String filename)
-    {
-        InputStream is = getClass().getResourceAsStream(filename);
-        if (is == null)
-        {
-            return null;
-        }
-        
-        Properties p = new Properties();
-        try
-        {
-            p.load(is);
-        }
-        catch (IOException e)
-        {
-            log.error("Couldn't find resource '" + filename + "'");
-            return null;
-        }
-        finally
-        {
-            try
-            {
-                is.close();
-            }
-            catch (IOException ioe)
-            {
-                log.error("Couldn't close properties file", ioe);
-            }
-        }
-        
-        return p;
-    }
 }
