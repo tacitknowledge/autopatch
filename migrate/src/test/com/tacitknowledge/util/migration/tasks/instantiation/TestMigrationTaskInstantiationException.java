@@ -28,7 +28,7 @@ public class TestMigrationTaskInstantiationException extends BaseTestMigrationTa
      * 
      * @exception RuntimeException when instantiated
      */
-    public TestMigrationTaskInstantiationException()
+    public TestMigrationTaskInstantiationException() throws RuntimeException
     {
         super("TestMigrationTaskInstantiationException", 1);
         throw new RuntimeException("This class always throws exceptions when instantiated");

@@ -35,7 +35,7 @@ import java.util.Properties;
  *    <li>lock.release - SQL that releases the patch lock for the system</li>
  * </ul>
  * 
- * Use <i>postgres.properties</li> or <i>oracle.properties</li> as a baseline for adding
+ * Use <i>postgres.properties</i> or <i>oracle.properties</i> as a baseline for adding
  * additional database types.
  *
  * @author Scott Askew (scott@tacitknowledge.com)

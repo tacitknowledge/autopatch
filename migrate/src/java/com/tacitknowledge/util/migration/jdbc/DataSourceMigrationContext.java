@@ -55,9 +55,9 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
      */
     public Connection getConnection() throws SQLException
     {
-        if (connection == null || connection.isClosed())
+        if ((connection == null) || connection.isClosed())
         {
-            connection = dataSource.getConnection();
+            connection = getDataSource().getConnection();
         }
         return connection;
     }

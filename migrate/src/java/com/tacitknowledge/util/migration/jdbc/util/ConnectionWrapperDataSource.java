@@ -33,8 +33,9 @@ public class ConnectionWrapperDataSource implements DataSource
      * The message used in <code>UnsupportedOperationException</code>s.
      */
     public static final String UNSUPPORTED_OPERATION_EXCEPTION_MSG
-        = ConnectionWrapperDataSource.class + " is not a fully functioning DataSource and only"
-        + "supports the getConnection methods.";
+        = ConnectionWrapperDataSource.class 
+        + " is not a fully functioning DataSource and only"
+        + " supports the getConnection methods.";
 
     /**
      * The underlying connection

@@ -35,8 +35,9 @@ public class NonPooledDataSource implements DataSource
      * The message used in <code>UnsupportedOperationException</code>s.
      */
     public static final String UNSUPPORTED_OPERATION_EXCEPTION_MSG
-        = NonPooledDataSource.class + " is not a fully functioning DataSource and only"
-        + "supports the getConnection methods.";
+        = NonPooledDataSource.class 
+        + " is not a fully functioning DataSource and only"
+        + " supports the getConnection methods.";
 
     /**
      * The name of the database driver class 
@@ -72,7 +73,7 @@ public class NonPooledDataSource implements DataSource
      */
     public Connection getConnection() throws SQLException
     {
-        return getConnection(username, password);
+        return getConnection(getUsername(), getPassword());
     }
 
     /**
@@ -82,7 +83,8 @@ public class NonPooledDataSource implements DataSource
     {
         try
         {
-            return SqlUtil.getConnection(driverClass, databaseUrl, user, pass);
+            return SqlUtil.getConnection(getDriverClass(), getDatabaseUrl(), 
+                                         getUsername(), getPassword());
         }
         catch (ClassNotFoundException e)
         {

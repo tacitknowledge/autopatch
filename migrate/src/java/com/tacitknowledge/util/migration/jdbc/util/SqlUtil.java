@@ -120,8 +120,8 @@ public final class SqlUtil
      * @throws ClassNotFoundException if the driver could not be loaded
      * @throws SQLException if a connnection could not be made to the database
      */
-    public static Connection getConnection(String driver, String url, String user,
-        String pass) throws ClassNotFoundException, SQLException
+    public static Connection getConnection(String driver, String url, String user, String pass) 
+        throws ClassNotFoundException, SQLException
     {
         Class.forName(driver);
         return DriverManager.getConnection(url, user, pass);
