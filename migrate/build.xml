@@ -291,4 +291,6 @@
   </target>
   
   <target name="test" depends="unittest,inttest" description="Run all unit and integration tests" />
+
+  <target name="autobuild" depends="dist"/>
 </project>
