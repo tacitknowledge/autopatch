@@ -18,10 +18,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.ClasspathUtils;
-import com.tacitknowledge.util.discovery.ArchiveResourceListSource;
-import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 
 /**
  * Launches the migration process as a standalone application.  

@@ -41,7 +41,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
     /**
      * Class logger
      */
-    private static Log log = LogFactory.getLog(SqlLoadMigrationTask.class);
+    protected static Log log = LogFactory.getLog(SqlLoadMigrationTask.class);
     
     /**
      * Creates a new <code>SqlScriptMigrationTask</code>.
@@ -104,6 +104,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
      * 
      * @param  data the current row of data to load
      * @param  stmt the statement used for inserting data into the DB
+     * 
      * @throws Exception if an unexpected error occurs
      */    
     protected abstract void insert(String data, PreparedStatement stmt) throws Exception;
