@@ -398,6 +398,18 @@ public class PatchTable
             log.error("Couldn't find resource '" + filename + "'");
             return null;
         }
+        finally
+        {
+            try
+            {
+                is.close();
+            }
+            catch (IOException ioe)
+            {
+                log.error("Couldn't close properties file", ioe);
+            }
+        }
+        
         return p;
     }
 

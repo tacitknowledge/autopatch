@@ -64,6 +64,17 @@ public class JdbcMigrationContext implements MigrationContext
             {
                 throw new MigrationException("Error reading in migration properties file", e);
             }
+            finally
+            {
+                try
+                {
+                    is.close();
+                }
+                catch (IOException ioe)
+                {
+                    throw new MigrationException("Error closing migration properties file", ioe);
+                }
+            }
         }
         else
         {

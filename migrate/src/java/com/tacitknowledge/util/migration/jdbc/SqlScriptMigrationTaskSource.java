@@ -81,8 +81,13 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
                     }
                     int order = Integer.parseInt(matcher.group(1));
                     
+                    // We should send in the script file location so
+                    // it doesn't have to buffer the whole thing into RAM
                     SqlScriptMigrationTask task
                         = new SqlScriptMigrationTask(scriptFileName, order, is);
+
+                    // Free the resource
+                    is.close();
                     task.setName(scriptFileName);
                     tasks.add(task);
                 }
