@@ -327,10 +327,10 @@ public class PatchTable
         ResultSet rs = null;
         try
         {
-            log.info("Create patch record for " + systemName);
             stmt = conn.prepareStatement(getSql("level.create"));
             stmt.setString(1, systemName);
             stmt.execute();
+            log.info("Created patch record for " + systemName);
         }
         catch (SQLException e)
         {
@@ -361,7 +361,7 @@ public class PatchTable
             stmt = conn.prepareStatement(getSql(sqlkey));
             if (log.isDebugEnabled())
             {
-                log.fatal("Updating patch table lock: " + getSql(sqlkey));
+                log.debug("Updating patch table lock: " + getSql(sqlkey));
             }
             stmt.setString(1, systemName);
             stmt.execute();
