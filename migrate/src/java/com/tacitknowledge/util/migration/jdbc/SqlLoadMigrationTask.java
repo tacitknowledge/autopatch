@@ -41,7 +41,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
     /**
      * Class logger
      */
-    protected static Log log = LogFactory.getLog(SqlLoadMigrationTask.class);
+    private static Log log = LogFactory.getLog(SqlLoadMigrationTask.class);
     
     /**
      * Creates a new <code>SqlScriptMigrationTask</code>.
@@ -70,11 +70,11 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
                 boolean loadRowFlag = insert(data, stmt);
                 if (loadRowFlag)
                 {
-	                stmt.addBatch();
-	                if (i % 50 == 0)
-	                {
-	                    stmt.executeBatch();
-	                }
+                    stmt.addBatch();
+                    if (i % 50 == 0)
+                    {
+                        stmt.executeBatch();
+                    }
                 }
             }
             stmt.executeBatch();

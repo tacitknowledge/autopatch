@@ -78,8 +78,8 @@ public class JdbcMigrationContext implements MigrationContext
         }
         else
         {
-            throw new MigrationException("Unable to find migration properties file '" + 
-                                         MIGRATION_CONFIG_FILE + "'");
+            throw new MigrationException("Unable to find migration properties file '"
+                    + MIGRATION_CONFIG_FILE + "'");
         }
     }
     

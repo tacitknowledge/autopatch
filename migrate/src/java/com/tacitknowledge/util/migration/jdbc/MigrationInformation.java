@@ -74,9 +74,11 @@ public class MigrationInformation
         try
         {
             MigrationLauncher launcher = new MigrationLauncher(systemName);
-            log.info("Current Database patch level is:          " + launcher.getDatabasePatchLevel());
-            log.info("Current number of unapplied patches is:   " + 
-                     ((launcher.getNextPatchLevel() - launcher.getDatabasePatchLevel()) - 1));
+            log.info("Current Database patch level is:          "
+                    + launcher.getDatabasePatchLevel());
+            int unappliedPatches = launcher.getNextPatchLevel()
+                - launcher.getDatabasePatchLevel() - 1;
+            log.info("Current number of unapplied patches is:   " + unappliedPatches); 
             log.info("The next patch to author should be:       " + launcher.getNextPatchLevel());
         }
         catch (Exception e)

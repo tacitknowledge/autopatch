@@ -24,10 +24,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.jdbc.SqlLoadMigrationTask;
 
@@ -43,7 +47,15 @@ import com.tacitknowledge.util.migration.jdbc.SqlLoadMigrationTask;
  */
 public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
 {
-    protected final String pathSeparator = System.getProperty("file.separator");
+    /**
+     * Class logger
+     */
+    private static Log log = LogFactory.getLog(DelimitedFileLoader.class);
+    
+    /**
+     * The path separator
+     */
+    public static final String PATH_SEPARATOR = System.getProperty("file.separator");
     
     /**
      * Private variable that indicates if the header has been parsed or not. 
@@ -72,14 +84,14 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
      * values.  If a token contains "<null>" then a null value is passed 
      * in. 
      * 
-     * @param data the tokenized string that is mapped to a row
-     * @param stmt the statement to populate with data to be inserted
-     * 
+     * @param  data the tokenized string that is mapped to a row
+     * @param  stmt the statement to populate with data to be inserted
      * @return false if the header is returned, true otherwise
+     * @throws SQLException if an error occurs while inserting data into the database
      */
-    protected boolean insert(String data, PreparedStatement stmt) throws Exception
+    protected boolean insert(String data, PreparedStatement stmt) throws SQLException
     {
-        if(!parsedHeader)
+        if (!parsedHeader)
         {
             parsedHeader = true;
             log.info("Header returned: " + data);
@@ -114,9 +126,9 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
     protected String getTableFromName()
     {
         String name = getName();
-        int startTable = name.lastIndexOf(pathSeparator);
+        int startTable = name.lastIndexOf(PATH_SEPARATOR);
         int endTable = name.indexOf("_db", startTable);
-        return name.substring((startTable+1), endTable);
+        return name.substring((startTable + 1), endTable);
     }
     
     /**
@@ -156,7 +168,7 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
                 query.append((String) it.next());
             }
             query.append(") VALUES (");
-            for (int i = 0; i < columnNames.size(); i ++)
+            for (int i = 0; i < columnNames.size(); i++)
             {
                 if (i > 0)
                 {

@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  * Below is an example of how this class can be configured in build.xml:
  * <pre>
  *   ...
- *  &lt;target name="patch.database" description="Runs the migration system and patches the database"&gt;
+ *  &lt;target name="patch.database" description="Runs the migration system"&gt;
  *   &lt;java 
  *       fork="true"
  *       classpathref="patch.classpath" 

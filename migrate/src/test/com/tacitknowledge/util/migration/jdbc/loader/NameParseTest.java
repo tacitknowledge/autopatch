@@ -27,7 +27,10 @@ import junit.framework.TestCase;
  */
 public class NameParseTest extends TestCase
 {
-    protected TestLoader loader = null;
+    /**
+     * The dummy loader used for testing
+     */
+    private TestLoader loader = null;
     
     /**
      * Constructor that invokes its parent's constructor
@@ -54,9 +57,10 @@ public class NameParseTest extends TestCase
      */
     public void testNameParsing()
     {
-        String longName = loader.pathSeparator + "parent-dir" + loader.pathSeparator
-        	+ "child-dir" + loader.pathSeparator + "table_db20040704.load";
-        String medName = loader.pathSeparator + "table_db20040704.load";
+        String longName = DelimitedFileLoader.PATH_SEPARATOR + "parent-dir"
+            + DelimitedFileLoader.PATH_SEPARATOR + "child-dir"
+            + DelimitedFileLoader.PATH_SEPARATOR + "table_db20040704.load";
+        String medName = DelimitedFileLoader.PATH_SEPARATOR + "table_db20040704.load";
         String names[] = {"table_db.dat", longName, medName};
         for (int i = 0; i < names.length; i++)
         {
@@ -71,18 +75,30 @@ public class NameParseTest extends TestCase
      */
     private class TestLoader extends DelimitedFileLoader
     {
+        /**
+         * The name of the file
+         */
         private String name = null;
         
+        /**
+         * @see com.tacitknowledge.util.migration.MigrationTask#getName()
+         */
         public String getName()
         {
             return name;
         }
-        
+
+        /**
+         * @see com.tacitknowledge.util.migration.MigrationTaskSupport#setName(java.lang.String)
+         */
         public void setName(String name)
         {
             this.name = name;
         }
-        
+
+        /**
+         * @see com.tacitknowledge.util.migration.jdbc.loader.DelimitedFileLoader#getDelimiter()
+         */
         public String getDelimiter()
         {
             return "|";
