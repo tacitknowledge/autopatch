@@ -106,7 +106,7 @@ public class WebAppMigrationLauncher implements ServletContextListener
                 throw new RuntimeException("Migration exception caught during migration", e);
             }
         }
-        catch (Exception e)
+        catch (RuntimeException e)
         {
             // Catch all exceptions for the sole reason of logging in
             // as many places as possible - debugging migration
