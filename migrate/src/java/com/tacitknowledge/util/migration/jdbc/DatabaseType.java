@@ -79,7 +79,7 @@ public class DatabaseType
             }
             catch (IOException e1)
             {
-                
+                // not important
             }
         }
     }

@@ -70,11 +70,6 @@ public class PatchTable
     private boolean tableExistenceValidated = false;
     
     /**
-     * Database specific SQL statements loaded from a resource bundle
-     */
-    private Properties sqlStatements = null;
-    
-    /**
      * Create a new <code>PatchTable</code>.
      * 
      * @param migrationContext the migration configuration and connection source
@@ -89,9 +84,6 @@ public class PatchTable
         {
             throw new IllegalArgumentException("The JDBC database type is required");
         }
-        
-        // Load up the SQL for the right kind of DB
-        String filename = context.getDatabaseType() + ".properties";
     }
 
     /**
@@ -122,7 +114,7 @@ public class PatchTable
         catch (SQLException e)
         {
             SqlUtil.close(null, stmt, rs);
-            log.info("'patches' table does not exist; creating....");
+            log.info("'patches' table must not exist; creating....");
             stmt = conn.prepareStatement(getSql("patches.create"));
             if (log.isDebugEnabled())
             {

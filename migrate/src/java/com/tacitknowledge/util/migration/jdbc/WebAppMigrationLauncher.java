@@ -114,6 +114,7 @@ public class WebAppMigrationLauncher implements ServletContextListener
             // as many places as possible - debugging migration
             // problems requires detection first, and that means
             // getting the word of failures out.
+            log.error(e);
             System.out.println(e.getMessage());
             e.printStackTrace(System.out);
             System.err.println(e.getMessage());

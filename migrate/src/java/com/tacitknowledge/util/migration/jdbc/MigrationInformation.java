@@ -54,7 +54,9 @@ public class MigrationInformation
      * Private constructor - this object shouldn't be instantiated
      */
     private MigrationInformation()
-    { }
+    { 
+        // does nothing
+    }
     
     /**
      * Run the migrations for the given system name

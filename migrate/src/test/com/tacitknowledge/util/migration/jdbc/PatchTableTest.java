@@ -101,7 +101,6 @@ public class PatchTableTest extends JDBCTestCaseAdapter
     {
         // Test-specific setup
         PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
-        MockResultSet rs = h.createResultSet();
         h.prepareThrowsSQLException(table.getSql("level.read"));
         
         table.createPatchesTableIfNeeded();

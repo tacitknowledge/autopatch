@@ -24,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -206,7 +205,6 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
      */
     protected String getHeader(InputStream is) throws IOException
     {
-        List data = new ArrayList();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         return reader.readLine();   
     }

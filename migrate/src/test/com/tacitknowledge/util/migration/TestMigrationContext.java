@@ -57,6 +57,7 @@ public class TestMigrationContext implements MigrationContext
      */
     public void commit() throws MigrationException
     {
+        // does nothing
     }
 
     /**
@@ -64,6 +65,7 @@ public class TestMigrationContext implements MigrationContext
      */
     public void rollback() throws MigrationException
     {
+        // does nothing
     }
 
     /**

@@ -64,11 +64,6 @@ import org.apache.commons.logging.LogFactory;
 public class MigrationProcess
 {
     /**
-     * The regular expression used to match SQL patch files.
-     */
-    private static final String SQL_PATCH_REGEX = "^patch(\\d+)(_.+)?\\.sql";
-
-    /**
      * Class logger
      */
     private static Log log = LogFactory.getLog(MigrationProcess.class);
@@ -304,7 +299,6 @@ public class MigrationProcess
      */
     private void validateTasks(List migrations) throws MigrationException
     {
-        // TODO: Ensure that patch levels are consecutive without breaks 
         Map usedOrderNumbers = new HashMap();
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
