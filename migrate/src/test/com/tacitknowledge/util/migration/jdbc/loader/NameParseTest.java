@@ -61,7 +61,7 @@ public class NameParseTest extends TestCase
             + DelimitedFileLoader.PATH_SEPARATOR + "child-dir"
             + DelimitedFileLoader.PATH_SEPARATOR + "table_db20040704.load";
         String medName = DelimitedFileLoader.PATH_SEPARATOR + "table_db20040704.load";
-        String names[] = {"table_db.dat", longName, medName};
+        String[] names = {"table_db.dat", longName, medName};
         for (int i = 0; i < names.length; i++)
         {
             loader.setName(names[i]);
