@@ -14,7 +14,7 @@
 package com.tacitknowledge.util.migration;
 
 /**
- * Convience base class for migration tasks.
+ * Convenience base class for migration tasks.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
