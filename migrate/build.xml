@@ -5,20 +5,20 @@
     $Id$
 -->
 
-<!-- 
+<!--
    Main build file for the Tacit Knowledge Migrate library.
-   
+
    Build file sections
-   
-   Project Declarations - locations of various files and dirs needed to build 
-   Compiler Defaults - paramters asscoiated with compilation    
-   Test Execution Defaults - Junit test setup 
-   Compilation Targets - all target having to do with compilation 
-   Unit Test Targets - target having to do with unit test execution 
-      
-   Outputs of the build go to the ${build.home} directory. 
-   
-   Build reports (for things like unit testing) 
+
+   Project Declarations - locations of various files and dirs needed to build
+   Compiler Defaults - paramters asscoiated with compilation
+   Test Execution Defaults - Junit test setup
+   Compilation Targets - all target having to do with compilation
+   Unit Test Targets - target having to do with unit test execution
+
+   Outputs of the build go to the ${build.home} directory.
+
+   Build reports (for things like unit testing)
    go to the ${reports.home} directory.
  -->
 
@@ -34,7 +34,7 @@
   <property name="component.title"         value="Tacit Knowledge Migrate"/>
 
   <!-- The current version number of this application -->
-  <property name="component.version"       value="0.5.0"/>
+  <property name="component.version"       value="0.6.0"/>
 
   <!-- The base directory for compilation targets -->
   <property name="build.home"              value="build"/>
@@ -44,7 +44,7 @@
 
   <!-- The base directory for distribution targets -->
   <property name="dist.home"               value="dist"/>
-  
+
   <!-- The base directory for application sources -->
   <property name="source.home"             value="src/java"/>
 
@@ -53,16 +53,16 @@
 
   <!-- The base directory for integration test sources -->
   <property name="inttest.home"            value="src/inttest"/>
-  
+
   <!-- The base directory for all reports  -->
   <property name="reports.home"		       value="${build.home}/reports"/>
-  
-  <!-- The test report directory --> 
+
+  <!-- The test report directory -->
   <property name="test.reports"            value="${reports.home}/tests"/>
 
   <!-- The base directory for project libs -->
   <property name="lib.dir" value="${basedir}/lib"/>
-  
+
 <!-- ========== Compiler Defaults ========================================= -->
 
   <!-- Should Java compilations set the 'debug' compiler option? -->
@@ -78,10 +78,10 @@
   <path id="compile.classpath">
     <pathelement location="${build.home}/classes"/>
     <fileset dir="${lib.dir}/build">
-    	<include name="**/*.jar"/>
+        <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${lib.dir}/core">
-    	<include name="**/*.jar"/>
+        <include name="**/*.jar"/>
     </fileset>
   </path>
 
@@ -89,28 +89,28 @@
 
   <!-- Construct unit test classpath -->
   <path id="test.classpath">
-  	
-  	<!-- Add everything in the compile classpath -->
+
+      <!-- Add everything in the compile classpath -->
     <path refid="compile.classpath"/>
 
-	<!-- Add the test binary path and test support libraries -->
+    <!-- Add the test binary path and test support libraries -->
     <pathelement location="${build.home}/tests"/>
     <fileset dir="${lib.dir}/test">
-    	<include name="**/*.jar"/>
-    </fileset> 
+        <include name="**/*.jar"/>
+    </fileset>
   </path>
 
   <!-- Construct unit test classpath -->
   <path id="inttest.classpath">
-  	
-  	<!-- Add everything in the compile classpath -->
+
+      <!-- Add everything in the compile classpath -->
     <path refid="compile.classpath"/>
 
-	<!-- Add the test binary path and test support libraries -->
+    <!-- Add the test binary path and test support libraries -->
     <pathelement location="${build.home}/inttests"/>
     <fileset dir="${lib.dir}/test">
-    	<include name="**/*.jar"/>
-    </fileset> 
+        <include name="**/*.jar"/>
+    </fileset>
   </path>
 
   <!-- Should all tests fail if one does? -->
@@ -236,7 +236,7 @@
       <classpath refid="compile.classpath"/>
     </taskdef>
     <checkstyle config="tacit_checkstyle.config">
-      <fileset dir="${source.home}" 
+      <fileset dir="${source.home}"
         includes="**/*.java"
         excludes="**/test/*.java"
       />
@@ -249,7 +249,7 @@
     <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
       <classpath refid="compile.classpath"/>
     </taskdef>
-    <checkstyle 
+    <checkstyle
       config="tacit_checkstyle.config"
       file="${source.home}/${file}" >
       <classpath refid="compile.classpath"/>
@@ -263,15 +263,15 @@
        <classpath refid="test.classpath"/>
     </taskdef>
     <junit printsummary="yes" haltonfailure="yes">
-  		<classpath refid="test.classpath"/>
-   		<formatter type="xml"/>
+          <classpath refid="test.classpath"/>
+           <formatter type="xml"/>
 
-	  	<batchtest fork="yes" todir="${test.reports}">
-    		<fileset dir="${test.home}">
-      			<include name="**/*Test.java"/>
-    		</fileset>
-  		</batchtest>
-  	</junit>
+          <batchtest fork="yes" todir="${test.reports}">
+            <fileset dir="${test.home}">
+                  <include name="**/*Test.java"/>
+            </fileset>
+          </batchtest>
+      </junit>
   </target>
 
   <target name="inttest"  depends="compile.inttests" description="Run all integration tests">
@@ -279,17 +279,17 @@
        <classpath refid="test.classpath"/>
     </taskdef>
     <junit printsummary="yes" haltonfailure="yes">
-  		<classpath refid="inttest.classpath"/>
-   		<formatter type="xml"/>
+          <classpath refid="inttest.classpath"/>
+           <formatter type="xml"/>
 
-	  	<batchtest fork="yes" todir="${test.reports}">
-    		<fileset dir="${inttest.home}">
-      			<include name="**/*Test.java"/>
-    		</fileset>
-  		</batchtest>
-  	</junit>
+          <batchtest fork="yes" todir="${test.reports}">
+            <fileset dir="${inttest.home}">
+                  <include name="**/*Test.java"/>
+            </fileset>
+          </batchtest>
+      </junit>
   </target>
-  
+
   <target name="test" depends="unittest,inttest" description="Run all unit and integration tests" />
 
   <target name="autobuild" depends="dist"/>
