@@ -59,14 +59,25 @@ public class MigrationInformation
     }
     
     /**
-     * Run the migrations for the given system name
+     * Get the migration level information for the given system name
      *
      * @param arguments the command line arguments, if any (none are used)
      * @exception Exception if anything goes wrong
      */
     public static void main(String[] arguments) throws Exception
     {
-        String systemName = System.getProperty("migration.systemname");
+        MigrationInformation info = new MigrationInformation();
+        info.getMigrationInformation(System.getProperty("migration.systemname"));
+    }
+    
+    /**
+     * Get the migration level information for the given system name
+     * 
+     * @param systemName the name of the system
+     * @throws Exception if anything goes wrong
+     */
+    public void getMigrationInformation(String systemName) throws Exception
+    {
         if (systemName == null)
         {
             throw new IllegalArgumentException("The migration.systemname "
