@@ -17,6 +17,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.StringTokenizer;
 
+import javax.naming.NamingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,7 +29,9 @@ import com.tacitknowledge.util.migration.Migration;
 import com.tacitknowledge.util.migration.MigrationTask;
 
 /**
- * Core starting point for a "patches" table-based application migration run.
+ * Core starting point for a database migration run.
+ * <p>
+ * This class is <b>NOT</b> threadsafe.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
@@ -56,85 +60,53 @@ public class MigrationLauncher implements MigrationListener
     private long lockPollMillis = 15000;
     
     /**
+     * The <code>MigrationContext</code> to use for all migrations.
+     */
+    private JdbcMigrationContext context = null;
+    
+    /**
      * Creates a new <code>MigrationLauncher</code>.
      * 
-     * @param table the patch table used to persist and coordinate patche info. 
+     * @param  systemName the name of the system to patch
+     * @throws MigrationException if the <code>MigrationLauncher</code> could
+     *         not be created 
      */
-    public MigrationLauncher(PatchTable table)
+    public MigrationLauncher(String systemName) throws MigrationException
     {
-        this.table = table;
-        manager = new Migration();
-        manager.addMigrationTaskSource(new SqlScriptMigrationTaskSource());
+        this.context = new JdbcMigrationContext();
+
+        String dialect = getRequiredParam(systemName + ".jdbc.dialect");
+        this.table = new PatchTable(systemName, dialect);
+
+        this.manager = new Migration();
+        this.manager.addMigrationTaskSource(new SqlScriptMigrationTaskSource());
+
+        String path = getRequiredParam(systemName + ".patch.path");
+        this.setSearchPath(path);
     }
     
     /**
      * Starts the application migration process.
      * 
-     * @param  conn the connection to use
      * @return the number of patches applied
-     * @throws SQLException if an unrecoverable database error occurs while
-     *         working with the patches table.
      * @throws MigrationException if an unrecoverable error occurs during
      *         the migration
      */
-    public int doMigrations(Connection conn) throws SQLException, MigrationException
+    public int doMigrations() throws MigrationException
     {
-        
-        // Make sure the table is created first
-        table.getPatchLevel(conn);
-        conn.commit();
-        
-        // Turn off auto-commit
-        boolean b = conn.getAutoCommit();
-        conn.setAutoCommit(false);
-        
-        // Patch locks ensure that only one system sharing a database will patch
-        // it at the same time.
-        waitForFreeLock(conn);
-        
+        Connection conn = null;
         try
         {
-            table.lockPatchTable(conn);
-            
-            int patchLevel = table.getPatchLevel(conn);
-        
-            // Make sure this class is notified when a patch is applied so that
-            // the patch level can be updated (see #migrationSuccessful).
-            manager.addListener(this);
-            
-            JdbcMigrationContext context = new JdbcMigrationContext();
-            context.setConnection(conn);
-            return manager.doMigrations(patchLevel, context);
+            conn = getConnection(table.getSystemName());
+            return doMigrations(conn);
         }
-        // Handle the two checked exceptions and any runtime exceptions.  This is
-        // written this way so that the exception can be rethrown without requiring
-        // this method to declare something vague like "throws Exception".
         catch (SQLException e)
         {
-            handleException(conn, e);
-            throw e;
-        }
-        catch (MigrationException e)
-        {
-            handleException(conn, e);
-            throw e;
-        }
-        catch (RuntimeException e)
-        {
-            handleException(conn, e);
-            throw e;
+            throw new MigrationException("SqlException during migration", e);
         }
         finally
         {
-            try
-            {
-                table.unlockPatchTable(conn);
-                conn.commit();
-            }
-            catch (SQLException e)
-            {
-                log.error("Error unlocking patch table: ", e);
-            }
+            SqlUtil.close(conn, null, null);
         }
     }
     
@@ -165,7 +137,7 @@ public class MigrationLauncher implements MigrationListener
     /**
      * @see MigrationListener#migrationStarted(MigrationTask, MigrationContext)
      */
-    public void migrationStarted(MigrationTask task, MigrationContext context)
+    public void migrationStarted(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
         // Nothing to do
@@ -174,13 +146,13 @@ public class MigrationLauncher implements MigrationListener
     /**
      * @see MigrationListener#migrationSuccessful(MigrationTask, MigrationContext)
      */
-    public void migrationSuccessful(MigrationTask task, MigrationContext context)
+    public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
         int patchLevel = task.getLevel().intValue();
         try
         {
-            JdbcMigrationContext jdbcContext = (JdbcMigrationContext) context;
+            JdbcMigrationContext jdbcContext = (JdbcMigrationContext) ctx;
             table.updatePatchLevel(jdbcContext.getConnection(), patchLevel);
         }
         catch (SQLException e)
@@ -192,10 +164,101 @@ public class MigrationLauncher implements MigrationListener
     /**
      * @see MigrationListener#migrationFailed(MigrationTask, MigrationContext, MigrationException)
      */
-    public void migrationFailed(MigrationTask task, MigrationContext context, MigrationException e)
+    public void migrationFailed(MigrationTask task, MigrationContext ctx, MigrationException e)
         throws MigrationException
     {
         // Nothing to do
+    }
+
+    /**
+     * Starts the application migration process.
+     * 
+     * @param  conn the connection to use
+     * @return the number of patches applied
+     * @throws SQLException if an unrecoverable database error occurs while
+     *         working with the patches table.
+     * @throws MigrationException if an unrecoverable error occurs during
+     *         the migration
+     */
+    private int doMigrations(Connection conn) throws SQLException, MigrationException
+    {
+        // Make sure the table is created first
+        table.getPatchLevel(conn);
+        conn.commit();
+        
+        // Turn off auto-commit
+        boolean b = conn.getAutoCommit();
+        conn.setAutoCommit(false);
+        
+        // Patch locks ensure that only one system sharing a database will patch
+        // it at the same time.
+        waitForFreeLock(conn);
+        
+        try
+        {
+            table.lockPatchTable(conn);
+            
+            int patchLevel = table.getPatchLevel(conn);
+        
+            // Make sure this class is notified when a patch is applied so that
+            // the patch level can be updated (see #migrationSuccessful).
+            manager.addListener(this);
+            
+            context.setConnection(conn);
+            return manager.doMigrations(patchLevel, context);
+        }
+        finally
+        {
+            try
+            {
+                table.unlockPatchTable(conn);
+                conn.commit();
+            }
+            catch (SQLException e)
+            {
+                log.error("Error unlocking patch table: ", e);
+            }
+        }
+    }
+    
+    /**
+     * Returns the database connection for this system.
+     * 
+     * @param  systemName the name of the system being patches
+     * @return the database connection to use during migration
+     * @throws SQLException if an unrecoverable error occured while creating
+     *         the database connection
+     */
+    private Connection getConnection(String systemName)
+        throws SQLException
+    {
+        // TODO: Improve validation and error handling
+        try
+        {
+            String dsn = context.getConfiguration().getProperty(systemName + ".jdbc.datasource");
+            if (dsn != null)
+            {
+                log.debug("Creating new connection from JNDI DataSource..");
+                return SqlUtil.getConnection(dsn);
+            }
+            else
+            {
+                log.debug("Creating brand-new unpooled connection..");
+                String driver = getRequiredParam(systemName + ".jdbc.driver");
+                String url = getRequiredParam(systemName + ".jdbc.url");
+                String user = getRequiredParam(systemName + ".jdbc.username");
+                String pass = getRequiredParam(systemName + ".jdbc.password");
+                return SqlUtil.getConnection(driver, url, user, pass);
+            }
+        }
+        catch (NamingException e)
+        {
+            throw new RuntimeException("JNDI error creating connection", e);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException("Could not find JDBC driver", e);
+        }
     }
     
     /**
@@ -221,16 +284,21 @@ public class MigrationLauncher implements MigrationListener
     }
     
     /**
-     * Remove any patch table locks and commit the transaction.
+     * Returns the given parameter from the context configuration.
      * 
-     * @param  conn the database connection in use
-     * @param  e the root cause
-     * @throws SQLException if the patch lock could not be revoked or committed
+     * @param  key the name of the property to return 
+     * @return the value of the property
+     * @throws IllegalArgumentException if the property could not be found
      */
-    private void handleException(Connection conn, Exception e) throws SQLException
+    private String getRequiredParam(String key)
+        throws IllegalArgumentException
     {
-        log.error("Error during migration; removing patch lock.", e);
-        table.unlockPatchTable(conn);
-        conn.commit();
+        String value = context.getConfiguration().getProperty(key);
+        if (value == null)
+        {
+            throw new IllegalArgumentException("'" + key + "' is a required "
+                + MigrationContext.MIGRATION_CONFIG_FILE + " parameter.  Aborting.");
+        }
+        return value;
     }
 }

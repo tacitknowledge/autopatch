@@ -13,15 +13,9 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,28 +33,14 @@ import com.tacitknowledge.util.migration.MigrationException;
  * This class expects the following servlet context init parameters:
  * <ul>
  *    <li>migration.systemname - the name of the logical system being migrated</li>
- *    <li>migration.dialect - the name of the database dialect in use</li>
- *    <li>migration.datasource - the JNDI name of the DataSource to use for the migration</li>
  * </ul>
  * <p>
  * Below is an example of how this class can be configured in web.xml:
  * <pre>
  *   ...
  *   &lt;context-param&gt;
- *       &lt;param-name&gt;migration.datasource&lt;/param-name&gt;
- *       &lt;param-value&gt;jdbc/milestone&lt;/param-value&gt;
- *   &lt;/context-param&gt;
- *   &lt;context-param&gt;
- *       &lt;param-name&gt;migration.dialect&lt;/param-name&gt;
- *       &lt;param-value&gt;postgres&lt;/param-value&gt;
- *   &lt;/context-param&gt;
- *   &lt;context-param&gt;
  *       &lt;param-name&gt;migration.systemname&lt;/param-name&gt;
  *       &lt;param-value&gt;milestone&lt;/param-value&gt;
- *   &lt;/context-param&gt;
- *   &lt;context-param&gt;
- *       &lt;param-name&gt;migration.patch.path&lt;/param-name&gt;
- *       &lt;param-value&gt;db/sql:com.tacitknowledge.milestone.patches&lt;/param-value&gt;
  *   &lt;/context-param&gt;
  *   ...
  *   &lt;!-- immediately after the filter configs... --&gt;
@@ -106,37 +86,22 @@ public class WebAppMigrationLauncher implements ServletContextListener
         firstRun = false;
         
         String systemName = getRequiredParam("migration.systemname", sce);
-        String dialect = getRequiredParam("migration.dialect", sce);
-        
-        // The PatchTable handles basic data access (CRUD) for the "patches" table
-        PatchTable table = new PatchTable(systemName, dialect);
         
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
-        MigrationLauncher launcher = new MigrationLauncher(table);
-        launcher.setSearchPath(getRequiredParam("migration.patch.path", sce));
-        
-        Connection conn = getConnection(getRequiredParam("migration.datasource", sce));
         try
         {
-            launcher.doMigrations(conn);
+            MigrationLauncher launcher = new MigrationLauncher(systemName);
+            launcher.doMigrations();
         }
-        catch (SQLException e)
+        catch (MigrationException e)
         {
             // Runtime exceptions coming from a ServletContextListener prevent the
             // application from being deployed.  In this case, the intention is
             // for migration-enable applications to fail-fast if there are any
             // errors during migration.
-            throw new RuntimeException("SQL exception caught during migration", e);
-        }
-        catch (MigrationException e)
-        {
             throw new RuntimeException("Migration exception caught during migration", e);
-        }
-        finally
-        {
-            SqlUtil.close(conn, null, null);
         }
     }
 
@@ -168,30 +133,5 @@ public class WebAppMigrationLauncher implements ServletContextListener
                 + getClass().getName() + "\" class.  Aborting.");
         }
         return value;
-    }
-    
-    /**
-     * Returns a connection from the <code>DataSource</code> located in JNDI
-     * under the specified name. 
-     * 
-     * @param  dsn the name of the DataSource in JDNI
-     * @return a connection from the <code>DataSource</code> 
-     */
-    private Connection getConnection(String dsn)
-    {
-        try
-        {
-            InitialContext context = new InitialContext();
-            DataSource ds = (DataSource) context.lookup(dsn);
-            return ds.getConnection();
-        }
-        catch (NamingException e)
-        {
-            throw new RuntimeException("Cannot find datasource " + dsn);
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException("Could not get connection from datasource " + dsn);
-        }
     }
 }
