@@ -1,9 +1,9 @@
 /* Copyright 2005 Tacit Knowledge LLC
- * 
+ *
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
  * obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  * up at the end.
  * <p>
  * This class is <b>NOT</b> threadsafe.
- * 
+ *
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
  */
@@ -44,38 +44,45 @@ public class JdbcMigrationLauncher implements MigrationListener
      * Class logger
      */
     private static Log log = LogFactory.getLog(JdbcMigrationLauncher.class);
-    
+
     /**
      * The patch table in use
      */
     private PatchTable patchTable = null;
-    
+
     /**
      * The <code>MigrationProcess</code> responsible for applying the patches
      */
     private MigrationProcess migrationProcess = null;
-    
+
     /**
      * The amount time, in milliseconds, between attempts to obtain a lock on the
      * patches table.  Defaults to 15 seconds.
      */
     private long lockPollMillis = 15000;
-    
+
     /**
      * The path containing directories and packages to search through to locate patches.
      */
     private String patchPath = null;
-    
+
     /**
      * The <code>MigrationContext</code> to use for all migrations.
      */
     private JdbcMigrationContext context = null;
-    
+
+    public JdbcMigrationLauncher()
+    {
+        migrationProcess = new MigrationProcess();
+        migrationProcess.addMigrationTaskSource(new SqlScriptMigrationTaskSource());
+    }
+
     /**
      * Create a new <code>MigrationLancher</code>.
-     * 
+     *
      * @param context the <code>JdbcMigrationContext</code> to use.
      * @throws MigrationException if an unexpected error occurs
+     * @deprecated
      */
     public JdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
@@ -94,7 +101,7 @@ public class JdbcMigrationLauncher implements MigrationListener
 
     /**
      * Starts the application migration process.
-     * 
+     *
      * @return the number of patches applied
      * @throws MigrationException if an unrecoverable error occurs during
      *         the migration
@@ -116,11 +123,11 @@ public class JdbcMigrationLauncher implements MigrationListener
             SqlUtil.close(conn, null, null);
         }
     }
-    
+
     /**
      * Returns the colon-separated path of packages and directories within the
-     * class path that are sources of patches. 
-     * 
+     * class path that are sources of patches.
+     *
      * @return a colon-separated path of packages and directories within the
      *         class path that are sources of patches
      */
@@ -128,11 +135,11 @@ public class JdbcMigrationLauncher implements MigrationListener
     {
         return patchPath;
     }
-    
+
     /**
      * Sets the colon-separated path of packages and directories within the
-     * class path that are sources of patches. 
-     * 
+     * class path that are sources of patches.
+     *
      * @param searchPath a colon-separated path of packages and directories within the
      *        class path that are sources of patches
      */
@@ -194,14 +201,14 @@ public class JdbcMigrationLauncher implements MigrationListener
      * Get the patch level from the database
      *
      * @return int representing the current database patch level
-     * @exception SQLException if there is a database connection error, 
+     * @exception SQLException if there is a database connection error,
      *                         or the patch level can't be determined
      */
     public int getDatabasePatchLevel() throws SQLException
     {
         return patchTable.getPatchLevel();
     }
-    
+
     /**
      * Get the next patch level, for use when creating a new patch
      *
@@ -215,27 +222,39 @@ public class JdbcMigrationLauncher implements MigrationListener
 
     /**
      * Sets the <code>JdbcMigrationContext</code> used for the migrations.
-     * 
+     *
      * @param jdbcMigrationContext the <code>JdbcMigrationContext</code> used for the migrations
+     * @throws MigrationException
      */
-    public void setJdbcMigrationContext(JdbcMigrationContext jdbcMigrationContext)
+    public void setJdbcMigrationContext(JdbcMigrationContext jdbcMigrationContext) throws MigrationException
     {
         this.context = jdbcMigrationContext;
+        // setting the context, mean we need to set patchTable
+        // previously done in deprecated ctor, so code moved to here if
+        // default ctor used since patch table would never have been set
+        try
+        {
+            patchTable = new PatchTable(context, context.getConnection());
+        }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Could not obtain JDBC Connection", e);
+        }
     }
-    
+
     /**
      * Returns the <code>JdbcMigrationContext</code> used for the migrations.
-     * 
+     *
      * @return the <code>JdbcMigrationContext</code> used for the migrations
      */
     public JdbcMigrationContext getJdbcMigrationContext()
     {
         return context;
     }
-    
+
     /**
      * Starts the application migration process.
-     * 
+     *
      * @param  conn the connection to use
      * @return the number of patches applied
      * @throws SQLException if an unrecoverable database error occurs while
@@ -246,32 +265,32 @@ public class JdbcMigrationLauncher implements MigrationListener
     private int doMigrations(Connection conn) throws SQLException, MigrationException
     {
         patchTable = new PatchTable(context, conn);
-        
+
         // Make sure the table is created first
         patchTable.getPatchLevel();
         conn.commit();
-        
+
         // Turn off auto-commit
         boolean b = true;
         try
         {
             b = conn.getAutoCommit();
             conn.setAutoCommit(false);
-        
+
             // Patch locks ensure that only one system sharing a database will patch
             // it at the same time.
             waitForFreeLock();
-        
+
             try
             {
                 patchTable.lockPatchTable();
-            
+
                 int patchLevel = patchTable.getPatchLevel();
-        
+
                 // Make sure this class is notified when a patch is applied so that
                 // the patch level can be updated (see #migrationSuccessful).
                 migrationProcess.addListener(this);
-            
+
                 return migrationProcess.doMigrations(patchLevel, context);
             }
             finally
@@ -293,10 +312,10 @@ public class JdbcMigrationLauncher implements MigrationListener
             conn.setAutoCommit(b);
         }
     }
-    
+
     /**
      * Pauses until the patch lock become available.
-     * 
+     *
      * @throws SQLException if an unrecoverable error occurs
      */
     private void waitForFreeLock() throws SQLException
