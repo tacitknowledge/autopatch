@@ -264,7 +264,7 @@
     </taskdef>
     <junit printsummary="yes" haltonfailure="yes">
   		<classpath refid="test.classpath"/>
-   		<formatter type="plain"/>
+   		<formatter type="xml"/>
 
 	  	<batchtest fork="yes" todir="${test.reports}">
     		<fileset dir="${test.home}">
@@ -280,7 +280,7 @@
     </taskdef>
     <junit printsummary="yes" haltonfailure="yes">
   		<classpath refid="inttest.classpath"/>
-   		<formatter type="plain"/>
+   		<formatter type="xml"/>
 
 	  	<batchtest fork="yes" todir="${test.reports}">
     		<fileset dir="${inttest.home}">
