@@ -15,6 +15,9 @@ package com.tacitknowledge.util.migration;
 
 import java.util.List;
 
+import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
+import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
+
 import junit.framework.TestCase;
 
 /**
@@ -52,7 +55,7 @@ public class MigrationTest extends TestCase
     {
         super.setUp();
         runner = new MigrationProcess();
-        runner.addResourcePackage(getClass().getPackage().getName());
+        runner.addResourcePackage(getClass().getPackage().getName() + ".tasks.normal");
         
         context = new TestMigrationContext();
     }

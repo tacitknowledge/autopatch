@@ -11,7 +11,9 @@
  * limitations under the License.
  */
 
-package com.tacitknowledge.util.migration;
+package com.tacitknowledge.util.migration.tasks.normal;
+
+import com.tacitknowledge.util.migration.tasks.BaseTestMigrationTask;
 
 /**
  * Basic test migration task.
@@ -19,13 +21,13 @@ package com.tacitknowledge.util.migration;
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
  */
-public class TestMigrationTask4 extends BaseTestMigrationTask
+public class TestMigrationTask1 extends BaseTestMigrationTask
 {
     /**
-     * Creates a new <code>TestMigrationTask3</code>.
+     * Creates a new <code>TestMigrationTask1</code>.
      */
-    public TestMigrationTask4()
+    public TestMigrationTask1()
     {
-        super("TestTask4", 4);
+        super("TestTask1", 1);
     }
 }

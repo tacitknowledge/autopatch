@@ -11,34 +11,23 @@
  * limitations under the License.
  */
 
-package com.tacitknowledge.util.migration;
+package com.tacitknowledge.util.migration.tasks.normal;
+
+import com.tacitknowledge.util.migration.tasks.BaseTestMigrationTask;
 
 /**
- * Base class for migration task tests. 
+ * Basic test migration task.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
  */
-public abstract class BaseTestMigrationTask extends MigrationTaskSupport
+public class TestMigrationTask4 extends BaseTestMigrationTask
 {
     /**
-     * Create a new <code>BaseTestMigrationTask</code>.
-     * 
-     * @param name the name of the task
-     * @param level the patch level of the task
+     * Creates a new <code>TestMigrationTask3</code>.
      */
-    protected BaseTestMigrationTask(String name, int level)
+    public TestMigrationTask4()
     {
-        setName(name);
-        setLevel(new Integer(level));
-    }
-    
-    /**
-     * @see MigrationTaskSupport#migrate(MigrationContext)
-     */
-    public void migrate(MigrationContext context) throws MigrationException
-    {
-        TestMigrationContext ctx = (TestMigrationContext) context;
-        ctx.recordExecution(getName());
+        super("TestTask4", 4);
     }
 }

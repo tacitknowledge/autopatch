@@ -11,7 +11,11 @@
  * limitations under the License.
  */
 
-package com.tacitknowledge.util.migration;
+package com.tacitknowledge.util.migration.tasks.normal;
+
+import com.tacitknowledge.util.migration.MigrationContext;
+import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.tasks.BaseTestMigrationTask;
 
 /**
  * Basic test migration task.
