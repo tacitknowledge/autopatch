@@ -196,26 +196,8 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
      */
     protected InputStream getResourceAsStream()
     {
-        InputStream stream = getClass().getResourceAsStream(getName());
-        if (stream == null)
-        {
-            stream = ClassLoader.getSystemResourceAsStream(getName());
-            
-        }
-        if (stream == null)
-        {
-            File f = new File(getName());
-            try
-            {
-                stream = new FileInputStream(f);
-            } 
-            catch (FileNotFoundException e)
-            {
-                log.error("The file: " + getName() + " was not found.", e);
-                throw new IllegalArgumentException("Must have a valid file name.");
-            }
-        }
-        return stream;
+        FileLoadingUtility utility = new FileLoadingUtility(getName());
+        return utility.getResourceAsStream();
     }
     
     /**
