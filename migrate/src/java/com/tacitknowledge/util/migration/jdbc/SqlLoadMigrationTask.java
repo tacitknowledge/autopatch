@@ -138,7 +138,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
      * @return the data to load as a list of rows
      * @throws IOException if the input stream could not be read
      */
-    private List getData(InputStream is) throws IOException
+    protected List getData(InputStream is) throws IOException
     {
         List data = new ArrayList();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
