@@ -52,8 +52,7 @@ import org.apache.commons.logging.LogFactory;
  *    <li>level.create - Inserts a new patch level record for the system</li>
  *    <li>level.read - Returns the current patch level of the system</li>
  *    <li>level.update - Updates the current patch level of the system</li>
- *    <li>lock.read - Returns one row if the system patch lock is in use, or
- *        zero rows if it is free</li>
+ *    <li>lock.read - Returns 'T' if the system patch lock is in use, 'F' otherwise</li>
  *    <li>lock.obtain - Obtains the patch lock for the system</li>
  *    <li>lock.release - Releases the patch lock for the system</li>
  * </ul>
