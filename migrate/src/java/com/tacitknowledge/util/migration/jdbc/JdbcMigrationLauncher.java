@@ -187,7 +187,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void migrationFailed(MigrationTask task, MigrationContext ctx, MigrationException e)
         throws MigrationException
     {
-        log.debug("Task " + task.getName() + " failed for context " + ctx);
+        log.debug("Task " + task.getName() + " failed for context " + ctx, e);
     }
 
     /**
