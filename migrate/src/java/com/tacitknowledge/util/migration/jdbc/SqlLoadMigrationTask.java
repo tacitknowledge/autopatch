@@ -80,9 +80,9 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
             log.error(getName() + ": Error running SQL \"" + getStatmentSql() + "\"", e);
             if (e instanceof SQLException)
             {
-                if (((SQLException)e).getNextException() != null)
+                if (((SQLException) e).getNextException() != null)
                 {
-                    log.error("Chained SQL Exception", ((SQLException)e).getNextException());
+                    log.error("Chained SQL Exception", ((SQLException) e).getNextException());
                 }
             }
             
