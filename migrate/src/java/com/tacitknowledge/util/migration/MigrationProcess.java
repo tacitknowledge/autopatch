@@ -57,6 +57,7 @@ import org.apache.commons.logging.LogFactory;
  *    {
  *        <i>... rollback MigrationContext ...</i>
  *    }
+ * </pre>
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
@@ -113,8 +114,7 @@ public class MigrationProcess
         // Make the path package-name-like so that ClassLoader.getResourceAsStream
         // will work correctly
         String packageName = dir.replace('/', '.').replace('\\', '.');
-
-        resourcePackages.add(packageName);
+        addResourcePackage(packageName);
     }
     
     /**
@@ -219,16 +219,6 @@ public class MigrationProcess
             }
         }
         return tasks;
-    }
-    
-    /**
-     * Ensures that no two <code>MigrationTasks</code> have the same ordering.
-     * 
-     * @throws MigrationException if the migration tasks are not correctly defined
-     */
-    public void validateMigrationTasks() throws MigrationException
-    {
-        validateTasks(getMigrationTasks());
     }
     
     /**

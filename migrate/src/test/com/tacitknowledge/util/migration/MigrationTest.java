@@ -63,7 +63,7 @@ public class MigrationTest extends TestCase implements MigrationListener
     {
         super.setUp();
         runner = new MigrationProcess();
-        runner.addResourcePackage(getClass().getPackage().getName() + ".tasks.normal");
+        runner.addResourceDirectory(getClass().getPackage().getName() + ".tasks.normal");
         runner.addListener(this);
         
         context = new TestMigrationContext();
@@ -99,6 +99,40 @@ public class MigrationTest extends TestCase implements MigrationListener
         assertEquals(4, getMigrationStartedCount());
         assertEquals(4, getMigrationSuccessCount());
     }
+    
+    /**
+     * Validates that a re-run won't run any patches
+     * 
+     * @throws MigrationException if an unexpected error occurs
+     */
+    public void testReRunAllMigrationTasks() throws MigrationException
+    {
+        List l = runner.getMigrationTasks();
+        assertEquals(4, l.size());
+        
+        // run them all once
+        int level = runner.doMigrations(0, context);
+        assertEquals(4, level);
+        assertTrue(context.hasExecuted("TestTask1"));
+        assertTrue(context.hasExecuted("TestTask2"));
+        assertTrue(context.hasExecuted("TestTask3"));
+        assertTrue(context.hasExecuted("TestTask4"));
+        assertEquals(4, getMigrationStartedCount());
+        assertEquals(4, getMigrationSuccessCount());
+        
+        // now re-run them and see what happens
+        setMigrationStartedCount(0);
+        setMigrationFailedCount(0);
+        setMigrationSuccessCount(0);
+        level = runner.doMigrations(4, context);
+        assertEquals(0, level);
+        assertTrue(context.hasExecuted("TestTask1"));
+        assertTrue(context.hasExecuted("TestTask2"));
+        assertTrue(context.hasExecuted("TestTask3"));
+        assertTrue(context.hasExecuted("TestTask4"));
+        assertEquals(0, getMigrationStartedCount());
+        assertEquals(0, getMigrationSuccessCount());
+    }
 
     /**
      * Validates that the migration runner will only run the necessary patches
@@ -119,6 +153,37 @@ public class MigrationTest extends TestCase implements MigrationListener
         assertTrue(context.hasExecuted("TestTask4"));
         assertEquals(2, getMigrationStartedCount());
         assertEquals(2, getMigrationSuccessCount());
+    }
+
+    /**
+     * Validates that the migration runner will handle busted Migrations ok
+     * 
+     * @throws MigrationException if an unexpected error occurs
+     */
+    public void testRunBrokenMigrationTasks() throws MigrationException
+    {
+        List l = runner.getMigrationTasks();
+        TestMigrationTask3.setFail(true);
+        assertEquals(4, l.size());
+        
+        int executedTasks = 0;
+        try
+        {
+            executedTasks = runner.doMigrations(2, context);
+            fail("We called a migration that failed, this should have thrown an exception");
+        }
+        catch (MigrationException me)
+        {
+            // we expect this
+        }
+        assertEquals(0, executedTasks);
+        assertFalse(context.hasExecuted("TestTask1"));
+        assertFalse(context.hasExecuted("TestTask2"));
+        assertFalse(context.hasExecuted("TestTask3"));
+        assertFalse(context.hasExecuted("TestTask4"));
+        assertEquals(1, getMigrationStartedCount());
+        assertEquals(0, getMigrationSuccessCount());
+        assertEquals(1, getMigrationFailedCount());
     }
     
     /**
@@ -177,7 +242,7 @@ public class MigrationTest extends TestCase implements MigrationListener
      * @param task the task that ran
      * @param context the context for the task
      */
-    public void migrationStarted(MigrationTask task, MigrationContext context)
+    public void migrationStarted(MigrationTask task, MigrationContext con)
     {
         setMigrationStartedCount(getMigrationStartedCount() + 1);
     }
@@ -188,7 +253,7 @@ public class MigrationTest extends TestCase implements MigrationListener
      * @param task the task that ran
      * @param context the context for the task
      */
-    public void migrationSuccessful(MigrationTask task, MigrationContext context)
+    public void migrationSuccessful(MigrationTask task, MigrationContext con)
     {
         setMigrationSuccessCount(getMigrationSuccessCount() + 1);
     }
@@ -201,7 +266,7 @@ public class MigrationTest extends TestCase implements MigrationListener
      * @param exception the exception that ocurred
      */
     public void migrationFailed(MigrationTask task, 
-                                MigrationContext context, 
+                                MigrationContext con, 
                                 MigrationException exception)
     {
         setMigrationFailedCount(getMigrationFailedCount() + 1);
