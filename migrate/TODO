@@ -1,0 +1,14 @@
+$Id$
+
+Tacit Knowledge Migration TODO
+=======================================================================
+
+* Create a MigrationRunner-wide configuration mechanism, probably a properties
+  file in the root of the classpath.  MigrationTaskSources could be
+  defined in this file, along with any of their parameters.
+
+* Add the flexibility to create JDBC connections from scratch to the JDBC
+  MigrationLauncher.  This would allow applications to perform migrations with
+  a different database user than the normal application uses.
+
+* Make the bulk data SQL loader more robust.  Delegate less to subclasses.

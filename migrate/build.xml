@@ -1,0 +1,292 @@
+<project name="milestone" default="compile" basedir=".">
+
+<!--
+    Tacit Knowledge Migrate
+    $Id$
+-->
+
+<!-- 
+   Main build file for the Tacit Knowledge Migrate library.
+   
+   Build file sections
+   
+   Project Declarations - locations of various files and dirs needed to build 
+   Compiler Defaults - paramters asscoiated with compilation    
+   Test Execution Defaults - Junit test setup 
+   Compilation Targets - all target having to do with compilation 
+   Unit Test Targets - target having to do with unit test execution 
+      
+   Outputs of the build go to the ${build.home} directory. 
+   
+   Build reports (for things like unit testing) 
+   go to the ${reports.home} directory.
+ -->
+
+<!-- ========== application Declarations ==================================== -->
+
+  <!-- The name of this application -->
+  <property name="component.name"          value="migrate"/>
+
+  <!-- The primary package name of this application -->
+  <property name="component.package"       value="com.tacitknowledge.util.migration"/>
+
+  <!-- The title of this application -->
+  <property name="component.title"         value="Tacit Knowledge Migrate"/>
+
+  <!-- The current version number of this application -->
+  <property name="component.version"       value="0.1.0"/>
+
+  <!-- The base directory for compilation targets -->
+  <property name="build.home"              value="build"/>
+
+  <!-- The base directory for application configuration files -->
+  <property name="conf.home"               value="conf"/>
+
+  <!-- The base directory for distribution targets -->
+  <property name="dist.home"               value="dist"/>
+  
+  <!-- The base directory for application sources -->
+  <property name="source.home"             value="src/java"/>
+
+  <!-- The base directory for unit test sources -->
+  <property name="test.home"               value="src/test"/>
+
+  <!-- The base directory for integration test sources -->
+  <property name="inttest.home"            value="src/inttest"/>
+  
+  <!-- The base directory for all reports  -->
+  <property name="reports.home"		       value="${build.home}/reports"/>
+  
+  <!-- The test report directory --> 
+  <property name="test.reports"            value="${reports.home}/tests"/>
+
+  <!-- The base directory for project libs -->
+  <property name="lib.dir" value="${basedir}/lib"/>
+  
+<!-- ========== Compiler Defaults ========================================= -->
+
+  <!-- Should Java compilations set the 'debug' compiler option? -->
+  <property name="compile.debug"           value="true"/>
+
+  <!-- Should Java compilations set the 'deprecation' compiler option? -->
+  <property name="compile.deprecation"     value="true"/>
+
+  <!-- Should Java compilations set the 'optimize' compiler option? -->
+  <property name="compile.optimize"        value="false"/>
+
+  <!-- Construct compile classpath -->
+  <path id="compile.classpath">
+    <pathelement location="${build.home}/classes"/>
+    <fileset dir="${lib.dir}/build">
+    	<include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${lib.dir}/core">
+    	<include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+<!-- ========== Test Execution Defaults =================================== -->
+
+  <!-- Construct unit test classpath -->
+  <path id="test.classpath">
+  	
+  	<!-- Add everything in the compile classpath -->
+    <path refid="compile.classpath"/>
+
+	<!-- Add the test binary path and test support libraries -->
+    <pathelement location="${build.home}/tests"/>
+    <fileset dir="${lib.dir}/test">
+    	<include name="**/*.jar"/>
+    </fileset> 
+  </path>
+
+  <!-- Construct unit test classpath -->
+  <path id="inttest.classpath">
+  	
+  	<!-- Add everything in the compile classpath -->
+    <path refid="compile.classpath"/>
+
+	<!-- Add the test binary path and test support libraries -->
+    <pathelement location="${build.home}/inttests"/>
+    <fileset dir="${lib.dir}/test">
+    	<include name="**/*.jar"/>
+    </fileset> 
+  </path>
+
+  <!-- Should all tests fail if one does? -->
+  <property name="test.failonerror"        value="true"/>
+
+<!-- ========== Compilation Targets ======================================== -->
+  <target name="init"
+   description="Initialize and evaluate conditionals">
+    <echo message="-------- ${component.title} ${component.version} --------"/>
+    <filter  token="name"                  value="${component.name}"/>
+    <filter  token="package"               value="${component.package}"/>
+    <filter  token="version"               value="${component.version}"/>
+  </target>
+
+
+  <target name="prepare" depends="init" description="Prepare build directory">
+    <mkdir dir="${build.home}"/>
+    <mkdir dir="${test.reports}"/>
+    <mkdir dir="${build.home}/classes"/>
+    <mkdir dir="${build.home}/tests"/>
+    <mkdir dir="${build.home}/inttests"/>
+  </target>
+
+  <target name="compile" depends="prepare" description="Compile the application">
+    <javac srcdir="${source.home}"
+           destdir="${build.home}/classes"
+           debug="${compile.debug}"
+           deprecation="${compile.deprecation}"
+           optimize="${compile.optimize}">
+      <classpath refid="compile.classpath"/>
+    </javac>
+
+    <copy  todir="${build.home}/classes" filtering="on">
+      <fileset dir="${source.home}" excludes="**/*.java"/>
+    </copy>
+
+    <jar jarfile="${build.home}/tk-${component.name}-${component.version}.jar"
+         basedir="${build.home}/classes">
+    </jar>
+
+  </target>
+
+  <target name="compile.tests" depends="compile" description="Compile unit test cases">
+    <javac  srcdir="${test.home}"
+           destdir="${build.home}/tests"
+             debug="${compile.debug}"
+       deprecation="${compile.deprecation}"
+          optimize="${compile.optimize}">
+      <classpath refid="test.classpath"/>
+    </javac>
+
+    <copy    todir="${build.home}/tests" filtering="on">
+      <fileset dir="${test.home}" excludes="**/*.java"/>
+    </copy>
+
+  </target>
+
+  <target name="compile.inttests" depends="compile" description="Compile integration test cases">
+    <javac  srcdir="${inttest.home}"
+           destdir="${build.home}/inttests"
+             debug="${compile.debug}"
+       deprecation="${compile.deprecation}"
+          optimize="${compile.optimize}">
+      <classpath refid="test.classpath"/>
+    </javac>
+
+    <copy    todir="${build.home}/inttests" filtering="on">
+      <fileset dir="${inttest.home}" excludes="**/*.java"/>
+    </copy>
+
+  </target>
+
+  <target name="clean"
+   description="Clean build and distribution directories">
+    <delete    dir="${build.home}"/>
+    <delete    dir="${dist.home}"/>
+  </target>
+
+
+  <target name="all" depends="clean,compile"
+   description="Clean and compile all applications"/>
+
+
+  <target name="javadoc" depends="compile"
+   description="Create application Javadoc documentation">
+    <mkdir      dir="${dist.home}"/>
+    <mkdir      dir="${dist.home}/docs"/>
+    <mkdir      dir="${dist.home}/docs/api"/>
+    <javadoc sourcepath="${source.home}"
+                destdir="${dist.home}/docs/api"
+           packagenames="${component.package}.*"
+                 author="true"
+                version="true"
+                private="false"
+               doctitle="&lt;h1&gt;${component.title} (Version ${component.version})&lt;/h1&gt;"
+            windowtitle="${component.title} (Version ${component.version})"
+                 bottom="Copyright (c) 2004 - Tacit Knowledge LLC">
+      <classpath refid="compile.classpath"/>
+    </javadoc>
+  </target>
+
+
+  <target name="dist" depends="clean,compile,test,javadoc" description="Create binary distribution">
+    <mkdir      dir="${dist.home}"/>
+    <copy file="${build.home}/tk-${component.name}-${component.version}.jar"
+          toDir="${dist.home}"/>
+    <mkdir      dir="${dist.home}/src"/>
+    <copy     todir="${dist.home}/src" filtering="on">
+      <fileset  dir="${basedir}/src"/>
+    </copy>
+    <jar jarfile="${build.home}/tk-${component.name}-${component.version}-src.jar"
+         basedir="${basedir}/dist">
+    </jar>
+    <move file="${build.home}/tk-${component.name}-${component.version}-src.jar"
+          todir="${dist.home}"/>
+  </target>
+
+<!-- ============= Standards check on the full tree ====================== -->
+  <target name="checkstyle">
+    <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
+      <classpath refid="compile.classpath"/>
+    </taskdef>
+    <checkstyle config="tacit_checkstyle.config">
+      <fileset dir="${source.home}" 
+        includes="**/*.java"
+        excludes="**/test/*.java"
+      />
+      <classpath refid="compile.classpath"/>
+    </checkstyle>
+  </target>
+
+<!-- ============= Standards check on a single target ====================== -->
+  <target name="checkstyle_single">
+    <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
+      <classpath refid="compile.classpath"/>
+    </taskdef>
+    <checkstyle 
+      config="tacit_checkstyle.config"
+      file="${source.home}/${file}" >
+      <classpath refid="compile.classpath"/>
+    </checkstyle>
+  </target>
+
+
+<!-- ========== Unit Test Targets ========================================= -->
+  <target name="unittest"  depends="compile.tests" description="Run all unit tests">
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" >
+       <classpath refid="test.classpath"/>
+    </taskdef>
+    <junit printsummary="yes" haltonfailure="yes">
+  		<classpath refid="test.classpath"/>
+   		<formatter type="plain"/>
+
+	  	<batchtest fork="yes" todir="${test.reports}">
+    		<fileset dir="${test.home}">
+      			<include name="**/*Test.java"/>
+    		</fileset>
+  		</batchtest>
+  	</junit>
+  </target>
+
+  <target name="inttest"  depends="compile.inttests" description="Run all integration tests">
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" >
+       <classpath refid="test.classpath"/>
+    </taskdef>
+    <junit printsummary="yes" haltonfailure="yes">
+  		<classpath refid="inttest.classpath"/>
+   		<formatter type="plain"/>
+
+	  	<batchtest fork="yes" todir="${test.reports}">
+    		<fileset dir="${inttest.home}">
+      			<include name="**/*Test.java"/>
+    		</fileset>
+  		</batchtest>
+  	</junit>
+  </target>
+  
+  <target name="test" depends="unittest,inttest" description="Run all unit and integration tests" />
+</project>
