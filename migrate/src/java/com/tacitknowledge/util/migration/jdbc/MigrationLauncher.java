@@ -278,7 +278,7 @@ public class MigrationLauncher implements MigrationListener
             }
             catch (InterruptedException e)
             {
-                log.error("Recieved InterruptedException while waiting for patch lock", e);
+                log.error("Received InterruptedException while waiting for patch lock", e);
             }
         }
     }
