@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,8 +77,15 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
         }
         catch (Exception e)
         {
-            log.error(getName() + ": Error running SQL \""
-                + getStatmentSql() + "\"", e);
+            log.error(getName() + ": Error running SQL \"" + getStatmentSql() + "\"", e);
+            if (e instanceof SQLException)
+            {
+                if (((SQLException)e).getNextException() != null)
+                {
+                    log.error("Chained SQL Exception", ((SQLException)e).getNextException());
+                }
+            }
+            
             throw new MigrationException(e);
         }
     }
