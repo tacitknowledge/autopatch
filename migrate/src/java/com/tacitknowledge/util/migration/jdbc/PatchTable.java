@@ -74,6 +74,11 @@ public class PatchTable
     private static Log log = LogFactory.getLog(PatchTable.class);
     
     /**
+     * Max length for the systemName columne
+     */
+    private static final int MAX_SYSTEMNAME_LENGTH = 30;
+    
+    /**
      * The name of the logical system being patched
      */
     private String systemName = null;
@@ -91,22 +96,18 @@ public class PatchTable
     /**
      * Create a new <code>PatchTable</code>.
      * 
-     * @param systemName the name of the logical system being patched
+     * @param name the name of the logical system being patched
      * @param dialect the database type (e.g. <code>postgres</code>) containing
      *        the patches table
      */
-    public PatchTable(String systemName, String dialect)
+    public PatchTable(String name, String dialect)
     {
-        if (systemName == null)
-        {
-            throw new IllegalArgumentException("systemName cannot be null");
-        }
+        setSystemName(name);
+        
         if (dialect == null)
         {
             throw new IllegalArgumentException("dialect cannot be null");
         }
-        
-        this.systemName = systemName;
         
         // Load up the SQL for the right kind of DB
         String filename = dialect + ".properties";
@@ -141,7 +142,7 @@ public class PatchTable
             // TODO: Find a better, cross-platform way to determine if a table exists.
             //       Simply expecting a SQLException is kind of a hack
             stmt = conn.prepareStatement(getSql("level.read"));
-            stmt.setString(1, systemName);
+            stmt.setString(1, getSystemName());
             rs = stmt.executeQuery();
             log.debug("'patches' table already exists.");
             tableExistenceValidated = true;
@@ -181,7 +182,7 @@ public class PatchTable
         try
         {
             stmt = conn.prepareStatement(getSql("level.read"));
-            stmt.setString(1, systemName);
+            stmt.setString(1, getSystemName());
             rs = stmt.executeQuery();
             if (rs.next())
             {
@@ -217,7 +218,7 @@ public class PatchTable
         {
             stmt = conn.prepareStatement(getSql("level.update"));
             stmt.setInt(1, level);
-            stmt.setString(2, systemName);
+            stmt.setString(2, getSystemName());
             stmt.execute();
         }
         finally
@@ -242,7 +243,7 @@ public class PatchTable
         try
         {
             stmt = conn.prepareStatement(getSql("lock.read"));
-            stmt.setString(1, systemName);
+            stmt.setString(1, getSystemName());
             rs = stmt.executeQuery();
             
             if (rs.next())
@@ -398,5 +399,24 @@ public class PatchTable
             return null;
         }
         return p;
+    }
+
+    /**
+     * Sets the system name.
+     * 
+     * @param name the system name for this patch table
+     */
+    private void setSystemName(String name)
+    {
+        if (name == null)
+        {
+            throw new IllegalArgumentException("systemName cannot be null");
+        }
+        if (name.length() > MAX_SYSTEMNAME_LENGTH)
+        {
+            throw new IllegalArgumentException("systemName cannot be longer than "
+                + MAX_SYSTEMNAME_LENGTH + " characters");
+        }
+        this.systemName = name;
     }
 }
