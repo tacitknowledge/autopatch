@@ -17,7 +17,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationTask;
 
 /**
  * Exercise the SqlScriptMigrationTaskSource

@@ -37,7 +37,7 @@ public class TestMigrationTask2 extends BaseTestMigrationTask
     }
     
     /**
-     * @see com.tacitknowledge.util.sqlmigration.MigrationTaskSupport#getLevel()
+     * @see com.tacitknowledge.util.migration.MigrationTaskSupport#getLevel()
      */
     public Integer getLevel()
     {

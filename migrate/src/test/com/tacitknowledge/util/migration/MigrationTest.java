@@ -240,7 +240,7 @@ public class MigrationTest extends TestCase implements MigrationListener
      * Implements the migration started listener
      *
      * @param task the task that ran
-     * @param context the context for the task
+     * @param con the context for the task
      */
     public void migrationStarted(MigrationTask task, MigrationContext con)
     {
@@ -251,7 +251,7 @@ public class MigrationTest extends TestCase implements MigrationListener
      * Implements the migration succeeded listener
      *
      * @param task the task that ran
-     * @param context the context for the task
+     * @param con the context for the task
      */
     public void migrationSuccessful(MigrationTask task, MigrationContext con)
     {
@@ -262,7 +262,7 @@ public class MigrationTest extends TestCase implements MigrationListener
      * Implements the migration failed listener
      *
      * @param task the task that ran
-     * @param context the context for the task
+     * @param con the context for the task
      * @param exception the exception that ocurred
      */
     public void migrationFailed(MigrationTask task, 

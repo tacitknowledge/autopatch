@@ -160,7 +160,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void migrationStarted(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
-        // Nothing to do
+        log.debug("Started task " + task.getName() + " for context " + ctx);
     }
 
     /**
@@ -169,6 +169,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
+        log.debug("Task " + task.getName() + " was successful for context " + ctx);
         int patchLevel = task.getLevel().intValue();
         try
         {
@@ -186,7 +187,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void migrationFailed(MigrationTask task, MigrationContext ctx, MigrationException e)
         throws MigrationException
     {
-        // Nothing to do
+        log.debug("Task " + task.getName() + " failed for context " + ctx);
     }
 
     /**
@@ -259,7 +260,7 @@ public class JdbcMigrationLauncher implements MigrationListener
         
             // Patch locks ensure that only one system sharing a database will patch
             // it at the same time.
-            waitForFreeLock(conn);
+            waitForFreeLock();
         
             try
             {
@@ -296,10 +297,9 @@ public class JdbcMigrationLauncher implements MigrationListener
     /**
      * Pauses until the patch lock become available.
      * 
-     * @param  conn the database connection to use to access the patches table
      * @throws SQLException if an unrecoverable error occurs
      */
-    private void waitForFreeLock(Connection conn) throws SQLException
+    private void waitForFreeLock() throws SQLException
     {
         while (patchTable.isPatchTableLocked())
         {

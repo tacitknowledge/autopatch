@@ -84,6 +84,8 @@ public class MigrationBroadcasterTest extends TestCase implements MigrationListe
     
     /**
      * Test broadcast of the basic events
+     * 
+     * @exception MigrationException if the notify fails
      */
     public void testBroadcast() throws MigrationException
     {
@@ -108,7 +110,7 @@ public class MigrationBroadcasterTest extends TestCase implements MigrationListe
     }
     
     /**
-     * Implement the hook for start messages
+     * @see MigrationListener#migrationStarted(MigrationTask, MigrationContext)
      */
     public void migrationStarted(MigrationTask task, MigrationContext context)
     {
@@ -116,7 +118,7 @@ public class MigrationBroadcasterTest extends TestCase implements MigrationListe
     }
 
     /**
-     * Implement the hook for success
+     * @see MigrationListener#migrationSuccessful(MigrationTask, MigrationContext)
      */
     public void migrationSuccessful(MigrationTask task, MigrationContext context)
     {
@@ -124,7 +126,7 @@ public class MigrationBroadcasterTest extends TestCase implements MigrationListe
     }
 
     /**
-     * Implement the hook for failure
+     * @see MigrationListener#migrationFailed(MigrationTask, MigrationContext, MigrationException)
      */
     public void migrationFailed(MigrationTask task, 
                                 MigrationContext context,

@@ -129,7 +129,7 @@ public class WebAppMigrationLauncher implements ServletContextListener
      */
     public void contextDestroyed(ServletContextEvent sce)
     {
-        // Ain't got nothin' to do.
+        log.debug("context is being destroyed " + sce);
     }
     
     /**

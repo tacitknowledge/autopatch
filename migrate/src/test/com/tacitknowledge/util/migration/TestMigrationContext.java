@@ -15,7 +15,6 @@ package com.tacitknowledge.util.migration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 
 /**
@@ -66,13 +65,5 @@ public class TestMigrationContext implements MigrationContext
     public void rollback() throws MigrationException
     {
         // does nothing
-    }
-
-    /**
-     * @see com.tacitknowledge.util.migration.MigrationContext#getConfiguration()
-     */
-    public Properties getConfiguration()
-    {
-        return new Properties();
     }
 }

@@ -34,7 +34,7 @@ import com.tacitknowledge.util.migration.jdbc.SqlLoadMigrationTask;
 /**
  * Loads files assumed to be in a delimited format and representing a 
  * table in the database.  The file name should begin with the prefix:  
- * "<tablename>_tb".  The file's first row should represent the name of 
+ * "&lt;tablename&gt;_tb".  The file's first row should represent the name of 
  * each column in the table that the underlying data elements (rows 2 
  * through n) will be mapped to.  
  * 
@@ -77,7 +77,7 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
     
     /**
      * Parses a line of data, and sets the prepared statement with the 
-     * values.  If a token contains "<null>" then a null value is passed 
+     * values.  If a token contains "&lt;null&gt;" then a null value is passed 
      * in. 
      * 
      * @param  data the tokenized string that is mapped to a row
@@ -115,7 +115,7 @@ public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
     /**
      * Returns the table name from the full path name 
      * by parsing it out of a file in the format
-     * name_db<period>(some extension)
+     * name_db&lt;period&gt;(some extension)
      * 
      * @return the name of the table to add data to
      */
