@@ -1,184 +1,61 @@
-/* Copyright (c) 2004 Tacit Knowledge LLC  
- * See licensing terms below.
+/* Copyright 2005 Tacit Knowledge LLC
  * 
- * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY  EXPRESSED OR IMPLIED 
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL TACIT KNOWLEDGE LLC OR ITS CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  THIS HEADER MUST
- * BE INCLUDED IN ANY DISTRIBUTIONS OF THIS CODE.
+ * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 
 /**
- * Provides JDBC resources to migration tasks. 
+ * Contains the configuration and resources for a database patch run.  
  * 
- * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
-public class JdbcMigrationContext implements MigrationContext
+public interface JdbcMigrationContext extends MigrationContext
 {
-    /** 
-     * The field name used for the database dialect
-     */
-    public static final String DIALECT_PROPERTY_SUFFIX = ".jdbc.dialect";
-    
-    /** 
-     * The path to the patches
-     */ 
-    public static final String PATCH_PATH_SUFFIX = ".patch.path";
-    
     /**
-     * The database connection to use
+     * Max length for the systemName columne
      */
-    private Connection connection = null;
-    
-    /**
-     * System migration config
-     */
-    private Properties properties = new Properties();
-    
-    /**
-     * Loads the configuration from the migration config properties file.
-     * 
-     * @throws MigrationException if an unexpected error occurs
-     */
-    public void loadFromMigrationProperties() throws MigrationException
-    {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        InputStream is = cl.getResourceAsStream(MIGRATION_CONFIG_FILE);
-        if (is != null)
-        {
-            try
-            {
-                properties.load(is);
-            }
-            catch (IOException e)
-            {
-                throw new MigrationException("Error reading in migration properties file", e);
-            }
-            finally
-            {
-                try
-                {
-                    is.close();
-                }
-                catch (IOException ioe)
-                {
-                    throw new MigrationException("Error closing migration properties file", ioe);
-                }
-            }
-        }
-        else
-        {
-            throw new MigrationException("Unable to find migration properties file '"
-                    + MIGRATION_CONFIG_FILE + "'");
-        }
-    }
-    
+    public static final int MAX_SYSTEMNAME_LENGTH = 30;
+
     /**
      * Returns the database connection to use
      * 
      * @return the database connection to use
+     * @throws SQLException if an unexpected error occurs
      */
-    public Connection getConnection()
-    {
-        return connection;
-    }
+    public Connection getConnection() throws SQLException;
 
-    /**
-     * Returns the database connection to use
-     * 
-     * @param connection the database connection to use
-     */
-    public void setConnection(Connection connection)
-    {
-        this.connection = connection;
-    }
-    
     /**
      * @see MigrationContext#commit()
      */
-    public void commit() throws MigrationException
-    {
-        try
-        {
-            this.connection.commit();
-        }
-        catch (SQLException e)
-        {
-            throw new MigrationException("Error committing SQL transaction", e);
-        }
-    }
+    public void commit() throws MigrationException;
 
     /**
      * @see MigrationContext#rollback()
      */
-    public void rollback() throws MigrationException
-    {
-        try
-        {
-            getConnection().rollback();
-        }
-        catch (SQLException e)
-        {
-            throw new MigrationException("Could not rollback SQL transaction", e);
-        }
-    }
+    public void rollback() throws MigrationException;
 
     /**
-     * @see MigrationContext#getConfiguration()
+     * @return the name of the system to patch
      */
-    public Properties getConfiguration()
-    {
-        return properties;
-    }
-    
-    /**
-     * @return Returns the dialect.
-     */
-    public String getDialect()
-    {
-        return getConfiguration().getProperty(DIALECT_PROPERTY_SUFFIX);
-    }
-    
-    /**
-     * @param dialect The dialect to set.
-     */
-    public void setDialect(String dialect)
-    {
-        getConfiguration().setProperty(DIALECT_PROPERTY_SUFFIX, dialect);
-    }
+    public String getSystemName();
 
     /**
-     * @return Returns the patchPath.
+     * @return Returns the database type.
      */
-    public String getPatchPath()
-    {
-        return getConfiguration().getProperty(DIALECT_PROPERTY_SUFFIX);
-    }
-    
-    /**
-     * @param patchPath The patchPath to set.
-     */
-    public void setPatchPath(String patchPath)
-    {
-        getConfiguration().setProperty(DIALECT_PROPERTY_SUFFIX, patchPath);
-    }
+    public DatabaseType getDatabaseType();
 }

@@ -13,7 +13,6 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.util.Properties;
 
 /**
  * Provides system resources to migration tasks. 
@@ -43,11 +42,4 @@ public interface MigrationContext
      *         the transaction
      */
     public void rollback() throws MigrationException;
-    
-    /**
-     * Returns the configuration for the system migration.
-     * 
-     * @return the configuration for the system migration
-     */
-    public Properties getConfiguration();
 }

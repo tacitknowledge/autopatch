@@ -28,7 +28,7 @@ public class MigrationTest extends TestCase
     /**
      * The class under test
      */
-    private Migration runner = null;
+    private MigrationProcess runner = null;
     
     /**
      * Test migration context
@@ -51,7 +51,7 @@ public class MigrationTest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        runner = new Migration();
+        runner = new MigrationProcess();
         runner.addResourcePackage(getClass().getPackage().getName());
         
         context = new TestMigrationContext();

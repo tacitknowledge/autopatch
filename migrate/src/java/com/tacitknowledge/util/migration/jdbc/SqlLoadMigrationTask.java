@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2005 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -56,11 +56,11 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
      */
     public void migrate(MigrationContext ctx) throws MigrationException
     {
-        JdbcMigrationContext context = (JdbcMigrationContext) ctx;
-        Connection conn = context.getConnection();
+        DataSourceMigrationContext context = (DataSourceMigrationContext) ctx;
         
         try
         {
+            Connection conn = context.getConnection();
             PreparedStatement stmt = conn.prepareStatement(getStatmentSql());
             List rows = getData(getResourceAsStream());
             int rowCount = rows.size();

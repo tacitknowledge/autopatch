@@ -18,6 +18,7 @@ package com.tacitknowledge.util.migration.jdbc.loader;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +28,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSupport;
-import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
+import com.tacitknowledge.util.migration.jdbc.DataSourceMigrationContext;
 
 /**
  * This is a utility class for reading excel files and 
@@ -42,20 +43,23 @@ public abstract class ExcelFileLoader extends MigrationTaskSupport
     /**
      * Class logger
      */
-    protected static Log log = LogFactory.getLog(ExcelFileLoader.class);
+    private static Log log = LogFactory.getLog(ExcelFileLoader.class);
     
     /**
      * Obtains a database connection, reads a file assumed to be in Excel 
      * format based on the name provided <code>getName()</code>.  Calls the 
      * abstract method <code>processWorkbook()</code>
+     * 
+     * @param  ctx the <code>JdbcMigrationContext</code>
+     * @throws MigrationException if an unexpected error occurs
      */
     public void migrate(MigrationContext ctx) throws MigrationException
     {
-        JdbcMigrationContext context = (JdbcMigrationContext) ctx;
-        Connection conn = context.getConnection();
+        DataSourceMigrationContext context = (DataSourceMigrationContext) ctx;
         FileLoadingUtility utility = new FileLoadingUtility(getName());
         try
         {
+            Connection conn = context.getConnection();
             POIFSFileSystem fs = new POIFSFileSystem(utility.getResourceAsStream());
             HSSFWorkbook wb = new HSSFWorkbook(fs);
             processWorkbook(wb, conn);
@@ -64,6 +68,11 @@ public abstract class ExcelFileLoader extends MigrationTaskSupport
         {
             log.error("An IO Exception occurred while trying to parse the Excel file.", e);
             throw new MigrationException("Error reading file.", e);
+        }
+        catch (SQLException e)
+        {
+            log.error("Caught a SQLException when trying to obtain a database connection");
+            throw new MigrationException("Error obtaining database connection", e);
         }
     }
     
@@ -74,6 +83,6 @@ public abstract class ExcelFileLoader extends MigrationTaskSupport
      * @param conn the database connection to use for data loading
      * @throws MigrationException if something goes wrong
      */
-    public abstract void  processWorkbook(HSSFWorkbook wb, Connection conn) 
-    	throws MigrationException;
+    public abstract void processWorkbook(HSSFWorkbook wb, Connection conn) 
+        throws MigrationException;
 }

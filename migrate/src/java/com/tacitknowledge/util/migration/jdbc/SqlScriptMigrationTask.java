@@ -1,18 +1,14 @@
-/* Copyright (c) 2004 Tacit Knowledge LLC  
- * See licensing terms below.
+/* Copyright 2005 Tacit Knowledge LLC
  * 
- * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY  EXPRESSED OR IMPLIED 
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL TACIT KNOWLEDGE LLC OR ITS CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  THIS HEADER MUST
- * BE INCLUDED IN ANY DISTRIBUTIONS OF THIS CODE.
+ * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.tacitknowledge.util.migration.jdbc;
@@ -22,8 +18,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,13 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSupport;
+import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 /**
- *
- * <p>
- * Multiple statements can be provided, separated by semicolons. Individual
- * lines within the statements can be commented using either --, // or REM at
- * the start of the line.
+ * Adaptss a SQL or DDL database patch for use with the AutoPatch framework.  
  *  
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
@@ -65,10 +61,10 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
     /**
      * Creates a new <code>SqlScriptMigrationTask</code>
      *
-     * @param  name the name of the SQL script to execute; this is just an
-     *         identifier and does not have to correspond to a file name 
+     * @param name the name of the SQL script to execute; this is just an
+     *        identifier and does not have to correspond to a file name 
+     * @param level the patch level of the migration task
      * @param sql the SQL to execute
-     * @param level the patch level of the migration tas 
      */ 
     public SqlScriptMigrationTask(String name, int level, String sql)
     {
@@ -86,7 +82,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
      *
      * @param  name the name of the SQL script to execute; this is just an
      *         identifier and does not have to correspond to a file name 
-     * @param  level the patch level of the migration tas 
+     * @param  level the patch level of the migration task
      * @param  is the source of the SQL to execute
      * @throws IOException if there was problem reading the input stream
      */
@@ -111,21 +107,31 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
     public void migrate(MigrationContext ctx) throws MigrationException
     {
         JdbcMigrationContext context = (JdbcMigrationContext) ctx;
-        Connection conn = context.getConnection();
-        Statement stmt = null;
         
+        Connection conn = null;
+        Statement stmt = null;
+        String sqlStatement = "";
         try
         {
-            if (log.isDebugEnabled())
+            conn = context.getConnection();
+            List sqlStatements = getSqlStatements(
+                context.getDatabaseType().isMultipleStatementsSupported());
+            for (Iterator i = sqlStatements.iterator(); i.hasNext();)
             {
-                log.debug(getName() + ": Attempting to execute: " + sql);
+                sqlStatement = (String) i.next();
+                if (log.isDebugEnabled())
+                {
+                    log.debug(getName() + ": Attempting to execute: " + sqlStatement);
+                }
+                stmt = conn.createStatement();
+                stmt.execute(sqlStatement);
+                SqlUtil.close(null, stmt, null);
+                stmt = null;
             }
-            stmt = conn.createStatement();
-            stmt.execute(sql);
         }
         catch (Exception e)
         {
-            log.error(getName() + ": Error running SQL \"" + sql + "\"", e);
+            log.error(getName() + ": Error running SQL \"" + sqlStatement + "\"", e);
             
             if (e instanceof SQLException)
             {
@@ -143,6 +149,77 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
     }
     
+    /**
+     * Parses the SQL/DDL to execute and returns a list of individual statements.  For database
+     * types that support mulitple statements in a single <code>Statement.execute</code> call,
+     * this method will return a one-element <code>List</code> containing the entire SQL
+     * file.
+     * 
+     * @param  supportsMultipleStatements determines if the database type supports multiple
+     *         statements in a single <code>Statement.execute</code> call
+     * @return a list of SQL and DDL statements to execute
+     */
+    public List getSqlStatements(boolean supportsMultipleStatements)
+    {
+        List statements = new ArrayList();
+        if (supportsMultipleStatements)
+        {
+            statements.add(sql);
+            return statements;
+        }
+        
+        StringBuffer currentStatement = new StringBuffer();
+        boolean inQuotedString = false;
+        boolean inComment = false;
+        char[] sqlChars = sql.toCharArray();
+        for (int i = 0; i < sqlChars.length; i++)
+        {
+            if (sqlChars[i] == '\n')
+            {
+                inComment = false;
+            }
+            
+            if (!inComment)
+            {
+                switch (sqlChars[i])
+                {
+                    case '-' :
+                    case '/' :
+                        if (!inQuotedString && i + 1 < sqlChars.length
+                            && sqlChars[i + 1] == sqlChars[i])
+                        {
+                            inComment = true;
+                        }
+                        else
+                        {
+                            currentStatement.append(sqlChars[i]);
+                        }
+                        break;
+                    case '\'' :
+                        inQuotedString = !inQuotedString;
+                        currentStatement.append(sqlChars[i]);
+                        break;
+                    case ';' :
+                        if (!inQuotedString)
+                        {
+                            statements.add(currentStatement.toString().trim());
+                            currentStatement = new StringBuffer();
+                        }
+                        break;
+                    default :
+                        currentStatement.append(sqlChars[i]);
+                        break;
+                }
+            }
+        }
+        if (currentStatement.toString().trim().length() > 0)
+        {
+            statements.add(currentStatement.toString().trim());
+        }
+        
+        return statements;
+    }
+
     /**
      * @see java.lang.Object#toString()
      */

@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2005 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -21,6 +21,7 @@ import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
+import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
 /**
  * Out-of-container tests the <code>PatchTable</code> class using a
@@ -42,6 +43,11 @@ public class PatchTableTest extends JDBCTestCaseAdapter
     private MockConnection conn = null;
     
     /**
+     * The <code>JDBCMigrationConteext</code> used for testing
+     */
+    private DataSourceMigrationContext context = new DataSourceMigrationContext(); 
+    
+    /**
      * Constructor for PatchTableTest.
      *
      * @param name the name of the test to run
@@ -57,20 +63,28 @@ public class PatchTableTest extends JDBCTestCaseAdapter
     protected void setUp() throws Exception
     {
         super.setUp();
-        table = new PatchTable("milestone", "postgres");
+        
         conn = getJDBCMockObjectFactory().getMockConnection();
+        
+        context = new DataSourceMigrationContext();
+        context.setDataSource(new ConnectionWrapperDataSource(conn));
+        context.setSystemName("milestone");
+        context.setDatabaseType(new DatabaseType("postgres"));
+        
+        table = new PatchTable(context, conn);
     }
     
     /**
      * Ensures that the class throws an <code>IllegalArgumentException</code>
-     * if an unknown SQL dialect is specified in the constructor. 
+     * if an unknown database type is specified in the constructor. 
      */
-    public void testUnknownDialect()
+    public void testUnknownDatabaseType()
     {
         try
         {
-            new PatchTable("milestone", "baddialect");
-            fail("Expected IllegalArgumentException because of unknown DB dialect");
+            context.setDatabaseType(new DatabaseType("bad-database-type"));
+            new PatchTable(context, conn);
+            fail("Expected IllegalArgumentException because of unknown database type");
         }
         catch (IllegalArgumentException e)
         {
@@ -90,7 +104,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         MockResultSet rs = h.createResultSet();
         h.prepareThrowsSQLException(table.getSql("level.read"));
         
-        table.createPatchesTableIfNeeded(conn);
+        table.createPatchesTableIfNeeded();
         
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
@@ -113,7 +127,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         h.prepareGlobalResultSet(rs);
         rs.addRow(new Integer[] {new Integer(13)});
         
-        table.createPatchesTableIfNeeded(conn);
+        table.createPatchesTableIfNeeded();
         
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
@@ -136,7 +150,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         rs.addRow(new Integer[] {new Integer(13)});
         h.prepareGlobalResultSet(rs);
 
-        int i = table.getPatchLevel(conn);
+        int i = table.getPatchLevel();
 
         assertEquals(13, i);
         verifyAllResultSetsClosed();
@@ -160,7 +174,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         // empty result set
         h.prepareGlobalResultSet(rs);
 
-        int i = table.getPatchLevel(conn);
+        int i = table.getPatchLevel();
 
         assertEquals(0, i);
         verifyAllResultSetsClosed();
@@ -182,7 +196,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         rs.addRow(new Integer[] {new Integer(12)});
         h.prepareResultSet(table.getSql("level.read"), rs, new String[] {"milestone"});
 
-        table.updatePatchLevel(conn, 13);
+        table.updatePatchLevel(13);
         
         verifyPreparedStatementParameter(table.getSql("level.update"), 1, new Integer(13));
         verifyPreparedStatementParameter(table.getSql("level.update"), 2, "milestone");
@@ -206,7 +220,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         rs.addRow(new String[] {"F"});
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
-        assertFalse(table.isPatchTableLocked(conn));
+        assertFalse(table.isPatchTableLocked());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionNotClosed();
@@ -227,7 +241,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         rs.addRow(new String[] {"T"});
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
-        assertTrue(table.isPatchTableLocked(conn));
+        assertTrue(table.isPatchTableLocked());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionNotClosed();
@@ -251,7 +265,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         
         try
         {
-            table.lockPatchTable(conn);
+            table.lockPatchTable();
             fail("Expected an IllegalStateException since a lock already exists.");
         }
         catch (IllegalStateException e)
@@ -280,7 +294,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         MockResultSet rs = h.createResultSet();
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
-        table.lockPatchTable(conn);
+        table.lockPatchTable();
 
         verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
         verifyAllResultSetsClosed();
@@ -296,7 +310,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testUnlockPatchTable() throws Exception
     {       
-        table.unlockPatchTable(conn);
+        table.unlockPatchTable();
 
         verifyPreparedStatementParameter(table.getSql("lock.release"), 1, "milestone");
         verifyAllResultSetsClosed();

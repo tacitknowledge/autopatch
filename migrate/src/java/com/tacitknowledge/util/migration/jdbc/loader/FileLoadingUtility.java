@@ -39,8 +39,16 @@ public class FileLoadingUtility
      */
     private static Log log = LogFactory.getLog(FileLoadingUtility.class);
     
+    /**
+     * The name of the file to load
+     */
     private String fileName = null;
     
+    /**
+     * Creates a new <code>FileLoadingUtility</code>.
+     * 
+     * @param fileName the name of the file to load
+     */
     public FileLoadingUtility(String fileName)
     {
         this.fileName = fileName;

@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2005 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -24,6 +24,8 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
+
 
 /**
  * Manages interactions with the "patches" table.  The patches table stores
@@ -40,31 +42,10 @@ import org.apache.commons.logging.LogFactory;
  *    <li>Obtaining and incrementing the patch level for a given system</li>
  * </ul>
  * <p>
- * One design choice made for this class is to eliminate dependencies on any
- * third-party database access API.  This class handles all database interaction
- * itself.  Support for multiple database dialects is enabled by the
- * externalization of the SQL used to interact with the patches table.  Each
- * type of database that this class supports (currently only PostgreSQL) has its
- * own <i>dialect</i>.properties file containing the relevant SQL.  The required
- * keys are:
- * <ul>
- *    <li>patches.create - Creates the patches table</li>
- *    <li>level.create - Inserts a new patch level record for the system</li>
- *    <li>level.read - Returns the current patch level of the system</li>
- *    <li>level.update - Updates the current patch level of the system</li>
- *    <li>lock.read - Returns 'T' if the system patch lock is in use, 'F' otherwise</li>
- *    <li>lock.obtain - Obtains the patch lock for the system</li>
- *    <li>lock.release - Releases the patch lock for the system</li>
- * </ul>
- * 
- * Use <i>postgres.properties</li> as a baseline for adding additional database
- * dialects.
- * <p>
  * <strong>TRANSACTIONS:</strong> Transactions should be committed by the calling
  * class as needed.  This class does not explictly commit or rollback transactions.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class PatchTable
 {
@@ -74,14 +55,14 @@ public class PatchTable
     private static Log log = LogFactory.getLog(PatchTable.class);
     
     /**
-     * Max length for the systemName columne
+     * The migration configuration 
      */
-    private static final int MAX_SYSTEMNAME_LENGTH = 30;
+    private JdbcMigrationContext context = null;
     
     /**
-     * The name of the logical system being patched
+     * The database connection 
      */
-    private String systemName = null;
+    private Connection conn = null;
     
     /**
      * Keeps track of table validation (see #createPatchesTableIfNeeded)
@@ -89,46 +70,37 @@ public class PatchTable
     private boolean tableExistenceValidated = false;
     
     /**
-     * DB-dialect specific SQL statements loaded from a resource bundle
+     * Database specific SQL statements loaded from a resource bundle
      */
     private Properties sqlStatements = null;
     
     /**
      * Create a new <code>PatchTable</code>.
      * 
-     * @param name the name of the logical system being patched
-     * @param dialect the database type (e.g. <code>postgres</code>) containing
-     *        the patches table
+     * @param migrationContext the migration configuration and connection source
+     * @param connection the database connection to use; this will NOT be closed
      */
-    public PatchTable(String name, String dialect)
+    public PatchTable(JdbcMigrationContext migrationContext, Connection connection)
     {
-        setSystemName(name);
+        this.context = migrationContext;
+        this.conn = connection;
         
-        if (dialect == null)
+        if (context.getDatabaseType() == null)
         {
-            throw new IllegalArgumentException("dialect cannot be null");
+            throw new IllegalArgumentException("The JDBC database type is required");
         }
         
         // Load up the SQL for the right kind of DB
-        String filename = dialect + ".properties";
-        sqlStatements = getResources(filename);
-        if (sqlStatements == null)
-        {
-            throw new IllegalArgumentException("Could not find SQL properties "
-                + " file for dialect '" + dialect + "'; make sure that there "
-                + " is a '" + filename + "' file in package '"
-                + getClass().getPackage().getName() + "'.");
-        }
+        String filename = context.getDatabaseType() + ".properties";
     }
 
     /**
      * Validates the existence of the "patches" table and creates it if it doesn't
      * exist.
      * 
-     * @param  conn the database connection to use
      * @throws SQLException if an unrecoverable database error occurs 
      */
-    public void createPatchesTableIfNeeded(Connection conn) throws SQLException
+    public void createPatchesTableIfNeeded() throws SQLException
     {
         if (tableExistenceValidated)
         {
@@ -142,7 +114,7 @@ public class PatchTable
             // TODO: Find a better, cross-platform way to determine if a table exists.
             //       Simply expecting a SQLException is kind of a hack
             stmt = conn.prepareStatement(getSql("level.read"));
-            stmt.setString(1, getSystemName());
+            stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
             log.debug("'patches' table already exists.");
             tableExistenceValidated = true;
@@ -169,20 +141,19 @@ public class PatchTable
     /**
      * Returns the current patch level of the system.
      * 
-     * @param  conn the database connection to use
      * @return the current patch level of the system
      * @throws SQLException if an unrecoverable database error occurs
      */
-    public int getPatchLevel(Connection conn) throws SQLException
+    public int getPatchLevel() throws SQLException
     {
-        createPatchesTableIfNeeded(conn);
+        createPatchesTableIfNeeded();
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try
         {
             stmt = conn.prepareStatement(getSql("level.read"));
-            stmt.setString(1, getSystemName());
+            stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
             if (rs.next())
             {
@@ -191,7 +162,7 @@ public class PatchTable
             else
             {
                 // We don't yet have a patch record for this system; create one
-                createSystemPatchRecord(conn);
+                createSystemPatchRecord();
                 return 0;
             }
         }
@@ -204,21 +175,20 @@ public class PatchTable
     /**
      * Updates the system patch level to the specified value.
      * 
-     * @param  conn the database connection to use
      * @param  level the new system patch level
      * @throws SQLException if an unrecoverable database error occurs
      */
-    public void updatePatchLevel(Connection conn, int level) throws SQLException
+    public void updatePatchLevel(int level) throws SQLException
     {
         // Make sure a patch record already exists for this system
-        getPatchLevel(conn);
+        getPatchLevel();
         
         PreparedStatement stmt = null;
         try
         {
             stmt = conn.prepareStatement(getSql("level.update"));
             stmt.setInt(1, level);
-            stmt.setString(2, getSystemName());
+            stmt.setString(2, context.getSystemName());
             stmt.execute();
         }
         finally
@@ -230,20 +200,19 @@ public class PatchTable
     /**
      * Determines if a process has a lock on the patches table.
      *  
-     * @param  conn the database connection to use
      * @return <code>true</code> if the patches table is locked
      * @throws SQLException if an unrecoverable database error occurs
      */
-    public boolean isPatchTableLocked(Connection conn) throws SQLException
+    public boolean isPatchTableLocked() throws SQLException
     {
-        createPatchesTableIfNeeded(conn);
+        createPatchesTableIfNeeded();
         
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try
         {
             stmt = conn.prepareStatement(getSql("lock.read"));
-            stmt.setString(1, getSystemName());
+            stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
             
             if (rs.next())
@@ -264,67 +233,49 @@ public class PatchTable
     /**
      * Places a lock for this system on the patches table.
      * 
-     * @param  conn the database connection to use 
      * @throws SQLException if an unrecoverable database error occurs
      * @throws IllegalStateException if a lock already exists for this system
      */
-    public void lockPatchTable(Connection conn) throws SQLException, IllegalStateException
+    public void lockPatchTable() throws SQLException, IllegalStateException
     {
-        if (isPatchTableLocked(conn))
+        if (isPatchTableLocked())
         {
             throw new IllegalStateException("Patch table is already locked!");
         }
-        updatePatchLock(conn, true);
+        updatePatchLock(true);
     }
 
     /**
      * Removes any locks for this system in the patches table. 
      * 
-     * @param  conn the database connection to use 
      * @throws SQLException if an unrecoverable database error occurs
      */    
-    public void unlockPatchTable(Connection conn) throws SQLException
+    public void unlockPatchTable() throws SQLException
     {
-        updatePatchLock(conn, false);
+        updatePatchLock(false);
     }
 
     /**
-     * Returns the name of the system being patched.
+     * Returns the SQL to execute for the database type associated with this patch table.
      * 
-     * @return the name of the system being patched
-     */
-    public String getSystemName()
-    {
-        return systemName;
-    }
-
-    /**
-     * Returns the SQL to execute for the SQL dialect associated with this
-     * object.
-     * 
-     * @param  key the key within <code><i>dialect</i>.properties</code> whose
+     * @param  key the key within <code><i>database</i>.properties</code> whose
      *         SQL should be returned
-     * @return the SQL to execute for the SQL dialect associated with this
-     *         object
+     * @return the SQL to execute for the database type associated with this patch table
      */
-    String getSql(String key)
+    protected String getSql(String key)
     {
-        /* NOTE: This method is left package-protected so that it can be used
-           by the unit test */
-
-        return sqlStatements.getProperty(key);
+        return context.getDatabaseType().getProperty(key);
     }
     
     /**
      * Creates an initial record in the patches table for this system. 
      * 
-     * @param  conn the database connection to use
      * @throws SQLException if an unrecoverable database error occurs
      */
-    private void createSystemPatchRecord(Connection conn) throws SQLException
+    private void createSystemPatchRecord() throws SQLException
     {
+        String systemName = context.getSystemName();
         PreparedStatement stmt = null;
-        ResultSet rs = null;
         try
         {
             stmt = conn.prepareStatement(getSql("level.create"));
@@ -346,12 +297,11 @@ public class PatchTable
     /**
      * Obtains or releases a lock for this system in the patches table. 
      * 
-     * @param  conn the database connection to use
      * @param  lock <code>true</code> if a lock is to be obtained, <code>false</code>
      *         if it is to be removed 
      * @throws SQLException if an unrecoverable database error occurs
      */        
-    private void updatePatchLock(Connection conn, boolean lock) throws SQLException
+    private void updatePatchLock(boolean lock) throws SQLException
     {
         String sqlkey = (lock) ? "lock.obtain" : "lock.release";
         PreparedStatement stmt = null;
@@ -363,7 +313,7 @@ public class PatchTable
             {
                 log.debug("Updating patch table lock: " + getSql(sqlkey));
             }
-            stmt.setString(1, systemName);
+            stmt.setString(1, context.getSystemName());
             stmt.execute();
         }
         finally
@@ -411,24 +361,5 @@ public class PatchTable
         }
         
         return p;
-    }
-
-    /**
-     * Sets the system name.
-     * 
-     * @param name the system name for this patch table
-     */
-    private void setSystemName(String name)
-    {
-        if (name == null)
-        {
-            throw new IllegalArgumentException("systemName cannot be null");
-        }
-        if (name.length() > MAX_SYSTEMNAME_LENGTH)
-        {
-            throw new IllegalArgumentException("systemName cannot be longer than "
-                + MAX_SYSTEMNAME_LENGTH + " characters");
-        }
-        this.systemName = name;
     }
 }

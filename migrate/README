@@ -134,10 +134,10 @@ configure the PatchTable object. PatchTable will inspect the database
 and attempt to get the current patch level of the system. If no patch
 table is present, it will create one (named 'patches').
 
-Currently, the configuration file specifies a database "dialect", and
-the name of the dialect specifies which SQL property file to load, so
+Currently, the configuration file specifies a "database type", and
+the name of the type specifies which SQL property file to load, so
 PatchTable can interact with multiple database types. For example, if
-the dialect is "postgres", PatchTable will attempt to load the SQL
+the type is "postgres", PatchTable will attempt to load the SQL
 property file "postgres.properties" and use the SQL in that file to
 interact with the database when persisting patch level information.
 
