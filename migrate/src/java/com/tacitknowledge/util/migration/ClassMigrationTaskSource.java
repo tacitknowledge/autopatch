@@ -29,7 +29,7 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
 {
 
     /**
-     * @see com.tacitknowledge.util.migration.MigrationTaskSource#getMigrationTasks(java.lang.String)
+     * @see MigrationTaskSource#getMigrationTasks(String)
      */
     public List getMigrationTasks(String packageName) throws MigrationException
     {

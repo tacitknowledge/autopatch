@@ -13,9 +13,6 @@
 
 package com.tacitknowledge.util.migration;
 
-import com.tacitknowledge.util.migration.MigrationContext;
-import com.tacitknowledge.util.migration.MigrationException;
-
 /**
  * Basic test migration task.
  * 

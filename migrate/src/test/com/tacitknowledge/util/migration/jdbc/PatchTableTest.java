@@ -13,7 +13,6 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.sql.Date;
 import java.sql.SQLException;
 
 import junit.framework.AssertionFailedError;

@@ -13,24 +13,15 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
-import com.tacitknowledge.util.migration.jdbc.SqlScriptMigrationTask;
-import com.tacitknowledge.util.migration.jdbc.SqlScriptMigrationTaskSource;
 
 /**
  * Discovers and executes a sequence of system patches.  Patches take the form
@@ -209,7 +200,7 @@ public class Migration
         }
         else
         {
-            log.info("System up-to-date.  No migration tasks have be run.");
+            log.info("System up-to-date.  No migration tasks have been run.");
         }
         
         return taskCount;

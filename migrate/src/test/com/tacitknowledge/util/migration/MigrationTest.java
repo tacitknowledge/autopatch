@@ -17,8 +17,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.mockrunner.mock.jdbc.MockConnection;
-
 /**
  * 
  * 
