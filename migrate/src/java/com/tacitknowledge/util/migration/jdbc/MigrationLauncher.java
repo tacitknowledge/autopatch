@@ -171,6 +171,29 @@ public class MigrationLauncher implements MigrationListener
     }
 
     /**
+     * Get the patch level from the database
+     *
+     * @return int representing the current database patch level
+     * @exception SQLException if there is a database connection error, 
+     *                         or the patch level can't be determined
+     */
+    public int getDatabasePatchLevel() throws SQLException
+    {
+        return table.getPatchLevel(getConnection(table.getSystemName()));
+    }
+    
+    /**
+     * Get the next patch level, for use when creating a new patch
+     *
+     * @return int representing the first unused patch number
+     * @exception MigrationException if the next patch level can't be determined
+     */
+    public int getNextPatchLevel() throws MigrationException
+    {
+        return manager.getNextPatchLevel();
+    }
+    
+    /**
      * Starts the application migration process.
      * 
      * @param  conn the connection to use
@@ -224,7 +247,7 @@ public class MigrationLauncher implements MigrationListener
     /**
      * Returns the database connection for this system.
      * 
-     * @param  systemName the name of the system being patches
+     * @param  systemName the name of the system being patched
      * @return the database connection to use during migration
      * @throws SQLException if an unrecoverable error occured while creating
      *         the database connection
