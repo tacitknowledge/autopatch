@@ -33,6 +33,11 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
      */
     public List getMigrationTasks(String packageName) throws MigrationException
     {
+        if (packageName == null)
+        {
+            throw new MigrationException("You must specify a package to get tasks for");
+        }
+        
         Class[] taskClasses = ClassDiscoveryUtil.getClasses(packageName, MigrationTask.class);
         return instantiateTasks(taskClasses);
     }
@@ -56,15 +61,10 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
                 Object o = taskClass.newInstance();
                 tasks.add(o);
             }
-            catch (InstantiationException e)
+            catch (Exception e)
             {
                 throw new MigrationException("Could not instantiate MigrationTask "
-                    + taskClass.getName(), e);
-            }
-            catch (IllegalAccessException e)
-            {
-                throw new MigrationException("Could not instantiate MigrationTask "
-                    + taskClass.getName(), e);
+                                             + taskClass.getName(), e);
             }
         }
         return tasks;

@@ -15,6 +15,9 @@ package com.tacitknowledge.util.migration;
 
 import java.util.List;
 
+import com.tacitknowledge.util.migration.MigrationContext;
+import com.tacitknowledge.util.migration.MigrationListener;
+import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
 
@@ -26,16 +29,21 @@ import junit.framework.TestCase;
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
  */
-public class MigrationTest extends TestCase
+public class MigrationTest extends TestCase implements MigrationListener
 {
-    /**
-     * The class under test
-     */
+    /** the count of times "migration started" was broadcast */
+    private int migrationStartedCount = 0;
+    
+    /** the count of times "migration success" was broadcast */
+    private int migrationSuccessCount = 0;
+    
+    /** the count of times "migration failed" was broadcast */
+    private int migrationFailedCount = 0;
+    
+    /** The class under test */
     private MigrationProcess runner = null;
     
-    /**
-     * Test migration context
-     */
+    /** Test migration context */
     private TestMigrationContext context = null;
     
     /**
@@ -56,6 +64,7 @@ public class MigrationTest extends TestCase
         super.setUp();
         runner = new MigrationProcess();
         runner.addResourcePackage(getClass().getPackage().getName() + ".tasks.normal");
+        runner.addListener(this);
         
         context = new TestMigrationContext();
     }
@@ -87,6 +96,8 @@ public class MigrationTest extends TestCase
         assertTrue(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
+        assertEquals(4, getMigrationStartedCount());
+        assertEquals(4, getMigrationSuccessCount());
     }
 
     /**
@@ -106,6 +117,8 @@ public class MigrationTest extends TestCase
         assertFalse(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
+        assertEquals(2, getMigrationStartedCount());
+        assertEquals(2, getMigrationSuccessCount());
     }
     
     /**
@@ -156,5 +169,99 @@ public class MigrationTest extends TestCase
     {
         int level = runner.getNextPatchLevel();
         assertEquals(5, level);
+    }
+    
+    /**
+     * Implements the migration started listener
+     *
+     * @param task the task that ran
+     * @param context the context for the task
+     */
+    public void migrationStarted(MigrationTask task, MigrationContext context)
+    {
+        setMigrationStartedCount(getMigrationStartedCount() + 1);
+    }
+    
+    /**
+     * Implements the migration succeeded listener
+     *
+     * @param task the task that ran
+     * @param context the context for the task
+     */
+    public void migrationSuccessful(MigrationTask task, MigrationContext context)
+    {
+        setMigrationSuccessCount(getMigrationSuccessCount() + 1);
+    }
+    
+    /**
+     * Implements the migration failed listener
+     *
+     * @param task the task that ran
+     * @param context the context for the task
+     * @param exception the exception that ocurred
+     */
+    public void migrationFailed(MigrationTask task, 
+                                MigrationContext context, 
+                                MigrationException exception)
+    {
+        setMigrationFailedCount(getMigrationFailedCount() + 1);
+    }
+    
+    /**
+     * Reset all of the counters
+     */
+    public void resetMigrationListenerState()
+    {
+        setMigrationFailedCount(0);
+        setMigrationStartedCount(0);
+        setMigrationSuccessCount(0);
+    }
+    
+    /**
+     * @return Returns the migrationFailedCount.
+     */
+    public int getMigrationFailedCount()
+    {
+        return migrationFailedCount;
+    }
+    
+    /**
+     * @param migrationFailedCount The migrationFailedCount to set.
+     */
+    public void setMigrationFailedCount(int migrationFailedCount)
+    {
+        this.migrationFailedCount = migrationFailedCount;
+    }
+    
+    /**
+     * @return Returns the migrationStartedCount.
+     */
+    public int getMigrationStartedCount()
+    {
+        return migrationStartedCount;
+    }
+    
+    /**
+     * @param migrationStartedCount The migrationStartedCount to set.
+     */
+    public void setMigrationStartedCount(int migrationStartedCount)
+    {
+        this.migrationStartedCount = migrationStartedCount;
+    }
+    
+    /**
+     * @return Returns the migrationSuccessCount.
+     */
+    public int getMigrationSuccessCount()
+    {
+        return migrationSuccessCount;
+    }
+    
+    /**
+     * @param migrationSuccessCount The migrationSuccessCount to set.
+     */
+    public void setMigrationSuccessCount(int migrationSuccessCount)
+    {
+        this.migrationSuccessCount = migrationSuccessCount;
     }
 }
