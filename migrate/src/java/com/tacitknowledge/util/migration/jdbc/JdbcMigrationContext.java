@@ -53,7 +53,7 @@ public class JdbcMigrationContext implements MigrationContext
     public JdbcMigrationContext() throws MigrationException
     {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        InputStream is = cl.getResourceAsStream("/" + MIGRATION_CONFIG_FILE);
+        InputStream is = cl.getResourceAsStream(MIGRATION_CONFIG_FILE);
         if (is != null)
         {
             try
@@ -64,6 +64,11 @@ public class JdbcMigrationContext implements MigrationContext
             {
                 throw new MigrationException("Error reading in migration properties file", e);
             }
+        }
+        else
+        {
+            throw new MigrationException("Unable to find migration properties file '" + 
+                                         MIGRATION_CONFIG_FILE + "'");
         }
     }
     
