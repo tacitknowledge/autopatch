@@ -34,6 +34,16 @@ import com.tacitknowledge.util.migration.MigrationException;
  */
 public class JdbcMigrationContext implements MigrationContext
 {
+    /** 
+     * The field name used for the database dialect
+     */
+    public static final String DIALECT_PROPERTY_SUFFIX = ".jdbc.dialect";
+    
+    /** 
+     * The path to the patches
+     */ 
+    public static final String PATCH_PATH_SUFFIX = ".patch.path";
+    
     /**
      * The database connection to use
      */
@@ -45,12 +55,11 @@ public class JdbcMigrationContext implements MigrationContext
     private Properties properties = new Properties();
     
     /**
-     * Constructs a new <code>JdbcMigrationContext</code>.
+     * Loads the configuration from the migration config properties file.
      * 
-     * @throws MigrationException if the migration.properties file could not
-     *         be read
+     * @throws MigrationException if an unexpected error occurs
      */
-    public JdbcMigrationContext() throws MigrationException
+    public void loadFromMigrationProperties() throws MigrationException
     {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         InputStream is = cl.getResourceAsStream(MIGRATION_CONFIG_FILE);
@@ -139,5 +148,37 @@ public class JdbcMigrationContext implements MigrationContext
     public Properties getConfiguration()
     {
         return properties;
+    }
+    
+    /**
+     * @return Returns the dialect.
+     */
+    public String getDialect()
+    {
+        return getConfiguration().getProperty(DIALECT_PROPERTY_SUFFIX);
+    }
+    
+    /**
+     * @param dialect The dialect to set.
+     */
+    public void setDialect(String dialect)
+    {
+        getConfiguration().setProperty(DIALECT_PROPERTY_SUFFIX, dialect);
+    }
+
+    /**
+     * @return Returns the patchPath.
+     */
+    public String getPatchPath()
+    {
+        return getConfiguration().getProperty(DIALECT_PROPERTY_SUFFIX);
+    }
+    
+    /**
+     * @param patchPath The patchPath to set.
+     */
+    public void setPatchPath(String patchPath)
+    {
+        getConfiguration().setProperty(DIALECT_PROPERTY_SUFFIX, patchPath);
     }
 }

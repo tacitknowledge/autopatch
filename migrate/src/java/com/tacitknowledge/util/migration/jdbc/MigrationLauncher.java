@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2004, 2005 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -65,23 +65,59 @@ public class MigrationLauncher implements MigrationListener
     private JdbcMigrationContext context = null;
     
     /**
-     * Creates a new <code>MigrationLauncher</code>.
+     * Create a new <code>MigrationLancher</code>.
+     */
+    public MigrationLauncher()
+    {
+        // Nothing to do
+    }
+    
+    /**
+     * Create a new <code>MigrationLancher</code>.
+     * 
+     * @param context the <code>JdbcMigrationContext</code> to use.
+     */
+    public MigrationLauncher(JdbcMigrationContext context)
+    {
+        setJdbcMigrationContext(context);
+    }
+
+    /**
+     * Create a new <code>MigrationLancher</code>.
+     * 
+     * @param  context the <code>JdbcMigrationContext</code> to use.
+     * @param  systemName the name of the system
+     * @throws MigrationException if an unexpected error occurs during initialization 
+     */
+    public MigrationLauncher(JdbcMigrationContext context, String systemName)
+        throws MigrationException
+    {
+        setJdbcMigrationContext(context);
+        init(systemName);
+    }
+    
+    /**
+     * Initializes the <code>MigrationLauncher</code>.
      * 
      * @param  systemName the name of the system to patch
      * @throws MigrationException if the <code>MigrationLauncher</code> could
      *         not be created 
      */
-    public MigrationLauncher(String systemName) throws MigrationException
+    public void init(String systemName) throws MigrationException
     {
-        this.context = new JdbcMigrationContext();
-
-        String dialect = getRequiredParam(systemName + ".jdbc.dialect");
+        if (getJdbcMigrationContext() == null)
+        {
+            throw new IllegalStateException("The JdbcMigrationContext must be set before init()");
+        }
+        
+        String dialect = getRequiredParam(systemName
+            + JdbcMigrationContext.DIALECT_PROPERTY_SUFFIX);
         this.table = new PatchTable(systemName, dialect);
 
         this.manager = new Migration();
         this.manager.addMigrationTaskSource(new SqlScriptMigrationTaskSource());
 
-        String path = getRequiredParam(systemName + ".patch.path");
+        String path = getRequiredParam(systemName + JdbcMigrationContext.PATCH_PATH_SUFFIX);
         this.setSearchPath(path);
     }
     
@@ -94,6 +130,11 @@ public class MigrationLauncher implements MigrationListener
      */
     public int doMigrations() throws MigrationException
     {
+        if (manager == null)
+        {
+            throw new IllegalStateException("init() must be called before doMigrations()");
+        }
+        
         Connection conn = null;
         try
         {
@@ -192,6 +233,26 @@ public class MigrationLauncher implements MigrationListener
     {
         return manager.getNextPatchLevel();
     }
+
+    /**
+     * Sets the <code>JdbcMigrationContext</code> used for the migrations.
+     * 
+     * @param jdbcMigrationContext the <code>JdbcMigrationContext</code> used for the migrations
+     */
+    public void setJdbcMigrationContext(JdbcMigrationContext jdbcMigrationContext)
+    {
+        this.context = jdbcMigrationContext;
+    }
+    
+    /**
+     * Returns the <code>JdbcMigrationContext</code> used for the migrations.
+     * 
+     * @return the <code>JdbcMigrationContext</code> used for the migrations
+     */
+    public JdbcMigrationContext getJdbcMigrationContext()
+    {
+        return context;
+    }
     
     /**
      * Starts the application migration process.
@@ -252,7 +313,7 @@ public class MigrationLauncher implements MigrationListener
      * @throws SQLException if an unrecoverable error occured while creating
      *         the database connection
      */
-    private Connection getConnection(String systemName)
+    protected Connection getConnection(String systemName)
         throws SQLException
     {
         // TODO: Improve validation and error handling

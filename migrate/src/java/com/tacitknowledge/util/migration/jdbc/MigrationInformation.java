@@ -73,7 +73,9 @@ public class MigrationInformation
         // task is executed, the patch level is incremented, etc.
         try
         {
-            MigrationLauncher launcher = new MigrationLauncher(systemName);
+            JdbcMigrationContext context = new JdbcMigrationContext();
+            context.loadFromMigrationProperties();
+            MigrationLauncher launcher = new MigrationLauncher(context, systemName);
             log.info("Current Database patch level is:          "
                     + launcher.getDatabasePatchLevel());
             int unappliedPatches = launcher.getNextPatchLevel()

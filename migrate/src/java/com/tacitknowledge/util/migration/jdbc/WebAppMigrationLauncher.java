@@ -94,7 +94,9 @@ public class WebAppMigrationLauncher implements ServletContextListener
             // task is executed, the patch level is incremented, etc.
             try
             {
-                MigrationLauncher launcher = new MigrationLauncher(systemName);
+                JdbcMigrationContext context = new JdbcMigrationContext();
+                context.loadFromMigrationProperties();
+                MigrationLauncher launcher = new MigrationLauncher(context, systemName);
                 launcher.doMigrations();
             }
             catch (MigrationException e)
