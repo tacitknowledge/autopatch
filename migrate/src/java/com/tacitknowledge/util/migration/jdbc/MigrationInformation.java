@@ -14,13 +14,9 @@
 package com.tacitknowledge.util.migration.jdbc;
 
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.tacitknowledge.util.migration.MigrationException;
 
 /**
  * Launches the migration process as a standalone application.  
