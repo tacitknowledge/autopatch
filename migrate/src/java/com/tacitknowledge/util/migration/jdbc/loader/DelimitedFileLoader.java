@@ -45,14 +45,14 @@ import com.tacitknowledge.util.migration.jdbc.SqlLoadMigrationTask;
 public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
 {
     /**
-     * Class logger
-     */
-    private static Log log = LogFactory.getLog(DelimitedFileLoader.class);
-    
-    /**
      * The path separator
      */
     public static final String PATH_SEPARATOR = File.separator;
+    
+    /**
+     * Class logger
+     */
+    private static Log log = LogFactory.getLog(DelimitedFileLoader.class);
     
     /**
      * Private variable that indicates if the header has been parsed or not. 

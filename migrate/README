@@ -243,7 +243,8 @@ storing their state in the same database (and thus the same patches
 table). It also used as a prefix for all migration.properties property
 keys.
 
-So long as migration.properties, the AutoPatch library, and all of
+So long as migration.properties, the AutoPatch library, , its dependent libraries
+(from the lib directory of the AutoPatch distribution) and all of
 your patches (with their paths specified in migration.properties) are
 in the web application's classpath, AutoPatch should work fine.
 

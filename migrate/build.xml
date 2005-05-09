@@ -1,7 +1,7 @@
-<project name="migrate" default="compile" basedir=".">
+<project name="autopatch" default="compile" basedir=".">
 
 <!--
-    Tacit Knowledge Migrate
+    Tacit Knowledge AutoPatch
     $Id$
 -->
 
@@ -25,16 +25,16 @@
 <!-- ========== application Declarations ==================================== -->
 
   <!-- The name of this application -->
-  <property name="component.name"          value="migrate"/>
+  <property name="component.name"          value="autopatch"/>
 
   <!-- The primary package name of this application -->
   <property name="component.package"       value="com.tacitknowledge.util.migration"/>
 
   <!-- The title of this application -->
-  <property name="component.title"         value="Tacit Knowledge Migrate"/>
+  <property name="component.title"         value="Tacit Knowledge AutoPatch"/>
 
   <!-- The current version number of this application -->
-  <property name="component.version"       value="0.6.0"/>
+  <property name="component.version"       value="0.6.1"/>
 
   <!-- The base directory for compilation targets -->
   <property name="build.home"              value="build"/>
@@ -61,8 +61,8 @@
   <property name="test.reports"            value="${reports.home}/tests"/>
 
   <!-- The base directory for project libs -->
-  <property name="lib.dir" value="${basedir}/lib"/>
-
+  <property name="lib.dir"                 value="${basedir}/lib"/>
+  
 <!-- ========== Compiler Defaults ========================================= -->
 
   <!-- Should Java compilations set the 'debug' compiler option? -->
@@ -220,6 +220,10 @@
     <mkdir      dir="${dist.home}/src"/>
     <copy     todir="${dist.home}/src" filtering="on">
       <fileset  dir="${basedir}/src"/>
+    </copy>
+    <mkdir      dir="${dist.home}/lib"/>
+    <copy todir="${dist.home}/lib/">
+      <fileset  dir="${lib.dir}/core/"/>
     </copy>
     <copy todir="${dist.home}/docs" file="${basedir}/README"/>
     <copy todir="${dist.home}/docs" file="${basedir}/migration.properties"/>

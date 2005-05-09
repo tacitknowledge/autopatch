@@ -1,6 +1,0 @@
-Tacit Knowledge Migration TODO
-=======================================================================
-
-* Update the migration.properties config to declare MigrationTaskSources.
-
-* Make the bulk data SQL loader more robust.  Delegate less to subclasses.
