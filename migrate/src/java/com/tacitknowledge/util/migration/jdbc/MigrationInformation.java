@@ -45,9 +45,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class MigrationInformation
 {
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static Log log = LogFactory.getLog(MigrationInformation.class);
     
     /**

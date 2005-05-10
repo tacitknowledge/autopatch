@@ -71,6 +71,9 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     private JdbcMigrationContext context = null;
 
+    /**
+     * Create a new MigrationProcess and add a SqlScriptMigrationTaskSource
+     */
     public JdbcMigrationLauncher()
     {
         migrationProcess = new MigrationProcess();
@@ -224,9 +227,10 @@ public class JdbcMigrationLauncher implements MigrationListener
      * Sets the <code>JdbcMigrationContext</code> used for the migrations.
      *
      * @param jdbcMigrationContext the <code>JdbcMigrationContext</code> used for the migrations
-     * @throws MigrationException
+     * @throws MigrationException if a database connection cannot be obtained
      */
-    public void setJdbcMigrationContext(JdbcMigrationContext jdbcMigrationContext) throws MigrationException
+    public void setJdbcMigrationContext(JdbcMigrationContext jdbcMigrationContext) 
+        throws MigrationException
     {
         this.context = jdbcMigrationContext;
         // setting the context, mean we need to set patchTable

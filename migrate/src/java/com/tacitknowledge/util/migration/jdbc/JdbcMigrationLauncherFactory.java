@@ -65,7 +65,7 @@ public class JdbcMigrationLauncherFactory
      * Loads the configuration from the migration config properties file.
      *
      * @param  launcher the launcher to configure
-     * @param systemName
+     * @param systemName the name of the system
      * @throws MigrationException if an unexpected error occurs
      */
     private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String systemName)
