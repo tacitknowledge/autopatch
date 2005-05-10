@@ -16,6 +16,9 @@ package com.tacitknowledge.util.migration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 
 /**
@@ -27,7 +30,9 @@ import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
  */
 public class ClassMigrationTaskSource implements MigrationTaskSource
 {
-
+    /** Class logger */
+    private static Log log = LogFactory.getLog(ClassMigrationTaskSource.class);
+    
     /**
      * @see MigrationTaskSource#getMigrationTasks(String)
      */
@@ -39,6 +44,7 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
         }
         
         Class[] taskClasses = ClassDiscoveryUtil.getClasses(packageName, MigrationTask.class);
+        log.debug("Found " + taskClasses.length + " patches in " + packageName);
         return instantiateTasks(taskClasses);
     }
 

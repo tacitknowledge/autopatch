@@ -64,9 +64,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class MigrationProcess
 {
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static Log log = LogFactory.getLog(MigrationProcess.class);
     
     /**
@@ -211,6 +209,7 @@ public class MigrationProcess
         for (Iterator i = resourcePackages.iterator(); i.hasNext();)
         {
             String packageName = (String) i.next();
+            log.debug("Searching for patches in package " + packageName);
             
             for (Iterator j = migrationTaskSources.iterator(); j.hasNext();)
             {
@@ -218,6 +217,16 @@ public class MigrationProcess
                 tasks.addAll(source.getMigrationTasks(packageName));
             }
         }
+        
+        // Its difficult to tell what's going on when you don't see any patches.
+        // This will help people realize they don't have patches, and perhaps
+        // help them discover why.
+        if (tasks.size() == 0)
+        {
+            log.info("No patches were discovered in your classpath. "
+                     + "Re-run with DEBUG logging enabled for search information.");
+        }
+        
         return tasks;
     }
     

@@ -143,9 +143,12 @@ interact with the database when persisting patch level information.
 -----------------
 Once the patch level is determined, the colon-separated patch path
 specified in the configuration file is searched for all objects that
-implement the MigrationTask type. There are a couple of sub-classes
-that are useful to extend though, and in practice all patches use
-the sub-classes.
+implement the MigrationTask type. Each directory in your classpath has
+each part of the patch-path appended to it, and each of these combinations
+is searched for patches.
+
+There are a couple of MigrationTask sub-classes that are useful to extend, 
+and in practice all patches use the sub-classes.
 
 The first sub-class is the SqlScriptMigrationTask. It allows for raw
 text files containing SQL to be used as migrations, so long as they

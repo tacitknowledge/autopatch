@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSource;
@@ -35,6 +38,9 @@ import com.tacitknowledge.util.migration.MigrationTaskSource;
  */
 public class SqlScriptMigrationTaskSource implements MigrationTaskSource
 {
+    /** Class logger */
+    private static Log log = LogFactory.getLog(SqlScriptMigrationTaskSource.class);
+    
     /**
      * The regular expression used to match SQL patch files.
      */
@@ -47,6 +53,7 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
     {
         String path = packageName.replace('.', File.separatorChar);
         String[] scripts = ClassDiscoveryUtil.getResources(path, SQL_PATCH_REGEX);
+        log.debug("Found " + scripts.length + " patches in path " + path);
         return createMigrationScripts(scripts);
     }
 
