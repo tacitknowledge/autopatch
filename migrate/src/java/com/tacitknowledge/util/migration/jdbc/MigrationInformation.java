@@ -65,7 +65,15 @@ public class MigrationInformation
     public static void main(String[] arguments) throws Exception
     {
         MigrationInformation info = new MigrationInformation();
-        info.getMigrationInformation(System.getProperty("migration.systemname"));
+        String migrationName = System.getProperty("migration.systemname");
+        if (migrationName == null)
+        {
+            if ((arguments != null) && (arguments.length > 0))
+            {
+                migrationName = arguments[0].trim();
+            }
+        }
+        info.getMigrationInformation(migrationName);
     }
     
     /**

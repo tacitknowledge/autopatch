@@ -69,7 +69,8 @@ public class StandaloneMigrationLauncher
      */
     public static void main(String[] arguments) throws Exception
     {
-        String systemName = getRequiredParam("migration.systemname", System.getProperties());
+        String systemName = getRequiredParam("migration.systemname", 
+                System.getProperties(), arguments);
         
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
@@ -93,17 +94,26 @@ public class StandaloneMigrationLauncher
      * 
      * @param  param the parameter to return
      * @param  properties the <code>Properties</code> for the Java system
+     * @param  arguments optionally takes the arguments passed into the main to 
+     * use as the migration system name
      * @return the value of the specified system initialization parameter
      * @throws IllegalArgumentException if the parameter does not exist
      */
-    private static String getRequiredParam(String param, Properties properties)
-        throws IllegalArgumentException
+    private static String getRequiredParam(String param, Properties properties, 
+            String[] arguments) throws IllegalArgumentException
     {
         String value = properties.getProperty(param);
         if (value == null)
         {
-            throw new IllegalArgumentException("'" + param + "' is a required "
-                + "initialization parameter.  Aborting.");
+            if ((arguments != null) && (arguments.length > 0))
+            {
+                value = arguments[0].trim();
+            }
+            else
+            {
+                throw new IllegalArgumentException("'" + param + "' is a required "
+                        + "initialization parameter.  Aborting.");
+            }
         }
         return value;
     }
