@@ -15,6 +15,7 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Properties;
 
 import com.tacitknowledge.util.migration.MigrationContext;
@@ -137,6 +138,16 @@ public class JdbcMigrationLauncherFactory
         String value = props.getProperty(param);
         if (value == null)
         {
+            System.err.println("Parameter named: " + param + " was not found.");
+            System.err.println("-----Parameters found-----");
+            Iterator propNameIterator = props.keySet().iterator();
+            while (propNameIterator.hasNext())
+            {
+                String name = (String) propNameIterator.next();
+                String val = props.getProperty(name);
+                System.err.println(name + " = " + val);
+            }
+            System.err.println("--------------------------");
             throw new IllegalArgumentException("'" + param + "' is a required "
                 + "initialization parameter.  Aborting.");
         }

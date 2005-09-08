@@ -272,7 +272,10 @@ public class JdbcMigrationLauncher implements MigrationListener
 
         // Make sure the table is created first
         patchTable.getPatchLevel();
-        conn.commit();
+        if(!conn.getAutoCommit())
+        {
+            conn.commit();
+        }
 
         // Turn off auto-commit
         boolean b = true;
