@@ -18,6 +18,13 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Properties;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.sql.DataSource;
+
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
@@ -61,7 +68,63 @@ public class JdbcMigrationLauncherFactory
         configureFromMigrationProperties(launcher, systemName);
         return launcher;
     }
-
+    
+    /**
+     * Creates and configures a new <code>JdbcMigrationContext</code> based on the
+     * values in the servlet context and JNDI for a web-application.
+     *
+     * @param  sce the name of the context event to use in getting properties
+     * @return a fully configured <code>JdbcMigrationContext</code>.
+     * @throws MigrationException if an unexpected error occurs
+     */
+    public JdbcMigrationLauncher createMigrationLauncher(ServletContextEvent sce)
+        throws MigrationException
+    {
+        JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
+        configureFromServletContext(launcher, sce);
+        return launcher;
+    }
+    
+    /**
+     * Used to configure the migration launcher with properties from a servlet 
+     * context.  You do not need migration.properties to use this method.
+     * 
+     * @param launcher the launcher to configure
+     * @param sce the event to get the context and associated parameters from
+     * @throws MigrationException if a problem with the look up in JNDI occurs
+     */
+    private void configureFromServletContext(JdbcMigrationLauncher launcher, 
+            ServletContextEvent sce) throws MigrationException
+    {
+        DataSourceMigrationContext context = new DataSourceMigrationContext();
+        String systemName = getRequiredParam("migration.systemname", sce);
+        context.setSystemName(systemName);
+        
+        String databaseType = getRequiredParam("migration.databasetype", sce);
+        context.setDatabaseType(new DatabaseType(databaseType));
+        
+        String patchPath = getRequiredParam("migration.patchpath", sce);
+        launcher.setPatchPath(patchPath);
+        
+        String dataSource = getRequiredParam("migration.datasource", sce);
+        try
+        {
+            Context ctx = new InitialContext();
+            if(ctx == null) 
+            {
+                throw new IllegalArgumentException("A jndi context must be "
+                        + "present to use this configuration.");
+            }
+            DataSource ds = (DataSource) ctx.lookup("java:comp/env/" + dataSource);
+            context.setDataSource(ds);
+            launcher.setJdbcMigrationContext(context);
+        } 
+        catch (NamingException e)
+        {
+            throw new MigrationException("Problem with JNDI look up of " + dataSource, e);
+        }
+    }
+    
     /**
      * Loads the configuration from the migration config properties file.
      *
@@ -180,6 +243,28 @@ public class JdbcMigrationLauncherFactory
                     + "' must be specified as an initialization parameter.  Aborting.");
             }
         }
+    }
+    
+    /**
+     * Returns the value of the specified servlet context initialization parameter.
+     * 
+     * @param  param the parameter to return
+     * @param  sce the <code>ServletContextEvent</code> being handled
+     * @return the value of the specified servlet context initialization parameter
+     * @throws IllegalArgumentException if the parameter does not exist
+     */
+    private String getRequiredParam(String param, ServletContextEvent sce)
+        throws IllegalArgumentException
+    {
+        ServletContext context = sce.getServletContext();
+        String value = context.getInitParameter(param);
+        if (value == null)
+        {
+            throw new IllegalArgumentException("'" + param + "' is a required "
+                + "servlet context initialization parameter for the \""
+                + getClass().getName() + "\" class.  Aborting.");
+        }
+        return value;
     }
 }
 

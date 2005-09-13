@@ -251,6 +251,39 @@ So long as migration.properties, the AutoPatch library, , its dependent librarie
 your patches (with their paths specified in migration.properties) are
 in the web application's classpath, AutoPatch should work fine.
 
+5b) As of the 0.7 release of autopatch there is a new way to configure your web 
+application.  You can use JNDI to supply a data source and eliminate the need for a 
+migration.properties file altogether.  Do this by adding the following to your 
+web.xml file: 
+
+	<!-- in the context-params section -->
+    <context-param>
+        <param-name>migration.systemname</param-name>
+		<param-value>beekeeper</param-value>
+    </context-param>
+    <context-param>
+        <param-name>migration.databasetype</param-name>
+		<param-value>mysql</param-value>
+    </context-param>
+    <context-param>
+        <param-name>migration.patchpath</param-name>
+		<param-value>patches:com.stylehive.profile.db.patch</param-value>
+    </context-param>
+    <context-param>
+        <param-name>migration.datasource</param-name>
+		<param-value>jdbc/profile</param-value>
+    </context-param>
+	
+	<!-- in the listeners section -->
+	<listener>
+        <listener-class>com.tacitknowledge.util.migration.jdbc.WebAppJNDIMigrationLauncher</listener-class>
+    </listener>
+
+Note that there are similar parameters supplied in the servlet context that once 
+existed in the migration.properties file.  All database connection properties have 
+been replaced by a parameter called migration.datasource.  This uses an existing 
+datasource to perform the autopatch updates.
+
 --------------------------------------------------------------------------
 
 
