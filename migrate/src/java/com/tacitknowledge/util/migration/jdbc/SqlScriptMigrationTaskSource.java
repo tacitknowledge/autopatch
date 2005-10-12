@@ -53,7 +53,14 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
     {
         String path = packageName.replace('.', File.separatorChar);
         String[] scripts = ClassDiscoveryUtil.getResources(path, SQL_PATCH_REGEX);
-        log.debug("Found " + scripts.length + " patches in path " + path);
+        if (log.isDebugEnabled())
+        {
+            log.debug("Found " + scripts.length + " patches in path: " + path);
+            for (int i = 0; i < scripts.length; i++)
+            {
+                log.debug(" -- \"" + scripts[i] + "\"");
+            }
+        }
         return createMigrationScripts(scripts);
     }
 
@@ -73,8 +80,15 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
         for (int i = 0; i < scripts.length; i++)
         {
             String script = scripts[i];
+            script = script.replace('\\', '/');
+            log.debug("Examining possible SQL patch file \"" + script + "\"");
             InputStream is = getClass().getResourceAsStream("/" + script);
-            if (is != null)
+
+            if (is == null)
+            {
+                log.warn("Could not open input stream for file \"/" + script + "\"");
+            }
+            else
             {
                 File scriptFile = new File(script);
                 String scriptFileName = scriptFile.getName();

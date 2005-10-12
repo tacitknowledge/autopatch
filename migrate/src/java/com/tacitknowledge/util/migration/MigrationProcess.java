@@ -214,7 +214,20 @@ public class MigrationProcess
             for (Iterator j = migrationTaskSources.iterator(); j.hasNext();)
             {
                 MigrationTaskSource source = (MigrationTaskSource) j.next();
-                tasks.addAll(source.getMigrationTasks(packageName));
+                List sourceTasks = source.getMigrationTasks(packageName);
+                if (log.isDebugEnabled())
+                {
+                    if (sourceTasks.size() > 0)
+                    {
+                        log.debug("Source [" + source + "] found the following patches: "
+                                  + sourceTasks);
+                    }
+                    else
+                    {
+                        log.debug("Source [" + source + "] returned 0 patches.");
+                    }
+                }
+                tasks.addAll(sourceTasks);
             }
         }
         
