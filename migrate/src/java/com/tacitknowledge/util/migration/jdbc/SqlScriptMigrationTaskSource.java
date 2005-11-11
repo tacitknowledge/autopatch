@@ -51,7 +51,7 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
      */
     public List getMigrationTasks(String packageName) throws MigrationException
     {
-        String path = packageName.replace('.', File.separatorChar);
+        String path = packageName.replace('.', '/');
         String[] scripts = ClassDiscoveryUtil.getResources(path, SQL_PATCH_REGEX);
         if (log.isDebugEnabled())
         {
