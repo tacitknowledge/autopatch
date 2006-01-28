@@ -43,7 +43,10 @@ public abstract class BaseTestMigrationTask extends MigrationTaskSupport
      */
     public void migrate(MigrationContext context) throws MigrationException
     {
-        TestMigrationContext ctx = (TestMigrationContext) context;
-        ctx.recordExecution(getName());
+        if (context instanceof TestMigrationContext)
+        {
+            TestMigrationContext ctx = (TestMigrationContext) context;
+            ctx.recordExecution(getName());
+        }
     }
 }
