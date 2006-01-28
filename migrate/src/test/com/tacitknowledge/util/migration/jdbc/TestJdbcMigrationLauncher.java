@@ -36,6 +36,9 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     
     /**
      * Delegating constructors
+     * 
+     * @param context the context to use for migration loading
+     * @exception MigrationException if there is a problem configuring the context
      */
     public TestJdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
@@ -45,6 +48,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     /**
      * Override the patch table creation to be the patch table we have
      * 
+     * @param conn the database connection to use for patch table access
      * @return patchTable held internally
      */
     protected PatchTable createPatchTable(Connection conn)

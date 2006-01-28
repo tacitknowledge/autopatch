@@ -314,6 +314,9 @@ public class JdbcMigrationLauncher implements MigrationListener
     
     /**
      * create a patch table object for use in migrations
+     * 
+     * @param conn the database connection to use for table access
+     * @return PatchTable object for use in accessing patch state information
      */
     protected PatchTable createPatchTable(Connection conn)
     {
