@@ -273,7 +273,7 @@ public class JdbcMigrationLauncher implements MigrationListener
             // Patch locks ensure that only one system sharing a patch store will patch
             // it at the same time.
             boolean lockObtained = false;
-            while (lockObtained == false)
+            while (!lockObtained)
             {
                 waitForFreeLock();
 
@@ -284,7 +284,7 @@ public class JdbcMigrationLauncher implements MigrationListener
                 }
                 catch (IllegalStateException ise)
                 {
-                    // this happens when someone raced us to the lock and wone
+                    // this happens when someone raced us to the lock and won
                 }
             }
 

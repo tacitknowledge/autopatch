@@ -86,7 +86,7 @@ public class PatchTable implements PatchStore
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public void createPatchStoreIfNeeded() throws MigrationException
     {
@@ -134,7 +134,7 @@ public class PatchTable implements PatchStore
     }
     
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
     public int getPatchLevel() throws MigrationException
     {
@@ -169,10 +169,7 @@ public class PatchTable implements PatchStore
     }
     
     /**
-     * Updates the system patch level to the specified value.
-     * 
-     * @param  level the new system patch level
-     * @throws MigrationException if an unrecoverable database error occurs
+     * {@inheritDoc}
      */
     public void updatePatchLevel(int level) throws MigrationException
     {
@@ -198,10 +195,7 @@ public class PatchTable implements PatchStore
     }
     
     /**
-     * Determines if a process has a lock on the patches table.
-     *  
-     * @return <code>true</code> if the patches table is locked
-     * @throws MigrationException if an unrecoverable database error occurs
+     * {@inheritDoc}
      */
     public boolean isPatchStoreLocked() throws MigrationException
     {
@@ -235,10 +229,7 @@ public class PatchTable implements PatchStore
     }
     
     /**
-     * Places a lock for this system on the patches table.
-     * 
-     * @throws MigrationException if an unrecoverable database error occurs
-     * @throws IllegalStateException if a lock already exists for this system
+     * {@inheritDoc}
      */
     public void lockPatchStore() throws MigrationException, IllegalStateException
     {
@@ -250,9 +241,7 @@ public class PatchTable implements PatchStore
     }
 
     /**
-     * Removes any locks for this system in the patches table. 
-     * 
-     * @throws MigrationException if an unrecoverable database error occurs
+     * {@inheritDoc}
      */    
     public void unlockPatchStore() throws MigrationException
     {

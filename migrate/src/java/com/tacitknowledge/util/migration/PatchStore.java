@@ -57,7 +57,7 @@ public interface PatchStore
      * @exception MigrationException if locking the store fails
      * @exception IllegalStateException if a lock already exists
      */
-    public void lockPatchStore() throws MigrationException;
+    public void lockPatchStore() throws MigrationException, IllegalStateException;
     
     /**
      * Removes any locks for this system on the patch store
