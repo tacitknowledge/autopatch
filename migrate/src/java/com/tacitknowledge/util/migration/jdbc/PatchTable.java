@@ -226,7 +226,7 @@ public class PatchTable implements PatchStore
         }
         catch (SQLException e)
         {
-            throw new MigrationException("Unble to determine if table is locked", e);
+            throw new MigrationException("Unable to determine if table is locked", e);
         }
         finally
         {

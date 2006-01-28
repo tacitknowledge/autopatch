@@ -25,6 +25,7 @@ import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.MigrationProcess;
 import com.tacitknowledge.util.migration.MigrationTask;
+import com.tacitknowledge.util.migration.PatchStore;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 /**
@@ -46,9 +47,9 @@ public class JdbcMigrationLauncher implements MigrationListener
     private static Log log = LogFactory.getLog(JdbcMigrationLauncher.class);
 
     /**
-     * The patch table in use
+     * The patch level store in use
      */
-    private PatchTable patchTable = null;
+    private PatchStore patchTable = null;
 
     /**
      * The <code>MigrationProcess</code> responsible for applying the patches
@@ -253,7 +254,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     private int doMigrations(Connection conn) throws SQLException, MigrationException
     {
-        patchTable = createPatchTable(conn);
+        patchTable = createPatchStore(conn);
 
         // Make sure the table is created first
         patchTable.getPatchLevel();
@@ -269,14 +270,26 @@ public class JdbcMigrationLauncher implements MigrationListener
             b = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
-            // Patch locks ensure that only one system sharing a database will patch
+            // Patch locks ensure that only one system sharing a patch store will patch
             // it at the same time.
-            waitForFreeLock();
+            boolean lockObtained = false;
+            while (lockObtained == false)
+            {
+                waitForFreeLock();
+
+                try
+                {   
+                    patchTable.lockPatchStore();
+                    lockObtained = true;
+                }
+                catch (IllegalStateException ise)
+                {
+                    // this happens when someone raced us to the lock and wone
+                }
+            }
 
             try
             {
-                patchTable.lockPatchStore();
-
                 int patchLevel = patchTable.getPatchLevel();
 
                 // Make sure this class is notified when a patch is applied so that
@@ -311,7 +324,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      * @param conn the database connection to use for table access
      * @return PatchTable object for use in accessing patch state information
      */
-    protected PatchTable createPatchTable(Connection conn)
+    protected PatchStore createPatchStore(Connection conn)
     {
         return new PatchTable(context, conn);
     }
@@ -328,12 +341,32 @@ public class JdbcMigrationLauncher implements MigrationListener
             log.info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");
             try
             {
-                Thread.sleep(lockPollMillis);
+                Thread.sleep(getLockPollMillis());
             }
             catch (InterruptedException e)
             {
                 log.error("Received InterruptedException while waiting for patch lock", e);
             }
         }
+    }
+    
+    /**
+     * Get how long to wait for the patch store lock
+     * 
+     * @return the wait time for the patch store, in milliseconds
+     */
+    public long getLockPollMillis()
+    {
+        return lockPollMillis;
+    }
+    
+    /**
+     * Set how long to wait for the patch store lock
+     * 
+     * @param lockPollMillis the wait time for the patch store, in milliseconds
+     */
+    public void setLockPollMillis(long lockPollMillis)
+    {
+        this.lockPollMillis = lockPollMillis;
     }
 }

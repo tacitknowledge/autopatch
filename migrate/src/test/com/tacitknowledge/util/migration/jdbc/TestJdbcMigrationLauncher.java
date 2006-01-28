@@ -59,7 +59,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
             return patchStore;
         }
         
-        return super.createPatchTable(conn);
+        return super.createPatchStore(conn);
     }
     
     /**
