@@ -110,7 +110,7 @@ public class JdbcMigrationLauncherFactory
         try
         {
             Context ctx = new InitialContext();
-            if(ctx == null) 
+            if (ctx == null) 
             {
                 throw new IllegalArgumentException("A jndi context must be "
                         + "present to use this configuration.");

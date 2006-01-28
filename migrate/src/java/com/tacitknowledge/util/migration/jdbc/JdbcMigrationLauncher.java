@@ -259,7 +259,7 @@ public class JdbcMigrationLauncher implements MigrationListener
 
         // Make sure the table is created first
         patchTable.getPatchLevel();
-        if(!conn.getAutoCommit())
+        if (!conn.getAutoCommit())
         {
             conn.commit();
         }
