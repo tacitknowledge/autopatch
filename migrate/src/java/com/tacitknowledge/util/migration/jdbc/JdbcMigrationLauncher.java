@@ -101,6 +101,11 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public int doMigrations() throws MigrationException
     {
+        if (context == null)
+        {
+            throw new MigrationException("You must configure a migration context");
+        }
+        
         Connection conn = null;
         try
         {
