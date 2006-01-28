@@ -103,7 +103,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
         h.prepareThrowsSQLException(table.getSql("level.read"));
         
-        table.createPatchesTableIfNeeded();
+        table.createPatchStoreIfNeeded();
         
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
@@ -126,7 +126,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         h.prepareGlobalResultSet(rs);
         rs.addRow(new Integer[] {new Integer(13)});
         
-        table.createPatchesTableIfNeeded();
+        table.createPatchStoreIfNeeded();
         
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
@@ -219,7 +219,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         rs.addRow(new String[] {"F"});
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
-        assertFalse(table.isPatchTableLocked());
+        assertFalse(table.isPatchStoreLocked());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionNotClosed();
@@ -240,7 +240,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         rs.addRow(new String[] {"T"});
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
-        assertTrue(table.isPatchTableLocked());
+        assertTrue(table.isPatchStoreLocked());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionNotClosed();
@@ -264,7 +264,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         
         try
         {
-            table.lockPatchTable();
+            table.lockPatchStore();
             fail("Expected an IllegalStateException since a lock already exists.");
         }
         catch (IllegalStateException e)
@@ -293,7 +293,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         MockResultSet rs = h.createResultSet();
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
-        table.lockPatchTable();
+        table.lockPatchStore();
 
         verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
         verifyAllResultSetsClosed();
@@ -309,7 +309,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testUnlockPatchTable() throws Exception
     {       
-        table.unlockPatchTable();
+        table.unlockPatchStore();
 
         verifyPreparedStatementParameter(table.getSql("lock.release"), 1, "milestone");
         verifyAllResultSetsClosed();

@@ -176,14 +176,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     {
         log.debug("Task " + task.getName() + " was successful for context " + ctx);
         int patchLevel = task.getLevel().intValue();
-        try
-        {
-            patchTable.updatePatchLevel(patchLevel);
-        }
-        catch (SQLException e)
-        {
-            throw new MigrationException("Could not update patch level", e);
-        }
+        patchTable.updatePatchLevel(patchLevel);
     }
 
     /**
@@ -199,10 +192,10 @@ public class JdbcMigrationLauncher implements MigrationListener
      * Get the patch level from the database
      *
      * @return int representing the current database patch level
-     * @exception SQLException if there is a database connection error,
+     * @exception MigrationException if there is a database connection error,
      *                         or the patch level can't be determined
      */
-    public int getDatabasePatchLevel() throws SQLException
+    public int getDatabasePatchLevel() throws MigrationException
     {
         return patchTable.getPatchLevel();
     }
@@ -282,7 +275,7 @@ public class JdbcMigrationLauncher implements MigrationListener
 
             try
             {
-                patchTable.lockPatchTable();
+                patchTable.lockPatchStore();
 
                 int patchLevel = patchTable.getPatchLevel();
 
@@ -296,7 +289,7 @@ public class JdbcMigrationLauncher implements MigrationListener
             {
                 try
                 {
-                    patchTable.unlockPatchTable();
+                    patchTable.unlockPatchStore();
                     conn.commit();
                 }
                 catch (SQLException e)
@@ -326,11 +319,11 @@ public class JdbcMigrationLauncher implements MigrationListener
     /**
      * Pauses until the patch lock become available.
      *
-     * @throws SQLException if an unrecoverable error occurs
+     * @throws MigrationException if an unrecoverable error occurs
      */
-    private void waitForFreeLock() throws SQLException
+    private void waitForFreeLock() throws MigrationException
     {
-        while (patchTable.isPatchTableLocked())
+        while (patchTable.isPatchStoreLocked())
         {
             log.info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");
             try

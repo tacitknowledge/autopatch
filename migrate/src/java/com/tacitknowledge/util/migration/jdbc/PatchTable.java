@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.PatchStore;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 
@@ -44,7 +46,7 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
  */
-public class PatchTable
+public class PatchTable implements PatchStore
 {
     /**
      * Class logger
@@ -84,12 +86,9 @@ public class PatchTable
     }
 
     /**
-     * Validates the existence of the "patches" table and creates it if it doesn't
-     * exist.
-     * 
-     * @throws SQLException if an unrecoverable database error occurs 
+     * @{inheritDoc}
      */
-    public void createPatchesTableIfNeeded() throws SQLException
+    public void createPatchStoreIfNeeded() throws MigrationException
     {
         if (tableExistenceValidated)
         {
@@ -112,12 +111,19 @@ public class PatchTable
         {
             SqlUtil.close(null, stmt, rs);
             log.info("'patches' table must not exist; creating....");
-            stmt = conn.prepareStatement(getSql("patches.create"));
-            if (log.isDebugEnabled())
+            try
             {
-                log.debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
+                stmt = conn.prepareStatement(getSql("patches.create"));
+                if (log.isDebugEnabled())
+                {
+                    log.debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
+                }
+                stmt.execute();
             }
-            stmt.execute();
+            catch (SQLException sqle)
+            {
+                throw new MigrationException("Unable to create patch table", sqle);
+            }
             tableExistenceValidated = true;
             log.info("Created 'patches' table.");
         }
@@ -128,14 +134,11 @@ public class PatchTable
     }
     
     /**
-     * Returns the current patch level of the system.
-     * 
-     * @return the current patch level of the system
-     * @throws SQLException if an unrecoverable database error occurs
+     * @{inheritDoc}
      */
-    public int getPatchLevel() throws SQLException
+    public int getPatchLevel() throws MigrationException
     {
-        createPatchesTableIfNeeded();
+        createPatchStoreIfNeeded();
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -155,6 +158,10 @@ public class PatchTable
                 return 0;
             }
         }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unable to get patch level", e);
+        }
         finally
         {
             SqlUtil.close(null, stmt, rs);
@@ -165,9 +172,9 @@ public class PatchTable
      * Updates the system patch level to the specified value.
      * 
      * @param  level the new system patch level
-     * @throws SQLException if an unrecoverable database error occurs
+     * @throws MigrationException if an unrecoverable database error occurs
      */
-    public void updatePatchLevel(int level) throws SQLException
+    public void updatePatchLevel(int level) throws MigrationException
     {
         // Make sure a patch record already exists for this system
         getPatchLevel();
@@ -180,6 +187,10 @@ public class PatchTable
             stmt.setString(2, context.getSystemName());
             stmt.execute();
         }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unable to update patch level", e);
+        }
         finally
         {
             SqlUtil.close(null, stmt, null);
@@ -190,11 +201,11 @@ public class PatchTable
      * Determines if a process has a lock on the patches table.
      *  
      * @return <code>true</code> if the patches table is locked
-     * @throws SQLException if an unrecoverable database error occurs
+     * @throws MigrationException if an unrecoverable database error occurs
      */
-    public boolean isPatchTableLocked() throws SQLException
+    public boolean isPatchStoreLocked() throws MigrationException
     {
-        createPatchesTableIfNeeded();
+        createPatchStoreIfNeeded();
         
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -213,6 +224,10 @@ public class PatchTable
                 return false;
             }
         }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unble to determine if table is locked", e);
+        }
         finally
         {
             SqlUtil.close(null, stmt, rs);
@@ -222,12 +237,12 @@ public class PatchTable
     /**
      * Places a lock for this system on the patches table.
      * 
-     * @throws SQLException if an unrecoverable database error occurs
+     * @throws MigrationException if an unrecoverable database error occurs
      * @throws IllegalStateException if a lock already exists for this system
      */
-    public void lockPatchTable() throws SQLException, IllegalStateException
+    public void lockPatchStore() throws MigrationException, IllegalStateException
     {
-        if (isPatchTableLocked())
+        if (isPatchStoreLocked())
         {
             throw new IllegalStateException("Patch table is already locked!");
         }
@@ -237,9 +252,9 @@ public class PatchTable
     /**
      * Removes any locks for this system in the patches table. 
      * 
-     * @throws SQLException if an unrecoverable database error occurs
+     * @throws MigrationException if an unrecoverable database error occurs
      */    
-    public void unlockPatchTable() throws SQLException
+    public void unlockPatchStore() throws MigrationException
     {
         updatePatchLock(false);
     }
@@ -288,9 +303,9 @@ public class PatchTable
      * 
      * @param  lock <code>true</code> if a lock is to be obtained, <code>false</code>
      *         if it is to be removed 
-     * @throws SQLException if an unrecoverable database error occurs
+     * @throws MigrationException if an unrecoverable database error occurs
      */        
-    private void updatePatchLock(boolean lock) throws SQLException
+    private void updatePatchLock(boolean lock) throws MigrationException
     {
         String sqlkey = (lock) ? "lock.obtain" : "lock.release";
         PreparedStatement stmt = null;
@@ -304,6 +319,10 @@ public class PatchTable
             }
             stmt.setString(1, context.getSystemName());
             stmt.execute();
+        }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unable to update patch lock to " + lock, e);
         }
         finally
         {
