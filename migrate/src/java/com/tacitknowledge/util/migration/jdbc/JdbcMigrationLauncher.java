@@ -260,7 +260,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     private int doMigrations(Connection conn) throws SQLException, MigrationException
     {
-        patchTable = new PatchTable(context, conn);
+        patchTable = createPatchTable(conn);
 
         // Make sure the table is created first
         patchTable.getPatchLevel();
@@ -310,6 +310,14 @@ public class JdbcMigrationLauncher implements MigrationListener
             // restore auto-commit setting
             conn.setAutoCommit(b);
         }
+    }
+    
+    /**
+     * create a patch table object for use in migrations
+     */
+    protected PatchTable createPatchTable(Connection conn)
+    {
+        return new PatchTable(context, conn);
     }
 
     /**
