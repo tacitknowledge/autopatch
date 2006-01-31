@@ -15,7 +15,7 @@ package com.tacitknowledge.util.migration.jdbc;
 import java.sql.Connection;
 
 import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.PatchStore;
+import com.tacitknowledge.util.migration.PatchInfoStore;
 
 /**
  * Override select things in the JdbcMigrationLauncher for testing purposes
@@ -24,8 +24,8 @@ import com.tacitknowledge.util.migration.PatchStore;
  */
 public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
 {
-    /** The PatchStore to use for migrations */
-    private PatchStore patchStore = null;
+    /** The PatchInfoStore to use for migrations */
+    private PatchInfoStore patchStore = null;
     
     /**
      * Delegates to the superclass
@@ -52,7 +52,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
      * @param conn the database connection to use for patch table access
      * @return patchStore held internally
      */
-    protected PatchStore createPatchStore(Connection conn)
+    protected PatchInfoStore createPatchStore(Connection conn)
     {
         if (patchStore != null)
         {
@@ -63,11 +63,11 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     }
     
     /**
-     * Set the PatchStore object to use for migrations
+     * Set the PatchInfoStore object to use for migrations
      * 
-     * @param patchStore the PatchStore to use
+     * @param patchStore the PatchInfoStore to use
      */
-    public void setPatchStore(PatchStore patchStore)
+    public void setPatchStore(PatchInfoStore patchStore)
     {
         this.patchStore = patchStore;
     }

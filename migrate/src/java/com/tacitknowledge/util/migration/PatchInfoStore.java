@@ -18,7 +18,7 @@ package com.tacitknowledge.util.migration;
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
-public interface PatchStore
+public interface PatchInfoStore
 {
     /**
      * Creates the patch storage area if it has not been done before

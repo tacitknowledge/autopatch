@@ -18,7 +18,7 @@ import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.tacitknowledge.util.migration.PatchStore;
+import com.tacitknowledge.util.migration.PatchInfoStore;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
 /**
@@ -65,8 +65,8 @@ public class JdbcMigrationLauncherTest extends JDBCTestCaseAdapter
         h.prepareGlobalResultSet(rs);
         
         
-        MockControl mockControl = MockControl.createControl(PatchStore.class);
-        PatchStore patchStore = (PatchStore)mockControl.getMock();
+        MockControl mockControl = MockControl.createControl(PatchInfoStore.class);
+        PatchInfoStore patchStore = (PatchInfoStore)mockControl.getMock();
         
         // First they see if it is locked, and it is, so they spin
         patchStore.isPatchStoreLocked();

@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.PatchStore;
+import com.tacitknowledge.util.migration.PatchInfoStore;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 
@@ -46,7 +46,7 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
  */
-public class PatchTable implements PatchStore
+public class PatchTable implements PatchInfoStore
 {
     /**
      * Class logger
