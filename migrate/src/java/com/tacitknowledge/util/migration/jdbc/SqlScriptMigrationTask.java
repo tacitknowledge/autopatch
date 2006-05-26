@@ -159,8 +159,6 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
     public List getSqlStatements(JdbcMigrationContext context)
     {
         List statements = new ArrayList();
-        log.info("database type is: " + context.getDatabaseType().getDatabaseType());
-        log.info("multiple statements: " + context.getDatabaseType().isMultipleStatementsSupported());
         if (context.getDatabaseType().isMultipleStatementsSupported())
         {
             statements.add(sql);
