@@ -15,6 +15,7 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Properties;
 
 /**
@@ -46,6 +47,11 @@ public class DatabaseType
      * The SQL statements and properties that are unique to this database flavor.
      */
     private Properties properties = new Properties();
+    
+    /**
+     * The database type
+     */
+    private String databaseType = "";
     
     /**
      * Creates a new <code>DatabaseType</code>.
@@ -82,6 +88,18 @@ public class DatabaseType
                 // not important
             }
         }
+        
+        this.databaseType = databaseType;
+    }
+    
+    /**
+     * Return the name of the database type
+     * 
+     * @return String containing the name of the database type
+     */
+    public String getDatabaseType()
+    {
+        return databaseType;
     }
     
     /**
@@ -105,6 +123,6 @@ public class DatabaseType
     public boolean isMultipleStatementsSupported()
     {
         String multiStatement = properties.getProperty("supportsMultipleStatements", "false");
-        return Boolean.getBoolean(multiStatement);
+        return Boolean.valueOf(multiStatement).booleanValue();
     }
 }

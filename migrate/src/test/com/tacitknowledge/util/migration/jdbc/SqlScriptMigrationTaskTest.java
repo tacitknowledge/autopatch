@@ -93,7 +93,8 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
         task = new SqlScriptMigrationTask("test", 1, is);
         is.close();
         
-        List l = task.getSqlStatements(false);
+        context.setDatabaseType(new DatabaseType("oracle"));
+        List l = task.getSqlStatements(context);
         assertEquals(3, l.size());
         assertEquals("insert into user_role_assoc (user_role_id, application_user_id, "
             + "role_code, project_id) \n\t\t\tvalues (nextval('role_id_seq'),2, 'SYSA', 3)",
@@ -109,7 +110,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
         task = new SqlScriptMigrationTask("test", 1, is);
         is.close();
         
-        l = task.getSqlStatements(false);
+        l = task.getSqlStatements(context);
         assertEquals(1, l.size());
         assertEquals("insert into user_role_assoc (user_role_id, application_user_id, "
             + "role_code, project_id) \n\t\t\tvalues (nextval('role_id_seq'),2, 'SYSA', 3)",
@@ -126,8 +127,8 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
         InputStream is = getClass().getResourceAsStream("patch0003.sql");
         task = new SqlScriptMigrationTask("test", 1, is);
         is.close();
-        
-        List l = task.getSqlStatements(true);
+
+        List l = task.getSqlStatements(context);
         assertEquals(1, l.size());
         assertEquals("select * from dual;\nselect * from dual;\n",
                      l.get(0).toString());

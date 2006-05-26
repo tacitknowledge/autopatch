@@ -111,8 +111,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         try
         {
             conn = context.getConnection();
-            List sqlStatements = getSqlStatements(
-                context.getDatabaseType().isMultipleStatementsSupported());
+            List sqlStatements = getSqlStatements(context);
             for (Iterator i = sqlStatements.iterator(); i.hasNext();)
             {
                 sqlStatement = (String) i.next();
@@ -153,14 +152,16 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
      * this method will return a one-element <code>List</code> containing the entire SQL
      * file.
      * 
-     * @param  supportsMultipleStatements determines if the database type supports multiple
-     *         statements in a single <code>Statement.execute</code> call
+     * @param  context the MigrationContext, to figure out db type and if it 
+     *                 can handle multiple statements at once
      * @return a list of SQL and DDL statements to execute
      */
-    public List getSqlStatements(boolean supportsMultipleStatements)
+    public List getSqlStatements(JdbcMigrationContext context)
     {
         List statements = new ArrayList();
-        if (supportsMultipleStatements)
+        log.info("database type is: " + context.getDatabaseType().getDatabaseType());
+        log.info("multiple statements: " + context.getDatabaseType().isMultipleStatementsSupported());
+        if (context.getDatabaseType().isMultipleStatementsSupported())
         {
             statements.add(sql);
             return statements;
@@ -200,8 +201,17 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                     case ';' :
                         if (!inQuotedString)
                         {
-                            statements.add(currentStatement.toString().trim());
-                            currentStatement = new StringBuffer();
+                            // If we're in a stored procedure, just keep rolling
+                            if (context.getDatabaseType().getDatabaseType().equals("oracle") &&
+                                currentStatement.toString().trim()
+                                    .toLowerCase().startsWith("create or replace")) {
+                                currentStatement.append(sqlChars[i]);
+                            }
+                            else 
+                            {
+                                statements.add(currentStatement.toString().trim());
+                                currentStatement = new StringBuffer();
+                            }
                         }
                         else
                         {
