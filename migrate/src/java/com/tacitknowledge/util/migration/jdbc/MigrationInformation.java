@@ -24,6 +24,9 @@ import org.apache.commons.logging.LogFactory;
  *    <li>migration.systemname - the name of the logical system being migrated</li>
  * </ul>
  * <p>
+ * Alternatively, you can pass the migration system name on the command line as the 
+ * first argument.
+ * <p>
  * Below is an example of how this class can be configured in an Ant build.xml file:
  * <pre>
  *   ...
@@ -42,6 +45,7 @@ import org.apache.commons.logging.LogFactory;
  * @author  Mike Hardy (mike@tacitknowledge.com)
  * @version $Id$
  * @see     com.tacitknowledge.util.migration.MigrationProcess
+ * @see     com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory
  */
 public class MigrationInformation
 {
