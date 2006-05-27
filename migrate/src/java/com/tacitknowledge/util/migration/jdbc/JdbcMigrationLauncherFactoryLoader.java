@@ -17,7 +17,7 @@ package com.tacitknowledge.util.migration.jdbc;
  * JdbcMigrationLauncherFactory, but will examine the system properties
  * for a property called "migration.factory" and load that one if specified
  * 
- * @author Jacque Morel
+ * @author Jacques Morel
  */
 public class JdbcMigrationLauncherFactoryLoader 
 {
