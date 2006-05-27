@@ -77,7 +77,8 @@ public class StandaloneMigrationLauncher
         // task is executed, the patch level is incremented, etc.
         try
         {
-            JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactory();
+            JdbcMigrationLauncherFactory launcherFactory = 
+                JdbcMigrationLauncherFactoryLoader.createFactory();
             JdbcMigrationLauncher launcher
                 = launcherFactory.createMigrationLauncher(systemName);
             launcher.doMigrations();
