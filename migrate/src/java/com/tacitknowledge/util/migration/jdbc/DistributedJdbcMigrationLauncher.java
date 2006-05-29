@@ -18,6 +18,7 @@ import java.sql.SQLException;
 
 import com.tacitknowledge.util.migration.DistributedMigrationProcess;
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.MigrationProcess;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 /**
@@ -28,8 +29,7 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  * <p>
  * This class is <b>NOT</b> threadsafe.
  *
- * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
+ * @author Mike Hardy (mike@tacitknowledge.com)
  */
 public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
 {
@@ -39,11 +39,6 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
     public DistributedJdbcMigrationLauncher()
     {
         super();
-        setMigrationProcess(new DistributedMigrationProcess());
-
-        // Make sure this class is notified when a patch is applied so that
-        // the patch level can be updated (see #migrationSuccessful).
-        getMigrationProcess().addListener(this);
     }
     
     /**
@@ -55,25 +50,19 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
     public DistributedJdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
         super(context);
-        setMigrationProcess(new DistributedMigrationProcess());
-
-        // Make sure this class is notified when a patch is applied so that
-        // the patch level can be updated (see #migrationSuccessful).
-        getMigrationProcess().addListener(this);
-        
-        setJdbcMigrationContext(context);
     }
     
     /**
-     * Get all of the migrations from all of the controlled systems so that we can order them
+     * Override the sub-class so we get a DistributedMigrationProcess instead of the
+     * normal one
      * 
-     * @throws MigrationException if there are two patches in the same slot
+     * @return DistributedMigrationProcess
      */
-    public void initializeMigrations() throws MigrationException
+    public MigrationProcess getNewMigrationProcess()
     {
-        throw new MigrationException("not implemented");
+        return new DistributedMigrationProcess();
     }
-
+    
     /**
      * Starts the application migration process across all configured contexts
      *

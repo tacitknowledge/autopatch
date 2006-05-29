@@ -29,4 +29,24 @@ public class TestDistributedJdbcMigrationLauncherFactory extends DistributedJdbc
     {
         return new TestDataSourceMigrationContext();
     }
+    
+    /**
+     * Returns TestDistributedJdbcMigrationLauncher
+     * 
+     * @return TestDistributedJdbcMigrationLauncher
+     */
+    public JdbcMigrationLauncher getJdbcMigrationLauncher()
+    {
+        return new TestDistributedJdbcMigrationLauncher();
+    }
+    
+    /**
+     * Returns TestDistributedJdbcMigrationLauncher
+     * 
+     * @return TestDistributedJdbcMigrationLauncher
+     */
+    public DistributedJdbcMigrationLauncher getDistributedJdbcMigrationLauncher()
+    {
+        return new TestDistributedJdbcMigrationLauncher();
+    }
 }

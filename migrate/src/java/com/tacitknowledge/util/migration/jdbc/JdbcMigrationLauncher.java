@@ -77,7 +77,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public JdbcMigrationLauncher()
     {
-        setMigrationProcess(new MigrationProcess());
+        setMigrationProcess(getNewMigrationProcess());
 
         // Make sure this class is notified when a patch is applied so that
         // the patch level can be updated (see #migrationSuccessful).
@@ -96,6 +96,16 @@ public class JdbcMigrationLauncher implements MigrationListener
     {
         this();
         setJdbcMigrationContext(context);
+    }
+    
+    /**
+     * Get the MigrationProcess we'll use to migrate things
+     * 
+     * @return MigrationProcess for migration control
+     */
+    public MigrationProcess getNewMigrationProcess()
+    {
+        return new MigrationProcess();
     }
 
     /**

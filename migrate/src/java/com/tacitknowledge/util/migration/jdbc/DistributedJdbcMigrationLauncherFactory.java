@@ -63,9 +63,20 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
     public JdbcMigrationLauncher createMigrationLauncher(String systemName)
         throws MigrationException
     {
-        DistributedJdbcMigrationLauncher launcher = new DistributedJdbcMigrationLauncher();
+        log.info("Creating DistributedJdbcMigrationLauncher for system " + systemName);
+        DistributedJdbcMigrationLauncher launcher = getDistributedJdbcMigrationLauncher();
         configureFromMigrationProperties(launcher, systemName);
         return launcher;
+    }
+    
+    /**
+     * Get a new DistributedJdbcMigrationLauncher
+     * 
+     * @return DistributedJdbcMigrationLauncher
+     */
+    public DistributedJdbcMigrationLauncher getDistributedJdbcMigrationLauncher()
+    {
+        return new DistributedJdbcMigrationLauncher();
     }
     
     /**
@@ -159,8 +170,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
             JdbcMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i]);
             controlledSystems.put(controlledSystemNames[i], subLauncher);
             
-            // Make sure the distributed migration process gets migration events
-            subLauncher.getMigrationProcess().addListener(launcher);
+            // Make sure the controlled migration process gets migration events
+            launcher.getMigrationProcess().addListener(subLauncher);
         }
         
         // communicate our new-found controlled systems to the migration process

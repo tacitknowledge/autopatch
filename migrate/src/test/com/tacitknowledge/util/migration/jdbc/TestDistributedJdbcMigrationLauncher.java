@@ -28,10 +28,10 @@ import com.tacitknowledge.util.migration.PatchInfoStore;
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
-public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
+public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrationLauncher
 {
     /** Class logger */
-    private static Log log = LogFactory.getLog(TestJdbcMigrationLauncher.class);
+    private static Log log = LogFactory.getLog(TestDistributedJdbcMigrationLauncher.class);
     
     /** The PatchInfoStore to use for migrations */
     private PatchInfoStore patchStore = null;
@@ -39,7 +39,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     /**
      * Delegates to the superclass
      */
-    public TestJdbcMigrationLauncher()
+    public TestDistributedJdbcMigrationLauncher()
     {
         super();
     }
@@ -50,7 +50,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
      * @param context the context to use for migration loading
      * @exception MigrationException if there is a problem configuring the context
      */
-    public TestJdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
+    public TestDistributedJdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
         super(context);
     }

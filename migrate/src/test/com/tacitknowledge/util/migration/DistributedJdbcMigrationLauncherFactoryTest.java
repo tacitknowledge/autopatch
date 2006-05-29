@@ -95,7 +95,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     public void testDistributedMigrationTaskLoading() throws MigrationException
     {
         MigrationProcess process = launcher.getMigrationProcess();
-        assertEquals(7, process.getMigrationTasks().size());   
+        assertEquals(7, process.getMigrationTasks().size());
     }
     
     /**
@@ -134,10 +134,11 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
      */    
     public void testDistributedMigrationEvents() throws Exception
     {
-        // There should be two listener on the main process
+        // There should be five listener on the main process
         //  1) the distributed launcher
         //  2) this test object
-        assertEquals(2, launcher.getMigrationProcess().getListeners().size());
+        //  3-5) the three sub-launchers
+        assertEquals(5, launcher.getMigrationProcess().getListeners().size());
         
         // The sub-MigrationProcesses should have one listener each - the sub-launcher
         HashMap controlledSystems = 
@@ -150,50 +151,14 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
             JdbcMigrationLauncher subLauncher = 
                 (JdbcMigrationLauncher)controlledSystems.get(controlledSystemName);
             MigrationProcess subProcess = subLauncher.getMigrationProcess();
-            assertEquals(2, subProcess.getListeners().size());
+            assertEquals(1, subProcess.getListeners().size());
         }
         
-//        // Now do the migrations, and make sure we get the right number of events
-//        MigrationProcess process = launcher.getMigrationProcess();
-//        int patches = process.doMigrations(3, launcher.getContext());
-//        assertEquals(4, patches);
-//        assertEquals(4, getMigrationStartedCount());
-//        assertEquals(4, getMigrationSuccessCount());
-    }
-    
-    /**
-     * Implements the migration started listener
-     *
-     * @param task the task that ran
-     * @param con the context for the task
-     */
-    public void migrationStarted(MigrationTask task, MigrationContext con)
-    {
-        // ??
-    }
-    
-    /**
-     * Implements the migration succeeded listener
-     *
-     * @param task the task that ran
-     * @param con the context for the task
-     */
-    public void migrationSuccessful(MigrationTask task, MigrationContext con)
-    {
-        // ??
-    }
-    
-    /**
-     * Implements the migration failed listener
-     *
-     * @param task the task that ran
-     * @param con the context for the task
-     * @param exception the exception that ocurred
-     */
-    public void migrationFailed(MigrationTask task, 
-                                MigrationContext con, 
-                                MigrationException exception)
-    {
-        // ??
+        // Now do the migrations, and make sure we get the right number of events
+        MigrationProcess process = launcher.getMigrationProcess();
+        int patches = process.doMigrations(3, launcher.getContext());
+        assertEquals(4, patches);
+        assertEquals(4, getMigrationStartedCount());
+        assertEquals(4, getMigrationSuccessCount());
     }
 }
