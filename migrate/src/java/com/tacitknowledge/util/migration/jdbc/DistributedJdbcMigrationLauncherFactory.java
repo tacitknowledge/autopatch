@@ -75,7 +75,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
      * @param systemName the name of the system
      * @throws MigrationException if an unexpected error occurs
      */
-    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String systemName)
+    private void configureFromMigrationProperties(DistributedJdbcMigrationLauncher launcher, String systemName)
         throws MigrationException
     {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -121,8 +121,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
      * @throws IllegalArgumentException if a required parameter is missing
      * @throws MigrationException if there is problem setting the context into the launcher
      */
-    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String systemName, 
-                                                  Properties props) 
+    private void configureFromMigrationProperties(DistributedJdbcMigrationLauncher launcher, 
+                                                  String systemName, Properties props) 
         throws IllegalArgumentException, MigrationException
     {
         // Get the name of the context to use for our patch information
@@ -159,63 +159,6 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
             controlledSystems.put(controlledSystemNames[i],
                                   factory.createMigrationLauncher(controlledSystemNames[i]));
         }
-    }
-    
-    /**
-     * Returns the value of the specified configuration parameter.
-     *
-     * @param  props the properties file containing the values
-     * @param  param the parameter to return
-     * @return the value of the specified configuration parameter
-     * @throws IllegalArgumentException if the parameter does not exist
-     */
-    public static String getRequiredParam(Properties props, String param)
-        throws IllegalArgumentException
-    {
-        String value = props.getProperty(param);
-        if (value == null)
-        {
-            System.err.println("Parameter named: " + param + " was not found.");
-            System.err.println("-----Parameters found-----");
-            Iterator propNameIterator = props.keySet().iterator();
-            while (propNameIterator.hasNext())
-            {
-                String name = (String) propNameIterator.next();
-                String val = props.getProperty(name);
-                System.err.println(name + " = " + val);
-            }
-            System.err.println("--------------------------");
-            throw new IllegalArgumentException("'" + param + "' is a required "
-                + "initialization parameter.  Aborting.");
-        }
-        return value;
-    }
-
-    /**
-     * Returns the value of the specified configuration parameter.
-     *
-     * @param  props the properties file containing the values
-     * @param  param the parameter to return
-     * @param  alternate the alternate parameter to return
-     * @return the value of the specified configuration parameter
-     */
-    public static String getRequiredParam(Properties props, String param, String alternate)
-    {
-        try
-        {
-            return getRequiredParam(props, param);
-        }
-        catch (IllegalArgumentException e1)
-        {
-            try
-            {
-                return getRequiredParam(props, alternate);
-            }
-            catch (IllegalArgumentException e2)
-            {
-                throw new IllegalArgumentException("Either '" + param + "' or '" + alternate
-                    + "' must be specified as an initialization parameter.  Aborting.");
-            }
-        }
+        launcher.setControlledSystems(controlledSystems);
     }
 }
