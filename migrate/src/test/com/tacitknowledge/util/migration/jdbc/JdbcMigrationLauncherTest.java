@@ -86,8 +86,10 @@ public class JdbcMigrationLauncherTest extends JDBCTestCaseAdapter
         patchStore.lockPatchStore();
         patchStore.getPatchLevel();
         mockControl.setReturnValue(2);
-        patchStore.updatePatchLevel(3);
         patchStore.updatePatchLevel(4);
+        patchStore.updatePatchLevel(5);
+        patchStore.updatePatchLevel(6);
+        patchStore.updatePatchLevel(7);
         patchStore.unlockPatchStore();
         mockControl.replay();
         

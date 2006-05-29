@@ -124,7 +124,7 @@ public class MigrationTest extends TestCase implements MigrationListener
         setMigrationStartedCount(0);
         setMigrationFailedCount(0);
         setMigrationSuccessCount(0);
-        level = runner.doMigrations(4, context);
+        level = runner.doMigrations(7, context);
         assertEquals(0, level);
         assertTrue(context.hasExecuted("TestTask1"));
         assertTrue(context.hasExecuted("TestTask2"));
@@ -145,7 +145,7 @@ public class MigrationTest extends TestCase implements MigrationListener
         List l = runner.getMigrationTasks();
         assertEquals(4, l.size());
         
-        int level = runner.doMigrations(2, context);
+        int level = runner.doMigrations(5, context);
         assertEquals(2, level);
         assertFalse(context.hasExecuted("TestTask1"));
         assertFalse(context.hasExecuted("TestTask2"));
@@ -169,7 +169,7 @@ public class MigrationTest extends TestCase implements MigrationListener
         int executedTasks = 0;
         try
         {
-            executedTasks = runner.doMigrations(2, context);
+            executedTasks = runner.doMigrations(5, context);
             fail("We called a migration that failed, this should have thrown an exception");
         }
         catch (MigrationException me)
@@ -194,7 +194,7 @@ public class MigrationTest extends TestCase implements MigrationListener
     {
         try
         {
-            TestMigrationTask2.setPatchLevelOverride(new Integer(3));
+            TestMigrationTask2.setPatchLevelOverride(new Integer(7));
             runner.doMigrations(0, context);
             fail("Expected a MigrationException due to a task patch level conflict");
         }
@@ -233,7 +233,7 @@ public class MigrationTest extends TestCase implements MigrationListener
     public void testGetNextPatchLevel() throws MigrationException
     {
         int level = runner.getNextPatchLevel();
-        assertEquals(5, level);
+        assertEquals(8, level);
     }
     
     /**

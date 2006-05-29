@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.TestDistributedJdbcMigrationLauncherFactory;
+import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 
 import junit.framework.TestCase;
 
@@ -83,5 +84,25 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends TestCase
        
        MigrationProcess process = launcher.getMigrationProcess();
        assertEquals(7, process.getMigrationTasks().size());
+       
+       process.validateTasks(process.getMigrationTasks());
+       
+       // Make one of the sub-tasks conflict with a sub-task from another launcher
+       TestMigrationTask2.setPatchLevelOverride(new Integer(3));
+       try
+       {
+           process.validateTasks(process.getMigrationTasks());
+           fail("We should have thrown an exception - " 
+                + "there were overlapping tasks among sub-launchers");
+       }
+       catch (MigrationException me)
+       {
+           // we expect this
+       }
+       finally
+       {
+           // make sure future tests work
+           TestMigrationTask2.reset();
+       }
     }
 }

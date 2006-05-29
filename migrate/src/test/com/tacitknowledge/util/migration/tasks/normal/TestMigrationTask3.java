@@ -35,7 +35,7 @@ public class TestMigrationTask3 extends BaseTestMigrationTask
      */
     public TestMigrationTask3()
     {
-        super("TestTask3", 3);
+        super("TestTask3", 6);
     }
     
     /**

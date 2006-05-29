@@ -28,6 +28,6 @@ public class TestMigrationTask4 extends BaseTestMigrationTask
      */
     public TestMigrationTask4()
     {
-        super("TestTask4", 4);
+        super("TestTask4", 7);
     }
 }

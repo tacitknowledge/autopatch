@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -60,6 +61,7 @@ public class DistributedMigrationProcess extends MigrationProcess
     {
         log.trace("Starting doMigrations");
         List migrations = getMigrationTasks();
+        LinkedHashMap migrationsWithLaunchers = getMigrationTasksWithLaunchers();
         validateTasks(migrations);
         Collections.sort(migrations);
         int taskCount = 0;
@@ -69,7 +71,9 @@ public class DistributedMigrationProcess extends MigrationProcess
             MigrationTask task = (MigrationTask) i.next();
             if (task.getLevel().intValue() > currentLevel)
             {
-                applyPatch(context, task);
+                // Execute the task in the context it was loaded from
+                JdbcMigrationLauncher launcher = (JdbcMigrationLauncher)migrationsWithLaunchers.get(task);
+                applyPatch(launcher.getContext(), task);
                 taskCount++;
             }
         }
@@ -87,9 +91,51 @@ public class DistributedMigrationProcess extends MigrationProcess
     }
 
     /**
-     * Returns a list of all migration tasks, regardless of patch level.
+     * Returns a LinkedHashMap of task/launcher pairings, regardless of patch level.
      * 
-     * @return a list of all migration tasks
+     * @return LinkedHashMap containing MigrationTask / JdbcMigrationLauncher pairings
+     * @throws MigrationException if one or more migration tasks could not be
+     *         created
+     */
+    public LinkedHashMap getMigrationTasksWithLaunchers() throws MigrationException
+    {
+        LinkedHashMap tasks = new LinkedHashMap();
+        
+        for (Iterator controlledSystemIter = getControlledSystems().keySet().iterator();
+            controlledSystemIter.hasNext();)
+        {
+            String controlledSystemName = (String)controlledSystemIter.next();
+            JdbcMigrationLauncher launcher = 
+                (JdbcMigrationLauncher)getControlledSystems().get(controlledSystemName);
+            List subTasks = launcher.getMigrationProcess().getMigrationTasks();
+            log.info("Found " + subTasks.size() + " for system " + controlledSystemName);
+            if (log.isDebugEnabled())
+            {
+                for (Iterator subTaskIter = subTasks.iterator(); subTaskIter.hasNext();)
+                {
+                    MigrationTask task = (MigrationTask)subTaskIter.next();
+                    log.debug("\tFound subtask " + task.getName());
+                    tasks.put(task, launcher);
+                }
+            }
+        }
+        
+        // Its difficult to tell what's going on when you don't see any patches.
+        // This will help people realize they don't have patches, and perhaps
+        // help them discover why.
+        if (tasks.size() == 0)
+        {
+            log.info("No patches were discovered in your classpath. "
+                     + "Run with DEBUG logging enabled for patch search details.");
+        }
+        
+        return tasks;
+    }
+
+    /**
+     * Returns a List of MigrationTasks, regardless of patch level.
+     * 
+     * @return List containing MigrationTask objects
      * @throws MigrationException if one or more migration tasks could not be
      *         created
      */

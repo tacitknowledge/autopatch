@@ -26,14 +26,14 @@ public class TestMigrationTask2 extends BaseTestMigrationTask
     /**
      * The patch level to use instead of '2'
      */
-    private static Integer patchLevelOverride = new Integer(2);
+    private static Integer patchLevelOverride = new Integer(5);
     
     /**
      * Creates a new <code>TestMigrationTask3</code>.
      */
     public TestMigrationTask2()
     {
-        super("TestTask2", 2);
+        super("TestTask2", 5);
     }
     
     /**
@@ -60,7 +60,7 @@ public class TestMigrationTask2 extends BaseTestMigrationTask
      */    
     public static void reset()
     {
-        patchLevelOverride = new Integer(2);
+        patchLevelOverride = new Integer(5);
     }
 
 }
