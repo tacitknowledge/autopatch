@@ -229,7 +229,6 @@ public class JdbcMigrationLauncherFactory
      */
     public JdbcMigrationLauncher getJdbcMigrationLauncher()
     {
-        log.debug(new Exception());
         return new JdbcMigrationLauncher();
     }
 
