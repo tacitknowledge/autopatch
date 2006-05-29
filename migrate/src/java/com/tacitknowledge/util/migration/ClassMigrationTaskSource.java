@@ -65,7 +65,18 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
             try
             {
                 Object o = taskClass.newInstance();
-                tasks.add(o);
+                
+                // It's not legal to have a null name.
+                MigrationTask task = (MigrationTask)o;
+                if (task.getName() != null) 
+                {
+                    tasks.add(o);
+                }
+                else
+                {
+                    log.debug("MigrationTask " + taskClass.getName() 
+                              + " had no migration name. Skipping");
+                }
             }
             catch (Exception e)
             {
