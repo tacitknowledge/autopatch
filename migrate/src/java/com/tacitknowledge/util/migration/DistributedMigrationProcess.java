@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -29,15 +29,15 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
  * Discovers and executes a sequence of system patches from multiple controlled
  * systems, each of which has its own MigrationProcess.
  * 
- * @author  Scott Askew (scott@tacitknowledge.com)
- * @see MigrationProcess   
+ * @author Mike Hardy (mike@tacitknowledge.com)
+ * @see com.tacitknowledge.util.migration.MigrationProcess   
  */
 public class DistributedMigrationProcess extends MigrationProcess
 {
     /** Class logger */
     private static Log log = LogFactory.getLog(DistributedMigrationProcess.class);
     
-    /** The JdbcMigrationLaunchers we are controlling */
+    /** The JdbcMigrationLaunchers we are controlling, keyed by system name */
     private HashMap controlledSystems = new HashMap();
     
     /**
@@ -59,13 +59,19 @@ public class DistributedMigrationProcess extends MigrationProcess
     public int doMigrations(int currentLevel, MigrationContext context)
         throws MigrationException
     {
-        log.trace("Starting doMigrations");
-        List migrations = getMigrationTasks();
+        log.debug("Starting doMigrations");
+        
+        // Get all the migrations, with their launchers, then get the list of just the migrations
         LinkedHashMap migrationsWithLaunchers = getMigrationTasksWithLaunchers();
+        List migrations = new ArrayList();
+        migrations.addAll(migrationsWithLaunchers.keySet());
+        
+        // make sure the migrations are okay, then sort them
         validateTasks(migrations);
         Collections.sort(migrations);
-        int taskCount = 0;
         
+        // Roll through each migration, applying it if necessary
+        int taskCount = 0;
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
@@ -101,32 +107,31 @@ public class DistributedMigrationProcess extends MigrationProcess
     {
         LinkedHashMap tasks = new LinkedHashMap();
         
+        // Roll through all our controlled system names
         for (Iterator controlledSystemIter = getControlledSystems().keySet().iterator();
             controlledSystemIter.hasNext();)
         {
+            // Get the sub launcher that runs patches for the current name
             String controlledSystemName = (String)controlledSystemIter.next();
-            JdbcMigrationLauncher launcher = 
+            JdbcMigrationLauncher subLauncher = 
                 (JdbcMigrationLauncher)getControlledSystems().get(controlledSystemName);
-            List subTasks = launcher.getMigrationProcess().getMigrationTasks();
+            
+            // Get all the tasks for that sub launcher
+            List subTasks = subLauncher.getMigrationProcess().getMigrationTasks();
             log.info("Found " + subTasks.size() + " for system " + controlledSystemName);
             if (log.isDebugEnabled())
             {
                 for (Iterator subTaskIter = subTasks.iterator(); subTaskIter.hasNext();)
                 {
                     MigrationTask task = (MigrationTask)subTaskIter.next();
-                    log.debug("\tFound subtask " + task.getName());
-                    tasks.put(task, launcher);
+                    log.debug("\tMigration+Launcher binder found subtask " 
+                              + task.getName() + " for launcher context " 
+                              + subLauncher.getContext().getSystemName());
+                    
+                    // store the task, related to its launcher
+                    tasks.put(task, subLauncher);
                 }
             }
-        }
-        
-        // Its difficult to tell what's going on when you don't see any patches.
-        // This will help people realize they don't have patches, and perhaps
-        // help them discover why.
-        if (tasks.size() == 0)
-        {
-            log.info("No patches were discovered in your classpath. "
-                     + "Run with DEBUG logging enabled for patch search details.");
         }
         
         return tasks;
@@ -172,7 +177,7 @@ public class DistributedMigrationProcess extends MigrationProcess
         
         return tasks;
     }
-
+    
     /**
      * Get the list of systems we are controlling
      * 

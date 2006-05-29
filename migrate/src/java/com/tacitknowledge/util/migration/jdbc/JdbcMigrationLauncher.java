@@ -78,6 +78,11 @@ public class JdbcMigrationLauncher implements MigrationListener
     public JdbcMigrationLauncher()
     {
         setMigrationProcess(new MigrationProcess());
+
+        // Make sure this class is notified when a patch is applied so that
+        // the patch level can be updated (see #migrationSuccessful).
+        migrationProcess.addListener(this);
+        
         getMigrationProcess().addMigrationTaskSource(new SqlScriptMigrationTaskSource());
     }
 
@@ -270,11 +275,6 @@ public class JdbcMigrationLauncher implements MigrationListener
             try
             {
                 int patchLevel = patchTable.getPatchLevel();
-
-                // Make sure this class is notified when a patch is applied so that
-                // the patch level can be updated (see #migrationSuccessful).
-                migrationProcess.addListener(this);
-
                 return migrationProcess.doMigrations(patchLevel, context);
             }
             finally

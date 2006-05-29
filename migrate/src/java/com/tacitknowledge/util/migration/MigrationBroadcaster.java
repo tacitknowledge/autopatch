@@ -129,4 +129,14 @@ class MigrationBroadcaster
         }
         return listeners.remove(listener);
     }
+    
+    /**
+     * Get the list of listeners
+     * 
+     * @return List of MigrationListener objects
+     */
+    public List getListeners()
+    {
+        return listeners;
+    }
 }

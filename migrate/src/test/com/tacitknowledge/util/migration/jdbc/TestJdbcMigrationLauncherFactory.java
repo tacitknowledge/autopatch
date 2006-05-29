@@ -29,4 +29,14 @@ public class TestJdbcMigrationLauncherFactory extends JdbcMigrationLauncherFacto
     {
         return new TestDataSourceMigrationContext();
     }
+    
+    /**
+     * Returns a TestJdbcMigrationLauncher
+     * 
+     * @return TestJdbcMigrationLauncher
+     */
+    public JdbcMigrationLauncher getJdbcMigrationLauncher()
+    {
+        return new TestJdbcMigrationLauncher();
+    }
 }

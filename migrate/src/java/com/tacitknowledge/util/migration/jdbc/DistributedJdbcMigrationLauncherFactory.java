@@ -156,8 +156,11 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         {
             log.info("Creating controlled migration launcher for system " + controlledSystemNames[i]);
             JdbcMigrationLauncherFactory factory = JdbcMigrationLauncherFactoryLoader.createFactory();
-            controlledSystems.put(controlledSystemNames[i],
-                                  factory.createMigrationLauncher(controlledSystemNames[i]));
+            JdbcMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i]);
+            controlledSystems.put(controlledSystemNames[i], subLauncher);
+            
+            // Make sure the distributed migration process gets migration events
+            subLauncher.getMigrationProcess().addListener(launcher);
         }
         
         // communicate our new-found controlled systems to the migration process

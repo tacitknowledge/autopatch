@@ -15,26 +15,29 @@ package com.tacitknowledge.util.migration;
 
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
+import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.TestDistributedJdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
-
-import junit.framework.TestCase;
 
 /**
  * Test the distributed launcher factory
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
-public class DistributedJdbcMigrationLauncherFactoryTest extends TestCase
+public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListenerTestBase
 {
     /** Class logger */
     private static Log log = LogFactory.getLog(DistributedJdbcMigrationLauncherFactoryTest.class);
+    
+    /** The launcher we're testing */
+    DistributedJdbcMigrationLauncher launcher = null;
     
     /**
      * constructor that takes a name
@@ -52,7 +55,17 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
-        log.info("setting up for test run");
+        
+        // Make sure we load our test launcher factory, which fakes out the data source context
+        System.getProperties().setProperty("migration.factory", 
+                                           "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
+        DistributedJdbcMigrationLauncherFactory factory = new TestDistributedJdbcMigrationLauncherFactory();
+        
+        // Create the launcher (this does configure it as a side-effect)
+        launcher = (DistributedJdbcMigrationLauncher)factory.createMigrationLauncher("orchestration");
+        
+        // Make sure we get notification of any migrations
+        launcher.getMigrationProcess().addListener(this);
     }
 
     /**
@@ -66,43 +79,121 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends TestCase
     
     /**
      * Test the configuration of the launchers versus a known property file
-     * 
-     * @exception MigrationException if something goes horribly awry
      */
-    public void testDistributedLauncherConfiguration() throws MigrationException
+    public void testDistributedLauncherConfiguration()
     {
-        log.info("testing distributed configuration");
-        System.getProperties().setProperty("migration.factory", 
-                                           "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
-        DistributedJdbcMigrationLauncherFactory factory = new TestDistributedJdbcMigrationLauncherFactory();
-        DistributedJdbcMigrationLauncher launcher = 
-            (DistributedJdbcMigrationLauncher)factory.createMigrationLauncher("orchestration");
+        HashMap controlledSystems = 
+            ((DistributedMigrationProcess)launcher.getMigrationProcess()).getControlledSystems();
+        assertEquals(3, controlledSystems.size());
+    }
+    
+    /**
+     * Make sure that the task loading works correctly
+     * 
+     * @exception MigrationException if anything goes wrong
+     */
+    public void testDistributedMigrationTaskLoading() throws MigrationException
+    {
+        MigrationProcess process = launcher.getMigrationProcess();
+        assertEquals(7, process.getMigrationTasks().size());   
+    }
+    
+    /**
+     * Ensure that overlapping tasks even among sub-launchers are detected
+     * 
+     * @exception MigrationException if anything goes wrong
+     */    
+    public void testDistributedMigrationTaskValidation() throws Exception
+    {
+        MigrationProcess process = launcher.getMigrationProcess();
+        process.validateTasks(process.getMigrationTasks());
         
-       HashMap controlledSystems = 
-           ((DistributedMigrationProcess)launcher.getMigrationProcess()).getControlledSystems();
-       assertEquals(3, controlledSystems.size());
-       
-       MigrationProcess process = launcher.getMigrationProcess();
-       assertEquals(7, process.getMigrationTasks().size());
-       
-       process.validateTasks(process.getMigrationTasks());
-       
-       // Make one of the sub-tasks conflict with a sub-task from another launcher
-       TestMigrationTask2.setPatchLevelOverride(new Integer(3));
-       try
-       {
-           process.validateTasks(process.getMigrationTasks());
-           fail("We should have thrown an exception - " 
-                + "there were overlapping tasks among sub-launchers");
-       }
-       catch (MigrationException me)
-       {
-           // we expect this
-       }
-       finally
-       {
-           // make sure future tests work
-           TestMigrationTask2.reset();
-       }
+        // Make one of the sub-tasks conflict with a sub-task from another launcher
+        TestMigrationTask2.setPatchLevelOverride(new Integer(3));
+        try
+        {
+            process.validateTasks(process.getMigrationTasks());
+            fail("We should have thrown an exception - " 
+                 + "there were overlapping tasks among sub-launchers");
+        }
+        catch (MigrationException me)
+        {
+            // we expect this
+        }
+        finally
+        {
+            // make sure future tests work
+            TestMigrationTask2.reset();
+        }
+    }
+    
+    /**
+     * Make sure we get notified of patch application
+     * 
+     * @exception MigrationException if anything goes wrong
+     */    
+    public void testDistributedMigrationEvents() throws Exception
+    {
+        // There should be two listener on the main process
+        //  1) the distributed launcher
+        //  2) this test object
+        assertEquals(2, launcher.getMigrationProcess().getListeners().size());
+        
+        // The sub-MigrationProcesses should have one listener each - the sub-launcher
+        HashMap controlledSystems = 
+            ((DistributedMigrationProcess)launcher.getMigrationProcess()).getControlledSystems();
+        
+        for (Iterator controlledSystemIter = controlledSystems.keySet().iterator();
+        controlledSystemIter.hasNext();)
+        {
+            String controlledSystemName = (String)controlledSystemIter.next();
+            JdbcMigrationLauncher subLauncher = 
+                (JdbcMigrationLauncher)controlledSystems.get(controlledSystemName);
+            MigrationProcess subProcess = subLauncher.getMigrationProcess();
+            assertEquals(2, subProcess.getListeners().size());
+        }
+        
+//        // Now do the migrations, and make sure we get the right number of events
+//        MigrationProcess process = launcher.getMigrationProcess();
+//        int patches = process.doMigrations(3, launcher.getContext());
+//        assertEquals(4, patches);
+//        assertEquals(4, getMigrationStartedCount());
+//        assertEquals(4, getMigrationSuccessCount());
+    }
+    
+    /**
+     * Implements the migration started listener
+     *
+     * @param task the task that ran
+     * @param con the context for the task
+     */
+    public void migrationStarted(MigrationTask task, MigrationContext con)
+    {
+        // ??
+    }
+    
+    /**
+     * Implements the migration succeeded listener
+     *
+     * @param task the task that ran
+     * @param con the context for the task
+     */
+    public void migrationSuccessful(MigrationTask task, MigrationContext con)
+    {
+        // ??
+    }
+    
+    /**
+     * Implements the migration failed listener
+     *
+     * @param task the task that ran
+     * @param con the context for the task
+     * @param exception the exception that ocurred
+     */
+    public void migrationFailed(MigrationTask task, 
+                                MigrationContext con, 
+                                MigrationException exception)
+    {
+        // ??
     }
 }

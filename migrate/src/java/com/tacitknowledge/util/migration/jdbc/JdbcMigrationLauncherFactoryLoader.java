@@ -12,6 +12,9 @@
  */
 package com.tacitknowledge.util.migration.jdbc;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Load a MigrationLauncherFactory. This will default to loading the
  * JdbcMigrationLauncherFactory, but will examine the system properties
@@ -21,6 +24,9 @@ package com.tacitknowledge.util.migration.jdbc;
  */
 public class JdbcMigrationLauncherFactoryLoader 
 {
+    /** Class logger */
+    private static Log log = LogFactory.getLog(JdbcMigrationLauncherFactoryLoader.class);
+    
     /**
      * Create the JdbcMigrationLauncherFactory
      * 
@@ -30,6 +36,7 @@ public class JdbcMigrationLauncherFactoryLoader
     {
         // Get the factory name from the system properties if possible
         String factoryName = System.getProperties().getProperty("migration.factory");
+        log.debug("Creating JdbcMigrationLauncher using " + factoryName);
         if (factoryName == null) 
         {
             factoryName = JdbcMigrationLauncherFactory.class.getName();   

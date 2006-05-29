@@ -60,7 +60,6 @@ import org.apache.commons.logging.LogFactory;
  * </pre>
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class MigrationProcess
 {
@@ -181,6 +180,7 @@ public class MigrationProcess
     {
         String label = getTaskLabel(task);
         broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
+        log.debug("broadcaster has " + broadcaster.getListeners().size() + " listeners");
         log.info("Running migration task \"" + label + "\"...");
         try
         {
@@ -299,6 +299,16 @@ public class MigrationProcess
     public boolean removeListener(MigrationListener listener)
     {
         return broadcaster.removeListener(listener);
+    }
+    
+    /**
+     * Get all of the MigrationListeners
+     * 
+     * @return List of MigrationListeners
+     */
+    public List getListeners()
+    {
+        return broadcaster.getListeners();
     }
 
     /**

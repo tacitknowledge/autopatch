@@ -15,13 +15,8 @@ package com.tacitknowledge.util.migration;
 
 import java.util.List;
 
-import com.tacitknowledge.util.migration.MigrationContext;
-import com.tacitknowledge.util.migration.MigrationListener;
-import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
-
-import junit.framework.TestCase;
 
 /**
  * 
@@ -29,17 +24,8 @@ import junit.framework.TestCase;
  * @author  Scott Askew (scott@tacitknowledge.com)
  * @version $Id$
  */
-public class MigrationTest extends TestCase implements MigrationListener
+public class MigrationTest extends MigrationListenerTestBase
 {
-    /** the count of times "migration started" was broadcast */
-    private int migrationStartedCount = 0;
-    
-    /** the count of times "migration success" was broadcast */
-    private int migrationSuccessCount = 0;
-    
-    /** the count of times "migration failed" was broadcast */
-    private int migrationFailedCount = 0;
-    
     /** The class under test */
     private MigrationProcess runner = null;
     
@@ -234,99 +220,5 @@ public class MigrationTest extends TestCase implements MigrationListener
     {
         int level = runner.getNextPatchLevel();
         assertEquals(8, level);
-    }
-    
-    /**
-     * Implements the migration started listener
-     *
-     * @param task the task that ran
-     * @param con the context for the task
-     */
-    public void migrationStarted(MigrationTask task, MigrationContext con)
-    {
-        setMigrationStartedCount(getMigrationStartedCount() + 1);
-    }
-    
-    /**
-     * Implements the migration succeeded listener
-     *
-     * @param task the task that ran
-     * @param con the context for the task
-     */
-    public void migrationSuccessful(MigrationTask task, MigrationContext con)
-    {
-        setMigrationSuccessCount(getMigrationSuccessCount() + 1);
-    }
-    
-    /**
-     * Implements the migration failed listener
-     *
-     * @param task the task that ran
-     * @param con the context for the task
-     * @param exception the exception that ocurred
-     */
-    public void migrationFailed(MigrationTask task, 
-                                MigrationContext con, 
-                                MigrationException exception)
-    {
-        setMigrationFailedCount(getMigrationFailedCount() + 1);
-    }
-    
-    /**
-     * Reset all of the counters
-     */
-    public void resetMigrationListenerState()
-    {
-        setMigrationFailedCount(0);
-        setMigrationStartedCount(0);
-        setMigrationSuccessCount(0);
-    }
-    
-    /**
-     * @return Returns the migrationFailedCount.
-     */
-    public int getMigrationFailedCount()
-    {
-        return migrationFailedCount;
-    }
-    
-    /**
-     * @param migrationFailedCount The migrationFailedCount to set.
-     */
-    public void setMigrationFailedCount(int migrationFailedCount)
-    {
-        this.migrationFailedCount = migrationFailedCount;
-    }
-    
-    /**
-     * @return Returns the migrationStartedCount.
-     */
-    public int getMigrationStartedCount()
-    {
-        return migrationStartedCount;
-    }
-    
-    /**
-     * @param migrationStartedCount The migrationStartedCount to set.
-     */
-    public void setMigrationStartedCount(int migrationStartedCount)
-    {
-        this.migrationStartedCount = migrationStartedCount;
-    }
-    
-    /**
-     * @return Returns the migrationSuccessCount.
-     */
-    public int getMigrationSuccessCount()
-    {
-        return migrationSuccessCount;
-    }
-    
-    /**
-     * @param migrationSuccessCount The migrationSuccessCount to set.
-     */
-    public void setMigrationSuccessCount(int migrationSuccessCount)
-    {
-        this.migrationSuccessCount = migrationSuccessCount;
     }
 }

@@ -25,6 +25,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
@@ -53,6 +56,9 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  */
 public class JdbcMigrationLauncherFactory
 {
+    /** Class logger */
+    private static Log log = LogFactory.getLog(JdbcMigrationLauncherFactory.class);
+    
     /**
      * Creates and configures a new <code>JdbcMigrationLauncher</code> based on the
      * values in the <em>migration.properties</em> file for the given system.
@@ -64,7 +70,7 @@ public class JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher createMigrationLauncher(String systemName)
         throws MigrationException
     {
-        JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
+        JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
         configureFromMigrationProperties(launcher, systemName);
         return launcher;
     }
@@ -80,7 +86,7 @@ public class JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher createMigrationLauncher(ServletContextEvent sce)
         throws MigrationException
     {
-        JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
+        JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
         configureFromServletContext(launcher, sce);
         return launcher;
     }
@@ -96,7 +102,7 @@ public class JdbcMigrationLauncherFactory
     private void configureFromServletContext(JdbcMigrationLauncher launcher, 
             ServletContextEvent sce) throws MigrationException
     {
-        DataSourceMigrationContext context = new DataSourceMigrationContext();
+        DataSourceMigrationContext context = getDataSourceMigrationContext();
         String systemName = getRequiredParam("migration.systemname", sce);
         context.setSystemName(systemName);
         
@@ -214,6 +220,17 @@ public class JdbcMigrationLauncherFactory
     public DataSourceMigrationContext getDataSourceMigrationContext()
     {
         return new DataSourceMigrationContext();
+    }
+    
+    /**
+     * Get a JdbcMigrationLauncher
+     * 
+     * @return JdbcMigrationLauncher
+     */
+    public JdbcMigrationLauncher getJdbcMigrationLauncher()
+    {
+        log.debug(new Exception());
+        return new JdbcMigrationLauncher();
     }
 
     /**

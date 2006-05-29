@@ -14,7 +14,10 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.sql.Connection;
 
+import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.MigrationListener;
+import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.PatchInfoStore;
 
 /**
@@ -71,5 +74,14 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     public void setPatchStore(PatchInfoStore patchStore)
     {
         this.patchStore = patchStore;
+    }
+
+    /**
+     * @see MigrationListener#migrationSuccessful(MigrationTask, MigrationContext)
+     */
+    public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
+        throws MigrationException
+    {
+        // do nothing
     }
 }
