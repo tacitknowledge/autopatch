@@ -16,14 +16,14 @@ package com.tacitknowledge.util.migration.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.TestMigrationContext;
 
 /**
  * A DataSourceMigrationContext that doesn't actually talk to a database.
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
-public class TestDataSourceMigrationContext extends DataSourceMigrationContext
+public class TestDataSourceMigrationContext extends TestMigrationContext
 {
     /**
      * Always returns null, doesn't talk to a database
@@ -34,25 +34,5 @@ public class TestDataSourceMigrationContext extends DataSourceMigrationContext
     public Connection getConnection() throws SQLException
     {
         return null;
-    }
-    
-    /**
-     * Always does nothing
-     * 
-     * @exception MigrationException never
-     */
-    public void commit() throws MigrationException
-    {
-        // do nothing
-    }
-    
-    /**
-     * Always does nothing
-     * 
-     * @exception MigrationException never
-     */
-    public void rollback() throws MigrationException
-    {
-        // do nothing
     }
 }

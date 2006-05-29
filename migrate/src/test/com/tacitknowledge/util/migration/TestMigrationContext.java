@@ -16,14 +16,14 @@ package com.tacitknowledge.util.migration;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.tacitknowledge.util.migration.jdbc.DataSourceMigrationContext;
 
 /**
  * Extends <code>MigrationContext</code> by adding a log of test executions.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
-public class TestMigrationContext implements MigrationContext
+public class TestMigrationContext extends DataSourceMigrationContext
 {
     /**
      * A record of task executions

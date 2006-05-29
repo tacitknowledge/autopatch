@@ -45,7 +45,7 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * information as directed in the documenation for JdbcMigrationLauncher.
  * 
  * @see com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher
- * @author Scott Askew (scott@tacitknowledge.com)
+ * @author Mike Hardy (mike@tacitknowledge.com)
  */
 public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLauncherFactory
 {

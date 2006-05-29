@@ -70,6 +70,7 @@ public class JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher createMigrationLauncher(String systemName)
         throws MigrationException
     {
+        log.info("Creating JdbcMigrationLauncher for system " + systemName);
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
         configureFromMigrationProperties(launcher, systemName);
         return launcher;

@@ -22,7 +22,6 @@ import java.util.List;
  * <code>Migration</code> instance. 
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 class MigrationBroadcaster
 {
