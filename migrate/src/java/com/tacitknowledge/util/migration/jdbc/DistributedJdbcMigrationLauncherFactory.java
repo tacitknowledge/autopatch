@@ -16,12 +16,12 @@ package com.tacitknowledge.util.migration.jdbc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.DistributedMigrationProcess;
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
@@ -159,6 +159,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
             controlledSystems.put(controlledSystemNames[i],
                                   factory.createMigrationLauncher(controlledSystemNames[i]));
         }
-        launcher.setControlledSystems(controlledSystems);
+        
+        // communicate our new-found controlled systems to the migration process
+        ((DistributedMigrationProcess)launcher.getMigrationProcess()).setControlledSystems(controlledSystems);
     }
 }

@@ -77,8 +77,11 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends TestCase
         DistributedJdbcMigrationLauncher launcher = 
             (DistributedJdbcMigrationLauncher)factory.createMigrationLauncher("orchestration");
         
-       HashMap controlledSystems = launcher.getControlledSystems();
+       HashMap controlledSystems = 
+           ((DistributedMigrationProcess)launcher.getMigrationProcess()).getControlledSystems();
        assertEquals(3, controlledSystems.size());
-        
+       
+       MigrationProcess process = launcher.getMigrationProcess();
+       assertEquals(7, process.getMigrationTasks().size());
     }
 }

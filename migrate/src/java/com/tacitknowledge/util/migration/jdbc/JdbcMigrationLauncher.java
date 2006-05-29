@@ -252,7 +252,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      * @throws MigrationException if an unrecoverable error occurs during
      *         the migration
      */
-    private int doMigrations(Connection conn) throws SQLException, MigrationException
+    protected int doMigrations(Connection conn) throws SQLException, MigrationException
     {
         patchTable = createPatchStore(conn);
 
@@ -260,7 +260,6 @@ public class JdbcMigrationLauncher implements MigrationListener
         boolean b = true;
         try
         {
-
             lockPatchStore();
 
             // make sure we can at least attempt to roll back patches

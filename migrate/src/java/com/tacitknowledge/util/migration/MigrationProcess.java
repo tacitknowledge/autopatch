@@ -230,7 +230,8 @@ public class MigrationProcess
                 {
                     if (sourceTasks.size() > 0)
                     {
-                        log.debug("Source [" + source + "] found the following patches: "
+                        log.debug("Source [" + source + "] found " 
+                                  + sourceTasks.size() + " patches: "
                                   + sourceTasks);
                     }
                     else
@@ -317,7 +318,7 @@ public class MigrationProcess
      * @param  migrations the list of defined migration tasks
      * @throws MigrationException if the migration tasks are not correctly defined
      */
-    private void validateTasks(List migrations) throws MigrationException
+    public void validateTasks(List migrations) throws MigrationException
     {
         Map usedOrderNumbers = new HashMap();
         for (Iterator i = migrations.iterator(); i.hasNext();)
