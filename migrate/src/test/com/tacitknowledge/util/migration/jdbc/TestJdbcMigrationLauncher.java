@@ -51,8 +51,9 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
      * 
      * @param conn the database connection to use for patch table access
      * @return patchStore held internally
+     * @throws MigrationException if creating the store fails
      */
-    protected PatchInfoStore createPatchStore(Connection conn)
+    protected PatchInfoStore createPatchStore(Connection conn) throws MigrationException
     {
         if (patchStore != null)
         {

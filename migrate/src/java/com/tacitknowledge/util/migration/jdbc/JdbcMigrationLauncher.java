@@ -77,8 +77,8 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public JdbcMigrationLauncher()
     {
-        migrationProcess = new MigrationProcess();
-        migrationProcess.addMigrationTaskSource(new SqlScriptMigrationTaskSource());
+        setMigrationProcess(new MigrationProcess());
+        getMigrationProcess().addMigrationTaskSource(new SqlScriptMigrationTaskSource());
     }
 
     /**
@@ -243,7 +243,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     }
 
     /**
-     * Starts the application migration process.
+     * Performs the application migration process in one go
      *
      * @param  conn the connection to use
      * @return the number of patches applied
@@ -256,38 +256,18 @@ public class JdbcMigrationLauncher implements MigrationListener
     {
         patchTable = createPatchStore(conn);
 
-        // Make sure the table is created first
-        patchTable.getPatchLevel();
-        if (!conn.getAutoCommit())
-        {
-            conn.commit();
-        }
-
-        // Turn off auto-commit
+        // Save auto-commit state
         boolean b = true;
         try
         {
+
+            lockPatchStore();
+
+            // make sure we can at least attempt to roll back patches
+            // DDL can usually don't rollback - we'd need compensating transactions
             b = conn.getAutoCommit();
             conn.setAutoCommit(false);
-
-            // Patch locks ensure that only one system sharing a patch store will patch
-            // it at the same time.
-            boolean lockObtained = false;
-            while (!lockObtained)
-            {
-                waitForFreeLock();
-
-                try
-                {   
-                    patchTable.lockPatchStore();
-                    lockObtained = true;
-                }
-                catch (IllegalStateException ise)
-                {
-                    // this happens when someone raced us to the lock and won
-                }
-            }
-
+            
             try
             {
                 int patchLevel = patchTable.getPatchLevel();
@@ -317,16 +297,61 @@ public class JdbcMigrationLauncher implements MigrationListener
             conn.setAutoCommit(b);
         }
     }
+
+    /**
+     * Lock the patch store. This is done safely, such that we safely handle the case where 
+     * other migration launchers are patching at the same time.
+     * 
+     * @throws MigrationException if the reading or setting lock state fails
+     */
+    private void lockPatchStore() throws MigrationException
+    {
+        // Patch locks ensure that only one system sharing a patch store will patch
+        // it at the same time.
+        boolean lockObtained = false;
+        while (!lockObtained)
+        {
+            waitForFreeLock();
+
+            try
+            {   
+                patchTable.lockPatchStore();
+                lockObtained = true;
+            }
+            catch (IllegalStateException ise)
+            {
+                // this happens when someone woke up at the same time,
+                // raced us to the lock and won. We re-sleep and try again.
+            }
+        }
+    }
     
     /**
      * create a patch table object for use in migrations
      * 
      * @param conn the database connection to use for table access
      * @return PatchTable object for use in accessing patch state information
+     * @throws MigrationException if unable to create the store
      */
-    protected PatchInfoStore createPatchStore(Connection conn)
+    protected PatchInfoStore createPatchStore(Connection conn) throws MigrationException
     {
-        return new PatchTable(context, conn);
+        PatchInfoStore piStore = new PatchTable(context, conn);
+
+        // Make sure the table is created before claiming it exists by returning
+        patchTable.getPatchLevel();
+        try
+        {
+            if (!conn.getAutoCommit())
+            {
+                conn.commit();
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new MigrationException("Unable to commit connection after creating patch store");
+        }
+        
+        return piStore;
     }
 
     /**
@@ -368,5 +393,65 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void setLockPollMillis(long lockPollMillis)
     {
         this.lockPollMillis = lockPollMillis;
+    }
+
+    /**
+     * Get the migration context we're using
+     * 
+     * @return JdbcMigrationContext to use for migration coordination
+     */
+    public JdbcMigrationContext getContext()
+    {
+        return context;
+    }
+
+    /**
+     * Set the migration context to use for migrations
+     * 
+     * @param context the migration context to use for migrations
+     */
+    public void setContext(JdbcMigrationContext context)
+    {
+        this.context = context;
+    }
+
+    /**
+     * Get the migration process to use for migrations
+     * 
+     * @return MigrationProcess to use for migrations
+     */
+    public MigrationProcess getMigrationProcess()
+    {
+        return migrationProcess;
+    }
+
+    /**
+     * Set the migration process to use for migrations
+     * 
+     * @param migrationProcess the MigrationProcess to use for migrations
+     */
+    public void setMigrationProcess(MigrationProcess migrationProcess)
+    {
+        this.migrationProcess = migrationProcess;
+    }
+
+    /**
+     * Get the patch table we use to store migration information
+     * 
+     * @return PatchStore with information about our migration state
+     */
+    public PatchInfoStore getPatchTable()
+    {
+        return patchTable;
+    }
+
+    /**
+     * Set the patch table where we should put information about the migrationo
+     * 
+     * @param patchTable where we should put information about the migration
+     */
+    public void setPatchTable(PatchInfoStore patchTable)
+    {
+        this.patchTable = patchTable;
     }
 }

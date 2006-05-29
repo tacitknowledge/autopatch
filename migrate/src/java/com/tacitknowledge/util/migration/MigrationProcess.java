@@ -136,7 +136,7 @@ public class MigrationProcess
      * 
      * @param  currentLevel the current system patch level
      * @param  context information and resources that are available to the migration tasks
-     * @throws MigrationException if the migration fails
+     * @throws MigrationException if a migration fails
      * @return the number of <code>MigrationTask</code>s that have executed
      */
     public int doMigrations(int currentLevel, MigrationContext context)
@@ -153,33 +153,7 @@ public class MigrationProcess
             MigrationTask task = (MigrationTask) i.next();
             if (task.getLevel().intValue() > currentLevel)
             {
-                String label = getTaskLabel(task);
-                broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
-                log.info("Running migration task \"" + label + "\"...");
-                try
-                {
-                    long startTime = System.currentTimeMillis();
-                    task.migrate(context);
-                    long duration = System.currentTimeMillis() - startTime;
-                    log.info("Finished migration task \"" + label + "\" ("
-                        + duration + " millis.)");
-                    broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
-                    context.commit();
-                }
-                catch (MigrationException e)
-                {
-                    broadcaster.notifyListeners(task, context, e, MigrationBroadcaster.TASK_FAILED);
-                    try
-                    {
-                        context.rollback();
-                        log.info("Migration failed; rollback successful");
-                    }
-                    catch (MigrationException me)
-                    {
-                        log.info("Migration failed; COULD NOT ROLL BACK TRANSACTION", me);
-                    }
-                    throw e;
-                }
+                applyPatch(context, task);
                 taskCount++;
             }
         }
@@ -194,6 +168,43 @@ public class MigrationProcess
         }
         
         return taskCount;
+    }
+
+    /**
+     * Apply a single patch
+     * 
+     * @param context the context the patch will need during application
+     * @param task the application task to carry out
+     * @throws MigrationException if the patch application fails
+     */
+    public void applyPatch(MigrationContext context, MigrationTask task) throws MigrationException
+    {
+        String label = getTaskLabel(task);
+        broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
+        log.info("Running migration task \"" + label + "\"...");
+        try
+        {
+            long startTime = System.currentTimeMillis();
+            task.migrate(context);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Finished migration task \"" + label + "\" (" + duration + " millis.)");
+            broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
+            context.commit();
+        }
+        catch (MigrationException e)
+        {
+            broadcaster.notifyListeners(task, context, e, MigrationBroadcaster.TASK_FAILED);
+            try
+            {
+                context.rollback();
+                log.info("Migration failed; rollback successful");
+            }
+            catch (MigrationException me)
+            {
+                log.info("Migration failed; COULD NOT ROLL BACK TRANSACTION", me);
+            }
+            throw e;
+        }
     }
 
     /**
@@ -237,7 +248,7 @@ public class MigrationProcess
         if (tasks.size() == 0)
         {
             log.info("No patches were discovered in your classpath. "
-                     + "Re-run with DEBUG logging enabled for search information.");
+                     + "Run with DEBUG logging enabled for patch search details.");
         }
         
         return tasks;
