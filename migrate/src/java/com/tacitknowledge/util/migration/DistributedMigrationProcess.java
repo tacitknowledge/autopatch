@@ -119,18 +119,18 @@ public class DistributedMigrationProcess extends MigrationProcess
             // Get all the tasks for that sub launcher
             List subTasks = subLauncher.getMigrationProcess().getMigrationTasks();
             log.info("Found " + subTasks.size() + " for system " + controlledSystemName);
-            if (log.isDebugEnabled())
+            for (Iterator subTaskIter = subTasks.iterator(); subTaskIter.hasNext();)
             {
-                for (Iterator subTaskIter = subTasks.iterator(); subTaskIter.hasNext();)
+                MigrationTask task = (MigrationTask)subTaskIter.next();
+                if (log.isDebugEnabled())
                 {
-                    MigrationTask task = (MigrationTask)subTaskIter.next();
                     log.debug("\tMigration+Launcher binder found subtask " 
                               + task.getName() + " for launcher context " 
                               + subLauncher.getContext().getSystemName());
-                    
-                    // store the task, related to its launcher
-                    tasks.put(task, subLauncher);
                 }
+                
+                // store the task, related to its launcher
+                tasks.put(task, subLauncher);
             }
         }
         

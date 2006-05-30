@@ -100,8 +100,8 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     {
         DistributedMigrationProcess process = 
             (DistributedMigrationProcess)launcher.getMigrationProcess();
-        assertEquals(7, process.getMigrationTasksWithLaunchers().size());
         assertEquals(7, process.getMigrationTasks().size());
+        assertEquals(7, process.getMigrationTasksWithLaunchers().size());
     }
     
     /**
