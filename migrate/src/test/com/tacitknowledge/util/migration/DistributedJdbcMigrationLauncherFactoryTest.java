@@ -98,7 +98,9 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
      */
     public void testDistributedMigrationTaskLoading() throws MigrationException
     {
-        MigrationProcess process = launcher.getMigrationProcess();
+        DistributedMigrationProcess process = 
+            (DistributedMigrationProcess)launcher.getMigrationProcess();
+        assertEquals(7, process.getMigrationTasksWithLaunchers().size());
         assertEquals(7, process.getMigrationTasks().size());
     }
     
