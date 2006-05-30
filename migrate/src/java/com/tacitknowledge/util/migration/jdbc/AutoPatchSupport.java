@@ -20,8 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import com.tacitknowledge.util.migration.MigrationException;
 
 /**
- * Support using AutoPatch via injection ?
- * Jacques Morel contributed this, and I'm not sure what it does actually.
+ * Support using AutoPatch via injection I think. Jacques Morel contributed this, 
+ * and I'm not sure what it does actually.
  * 
  * @author Jacques Morel
  */

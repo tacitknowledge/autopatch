@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  *       fork="true"
  *       classpathref="patch.classpath" 
  *       failonerror="true" 
- *       classname="com.tacitknowledge.util.migration.jdbc.MigrationInformation"&gt;
+ *       classname="com.tacitknowledge.util.migration.jdbc.DistributedMigrationInformation"&gt;
  *     &lt;sysproperty key="migration.systemname" value="${application.name}"/&gt;
  *   &lt;/java&gt;
  * &lt;/target&gt;
@@ -43,18 +43,18 @@ import org.apache.commons.logging.LogFactory;
  * </pre> 
  * 
  * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.MigrationProcess
- * @see     com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory
+ * @see     com.tacitknowledge.util.migration.DistributedMigrationProcess
+ * @see     com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory
  */
-public class MigrationInformation
+public class DistributedMigrationInformation
 {
     /** Class logger */
-    private static Log log = LogFactory.getLog(MigrationInformation.class);
+    private static Log log = LogFactory.getLog(DistributedMigrationInformation.class);
     
     /**
-     * protected constructor - this object shouldn't be instantiated
+     * Private constructor - this object shouldn't be instantiated
      */
-    protected MigrationInformation()
+    private DistributedMigrationInformation()
     { 
         // does nothing
     }
@@ -67,7 +67,7 @@ public class MigrationInformation
      */
     public static void main(String[] arguments) throws Exception
     {
-        MigrationInformation info = new MigrationInformation();
+        DistributedMigrationInformation info = new DistributedMigrationInformation();
         String migrationName = System.getProperty("migration.systemname");
         if (migrationName == null)
         {
@@ -97,10 +97,10 @@ public class MigrationInformation
         // task is executed, the patch level is incremented, etc.
         try
         {
-            JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher
-                = launcherFactory.createMigrationLauncher(systemName);
+            DistributedJdbcMigrationLauncherFactory launcherFactory = 
+                new DistributedJdbcMigrationLauncherFactory();
+            DistributedJdbcMigrationLauncher launcher
+                = (DistributedJdbcMigrationLauncher)launcherFactory.createMigrationLauncher(systemName);
             log.info("Current Database patch level is        : "
                 + launcher.getDatabasePatchLevel());
             int unappliedPatches = launcher.getNextPatchLevel()

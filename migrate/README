@@ -58,6 +58,8 @@ o  AutoPatch must ensure that each patch is applied once and only once
      - Having them apply multiple times would mean the patch author
        could never trust the initial state of the database, making
        patch development very difficult
+o  AutoPatch should be able to globally order patches that execute
+       against multiple external systems
    
 
 --------------------------------------------------------------------------

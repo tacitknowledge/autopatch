@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  *       fork="true"
  *       classpathref="patch.classpath" 
  *       failonerror="true" 
- *       classname="com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher"&gt;
+ *       classname="com.tacitknowledge.util.migration.jdbc.DistributedStandaloneMigrationLauncher"&gt;
  *     &lt;sysproperty key="migration.systemname" value="${application.name}"/&gt;
  *   &lt;/java&gt;
  * &lt;/target&gt;
@@ -43,19 +43,19 @@ import org.apache.commons.logging.LogFactory;
  * </pre> 
  * 
  * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.MigrationProcess
+ * @see     com.tacitknowledge.util.migration.DistributedMigrationProcess
  */
-public class StandaloneMigrationLauncher
+public class DistributedStandaloneMigrationLauncher
 {
     /**
      * Class logger
      */
-    private static Log log = LogFactory.getLog(StandaloneMigrationLauncher.class);
+    private static Log log = LogFactory.getLog(DistributedStandaloneMigrationLauncher.class);
     
     /**
      * Private constructor - this object shouldn't be instantiated
      */
-    private StandaloneMigrationLauncher()
+    private DistributedStandaloneMigrationLauncher()
     { 
         // does nothing
     }
@@ -76,10 +76,9 @@ public class StandaloneMigrationLauncher
         // task is executed, the patch level is incremented, etc.
         try
         {
-            JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher
-                = launcherFactory.createMigrationLauncher(systemName);
+            DistributedJdbcMigrationLauncherFactory factory = 
+                new DistributedJdbcMigrationLauncherFactory();
+            JdbcMigrationLauncher launcher = factory.createMigrationLauncher(systemName);
             launcher.doMigrations();
         }
         catch (Exception e)
