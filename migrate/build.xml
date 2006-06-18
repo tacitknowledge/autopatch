@@ -2,7 +2,6 @@
 
 <!--
     Tacit Knowledge AutoPatch
-    $Id$
 -->
 
 <!--
@@ -24,6 +23,8 @@
 
 <!-- ========== application Declarations ==================================== -->
 
+  <property environment="env"/>
+    
   <!-- The name of this application -->
   <property name="component.name"          value="autopatch"/>
 
@@ -34,7 +35,7 @@
   <property name="component.title"         value="Tacit Knowledge AutoPatch"/>
 
   <!-- The current version number of this application -->
-  <property name="component.version"       value="0.9.0"/>
+  <property name="component.version"       value="0.9.1"/>
 
   <!-- The base directory for compilation targets -->
   <property name="build.home"              value="build"/>
@@ -47,6 +48,9 @@
 
   <!-- The base directory for application sources -->
   <property name="source.home"             value="src/java"/>
+
+  <!-- The base directory for optional application sources -->
+  <property name="optional.home"           value="src/optional"/>
 
   <!-- The base directory for unit test sources -->
   <property name="test.home"               value="src/test"/>
@@ -85,8 +89,37 @@
     </fileset>
   </path>
 
+    <!-- Construct optional compile classpath -->
+    <path id="compile.optional.classpath">
+
+      <!-- Add everything in the compile classpath -->
+      <path refid="compile.classpath"/>
+
+      <!-- Add the test binary path and test support libraries -->
+      <pathelement location="${build.home}/tests"/>
+        
+      <!-- pull in support for ATG bindings -->
+      <pathelement location="${env.DYNAMO_HOME}/../DAS/lib/das.jar"/>
+    </path>
+
 <!-- ========== Test Execution Defaults =================================== -->
 
+    <!-- Construct unit test classpath -->
+    <path id="compile.test.classpath">
+
+      <!-- Add everything in the compile classpath -->
+      <path refid="compile.classpath"/>
+
+      <!-- Add the test binary path and test support libraries -->
+      <pathelement location="${build.home}/tests"/>
+      <fileset dir="${lib.dir}/test">
+          <include name="**/*.jar"/>
+      </fileset>
+        <fileset dir="${lib.dir}/ant">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    
   <!-- Construct unit test classpath -->
   <path id="test.classpath">
 
@@ -132,6 +165,7 @@
     <mkdir dir="${build.home}/classes"/>
     <mkdir dir="${build.home}/tests"/>
     <mkdir dir="${build.home}/inttests"/>
+    <mkdir dir="${build.home}/optional"/>
   </target>
 
   <target name="compile" depends="prepare" description="Compile the application">
@@ -159,7 +193,7 @@
              debug="${compile.debug}"
        deprecation="${compile.deprecation}"
           optimize="${compile.optimize}">
-      <classpath refid="test.classpath"/>
+      <classpath refid="compile.test.classpath"/>
     </javac>
 
     <copy    todir="${build.home}/tests" filtering="on">
@@ -174,7 +208,7 @@
              debug="${compile.debug}"
        deprecation="${compile.deprecation}"
           optimize="${compile.optimize}">
-      <classpath refid="test.classpath"/>
+      <classpath refid="compile.test.classpath"/>
     </javac>
 
     <copy    todir="${build.home}/inttests" filtering="on">
@@ -182,6 +216,35 @@
     </copy>
 
   </target>
+    
+    <target name="optional.dependency" description="makes sure libraries for optional build exist">
+        <available file="${env.DYNAMO_HOME}/../DAS/lib/das.jar" property="dynamo.present"/>
+        <fail unless="dynamo.present">
+            The Dyanmo DAS library is not installed.
+        	It should be in ${env.DYNAMO_HOME}/../DAS/lib/das.jar
+        </fail>
+    </target>
+    <target name="compile.optional" depends="compile,optional.dependency" 
+        description="Compile the optional bindings">
+        
+      <javac srcdir="${optional.home}"
+             destdir="${build.home}/optional"
+             debug="${compile.debug}"
+             deprecation="${compile.deprecation}"
+             optimize="${compile.optimize}">
+        <classpath refid="compile.optional.classpath"/>
+      </javac>
+
+      <copy  todir="${build.home}/optional" filtering="on">
+        <fileset dir="${optional.home}" excludes="**/*.java"/>
+      </copy>
+
+      <jar jarfile="${build.home}/tk-${component.name}-optional-${component.version}.jar"
+           basedir="${build.home}/optional">
+      </jar>
+
+    </target>
+    
 
   <target name="clean"
    description="Clean build and distribution directories">
@@ -207,16 +270,36 @@
                 private="false"
                doctitle="&lt;h1&gt;${component.title} (Version ${component.version})&lt;/h1&gt;"
             windowtitle="${component.title} (Version ${component.version})"
-                 bottom="Copyright (c) 2004 - Tacit Knowledge LLC">
+                 bottom="Copyright (c) 2006 - Tacit Knowledge LLC">
       <classpath refid="compile.classpath"/>
     </javadoc>
   </target>
 
+    <target name="javadoc.optional" depends="compile"
+     description="Create optional application Javadoc documentation">
+      <mkdir      dir="${dist.home}"/>
+      <mkdir      dir="${dist.home}/docs"/>
+      <mkdir      dir="${dist.home}/docs/api"/>
+      <mkdir      dir="${dist.home}/docs/optional-api"/>
+      <javadoc sourcepath="${optional.home}"
+                  destdir="${dist.home}/docs/optional-api"
+             packagenames="${component.package}.*"
+                   author="true"
+                  version="true"
+                  private="false"
+                 doctitle="&lt;h1&gt;${component.title} (Version ${component.version})&lt;/h1&gt;"
+              windowtitle="${component.title} (Version ${component.version})"
+                   bottom="Copyright (c) 2006 - Tacit Knowledge LLC">
+        <classpath refid="compile.optional.classpath"/>
+      </javadoc>
+    </target>
 
-  <target name="dist" depends="clean,compile,test,javadoc" description="Create binary distribution">
+  <target name="dist" depends="clean,compile,compile.optional,test,javadoc,javadoc.optional" description="Create binary distribution">
     <mkdir      dir="${dist.home}"/>
     <copy file="${build.home}/tk-${component.name}-${component.version}.jar"
           toDir="${dist.home}"/>
+    <copy file="${build.home}/tk-${component.name}-optional-${component.version}.jar"
+              toDir="${dist.home}"/>
     <mkdir      dir="${dist.home}/src"/>
     <copy     todir="${dist.home}/src" filtering="on">
       <fileset  dir="${basedir}/src"/>
@@ -262,11 +345,19 @@
 
 
 <!-- ========== Unit Test Targets ========================================= -->
-  <target name="unittest"  depends="compile.tests" description="Run all unit tests">
-    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" >
-       <classpath refid="test.classpath"/>
-    </taskdef>
-    <junit printsummary="yes" haltonfailure="yes">
+    <target name="test.dependency" description="makes sure junit is there">
+        <available file="${ant.home}/lib/junit.jar" property="junit.present"/>
+        <fail unless="junit.present"> The Junit library is not installed. Please put
+            in: ${ant.home}/lib (Check ${common_lib.dir}/lib/ant for the file)
+        </fail>
+    </target>
+    
+  <target name="unittest"  depends="compile.tests,test.dependency" description="Run all unit tests">
+      <taskdef name="junit"
+          classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+          <classpath refid="test.classpath"/>
+      </taskdef>
+      <junit printsummary="yes" haltonfailure="yes">
           <classpath refid="test.classpath"/>
            <formatter type="xml"/>
 
@@ -278,9 +369,10 @@
       </junit>
   </target>
 
-  <target name="inttest"  depends="compile.inttests" description="Run all integration tests">
-    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" >
-       <classpath refid="test.classpath"/>
+  <target name="inttest"  depends="compile.inttests,test.dependency" description="Run all integration tests">
+    <taskdef name="junit"
+        classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+        <classpath refid="test.classpath"/>
     </taskdef>
     <junit printsummary="yes" haltonfailure="yes">
           <classpath refid="inttest.classpath"/>
