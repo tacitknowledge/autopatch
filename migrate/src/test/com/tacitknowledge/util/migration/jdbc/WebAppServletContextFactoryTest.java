@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
 *
 * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
 * you may not use this file except in compliance with the License. You may
@@ -29,11 +29,9 @@ import junit.framework.TestCase;
  * servlet context.
  * 
  * @author Chris A. (chris@tacitknowledge.com)
- * @version $Id$
  */
 public class WebAppServletContextFactoryTest extends TestCase
 {
-
     /**
      * Tests that the new mechanism for configuring a launcher from a 
      * servlet context works.
@@ -59,7 +57,6 @@ public class WebAppServletContextFactoryTest extends TestCase
         context.createSubcontext("java");
         context.bind("java:comp/env/jdbc/testsource", ds);
         ServletContextEvent sce = new ServletContextEvent(sc);
-        boolean exceptionThrown = false;
         JdbcMigrationLauncher launcher = null;
         try
         {
@@ -68,14 +65,12 @@ public class WebAppServletContextFactoryTest extends TestCase
         catch (MigrationException e)
         {
             e.printStackTrace();
-            exceptionThrown = true;
+            fail("There should not have been an exception");
         }
-        assertTrue(!exceptionThrown);
-        JdbcMigrationContext jdbcContext = launcher.getJdbcMigrationContext();
-        assertTrue(jdbcContext != null);
-        assertTrue(jdbcContext.getDatabaseType() != null);
-        assertTrue(jdbcContext.getSystemName() != null);
-        assertTrue(jdbcContext.getSystemName().equals(sysName));
+
+        JdbcMigrationContext jdbcContext = launcher.getContext();
+        assertEquals(dbType, jdbcContext.getDatabaseType().getDatabaseType());
+        assertEquals(sysName, jdbcContext.getSystemName());
     }
 
 }
