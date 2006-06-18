@@ -157,7 +157,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         context.setDataSource(dataSource);
 
         // done reading in config, set launcher's context
-        launcher.setJdbcMigrationContext(context);
+        launcher.setContext(context);
         
         // Get our controlled systems, and instantiate their launchers
         HashMap controlledSystems = new HashMap();

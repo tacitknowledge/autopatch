@@ -124,7 +124,7 @@ public class JdbcMigrationLauncherFactory
             }
             DataSource ds = (DataSource) ctx.lookup("java:comp/env/" + dataSource);
             context.setDataSource(ds);
-            launcher.setJdbcMigrationContext(context);
+            launcher.setContext(context);
         } 
         catch (NamingException e)
         {
@@ -210,7 +210,7 @@ public class JdbcMigrationLauncherFactory
         context.setDataSource(dataSource);
 
         // done reading in config, set launcher's context
-        launcher.setJdbcMigrationContext(context);
+        launcher.setContext(context);
     }
     
     /**

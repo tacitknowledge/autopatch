@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  *
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -37,7 +37,6 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  * This class is <b>NOT</b> threadsafe.
  *
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class JdbcMigrationLauncher implements MigrationListener
 {
@@ -95,7 +94,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     public JdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
     {
         this();
-        setJdbcMigrationContext(context);
+        setContext(context);
     }
     
     /**
@@ -233,7 +232,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      * @param jdbcMigrationContext the <code>JdbcMigrationContext</code> used for the migrations
      * @throws MigrationException if a database connection cannot be obtained
      */
-    public void setJdbcMigrationContext(JdbcMigrationContext jdbcMigrationContext) 
+    public void setContext(JdbcMigrationContext jdbcMigrationContext) 
         throws MigrationException
     {
         this.context = jdbcMigrationContext;
@@ -252,7 +251,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      *
      * @return the <code>JdbcMigrationContext</code> used for the migrations
      */
-    public JdbcMigrationContext getJdbcMigrationContext()
+    public JdbcMigrationContext getContext()
     {
         return context;
     }
@@ -402,26 +401,6 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void setLockPollMillis(long lockPollMillis)
     {
         this.lockPollMillis = lockPollMillis;
-    }
-
-    /**
-     * Get the migration context we're using
-     * 
-     * @return JdbcMigrationContext to use for migration coordination
-     */
-    public JdbcMigrationContext getContext()
-    {
-        return context;
-    }
-
-    /**
-     * Set the migration context to use for migrations
-     * 
-     * @param context the migration context to use for migrations
-     */
-    public void setContext(JdbcMigrationContext context)
-    {
-        this.context = context;
     }
 
     /**
