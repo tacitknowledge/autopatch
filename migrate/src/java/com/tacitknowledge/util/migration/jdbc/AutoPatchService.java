@@ -21,11 +21,12 @@ import org.apache.commons.logging.LogFactory;
 import com.tacitknowledge.util.migration.MigrationException;
 
 /**
- * Automatically applies database DDL and SQL patches upon server startup.
+ * Creates an AutoPatch environment using a configuration supplied by dependency
+ * injection. Exports a hook that can be called to execute AutoPatch after configuration
  *
  * @author Scott Askew (scott@tacitknowledge.com)
  */
-public class AutoPatchService
+public class AutoPatchService extends JdbcMigrationLauncherFactory
 {
     /** Class logger */
     private static Log log = LogFactory.getLog(AutoPatchService.class);
@@ -49,16 +50,11 @@ public class AutoPatchService
      */
     public void patch() throws MigrationException
     {
-        DataSourceMigrationContext context = new DataSourceMigrationContext();
-        context.setSystemName(getSystemName());
-        context.setDatabaseType(new DatabaseType(getDatabaseType()));
-        context.setDataSource(getDataSource());
+        JdbcMigrationLauncher launcher = getLauncher();
         
         try
         {
             log.info("Applying patches....");
-            JdbcMigrationLauncher launcher = new JdbcMigrationLauncher(context);
-            launcher.setPatchPath(getPatchPath());
             int patchesApplied = launcher.doMigrations();
             log.info("Applied " + patchesApplied + " "
                 + (patchesApplied == 1 ? "patch" : "patches") + ".");
@@ -67,6 +63,35 @@ public class AutoPatchService
         {
             throw new MigrationException("Error applying patches", e);
         }
+    }
+
+    /**
+     * Configure and return a JdbcMigrationLauncher to use for patching
+     * 
+     * @return JdbcMigrationLauncher configured from injected properties
+     * @exception MigrationException if there is a problem setting the context
+     */
+    public JdbcMigrationLauncher getLauncher() throws MigrationException
+    {
+        JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
+        launcher.setContext(getContext());
+        launcher.setPatchPath(getPatchPath());
+        return launcher;
+    }
+
+    /**
+     * Configure and return a DataSourceMigrationContext from this object's
+     * injected properties
+     * 
+     * @return DataSourceMigrationContext configured from injected properties
+     */
+    protected DataSourceMigrationContext getContext()
+    {
+        DataSourceMigrationContext context = getDataSourceMigrationContext();
+        context.setSystemName(getSystemName());
+        context.setDatabaseType(new DatabaseType(getDatabaseType()));
+        context.setDataSource(getDataSource());
+        return context;
     }
 
     /**

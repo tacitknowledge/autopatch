@@ -77,7 +77,7 @@ public class AutoPatchSupport
      */
     public PatchTable makePatchTable() throws SQLException
     {
-        JdbcMigrationContext jdbcMigrationContext = launcher.getJdbcMigrationContext();
+        JdbcMigrationContext jdbcMigrationContext = launcher.getContext();
         return new PatchTable(jdbcMigrationContext, jdbcMigrationContext.getConnection());
     }
     
