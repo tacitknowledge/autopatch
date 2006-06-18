@@ -38,10 +38,10 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     private static Log log = LogFactory.getLog(DistributedJdbcMigrationLauncherFactoryTest.class);
     
     /** The launcher we're testing */
-    private DistributedJdbcMigrationLauncher launcher = null;
+    protected DistributedJdbcMigrationLauncher launcher = null;
     
     /** A MigrationContext for us */
-    private TestMigrationContext context = null;
+    protected TestMigrationContext context = null;
     
     /**
      * constructor that takes a name
