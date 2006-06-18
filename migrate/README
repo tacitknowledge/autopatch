@@ -74,7 +74,7 @@ for all patch activity.
 
 3a) Startup
 -----------
-Applications wishing to use AutoPatch must instantiate the
+Applications wishing to use AutoPatch must instantiate a
 MigrationLauncher by implementing an adapter that starts the launcher
 on application startup, or using an existing adapter.
 
@@ -87,7 +87,7 @@ in a durable way, so that it knows the patch level across multiple runs.
 -----------------
 The launcher searches the classpath for any available objects that
 implement a common patch type, or any sql files that are in a
-directory known to hold patches. 
+directory known to hold patches.
 
 3d) Patch Ordering
 ------------------
@@ -113,18 +113,26 @@ references to actual classnames.
 4a) Startup
 -----------
 The MigrationLauncher object is the main entry point of the AutoPatch
-system. There are two adaptors that have been implemented, one for web
-application integration (WebAppMigrationLauncher), and one for
-command-line integration (StandaloneMigrationLauncher). The sole
-purpose of the adaptors is to instantiate the MigrationLauncher object,
+system. There are a few adaptors that have been implemented, one for web
+application integration (WebAppMigrationLauncher), one for
+command-line integration (StandaloneMigrationLauncher), as well as
+a few for depencency injection containers (AutoPatchServive). There is also
+a "distributed" version of each launcher that allows you to configure
+multiple sub-launchers together as one large system orchestrated as a single
+unit with a single patch level. 
+
+The sole purpose of the adaptors is to instantiate the MigrationLauncher object,
 and call the "doMigrations" method.
 
-Once the MigrationLauncher is executing, it will read a configuration
+Once the StandaloneMigrationLauncher is executing, it will read a configuration
 file from the classpath called migration.properties. An example
 migration.properties is provided in the same directory as this
 README. The configuration file is responsible for configuring the
 database connection for the AutoPatch system, as well as for
 specifying where in the classpath AutoPath should search for patches.
+
+Other MigrationLaunchers are configured in different ways, and you should
+consult the javadoc information in the adapter that you wish to use.
 
 4b) Patch Level
 ---------------
@@ -201,6 +209,10 @@ A suggested ant target to implement this check looks like this:
 The classpath must contain the migration.properties, the AutoPatch
 jar, as well as all of the patch objects, for the information to be
 accurate.
+
+For distributed systems, it is important to note that you may not have
+two patches with the same patch number in multiple sub-launchers. Each
+patch must have a globally unique patch level across all sub-launchers.
 
 4e) Patch Execution
 -------------------
