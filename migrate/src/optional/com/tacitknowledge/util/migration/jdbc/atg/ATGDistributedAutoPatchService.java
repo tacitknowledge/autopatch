@@ -26,7 +26,7 @@ import atg.nucleus.ServiceException;
  * Automatically applies database DDL and SQL patches to all schemas on server startup.
  *
  * @author Mike Hardy (mike@tacitknowledge.com)
- * @url http://autopatch.sf.net/
+ * @link http://autopatch.sf.net/
  */
 public class ATGDistributedAutoPatchService extends DistributedAutoPatchService implements Service
 {
