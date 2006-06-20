@@ -26,7 +26,7 @@ import atg.nucleus.ServiceException;
  * Automatically applies database DDL and SQL patches to all schemas on server startup.
  *
  * @author Mike Hardy (mike@tacitknowledge.com)
- * @url http://autopatch.sf.net/
+ * @link http://autopatch.sf.net/
  */
 public class ATGAutoPatchService extends AutoPatchService implements Service
 {
@@ -38,6 +38,9 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     
     /** Whether we are running or not */
     private boolean running = false;
+    
+    /** patch on startService - set to false if orchestrated by ATGDistributedAutoPatchService */
+    private boolean patchOnStartup = true;
     
     /**
      * Handle patching the database on startup
@@ -60,13 +63,16 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
      */
     public void doStartService() throws ServiceException
     {
-        try
+        if (isPatchOnStartup() == true)
         {
-            patch();
-        }
-        catch (MigrationException me)
-        {
-            throw new ServiceException("There was a problem patching the database", me);
+            try
+            {
+                patch();
+            }
+            catch (MigrationException me)
+            {
+                throw new ServiceException("There was a problem patching the database", me);
+            }
         }
     }
 
@@ -132,5 +138,29 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     public void setRunning(boolean running)
     {
         this.running = running;
+    }
+
+    /**
+     * Whether we should patch in startService or not. This is useful because
+     * under ATGDistributedAutoPatchService control these services should not
+     * start on their own
+     * 
+     * @return boolean true if the service should patch in startService
+     */
+    public boolean isPatchOnStartup()
+    {
+        return patchOnStartup;
+    }
+
+    /**
+     * Whether we should patch in startService or not. This is useful because
+     * under ATGDistributedAutoPatchService control these services should not
+     * start on their own
+     * 
+     * @param patchOnStartup true if the service should patch in startService
+     */
+    public void setPatchOnStartup(boolean patchOnStartup)
+    {
+        this.patchOnStartup = patchOnStartup;
     }
 }
