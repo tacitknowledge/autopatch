@@ -35,7 +35,7 @@
   <property name="component.title"         value="Tacit Knowledge AutoPatch"/>
 
   <!-- The current version number of this application -->
-  <property name="component.version"       value="0.9.1"/>
+  <property name="component.version"       value="1.0.0-rc1"/>
 
   <!-- The base directory for compilation targets -->
   <property name="build.home"              value="build"/>
@@ -89,8 +89,8 @@
     </fileset>
   </path>
 
-    <!-- Construct optional compile classpath -->
-    <path id="compile.optional.classpath">
+    <!-- Construct optional atg compile classpath -->
+    <path id="compile.optional.atg.classpath">
 
       <!-- Add everything in the compile classpath -->
       <path refid="compile.classpath"/>
@@ -101,7 +101,19 @@
       <!-- pull in support for ATG bindings -->
       <pathelement location="${env.DYNAMO_HOME}/../DAS/lib/das.jar"/>
     </path>
+    <!-- Construct optional spring compile classpath -->
+    <path id="compile.optional.spring.classpath">
 
+      <!-- Add everything in the compile classpath -->
+      <path refid="compile.classpath"/>
+
+      <!-- Add the test binary path and test support libraries -->
+      <pathelement location="${build.home}/tests"/>
+            
+      <!-- pull in support for ATG bindings -->
+      <pathelement location="${env.SPRING_HOME}/dist/spring.jar"/>
+    </path>
+    
 <!-- ========== Test Execution Defaults =================================== -->
 
     <!-- Construct unit test classpath -->
@@ -166,6 +178,8 @@
     <mkdir dir="${build.home}/tests"/>
     <mkdir dir="${build.home}/inttests"/>
     <mkdir dir="${build.home}/optional"/>
+    <mkdir dir="${build.home}/optional/atg"/>
+    <mkdir dir="${build.home}/optional/spring"/>
   </target>
 
   <target name="compile" depends="prepare" description="Compile the application">
@@ -217,34 +231,78 @@
 
   </target>
     
-    <target name="optional.dependency" description="makes sure libraries for optional build exist">
+    <!-- Make sure our optional dependencies are met -->
+    <target 
+        name="optional.dependency" 
+        description="makes sure libraries for optional build exist"
+        depends="optional.dependency.atg,optional.dependency.spring">
+       
+    </target>
+    
+    <target name="optional.dependency.atg" description="makes sure libraries for optional build exist">
         <available file="${env.DYNAMO_HOME}/../DAS/lib/das.jar" property="dynamo.present"/>
         <fail unless="dynamo.present">
             The Dyanmo DAS library is not installed.
-        	It should be in ${env.DYNAMO_HOME}/../DAS/lib/das.jar
+          	It should be in ${env.DYNAMO_HOME}/../DAS/lib/das.jar
         </fail>
     </target>
-    <target name="compile.optional" depends="compile,optional.dependency" 
+    <target name="optional.dependency.spring" description="makes sure libraries for optional build exist">
+            <available file="${env.SPRING_HOME}/dist/spring.jar" property="spring.present"/>
+            <fail unless="spring.present">
+                The Spring Framework library is not installed.
+              	It should be in ${env.SPRING_HOME}/dist/spring.jar
+            </fail>
+        </target>
+    
+    <!-- compile optional packages -->
+    <target 
+        name="compile.optional" 
+        depends="compile,optional.dependency" 
         description="Compile the optional bindings">
-        
-      <javac srcdir="${optional.home}"
-             destdir="${build.home}/optional"
-             debug="${compile.debug}"
-             deprecation="${compile.deprecation}"
-             optimize="${compile.optimize}">
-        <classpath refid="compile.optional.classpath"/>
-      </javac>
-
-      <copy  todir="${build.home}/optional" filtering="on">
-        <fileset dir="${optional.home}" excludes="**/*.java"/>
-      </copy>
-
-      <jar jarfile="${build.home}/tk-${component.name}-optional-${component.version}.jar"
-           basedir="${build.home}/optional">
-      </jar>
-
+        <antcall target="compile.optional.atg"/>
+        <antcall target="compile.optional.spring"/>
     </target>
     
+    <target name="compile.optional.atg" depends="compile,optional.dependency.atg" 
+            description="Compile the optional ATG bindings">
+            
+          <javac srcdir="${optional.home}/atg"
+                 destdir="${build.home}/optional/atg"
+                 debug="${compile.debug}"
+                 deprecation="${compile.deprecation}"
+                 optimize="${compile.optimize}">
+            <classpath refid="compile.optional.atg.classpath"/>
+          </javac>
+
+          <copy  todir="${build.home}/optional/atg" filtering="on">
+            <fileset dir="${optional.home}/atg" excludes="**/*.java"/>
+          </copy>
+
+          <jar jarfile="${build.home}/tk-${component.name}-optional-atg-${component.version}.jar"
+               basedir="${build.home}/optional/atg">
+          </jar>
+
+    </target>
+    <target name="compile.optional.spring" depends="compile,optional.dependency.spring" 
+                description="Compile the optional Spring bindings">
+                
+              <javac srcdir="${optional.home}/spring"
+                     destdir="${build.home}/optional/spring"
+                     debug="${compile.debug}"
+                     deprecation="${compile.deprecation}"
+                     optimize="${compile.optimize}">
+                <classpath refid="compile.optional.spring.classpath"/>
+              </javac>
+
+              <copy  todir="${build.home}/optional/spring" filtering="on">
+                <fileset dir="${optional.home}/spring" excludes="**/*.java"/>
+              </copy>
+
+              <jar jarfile="${build.home}/tk-${component.name}-optional-spring-${component.version}.jar"
+                   basedir="${build.home}/optional/spring">
+              </jar>
+
+    </target>
 
   <target name="clean"
    description="Clean build and distribution directories">
@@ -275,31 +333,57 @@
     </javadoc>
   </target>
 
-    <target name="javadoc.optional" depends="compile"
+    <target name="javadoc.optional" depends="compile.optional">
+        <antcall target="javadoc.optional.atg"/>
+        <antcall target="javadoc.optional.spring"/>
+    </target>
+    <target name="javadoc.optional.atg" depends="compile.optional.atg"
      description="Create optional application Javadoc documentation">
       <mkdir      dir="${dist.home}"/>
       <mkdir      dir="${dist.home}/docs"/>
       <mkdir      dir="${dist.home}/docs/api"/>
-      <mkdir      dir="${dist.home}/docs/optional-api"/>
-      <javadoc sourcepath="${optional.home}"
-                  destdir="${dist.home}/docs/optional-api"
+      <mkdir      dir="${dist.home}/docs/optional-api/"/>
+        <mkdir      dir="${dist.home}/docs/optional-api/atg"/>
+      <javadoc sourcepath="${optional.home}/atg"
+                  destdir="${dist.home}/docs/optional-api/atg"
              packagenames="${component.package}.*"
                    author="true"
                   version="true"
                   private="false"
-                 doctitle="&lt;h1&gt;${component.title} (Version ${component.version})&lt;/h1&gt;"
+                 doctitle="&lt;h1&gt;${component.title} - Optional - ATG - (Version ${component.version})&lt;/h1&gt;"
               windowtitle="${component.title} (Version ${component.version})"
                    bottom="Copyright (c) 2006 - Tacit Knowledge LLC">
-        <classpath refid="compile.optional.classpath"/>
+        <classpath refid="compile.optional.atg.classpath"/>
       </javadoc>
     </target>
+    <target name="javadoc.optional.spring" depends="compile.optional.spring"
+         description="Create optional application Javadoc documentation">
+          <mkdir      dir="${dist.home}"/>
+          <mkdir      dir="${dist.home}/docs"/>
+          <mkdir      dir="${dist.home}/docs/api"/>
+          <mkdir      dir="${dist.home}/docs/optional-api/"/>
+            <mkdir      dir="${dist.home}/docs/optional-api/spring"/>
+          <javadoc sourcepath="${optional.home}/spring"
+                      destdir="${dist.home}/docs/optional-api/spring"
+                 packagenames="${component.package}.*"
+                       author="true"
+                      version="true"
+                      private="false"
+                     doctitle="&lt;h1&gt;${component.title} - Optional - Spring - (Version ${component.version})&lt;/h1&gt;"
+                  windowtitle="${component.title} (Version ${component.version})"
+                       bottom="Copyright (c) 2006 - Tacit Knowledge LLC">
+            <classpath refid="compile.optional.spring.classpath"/>
+          </javadoc>
+        </target>
 
   <target name="dist" depends="clean,compile,compile.optional,test,javadoc,javadoc.optional" description="Create binary distribution">
     <mkdir      dir="${dist.home}"/>
     <copy file="${build.home}/tk-${component.name}-${component.version}.jar"
           toDir="${dist.home}"/>
-    <copy file="${build.home}/tk-${component.name}-optional-${component.version}.jar"
+    <copy file="${build.home}/tk-${component.name}-optional-atg-${component.version}.jar"
               toDir="${dist.home}"/>
+    <copy file="${build.home}/tk-${component.name}-optional-spring-${component.version}.jar"
+                toDir="${dist.home}"/>
     <mkdir      dir="${dist.home}/src"/>
     <copy     todir="${dist.home}/src" filtering="on">
       <fileset  dir="${basedir}/src"/>

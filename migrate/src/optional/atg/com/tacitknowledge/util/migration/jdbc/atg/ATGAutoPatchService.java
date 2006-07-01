@@ -42,6 +42,9 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     /** patch on startService - set to false if orchestrated by ATGDistributedAutoPatchService */
     private boolean patchOnStartup = true;
     
+    /** Take the server down on errors? */
+    private boolean failServerOnError = true;
+    
     /**
      * Handle patching the database on startup
      * 
@@ -71,6 +74,11 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
             }
             catch (MigrationException me)
             {
+                if (isFailServerOnError())
+                {
+                    throw new Error("There was a problem patching the database", me);
+                }
+                
                 throw new ServiceException("There was a problem patching the database", me);
             }
         }
@@ -162,5 +170,27 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     public void setPatchOnStartup(boolean patchOnStartup)
     {
         this.patchOnStartup = patchOnStartup;
+    }
+
+    /**
+     * Determine whether we should fail the server on an error condition. This involves
+     * throwing an Error instead of an Exception so ATG will halt module loading. It is
+     * recommended to leave this set to true as allowing startup on patch failure may allow
+     * your software to run despite an inconsistent state in the database
+     * 
+     * @return boolean true if the server should stop module load on patch failure
+     */
+    public boolean isFailServerOnError()
+    {
+        return failServerOnError;
+    }
+
+    /**
+     * @see #isFailServerOnError()
+     * @param failServerOnError boolean true to fail server on patch failure
+     */
+     public void setFailServerOnError(boolean failServerOnError)
+    {
+        this.failServerOnError = failServerOnError;
     }
 }

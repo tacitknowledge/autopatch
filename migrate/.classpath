@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="var" path="CLOVER_RUNTIME"/>
+	<classpathentry kind="src" path="src/inttest"/>
+	<classpathentry kind="src" path="src/optional/atg"/>
+	<classpathentry kind="src" path="src/optional/spring"/>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/build/ant-optional-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/build/checkstyle-all-3.3.jar"/>
+	<classpathentry kind="lib" path="lib/build/servletapi-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/core/commons-logging-1.0.3.jar"/>
+	<classpathentry kind="lib" path="lib/core/poi-2.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/core/tk-util-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/commons-beanutils-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/commons-collections-3.0.jar"/>
+	<classpathentry kind="lib" path="lib/test/commons-digester-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/test/commons-lang-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/test/j2ee13.jar"/>
+	<classpathentry kind="lib" path="lib/test/jspapi-2.0.jar"/>
+	<classpathentry kind="lib" path="lib/test/mockejb.jar"/>
+	<classpathentry kind="lib" path="lib/test/mockrunner0.2.6.jar"/>
+	<classpathentry kind="lib" path="lib/test/struts-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/test/easymock-1.0.1b.jar"/>
+	<classpathentry kind="lib" path="lib/core/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/ant/junit.jar"/>
+	<classpathentry kind="var" path="DYNAMO_HOME/DAS/lib/das.jar"/>
+	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
