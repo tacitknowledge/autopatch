@@ -76,7 +76,11 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
             {
                 if (isFailServerOnError())
                 {
-                    throw new Error("There was a problem patching the database", me);
+                    System.err.println("There was a problem patching the database");
+                    me.printStackTrace(System.err);
+                    System.err.println("Shutting down server to prevent inconsistency");
+                    System.err.println("Change the 'failServerOnError' property if you want it to start anyway");
+                    System.exit(1);
                 }
                 
                 throw new ServiceException("There was a problem patching the database", me);
