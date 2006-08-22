@@ -202,6 +202,8 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                             // If we're in a stored procedure, just keep rolling
                             if (context.getDatabaseType().getDatabaseType().equals("oracle") &&
                                     (currentStatement.toString().trim()
+                                        .toLowerCase().startsWith("create or replace method") ||
+                                     currentStatement.toString().trim()
                                         .toLowerCase().startsWith("create or replace procedure") ||
                                      currentStatement.toString().toString()
                                         .toLowerCase().startsWith("create or replace package"))) {
