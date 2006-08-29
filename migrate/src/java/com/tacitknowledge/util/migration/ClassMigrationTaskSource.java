@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -26,7 +26,6 @@ import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
  * <code>MigrationTask</code> in a specific package.
  *
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class ClassMigrationTaskSource implements MigrationTaskSource
 {

@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  *
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -44,6 +44,7 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * <table>
  * <tr><th>Key</th><th>description</th></tr>
  * <tr><td><i>systemName</i>.patch.path</td><td></td></tr>
+ * <tr><td><i>systemName</i>.postpatch.path</td><td></td></tr>
  * <tr><td><i>systemName</i>.jdbc.database.type</td>
  *     <td>The database type; also accepts <i>systemName</i>.jdbc.dialect</td></tr>
  * <tr><td><i>systemName</i>.jdbc.driver</td><td>The JDBC driver to use</td></tr>
@@ -112,6 +113,9 @@ public class JdbcMigrationLauncherFactory
         
         String patchPath = getRequiredParam("migration.patchpath", sce);
         launcher.setPatchPath(patchPath);
+        
+        String postPatchPath = sce.getServletContext().getInitParameter("migration.postpatchpath");
+        launcher.setPostPatchPath(postPatchPath);
         
         String dataSource = getRequiredParam("migration.datasource", sce);
         try
@@ -190,6 +194,7 @@ public class JdbcMigrationLauncherFactory
         throws IllegalArgumentException, MigrationException
     {
         launcher.setPatchPath(getRequiredParam(props, systemName + ".patch.path"));
+        launcher.setPostPatchPath(props.getProperty(systemName + ".postpatch.path"));
 
         // Set up the data source
         NonPooledDataSource dataSource = new NonPooledDataSource();

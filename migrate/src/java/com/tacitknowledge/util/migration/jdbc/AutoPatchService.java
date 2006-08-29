@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -42,6 +42,9 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     
     /** The path to the SQL patches */
     private String patchPath = null;
+    
+    /** The patch to the post-patch tasks */
+    private String postPatchPath = null;
 
     /**
      * Patches the database, if necessary.
@@ -76,6 +79,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
         launcher.setContext(getContext());
         launcher.setPatchPath(getPatchPath());
+        launcher.setPostPatchPath(getPostPatchPath());
         return launcher;
     }
 
@@ -156,5 +160,21 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     public void setPatchPath(String patchPath)
     {
         this.patchPath = patchPath;
+    }
+    
+    /**
+     * @return Returns the postPatchPath.
+     */
+    public String getPostPatchPath()
+    {
+        return postPatchPath;
+    }
+    
+    /**
+     * @param postPatchPath The postPatchPath to set.
+     */
+    public void setPostPatchPath(String postPatchPath)
+    {
+        this.postPatchPath = postPatchPath;
     }
 }

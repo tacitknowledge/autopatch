@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -68,9 +68,15 @@ public class MigrationProcess
     
     /**
      * The list of package names containing the <code>MigrationTask</code>s
-     * and SQL scripts to execute. 
+     * and SQL scripts to execute as patches
      */
-    private List resourcePackages = new ArrayList();
+    private List patchResourcePackages = new ArrayList();
+    
+    /**
+     * The list of package names containing <code>MigrationTask</code>s
+     * and SQL scripts to execute after patch execution
+     */
+    private List postPatchResourcePackages = new ArrayList();
     
     /**
      * Migration task providers
@@ -95,23 +101,47 @@ public class MigrationProcess
      * 
      * @param packageName the name of the package to add to the search path  
      */
-    public void addResourcePackage(String packageName)
+    public void addPatchResourcePackage(String packageName)
     {
-        resourcePackages.add(packageName);
+        patchResourcePackages.add(packageName);
     }
 
     /**
      * Adds the given classpath-relative directory to the migration task
      * search path.
      * 
-     * @param dir the name of the directory to add to the search path  
+     * @param dir the name of the directory to add to the post-patch search path  
      */
-    public void addResourceDirectory(String dir)
+    public void addPatchResourceDirectory(String dir)
     {
         // Make the path package-name-like so that ClassLoader.getResourceAsStream
         // will work correctly
         String packageName = dir.replace('/', '.').replace('\\', '.');
-        addResourcePackage(packageName);
+        addPatchResourcePackage(packageName);
+    }
+    
+    /**
+     * Adds the given package to the post-patch migration task search path.
+     * 
+     * @param packageName the name of the package to add to the search path  
+     */
+    public void addPostPatchResourcePackage(String packageName)
+    {
+        postPatchResourcePackages.add(packageName);
+    }
+
+    /**
+     * Adds the given classpath-relative directory to the post-patch migration task
+     * search path.
+     * 
+     * @param dir the name of the directory to add to the post-patch search path  
+     */
+    public void addPostPatchResourceDirectory(String dir)
+    {
+        // Make the path package-name-like so that ClassLoader.getResourceAsStream
+        // will work correctly
+        String packageName = dir.replace('/', '.').replace('\\', '.');
+        addPostPatchResourcePackage(packageName);
     }
     
     /**
@@ -152,7 +182,7 @@ public class MigrationProcess
             MigrationTask task = (MigrationTask) i.next();
             if (task.getLevel().intValue() > currentLevel)
             {
-                applyPatch(context, task);
+                applyPatch(context, task, true);
                 taskCount++;
             }
         }
@@ -168,19 +198,55 @@ public class MigrationProcess
         
         return taskCount;
     }
+    
+    /**
+     * Run post-migration tasks
+     * 
+     * @return the number of <code>MigrationTask</code>s that executed
+     * @exception MigrationException if a post-patch task fails
+     */
+    public int doPostPatchMigrations(MigrationContext context) throws MigrationException
+    {
+        log.info("Running post-patch tasks...");
+        List postMigrationTasks = getPostPatchMigrationTasks();
+        validateTasks(postMigrationTasks);
+        Collections.sort(postMigrationTasks);
+        int taskCount = 0;
+        for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            applyPatch(context, task, false);
+        }
+        
+        if (taskCount > 0)
+        {
+            log.info("Post-patch tasks complete (" + taskCount + " tasks executed)");
+        }
+        else
+        {
+            log.info("No post-patch tasks have been run.");
+        }
+        
+        return taskCount;
+    }
 
     /**
      * Apply a single patch
      * 
      * @param context the context the patch will need during application
      * @param task the application task to carry out
+     * @param broadcast whether to broadcast to listeners that the patch applied
      * @throws MigrationException if the patch application fails
      */
-    public void applyPatch(MigrationContext context, MigrationTask task) throws MigrationException
+    public void applyPatch(MigrationContext context, MigrationTask task, boolean broadcast) 
+        throws MigrationException
     {
         String label = getTaskLabel(task);
-        broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
-        log.debug("broadcaster has " + broadcaster.getListeners().size() + " listeners");
+        if (broadcast)
+        {
+            broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
+            log.debug("broadcaster has " + broadcaster.getListeners().size() + " listeners");
+        }
         log.info("Running migration task \"" + label + "\"...");
         try
         {
@@ -188,12 +254,18 @@ public class MigrationProcess
             task.migrate(context);
             long duration = System.currentTimeMillis() - startTime;
             log.info("Finished migration task \"" + label + "\" (" + duration + " millis.)");
-            broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
+            if (broadcast)
+            {
+                broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
+            }
             context.commit();
         }
         catch (MigrationException e)
         {
-            broadcaster.notifyListeners(task, context, e, MigrationBroadcaster.TASK_FAILED);
+            if (broadcast)
+            {
+                broadcaster.notifyListeners(task, context, e, MigrationBroadcaster.TASK_FAILED);
+            }
             try
             {
                 context.rollback();
@@ -216,11 +288,34 @@ public class MigrationProcess
      */
     public List getMigrationTasks() throws MigrationException
     {
+        return getTasksFromPackages(patchResourcePackages);
+    }
+
+    /**
+     * Returns a list of all post-patch migration tasks
+     * 
+     * @return a list of all post-patch migration tasks
+     * @throws MigrationException if one or more post-patch migration tasks could not be created
+     */
+    public List getPostPatchMigrationTasks() throws MigrationException
+    {
+        return getTasksFromPackages(postPatchResourcePackages);
+    }
+
+    /**
+     * Instantiate all the MigrationTask objects in the given resource packages
+     * 
+     * @param resourcePackages a List of Strings specifying package names to look for tasks in
+     * @return List of MigrationTask objects instantiated from the given packages
+     * @throws MigrationException if one or more post-patch migration tasks could not be created
+     */
+    private List getTasksFromPackages(List resourcePackages) throws MigrationException
+    {
         List tasks = new ArrayList();
         for (Iterator i = resourcePackages.iterator(); i.hasNext();)
         {
             String packageName = (String) i.next();
-            log.debug("Searching for patches in package " + packageName);
+            log.debug("Searching for migration tasks in package " + packageName);
             
             for (Iterator j = migrationTaskSources.iterator(); j.hasNext();)
             {
@@ -231,12 +326,12 @@ public class MigrationProcess
                     if (sourceTasks.size() > 0)
                     {
                         log.debug("Source [" + source + "] found " 
-                                  + sourceTasks.size() + " patches: "
+                                  + sourceTasks.size() + " migration tasks: "
                                   + sourceTasks);
                     }
                     else
                     {
-                        log.debug("Source [" + source + "] returned 0 patches.");
+                        log.debug("Source [" + source + "] returned 0 migration tasks.");
                     }
                 }
                 tasks.addAll(sourceTasks);
@@ -248,8 +343,8 @@ public class MigrationProcess
         // help them discover why.
         if (tasks.size() == 0)
         {
-            log.info("No patches were discovered in your classpath. "
-                     + "Run with DEBUG logging enabled for patch search details.");
+            log.info("No migration tasks were discovered in your classpath. "
+                     + "Run with DEBUG logging enabled for migration task search details.");
         }
         
         return tasks;

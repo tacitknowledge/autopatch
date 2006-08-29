@@ -79,7 +79,7 @@ public class DistributedMigrationProcess extends MigrationProcess
             {
                 // Execute the task in the context it was loaded from
                 JdbcMigrationLauncher launcher = (JdbcMigrationLauncher)migrationsWithLaunchers.get(task);
-                applyPatch(launcher.getContext(), task);
+                applyPatch(launcher.getContext(), task, true);
                 taskCount++;
             }
         }

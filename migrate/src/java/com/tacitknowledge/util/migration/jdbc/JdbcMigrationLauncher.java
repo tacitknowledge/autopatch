@@ -67,6 +67,11 @@ public class JdbcMigrationLauncher implements MigrationListener
     private String patchPath = null;
 
     /**
+     * The path containing directories and packages to search through to locate post-patch tasks.
+     */
+    private String postPatchPath = null;
+
+    /**
      * The <code>MigrationContext</code> to use for all migrations.
      */
     private JdbcMigrationContext context = null;
@@ -165,11 +170,52 @@ public class JdbcMigrationLauncher implements MigrationListener
             String path = st.nextToken();
             if (path.indexOf('/') > -1)
             {
-                migrationProcess.addResourceDirectory(path);
+                migrationProcess.addPatchResourceDirectory(path);
             }
             else
             {
-                migrationProcess.addResourcePackage(path);
+                migrationProcess.addPatchResourcePackage(path);
+            }
+        }
+    }
+
+    /**
+     * Returns the colon-separated path of packages and directories within the
+     * class path that are sources of post-patch tasks
+     *
+     * @return a colon-separated path of packages and directories within the
+     *         class path that are sources of post-patch tasks
+     */
+    public String getPostPatchPath()
+    {
+        return postPatchPath;
+    }
+
+    /**
+     * Sets the colon-separated path of packages and directories within the
+     * class path that are sources of post-patch tasks
+     *
+     * @param searchPath a colon-separated path of packages and directories within the
+     *        class path that are sources of post-patch tasks
+     */
+    public void setPostPatchPath(String searchPath)
+    {
+        this.postPatchPath = searchPath;
+        if (searchPath == null)
+        {
+            return;
+        }
+        StringTokenizer st = new StringTokenizer(searchPath, ":");
+        while (st.hasMoreTokens())
+        {
+            String path = st.nextToken();
+            if (path.indexOf('/') > -1)
+            {
+                migrationProcess.addPostPatchResourceDirectory(path);
+            }
+            else
+            {
+                migrationProcess.addPostPatchResourcePackage(path);
             }
         }
     }
@@ -284,7 +330,9 @@ public class JdbcMigrationLauncher implements MigrationListener
             try
             {
                 int patchLevel = patchTable.getPatchLevel();
-                return migrationProcess.doMigrations(patchLevel, context);
+                int executedPatchCount = migrationProcess.doMigrations(patchLevel, context);
+                migrationProcess.doPostPatchMigrations(context);
+                return executedPatchCount;
             }
             finally
             {

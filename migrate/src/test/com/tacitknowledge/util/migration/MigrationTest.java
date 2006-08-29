@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -48,7 +48,8 @@ public class MigrationTest extends MigrationListenerTestBase
     {
         super.setUp();
         runner = new MigrationProcess();
-        runner.addResourceDirectory(getClass().getPackage().getName() + ".tasks.normal");
+        runner.addPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.normal");
+        runner.addPostPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.post");
         runner.addListener(this);
         
         context = new TestMigrationContext();
@@ -76,11 +77,14 @@ public class MigrationTest extends MigrationListenerTestBase
         assertEquals(4, l.size());
         
         int level = runner.doMigrations(0, context);
+        runner.doPostPatchMigrations(context);
         assertEquals(4, level);
         assertTrue(context.hasExecuted("TestTask1"));
         assertTrue(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
+        assertTrue(context.hasExecuted("TestPostTask1"));
+        assertTrue(context.hasExecuted("TestPostTask2"));
         assertEquals(4, getMigrationStartedCount());
         assertEquals(4, getMigrationSuccessCount());
     }
@@ -97,11 +101,14 @@ public class MigrationTest extends MigrationListenerTestBase
         
         // run them all once
         int level = runner.doMigrations(0, context);
+        runner.doPostPatchMigrations(context);
         assertEquals(4, level);
         assertTrue(context.hasExecuted("TestTask1"));
         assertTrue(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
+        assertTrue(context.hasExecuted("TestPostTask1"));
+        assertTrue(context.hasExecuted("TestPostTask2"));
         assertEquals(4, getMigrationStartedCount());
         assertEquals(4, getMigrationSuccessCount());
         
@@ -110,11 +117,14 @@ public class MigrationTest extends MigrationListenerTestBase
         setMigrationFailedCount(0);
         setMigrationSuccessCount(0);
         level = runner.doMigrations(7, context);
+        runner.doPostPatchMigrations(context);
         assertEquals(0, level);
         assertTrue(context.hasExecuted("TestTask1"));
         assertTrue(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
+        assertTrue(context.hasExecuted("TestPostTask1"));
+        assertTrue(context.hasExecuted("TestPostTask2"));
         assertEquals(0, getMigrationStartedCount());
         assertEquals(0, getMigrationSuccessCount());
     }
@@ -131,11 +141,14 @@ public class MigrationTest extends MigrationListenerTestBase
         assertEquals(4, l.size());
         
         int level = runner.doMigrations(5, context);
+        runner.doPostPatchMigrations(context);
         assertEquals(2, level);
         assertFalse(context.hasExecuted("TestTask1"));
         assertFalse(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
+        assertTrue(context.hasExecuted("TestPostTask1"));
+        assertTrue(context.hasExecuted("TestPostTask2"));
         assertEquals(2, getMigrationStartedCount());
         assertEquals(2, getMigrationSuccessCount());
     }
@@ -155,6 +168,7 @@ public class MigrationTest extends MigrationListenerTestBase
         try
         {
             executedTasks = runner.doMigrations(5, context);
+            runner.doPostPatchMigrations(context);
             fail("We called a migration that failed, this should have thrown an exception");
         }
         catch (MigrationException me)
@@ -166,6 +180,8 @@ public class MigrationTest extends MigrationListenerTestBase
         assertFalse(context.hasExecuted("TestTask2"));
         assertFalse(context.hasExecuted("TestTask3"));
         assertFalse(context.hasExecuted("TestTask4"));
+        assertFalse(context.hasExecuted("TestPostTask1"));
+        assertFalse(context.hasExecuted("TestPostTask2"));
         assertEquals(1, getMigrationStartedCount());
         assertEquals(0, getMigrationSuccessCount());
         assertEquals(1, getMigrationFailedCount());

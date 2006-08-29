@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -34,7 +34,6 @@ import com.tacitknowledge.util.migration.MigrationTaskSource;
  * of each script must follow the pattern of &quot;patch(\d+)(_.+)?\.sql&quot;.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class SqlScriptMigrationTaskSource implements MigrationTaskSource
 {

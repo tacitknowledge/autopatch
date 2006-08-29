@@ -146,6 +146,9 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         dataSource.setUsername(getRequiredParam(props, patchStoreContextName + ".jdbc.username"));
         dataSource.setPassword(getRequiredParam(props, patchStoreContextName + ".jdbc.password"));
         
+        // Get any post-patch task paths
+        launcher.setPostPatchPath(props.getProperty(patchStoreContextName + ".postpatch.path"));
+        
         // Set up the JDBC migration context; accepts one of two property names
         DataSourceMigrationContext context = getDataSourceMigrationContext();
         String databaseType = getRequiredParam(props,
