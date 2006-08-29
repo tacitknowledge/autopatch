@@ -323,14 +323,34 @@ public class JdbcMigrationLauncher implements MigrationListener
             lockPatchStore();
 
             // make sure we can at least attempt to roll back patches
-            // DDL can usually don't rollback - we'd need compensating transactions
+            // DDL usually can't rollback - we'd need compensating transactions
             b = conn.getAutoCommit();
             conn.setAutoCommit(false);
             
+            // Now apply the patches
+            int executedPatchCount = 0;
             try
             {
                 int patchLevel = patchTable.getPatchLevel();
-                int executedPatchCount = migrationProcess.doMigrations(patchLevel, context);
+                executedPatchCount = migrationProcess.doMigrations(patchLevel, context);
+                
+            }
+            finally
+            {
+                try
+                {
+                    conn.commit();
+                }
+                catch (SQLException e)
+                {
+                    log.error("Error unlocking patch table: ", e);
+                }
+            }
+            
+            // Do any post-patch tasks
+            try
+            {
+                
                 migrationProcess.doPostPatchMigrations(context);
                 return executedPatchCount;
             }
