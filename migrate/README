@@ -106,7 +106,7 @@ external systems, and is thus cause for total shutdown.
 These have loading, ordering and execution steps similar to regular patches,
 the only difference is that these run *every* time AutoPatch runs. This allows
 you to do maintenance tasks (like recompiling PL/SQL or similar) after patch
-runs
+runs, but means that the tasks in here *must* be re-runnable. They will run a lot.
 
 --------------------------------------------------------------------------
 
