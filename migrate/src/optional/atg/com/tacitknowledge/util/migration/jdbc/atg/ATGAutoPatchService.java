@@ -45,6 +45,9 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     /** Take the server down on errors? */
     private boolean failServerOnError = true;
     
+    /** The patch to the post-patch tasks */
+    private String postPatchPath = null;
+    
     /**
      * Handle patching the database on startup
      * 
@@ -197,4 +200,20 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     {
         this.failServerOnError = failServerOnError;
     }
+     
+     /**
+      * @return Returns the postPatchPath.
+      */
+     public String getPostPatchPath()
+     {
+         return postPatchPath;
+     }
+     
+     /**
+      * @param postPatchPath The postPatchPath to set.
+      */
+     public void setPostPatchPath(String postPatchPath)
+     {
+         this.postPatchPath = postPatchPath;
+     }
 }

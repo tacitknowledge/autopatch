@@ -46,6 +46,9 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     /** The AutoPatchServices this object should control */
     private AutoPatchService[] controlledSystems = null;
     
+    /** The patch to the post-patch tasks */
+    private String postPatchPath = null;
+    
     /**
      * Patches all of the databases in your distributed system, if necessary.
      * 
@@ -93,6 +96,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
         }
         
         ((DistributedMigrationProcess)launcher.getMigrationProcess()).setControlledSystems(controlledLaunchers);
+        launcher.setPostPatchPath(getPostPatchPath());
         
         return launcher;
     }
@@ -175,5 +179,21 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     public void setControlledSystems(AutoPatchService[] controlledSystems)
     {
         this.controlledSystems = controlledSystems;
+    }
+    
+    /**
+     * @return Returns the postPatchPath.
+     */
+    public String getPostPatchPath()
+    {
+        return postPatchPath;
+    }
+    
+    /**
+     * @param postPatchPath The postPatchPath to set.
+     */
+    public void setPostPatchPath(String postPatchPath)
+    {
+        this.postPatchPath = postPatchPath;
     }
 }
