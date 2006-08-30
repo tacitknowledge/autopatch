@@ -35,7 +35,7 @@ model) all the way down to the alteration of external systems, without
 needing an army of DBAs or similar to go around and patch your databases 
 when you release new code requiring schema changes.
 
-Owing to a recent name change, you will find uses of the word
+Owing to a semi-recent name change, you will find uses of the word
 "migrate" or "migration" everywhere. Please consider the words
 "migrate" and "migration" as synonyms for "patch".
 
@@ -60,6 +60,8 @@ o  AutoPatch must ensure that each patch is applied once and only once
        patch development very difficult
 o  AutoPatch should be able to globally order patches that execute
        against multiple external systems
+o  AutoPatch should be capable of executing post-patching maintenance
+       after patching (things like recompiling pl/sql, etc)
    
 
 --------------------------------------------------------------------------
@@ -99,6 +101,12 @@ Each patch is executed, one after another. Any errors are considered
 fatal, as the application logic will not be able to trust the state of
 external systems, and is thus cause for total shutdown.
 
+3f) Post-Patch Tasks
+--------------------
+These have loading, ordering and execution steps similar to regular patches,
+the only difference is that these run *every* time AutoPatch runs. This allows
+you to do maintenance tasks (like recompiling PL/SQL or similar) after patch
+runs
 
 --------------------------------------------------------------------------
 
