@@ -335,6 +335,13 @@ public class JdbcMigrationLauncher implements MigrationListener
                 executedPatchCount = migrationProcess.doMigrations(patchLevel, context);
                 
             }
+            catch (MigrationException me)
+            {
+                // If there was any kind of error, we don't want to eat it, but we do
+                // want to unlock the patch store. So do that, then re-throw.
+                patchTable.unlockPatchStore();
+                throw me;
+            }
             finally
             {
                 try
@@ -350,7 +357,6 @@ public class JdbcMigrationLauncher implements MigrationListener
             // Do any post-patch tasks
             try
             {
-                
                 migrationProcess.doPostPatchMigrations(context);
                 return executedPatchCount;
             }
