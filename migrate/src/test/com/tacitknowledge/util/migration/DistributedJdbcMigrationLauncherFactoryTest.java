@@ -78,7 +78,6 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     protected void tearDown() throws Exception
     {
         super.tearDown();
-        log.info("tearing down");
     }
     
     /**
