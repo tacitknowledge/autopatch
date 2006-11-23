@@ -34,7 +34,7 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
         List tasks = null;
         try
         {
-            tasks = source.getMigrationTasks(this.getClass().getPackage().getName());
+            tasks = source.getMigrationTasks(this.getClass().getPackage().getName() + ".test");
         }
         catch (MigrationException me)
         {

@@ -192,14 +192,15 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         assertTrue(ordersContext.hasExecuted("TestTask3"));
         assertTrue(ordersContext.hasExecuted("TestTask4"));
         
-        // The core schema has three tasks that should not go, make sure they did not
+        // The core schema has three tasks that should not go, make sure they are there but did not go
         JdbcMigrationLauncher coreLauncher = 
             (JdbcMigrationLauncher)controlledSystems.get("core");
         TestDataSourceMigrationContext coreContext = 
             (TestDataSourceMigrationContext)coreLauncher.getContext();
+        assertEquals(3, coreLauncher.getMigrationProcess().getMigrationTasks().size());
         assertEquals("core", coreContext.getSystemName());
-        assertFalse(coreContext.hasExecuted("patch0001"));
-        assertFalse(coreContext.hasExecuted("patch0002"));
-        assertFalse(coreContext.hasExecuted("patch0003"));
+        assertFalse(coreContext.hasExecuted("patch0001_first_patch"));
+        assertFalse(coreContext.hasExecuted("patch0002_second_patch"));
+        assertFalse(coreContext.hasExecuted("patch0003_third_patch"));
     }
 }

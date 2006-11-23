@@ -66,7 +66,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
      */
     public void testMigrate() throws IOException
     {
-        InputStream is = getClass().getResourceAsStream("patch0003.sql");
+        InputStream is = getClass().getResourceAsStream("test/patch0003_third_patch.sql");
         task = new SqlScriptMigrationTask("test", 1, is);
         is.close();
         
@@ -89,7 +89,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
      */
     public void testParsingMultipleStatement() throws IOException
     {
-        InputStream is = getClass().getResourceAsStream("patch0001.sql");
+        InputStream is = getClass().getResourceAsStream("test/patch0001_first_patch.sql");
         task = new SqlScriptMigrationTask("test", 1, is);
         is.close();
         
@@ -106,7 +106,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
             + "role_code, project_id) \n\t\t\tvalues (nextval('role_--id_seq;'),4, 'SYSA', 3)",
             l.get(2).toString());
 
-        is = getClass().getResourceAsStream("patch0002.sql");
+        is = getClass().getResourceAsStream("test/patch0002_second_patch.sql");
         task = new SqlScriptMigrationTask("test", 1, is);
         is.close();
         
@@ -124,7 +124,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
      */
     public void testParsingSingleStatement() throws IOException
     {
-        InputStream is = getClass().getResourceAsStream("patch0003.sql");
+        InputStream is = getClass().getResourceAsStream("test/patch0003_third_patch.sql");
         task = new SqlScriptMigrationTask("test", 1, is);
         is.close();
 
@@ -141,9 +141,9 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
      */
     public void testTaskName() throws IOException
     {
-        InputStream is = getClass().getResourceAsStream("patch0003.sql");
-        task = new SqlScriptMigrationTask("patch0003", 1, is);
+        InputStream is = getClass().getResourceAsStream("test/patch0003_third_patch.sql");
+        task = new SqlScriptMigrationTask("patch0003_third_patch", 1, is);
         is.close();
-        assertEquals("patch0003", task.toString());
+        assertEquals("patch0003_third_patch", task.toString());
     }
 }

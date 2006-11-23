@@ -54,7 +54,7 @@ public class DistributedAutoPatchServiceTest extends DistributedJdbcMigrationLau
         coreService.setSystemName("core");
         coreService.setDatabaseType("postgres");
         coreService.setDataSource(new MockDataSource());
-        coreService.setPatchPath("patch.core:com.tacitknowledge.util.migration.jdbc");
+        coreService.setPatchPath("patch.core:com.tacitknowledge.util.migration.jdbc.test");
         
         // orders: patch path patches.orders.com.tacitknowledge.util.migration.tasks.normal
         AutoPatchService ordersService = new TestAutoPatchService();

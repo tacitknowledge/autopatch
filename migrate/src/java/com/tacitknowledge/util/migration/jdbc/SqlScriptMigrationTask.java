@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2006 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -36,7 +36,6 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  * Adaptss a SQL or DDL database patch for use with the AutoPatch framework.  
  *  
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class SqlScriptMigrationTask extends MigrationTaskSupport
 {
@@ -55,7 +54,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
      */
     public SqlScriptMigrationTask()
     {
-        // Nothing to do
+        // do nothing
     }
     
     /**

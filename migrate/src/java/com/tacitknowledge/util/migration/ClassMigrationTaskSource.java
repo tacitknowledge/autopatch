@@ -73,8 +73,8 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
                 }
                 else
                 {
-                    log.debug("MigrationTask " + taskClass.getName() 
-                              + " had no migration name. Skipping");
+                    log.warn("MigrationTask " + taskClass.getName() 
+                             + " had no migration name. Is that intentional? Skipping task.");
                 }
             }
             catch (Exception e)
