@@ -4,16 +4,90 @@
     Tacit Knowledge AutoPatch
 -->
 
-    <!-- set our name so the common library can key off of it -->
-	<property name="proj.name" value="pool" />
-    
-	<property file="../build.properties" />
-	<property file="./build.properties" />
-	<property file="./migration.properties" />
+<!--
+   Main build file for the Tacit Knowledge Migrate library.
 
-	
-    <!-- pull in the common library -->
-    <import file="../common.xml" optional="false"/>
+   Build file sections
+
+   Project Declarations - locations of various files and dirs needed to build
+   Compiler Defaults - paramters asscoiated with compilation
+   Test Execution Defaults - Junit test setup
+   Compilation Targets - all target having to do with compilation
+   Unit Test Targets - target having to do with unit test execution
+
+   Outputs of the build go to the ${build.home} directory.
+
+   Build reports (for things like unit testing)
+   go to the ${reports.home} directory.
+ -->
+
+<!-- ========== application Declarations ==================================== -->
+
+  <property environment="env"/>
+    
+  <!-- The name of this application -->
+  <property name="component.name"          value="autopatch"/>
+
+  <!-- The primary package name of this application -->
+  <property name="component.package"       value="com.tacitknowledge.util.migration"/>
+
+  <!-- The title of this application -->
+  <property name="component.title"         value="Tacit Knowledge AutoPatch"/>
+
+  <!-- The current version number of this application -->
+  <property name="component.version"       value="1.0.0-rc3"/>
+
+  <!-- The base directory for compilation targets -->
+  <property name="build.home"              value="build"/>
+
+  <!-- The base directory for application configuration files -->
+  <property name="conf.home"               value="conf"/>
+
+  <!-- The base directory for distribution targets -->
+  <property name="dist.home"               value="dist"/>
+
+  <!-- The base directory for application sources -->
+  <property name="source.home"             value="src/java"/>
+
+  <!-- The base directory for optional application sources -->
+  <property name="optional.home"           value="src/optional"/>
+
+  <!-- The base directory for unit test sources -->
+  <property name="test.home"               value="src/test"/>
+
+  <!-- The base directory for integration test sources -->
+  <property name="inttest.home"            value="src/inttest"/>
+
+  <!-- The base directory for all reports  -->
+  <property name="reports.home"		       value="${build.home}/reports"/>
+
+  <!-- The test report directory -->
+  <property name="test.reports"            value="${reports.home}/tests"/>
+
+  <!-- The base directory for project libs -->
+  <property name="lib.dir"                 value="${basedir}/lib"/>
+  
+<!-- ========== Compiler Defaults ========================================= -->
+
+  <!-- Should Java compilations set the 'debug' compiler option? -->
+  <property name="compile.debug"           value="true"/>
+
+  <!-- Should Java compilations set the 'deprecation' compiler option? -->
+  <property name="compile.deprecation"     value="true"/>
+
+  <!-- Should Java compilations set the 'optimize' compiler option? -->
+  <property name="compile.optimize"        value="false"/>
+
+  <!-- Construct compile classpath -->
+  <path id="compile.classpath">
+    <pathelement location="${build.home}/classes"/>
+    <fileset dir="${lib.dir}/build">
+        <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${lib.dir}/core">
+        <include name="**/*.jar"/>
+    </fileset>
+  </path>
 
     <!-- Construct optional atg compile classpath -->
     <path id="compile.optional.atg.classpath">
@@ -22,12 +96,11 @@
       <path refid="compile.classpath"/>
 
       <!-- Add the test binary path and test support libraries -->
-      <pathelement location="${build.dir}/tests"/>
+      <pathelement location="${build.home}/tests"/>
         
       <!-- pull in support for ATG bindings -->
       <pathelement location="${env.DYNAMO_HOME}/../DAS/lib/das.jar"/>
     </path>
-	
     <!-- Construct optional spring compile classpath -->
     <path id="compile.optional.spring.classpath">
 
@@ -35,41 +108,128 @@
       <path refid="compile.classpath"/>
 
       <!-- Add the test binary path and test support libraries -->
-      <pathelement location="${build.dir}/tests"/>
+      <pathelement location="${build.home}/tests"/>
             
       <!-- pull in support for ATG bindings -->
       <pathelement location="${env.SPRING_HOME}/dist/spring.jar"/>
     </path>
-	
-	<!-- ========== Compilation Targets ======================================== -->
-	
-	<target name="init" description="Prepare build directory">
-		<attribute name="application.title" default="No title specified."/>
-		<sequential>
-			<!-- make sure our dependencies are met -->
-			<dependencies/>
-			
-			<!-- see which of our core directories exist -->
-			<coredirsexist/>
-			
-			<mkdir dir="${build.dir}"/>
-			<mkdir dir="${distribution.dir}"/>
-			<mkdir dir="${classes.dir}"/>
-			<mkdir dir="${classes.unittest.dir}"/>
-			<mkdir dir="${classes.inttest.dir}"/>
-			<mkdir dir="${build.dir}/lib"/>
-			<mkdir dir="${build.dir}/liveconfig"/>
-			<mkdir dir="${jar.dir}"/>
-			<mkdir dir="${report.dir}"/>
-			<mkdir dir="${javadoc.dir}"/>
-			<mkdir dir="${test.lib.dir}"/>
-			<mkdir dir="${build.dir}/optional"/>
-			<mkdir dir="${build.dir}/optional/atg"/>
-			<mkdir dir="${build.dir}/optional/spring"/>
-		</sequential>
-	</target>
+    
+<!-- ========== Test Execution Defaults =================================== -->
+
+    <!-- Construct unit test classpath -->
+    <path id="compile.test.classpath">
+
+      <!-- Add everything in the compile classpath -->
+      <path refid="compile.classpath"/>
+
+      <!-- Add the test binary path and test support libraries -->
+      <pathelement location="${build.home}/tests"/>
+      <fileset dir="${lib.dir}/test">
+          <include name="**/*.jar"/>
+      </fileset>
+        <fileset dir="${lib.dir}/ant">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    
+  <!-- Construct unit test classpath -->
+  <path id="test.classpath">
+
+      <!-- Add everything in the compile classpath -->
+    <path refid="compile.classpath"/>
+
+    <!-- Add the test binary path and test support libraries -->
+    <pathelement location="${build.home}/tests"/>
+    <fileset dir="${lib.dir}/test">
+        <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- Construct unit test classpath -->
+  <path id="inttest.classpath">
+
+      <!-- Add everything in the compile classpath -->
+    <path refid="compile.classpath"/>
+
+    <!-- Add the test binary path and test support libraries -->
+    <pathelement location="${build.home}/inttests"/>
+    <fileset dir="${lib.dir}/test">
+        <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- Should all tests fail if one does? -->
+  <property name="test.failonerror"        value="true"/>
+
+<!-- ========== Compilation Targets ======================================== -->
+  <target name="init"
+   description="Initialize and evaluate conditionals">
+    <echo message="-------- ${component.title} ${component.version} --------"/>
+    <filter  token="name"                  value="${component.name}"/>
+    <filter  token="package"               value="${component.package}"/>
+    <filter  token="version"               value="${component.version}"/>
+  </target>
 
 
+  <target name="prepare" depends="init" description="Prepare build directory">
+    <mkdir dir="${build.home}"/>
+    <mkdir dir="${test.reports}"/>
+    <mkdir dir="${build.home}/classes"/>
+    <mkdir dir="${build.home}/tests"/>
+    <mkdir dir="${build.home}/inttests"/>
+    <mkdir dir="${build.home}/optional"/>
+    <mkdir dir="${build.home}/optional/atg"/>
+    <mkdir dir="${build.home}/optional/spring"/>
+  </target>
+
+  <target name="compile" depends="prepare" description="Compile the application">
+    <javac srcdir="${source.home}"
+           destdir="${build.home}/classes"
+           debug="${compile.debug}"
+           deprecation="${compile.deprecation}"
+           optimize="${compile.optimize}">
+      <classpath refid="compile.classpath"/>
+    </javac>
+
+    <copy  todir="${build.home}/classes" filtering="on">
+      <fileset dir="${source.home}" excludes="**/*.java"/>
+    </copy>
+
+    <jar jarfile="${build.home}/tk-${component.name}-${component.version}.jar"
+         basedir="${build.home}/classes">
+    </jar>
+
+  </target>
+
+  <target name="compile.tests" depends="compile" description="Compile unit test cases">
+    <javac  srcdir="${test.home}"
+           destdir="${build.home}/tests"
+             debug="${compile.debug}"
+       deprecation="${compile.deprecation}"
+          optimize="${compile.optimize}">
+      <classpath refid="compile.test.classpath"/>
+    </javac>
+
+    <copy    todir="${build.home}/tests" filtering="on">
+      <fileset dir="${test.home}" excludes="**/*.java"/>
+    </copy>
+
+  </target>
+
+  <target name="compile.inttests" depends="compile" description="Compile integration test cases">
+    <javac  srcdir="${inttest.home}"
+           destdir="${build.home}/inttests"
+             debug="${compile.debug}"
+       deprecation="${compile.deprecation}"
+          optimize="${compile.optimize}">
+      <classpath refid="compile.test.classpath"/>
+    </javac>
+
+    <copy    todir="${build.home}/inttests" filtering="on">
+      <fileset dir="${inttest.home}" excludes="**/*.java"/>
+    </copy>
+
+  </target>
     
     <!-- Make sure our optional dependencies are met -->
     <target 
@@ -107,43 +267,71 @@
             description="Compile the optional ATG bindings">
             
           <javac srcdir="${optional.home}/atg"
-                 destdir="${build.dir}/optional/atg"
+                 destdir="${build.home}/optional/atg"
                  debug="${compile.debug}"
                  deprecation="${compile.deprecation}"
                  optimize="${compile.optimize}">
             <classpath refid="compile.optional.atg.classpath"/>
           </javac>
 
-          <copy  todir="${build.dir}/optional/atg" filtering="on">
+          <copy  todir="${build.home}/optional/atg" filtering="on">
             <fileset dir="${optional.home}/atg" excludes="**/*.java"/>
           </copy>
 
-          <jar jarfile="${build.dir}/${application.name}-optional-atg-${application.title}.jar"
-               basedir="${build.dir}/optional/atg">
+          <jar jarfile="${build.home}/tk-${component.name}-optional-atg-${component.version}.jar"
+               basedir="${build.home}/optional/atg">
           </jar>
 
     </target>
-	
     <target name="compile.optional.spring" depends="compile,optional.dependency.spring" 
                 description="Compile the optional Spring bindings">
                 
               <javac srcdir="${optional.home}/spring"
-                     destdir="${build.dir}/optional/spring"
+                     destdir="${build.home}/optional/spring"
                      debug="${compile.debug}"
                      deprecation="${compile.deprecation}"
                      optimize="${compile.optimize}">
                 <classpath refid="compile.optional.spring.classpath"/>
               </javac>
 
-              <copy  todir="${build.dir}/optional/spring" filtering="on">
+              <copy  todir="${build.home}/optional/spring" filtering="on">
                 <fileset dir="${optional.home}/spring" excludes="**/*.java"/>
               </copy>
 
-              <jar jarfile="${build.dir}/${application.title}-optional-spring.jar"
-                   basedir="${build.dir}/optional/spring">
+              <jar jarfile="${build.home}/tk-${component.name}-optional-spring-${component.version}.jar"
+                   basedir="${build.home}/optional/spring">
               </jar>
 
     </target>
+
+  <target name="clean"
+   description="Clean build and distribution directories">
+    <delete    dir="${build.home}"/>
+    <delete    dir="${dist.home}"/>
+  </target>
+
+
+  <target name="all" depends="clean,compile"
+   description="Clean and compile all applications"/>
+
+
+  <target name="javadoc" depends="compile"
+   description="Create application Javadoc documentation">
+    <mkdir      dir="${dist.home}"/>
+    <mkdir      dir="${dist.home}/docs"/>
+    <mkdir      dir="${dist.home}/docs/api"/>
+    <javadoc sourcepath="${source.home}"
+                destdir="${dist.home}/docs/api"
+           packagenames="${component.package}.*"
+                 author="true"
+                version="true"
+                private="false"
+               doctitle="&lt;h1&gt;${component.title} (Version ${component.version})&lt;/h1&gt;"
+            windowtitle="${component.title} (Version ${component.version})"
+                 bottom="Copyright (c) 2006 - Tacit Knowledge LLC">
+      <classpath refid="compile.classpath"/>
+    </javadoc>
+  </target>
 
     <target name="javadoc.optional" depends="compile.optional">
         <antcall target="javadoc.optional.atg"/>
@@ -168,54 +356,121 @@
         <classpath refid="compile.optional.atg.classpath"/>
       </javadoc>
     </target>
-	
-	<target name="javadoc.optional.spring" depends="compile.optional.spring"
-		description="Create optional application Javadoc documentation">
-		<mkdir      dir="${dist.home}"/>
-		<mkdir      dir="${dist.home}/docs"/>
-		<mkdir      dir="${dist.home}/docs/api"/>
-		<mkdir      dir="${dist.home}/docs/optional-api/"/>
-		<mkdir      dir="${dist.home}/docs/optional-api/spring"/>
-		<javadoc sourcepath="${optional.home}/spring"
-			destdir="${dist.home}/docs/optional-api/spring"
-			packagenames="${component.package}.*"
-			author="true"
-			version="true"
-			private="false"
-			doctitle="&lt;h1&gt;${component.title} - Optional - Spring - (Version ${component.version})&lt;/h1&gt;"
-			windowtitle="${component.title} (Version ${component.version})"
-			bottom="Copyright (c) 2006 - Tacit Knowledge LLC">
-			<classpath refid="compile.optional.spring.classpath"/>
-		</javadoc>
-	</target>
+    <target name="javadoc.optional.spring" depends="compile.optional.spring"
+         description="Create optional application Javadoc documentation">
+          <mkdir      dir="${dist.home}"/>
+          <mkdir      dir="${dist.home}/docs"/>
+          <mkdir      dir="${dist.home}/docs/api"/>
+          <mkdir      dir="${dist.home}/docs/optional-api/"/>
+            <mkdir      dir="${dist.home}/docs/optional-api/spring"/>
+          <javadoc sourcepath="${optional.home}/spring"
+                      destdir="${dist.home}/docs/optional-api/spring"
+                 packagenames="${component.package}.*"
+                       author="true"
+                      version="true"
+                      private="false"
+                     doctitle="&lt;h1&gt;${component.title} - Optional - Spring - (Version ${component.version})&lt;/h1&gt;"
+                  windowtitle="${component.title} (Version ${component.version})"
+                       bottom="Copyright (c) 2006 - Tacit Knowledge LLC">
+            <classpath refid="compile.optional.spring.classpath"/>
+          </javadoc>
+        </target>
 
   <target name="dist" depends="clean,compile,compile.optional,test,javadoc,javadoc.optional" description="Create binary distribution">
-    <mkdir      dir="${distribution.dir}"/>
-    <copy file="${build.dir}/${application.title}.jar"
-          toDir="${distribution.dir}"/>
-    <copy file="${build.dir}/${application.title}-optional-atg.jar"
-              toDir="${distribution.dir}"/>
-    <copy file="${build.dir}/${application.title}-optional-spring.jar"
-                toDir="${distribution.dir}"/>
-    <mkdir      dir="${distribution.dir}/src"/>
-    <copy     todir="${distribution.dir}/src" filtering="on">
+    <mkdir      dir="${dist.home}"/>
+    <copy file="${build.home}/tk-${component.name}-${component.version}.jar"
+          toDir="${dist.home}"/>
+    <copy file="${build.home}/tk-${component.name}-optional-atg-${component.version}.jar"
+              toDir="${dist.home}"/>
+    <copy file="${build.home}/tk-${component.name}-optional-spring-${component.version}.jar"
+                toDir="${dist.home}"/>
+    <mkdir      dir="${dist.home}/src"/>
+    <copy     todir="${dist.home}/src" filtering="on">
       <fileset  dir="${basedir}/src"/>
     </copy>
-    <mkdir      dir="${lib.dir}"/>
-    <copy todir="${distribution.dir}">
-      <fileset  dir="${app.lib.dir}"/>
+    <mkdir      dir="${dist.home}/lib"/>
+    <copy todir="${dist.home}/lib/">
+      <fileset  dir="${lib.dir}/core/"/>
     </copy>
-    <copy todir="${distribution.dir}/docs" file="${basedir}/README"/>
-    <copy todir="${distribution.dir}/docs" file="${basedir}/migration.properties"/>
-    <jar jarfile="${build.dir}/${application.title}-src.jar"
-         basedir="${distribution.dir}">
+    <copy todir="${dist.home}/docs" file="${basedir}/README"/>
+    <copy todir="${dist.home}/docs" file="${basedir}/migration.properties"/>
+    <jar jarfile="${build.home}/tk-${component.name}-${component.version}-src.jar"
+         basedir="${basedir}/dist">
     </jar>
-    <move file="${build.dir}/${application.title}-src.jar"
-          todir="${distribution.dir}"/>
+    <move file="${build.home}/tk-${component.name}-${component.version}-src.jar"
+          todir="${dist.home}"/>
+  </target>
+
+<!-- ============= Standards check on the full tree ====================== -->
+  <target name="checkstyle">
+    <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
+      <classpath refid="compile.classpath"/>
+    </taskdef>
+    <checkstyle config="tacit_checkstyle.config">
+      <fileset dir="${source.home}"
+        includes="**/*.java"
+        excludes="**/test/*.java"
+      />
+      <classpath refid="compile.classpath"/>
+    </checkstyle>
+  </target>
+
+<!-- ============= Standards check on a single target ====================== -->
+  <target name="checkstyle_single">
+    <taskdef name="checkstyle" classname="com.puppycrawl.tools.checkstyle.CheckStyleTask">
+      <classpath refid="compile.classpath"/>
+    </taskdef>
+    <checkstyle
+      config="tacit_checkstyle.config"
+      file="${source.home}/${file}" >
+      <classpath refid="compile.classpath"/>
+    </checkstyle>
   </target>
 
 
+<!-- ========== Unit Test Targets ========================================= -->
+    <target name="test.dependency" description="makes sure junit is there">
+        <available file="${ant.home}/lib/junit.jar" property="junit.present"/>
+        <fail unless="junit.present"> The Junit library is not installed. Please put
+            in: ${ant.home}/lib (Check ${common_lib.dir}/lib/ant for the file)
+        </fail>
+    </target>
+    
+  <target name="unittest"  depends="compile.tests,test.dependency" description="Run all unit tests">
+      <taskdef name="junit"
+          classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+          <classpath refid="test.classpath"/>
+      </taskdef>
+      <junit printsummary="yes" haltonfailure="yes">
+          <classpath refid="test.classpath"/>
+           <formatter type="xml"/>
 
+          <batchtest fork="yes" todir="${test.reports}">
+            <fileset dir="${test.home}">
+                  <include name="**/*Test.java"/>
+            </fileset>
+          </batchtest>
+      </junit>
+  </target>
 
+  <target name="inttest"  depends="compile.inttests,test.dependency" description="Run all integration tests">
+    <taskdef name="junit"
+        classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+        <classpath refid="test.classpath"/>
+    </taskdef>
+    <junit printsummary="yes" haltonfailure="yes">
+          <classpath refid="inttest.classpath"/>
+           <formatter type="xml"/>
 
+          <batchtest fork="yes" todir="${test.reports}">
+            <fileset dir="${inttest.home}">
+                  <include name="**/*Test.java"/>
+            </fileset>
+          </batchtest>
+      </junit>
+  </target>
+
+  <target name="test" depends="unittest,inttest" description="Run all unit and integration tests" />
+
+  <target name="autobuild" depends="dist"/>
 </project>
