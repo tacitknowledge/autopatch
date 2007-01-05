@@ -124,7 +124,7 @@ The MigrationLauncher object is the main entry point of the AutoPatch
 system. There are a few adaptors that have been implemented, one for web
 application integration (WebAppMigrationLauncher), one for
 command-line integration (StandaloneMigrationLauncher), as well as
-a few for depencency injection containers (AutoPatchServive). There is also
+a few for depencency injection containers (AutoPatchService). There is also
 a "distributed" version of each launcher that allows you to configure
 multiple sub-launchers together as one large system orchestrated as a single
 unit with a single patch level. 
@@ -137,7 +137,7 @@ file from the classpath called migration.properties. An example
 migration.properties is provided in the same directory as this
 README. The configuration file is responsible for configuring the
 database connection for the AutoPatch system, as well as for
-specifying where in the classpath AutoPath should search for patches.
+specifying where in the classpath AutoPatch should search for patches.
 
 Other MigrationLaunchers are configured in different ways, and you should
 consult the javadoc information in the adapter that you wish to use.
