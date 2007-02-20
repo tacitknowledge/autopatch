@@ -5,6 +5,7 @@ AutoPatch README
 
 Table of Contents
 
+0) Where do I get AutoPatch?
 1) What is AutoPatch?
 2) Design Requirements
 3) Basic Design
@@ -14,6 +15,21 @@ Table of Contents
 7) How to implement a patch
 8) How to extend AutoPatch with new patch types
 
+
+--------------------------------------------------------------------------
+
+
+0) Where do I get AutoPatch?
+----------------------------
+
+AutoPatch is open source, and is developed transparently on SourceForge.
+
+You may find more information at http://autopatch.sourceforge.net
+
+There is a tracker for bugs, feature requests, and patches.
+There are mailing lists for announcements, users, and cvs commits.
+
+You can browse the CVS repository and watch the development if you want.
 
 --------------------------------------------------------------------------
 
