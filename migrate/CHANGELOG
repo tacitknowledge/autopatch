@@ -1,0 +1,23 @@
+Changelog for AutoPatch
+=======================
+
+Version 1.0.1
+-------------
+- Added support for Microsoft SQL Server dialect.
+  Support for Microsoft SQL Server should be considered beta
+  and some features may depend on specific JDBC drivers to
+  work. The free MS-SQL JDBC driver may have issues.
+  Basic DDL patches appear to work.
+  https://sourceforge.net/support/tracker.php?aid=1658440
+  Thank you Shirish Kulkarni
+  
+- Added support for Sybase dialect
+  Support for Sybase should be considered beta at the moment.
+  It has not received a great deal of testing yet.
+  https://sourceforge.net/support/tracker.php?aid=1662010
+  Thank you Alex Soto
+
+
+Version 1.0.0
+-------------
+Versions prior to 1.0.0 did not maintain a changelog.
