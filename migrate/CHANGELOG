@@ -3,6 +3,10 @@ Changelog for AutoPatch
 
 Version 1.0.1
 -------------
+- All development (bug tracking, feature requests, CVS, mailing lists)
+  are hosted on sourceforge now, not just the releases. Check it out:
+  http://autopatch.sourceforge.net
+  
 - Added support for Microsoft SQL Server dialect.
   Support for Microsoft SQL Server should be considered beta
   and some features may depend on specific JDBC drivers to
