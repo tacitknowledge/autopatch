@@ -60,6 +60,8 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     {
         super.setUp();
         
+        log.debug("setting up " + this.getClass().getName());
+        
         // Make sure we load our test launcher factory, which fakes out the data source context
         System.getProperties().setProperty("migration.factory", 
                                            "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
