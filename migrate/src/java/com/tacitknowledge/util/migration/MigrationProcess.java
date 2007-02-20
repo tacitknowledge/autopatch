@@ -177,6 +177,29 @@ public class MigrationProcess
         Collections.sort(migrations);
         int taskCount = 0;
         
+        // Roll through once, just printing out what we'll do
+        for (Iterator i = migrations.iterator(); i.hasNext();)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            if (task.getLevel().intValue() > currentLevel)
+            {
+                log.info("Will execute patch task '" + 
+                         task.getName() + " [" + task.getClass().getName() + "]" + 
+                         "'");
+                taskCount++;
+            }
+        }
+        if (taskCount > 0)
+        {
+            log.info("A total of " + taskCount + " patch tasks will execute.");
+        }
+        else
+        {
+            log.info("System up-to-date.  No patch tasks will execute.");
+        }
+        
+        // Now apply them
+        taskCount = 0;
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
@@ -189,11 +212,11 @@ public class MigrationProcess
         
         if (taskCount > 0)
         {
-            log.info("Migration complete (" + taskCount + " tasks executed)");
+            log.info("Patching complete (" + taskCount + " patch tasks executed)");
         }
         else
         {
-            log.info("System up-to-date.  No migration tasks have been run.");
+            log.info("System up-to-date.  No patch tasks executed.");
         }
         
         return taskCount;
@@ -211,21 +234,32 @@ public class MigrationProcess
         List postMigrationTasks = getPostPatchMigrationTasks();
         validateTasks(postMigrationTasks);
         Collections.sort(postMigrationTasks);
+        
+        if (postMigrationTasks.size() == 0)
+        {
+            log.info("No post-patch tasks found.");
+            return 0;
+        }
+        
+        // Roll through once, just printing out what we'll do
         int taskCount = 0;
+        for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            log.info("Will execute post-patch task '" + 
+                     task.getName() + " [" + task.getClass().getName() + "]" + 
+                         "'");
+        }
+        log.info("A total of " + taskCount + " post-patch tasks will execute.");
+        
+        // Now execute them
+        taskCount = 0;
         for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
         {
             MigrationTask task = (MigrationTask) i.next();
             applyPatch(context, task, false);
         }
-        
-        if (taskCount > 0)
-        {
-            log.info("Post-patch tasks complete (" + taskCount + " tasks executed)");
-        }
-        else
-        {
-            log.info("No post-patch tasks have been run.");
-        }
+        log.info("Post-patch tasks complete (" + taskCount + " tasks executed)");
         
         return taskCount;
     }
@@ -247,13 +281,13 @@ public class MigrationProcess
             broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
             log.debug("broadcaster has " + broadcaster.getListeners().size() + " listeners");
         }
-        log.info("Running migration task \"" + label + "\"...");
+        log.info("Executing patch task \"" + label + "\"...");
         try
         {
             long startTime = System.currentTimeMillis();
             task.migrate(context);
             long duration = System.currentTimeMillis() - startTime;
-            log.info("Finished migration task \"" + label + "\" (" + duration + " millis.)");
+            log.info("Finished patch task \"" + label + "\" (" + duration + " millis.)");
             if (broadcast)
             {
                 broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
@@ -269,11 +303,11 @@ public class MigrationProcess
             try
             {
                 context.rollback();
-                log.info("Migration failed; rollback successful");
+                log.info("Patch task failed; rollback successful");
             }
             catch (MigrationException me)
             {
-                log.info("Migration failed; COULD NOT ROLL BACK TRANSACTION", me);
+                log.info("Patch task failed; COULD NOT ROLL BACK TRANSACTION", me);
             }
             throw e;
         }
@@ -315,7 +349,7 @@ public class MigrationProcess
         for (Iterator i = resourcePackages.iterator(); i.hasNext();)
         {
             String packageName = (String) i.next();
-            log.debug("Searching for migration tasks in package " + packageName);
+            log.debug("Searching for patch tasks in package " + packageName);
             
             for (Iterator j = migrationTaskSources.iterator(); j.hasNext();)
             {
@@ -326,12 +360,12 @@ public class MigrationProcess
                     if (sourceTasks.size() > 0)
                     {
                         log.debug("Source [" + source + "] found " 
-                                  + sourceTasks.size() + " migration tasks: "
+                                  + sourceTasks.size() + " patch tasks: "
                                   + sourceTasks);
                     }
                     else
                     {
-                        log.debug("Source [" + source + "] returned 0 migration tasks.");
+                        log.debug("Source [" + source + "] returned 0 patch tasks.");
                     }
                 }
                 tasks.addAll(sourceTasks);
@@ -343,8 +377,8 @@ public class MigrationProcess
         // help them discover why.
         if (tasks.size() == 0)
         {
-            log.info("No migration tasks were discovered in your classpath. "
-                     + "Run with DEBUG logging enabled for migration task search details.");
+            log.info("No patch tasks were discovered in your classpath. "
+                     + "Run with DEBUG logging enabled for patch task search details.");
         }
         
         return tasks;
@@ -433,14 +467,14 @@ public class MigrationProcess
             Integer level = task.getLevel();
             if (level == null)
             {
-                throw new MigrationException("Migration task '" + getTaskLabel(task)
+                throw new MigrationException("Patch task '" + getTaskLabel(task)
                     + "' does not have a patch level defined.");
             }
             
             if (usedOrderNumbers.containsKey(level))
             {
                 MigrationTask otherTask = (MigrationTask) usedOrderNumbers.get(level);
-                throw new MigrationException("Migration task " + getTaskLabel(task)
+                throw new MigrationException("Patch task " + getTaskLabel(task)
                     + " has a conflicting patch level with " + getTaskLabel(otherTask)
                     + "; both are configured for patch level " + level);
             }

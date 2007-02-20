@@ -70,8 +70,30 @@ public class DistributedMigrationProcess extends MigrationProcess
         validateTasks(migrations);
         Collections.sort(migrations);
         
-        // Roll through each migration, applying it if necessary
+        // Roll through once, just printing out what we'll do
         int taskCount = 0;
+        for (Iterator i = migrations.iterator(); i.hasNext();)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            if (task.getLevel().intValue() > currentLevel)
+            {
+                log.info("Will execute patch task '" + 
+                         task.getName() + " [" + task.getClass().getName() + "]" + 
+                         "'");
+                taskCount++;
+            }
+        }
+        if (taskCount > 0)
+        {
+            log.info("A total of " + taskCount + " patch tasks will execute.");
+        }
+        else
+        {
+            log.info("System up-to-date.  No patch tasks will execute.");
+        }
+        
+        // Roll through each migration, applying it if necessary
+        taskCount = 0;
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
@@ -86,11 +108,11 @@ public class DistributedMigrationProcess extends MigrationProcess
         
         if (taskCount > 0)
         {
-            log.info("Migration complete (" + taskCount + " tasks executed)");
+            log.info("Patching complete (" + taskCount + " patch tasks executed)");
         }
         else
         {
-            log.info("System up-to-date.  No migration tasks have been run.");
+            log.info("System up-to-date.  No patch tasks have been run.");
         }
         
         return taskCount;
@@ -171,7 +193,7 @@ public class DistributedMigrationProcess extends MigrationProcess
         // help them discover why.
         if (tasks.size() == 0)
         {
-            log.info("No patches were discovered in your classpath. "
+            log.info("No patch tasks were discovered in your classpath. "
                      + "Run with DEBUG logging enabled for patch search details.");
         }
         
