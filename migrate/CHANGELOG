@@ -32,6 +32,10 @@ Version 1.0.1
   (useful in production configurations)
   https://sourceforge.net/support/tracker.php?aid=1658445
   
+- Added an example project that demonstrates how most of the AutoPatch
+  features work, including the distributed feature
+  Thank you Alex Soto
+  
 
 Version 1.0.0
 -------------

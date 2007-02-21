@@ -392,6 +392,10 @@
     <copy todir="${dist.home}/lib/">
       <fileset  dir="${lib.dir}/core/"/>
     </copy>
+    <mkdir      dir="${dist.home}/docs/contrib"/>
+    <copy todir="${dist.home}/docs/contrib/">
+      <fileset  dir="${basedir}/contrib"/>
+    </copy>
     <copy todir="${dist.home}/docs" file="${basedir}/README"/>
     <copy todir="${dist.home}/docs" file="${basedir}/migration.properties"/>
     <jar jarfile="${build.home}/tk-${component.name}-${component.version}-src.jar"
