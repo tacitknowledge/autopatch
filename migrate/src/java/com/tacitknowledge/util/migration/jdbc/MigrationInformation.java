@@ -52,14 +52,6 @@ public class MigrationInformation
     private static Log log = LogFactory.getLog(MigrationInformation.class);
     
     /**
-     * protected constructor - this object shouldn't be instantiated
-     */
-    protected MigrationInformation()
-    { 
-        // does nothing
-    }
-    
-    /**
      * Get the migration level information for the given system name
      *
      * @param arguments the command line arguments, if any (none are used)
