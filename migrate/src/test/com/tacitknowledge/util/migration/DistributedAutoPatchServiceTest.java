@@ -74,6 +74,7 @@ public class DistributedAutoPatchServiceTest extends DistributedJdbcMigrationLau
         DistributedAutoPatchService distributedPatchService = new TestDistributedAutoPatchService();
         distributedPatchService.setSystemName("orchestration");
         distributedPatchService.setDatabaseType("postgres");
+        distributedPatchService.setReadOnly(false);
         AutoPatchService[] controlledSystems = new AutoPatchService[3];
         controlledSystems[0] = coreService;
         controlledSystems[1] = ordersService;

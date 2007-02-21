@@ -1,4 +1,4 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  *
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -45,6 +45,7 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * <tr><th>Key</th><th>description</th></tr>
  * <tr><td><i>systemName</i>.patch.path</td><td></td></tr>
  * <tr><td><i>systemName</i>.postpatch.path</td><td></td></tr>
+ * <tr><td><i>systemName</i>.readonly</td><td>boolean true to skip patch application</td></tr>
  * <tr><td><i>systemName</i>.jdbc.database.type</td>
  *     <td>The database type; also accepts <i>systemName</i>.jdbc.dialect</td></tr>
  * <tr><td><i>systemName</i>.jdbc.driver</td><td>The JDBC driver to use</td></tr>
@@ -108,6 +109,12 @@ public class JdbcMigrationLauncherFactory
         String systemName = getRequiredParam("migration.systemname", sce);
         context.setSystemName(systemName);
         
+        String readOnly = sce.getServletContext().getInitParameter("migration.readonly");
+        launcher.setReadOnly(false);
+        if ("true".equals(readOnly)) {
+            launcher.setReadOnly(true);
+        }
+        
         String databaseType = getRequiredParam("migration.databasetype", sce);
         context.setDatabaseType(new DatabaseType(databaseType));
         
@@ -159,7 +166,7 @@ public class JdbcMigrationLauncherFactory
             }
             catch (IOException e)
             {
-                throw new MigrationException("Error reading in migration properties file", e);
+                throw new MigrationException("Error reading in autopatch properties file", e);
             }
             finally
             {
@@ -169,13 +176,13 @@ public class JdbcMigrationLauncherFactory
                 }
                 catch (IOException ioe)
                 {
-                    throw new MigrationException("Error closing migration properties file", ioe);
+                    throw new MigrationException("Error closing autopatch properties file", ioe);
                 }
             }
         }
         else
         {
-            throw new MigrationException("Unable to find migration properties file '"
+            throw new MigrationException("Unable to find autopatch properties file '"
                     + MigrationContext.MIGRATION_CONFIG_FILE + "'");
         }
     }
@@ -195,6 +202,10 @@ public class JdbcMigrationLauncherFactory
     {
         launcher.setPatchPath(getRequiredParam(props, systemName + ".patch.path"));
         launcher.setPostPatchPath(props.getProperty(systemName + ".postpatch.path"));
+        launcher.setReadOnly(false);
+        if ("true".equals(props.getProperty(systemName + ".readonly"))) {
+            launcher.setReadOnly(true);
+        }
 
         // Set up the data source
         NonPooledDataSource dataSource = new NonPooledDataSource();

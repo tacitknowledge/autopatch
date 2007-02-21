@@ -1,5 +1,5 @@
 /* 
- * Copyright 2006 Tacit Knowledge LLC
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -148,6 +148,10 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         
         // Get any post-patch task paths
         launcher.setPostPatchPath(props.getProperty(patchStoreContextName + ".postpatch.path"));
+        launcher.setReadOnly(false);
+        if ("true".equals(props.getProperty(systemName + ".readonly"))) {
+            launcher.setReadOnly(true);
+        }
         
         // Set up the JDBC migration context; accepts one of two property names
         DataSourceMigrationContext context = getDataSourceMigrationContext();
@@ -168,7 +172,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
             getRequiredParam(props, systemName + ".controlled.systems").split(",");
         for (int i = 0; i < controlledSystemNames.length; i++)
         {
-            log.info("Creating controlled migration launcher for system " + controlledSystemNames[i]);
+            log.info("Creating controlled patch executor for system " + controlledSystemNames[i]);
             JdbcMigrationLauncherFactory factory = JdbcMigrationLauncherFactoryLoader.createFactory();
             JdbcMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i]);
             controlledSystems.put(controlledSystemNames[i], subLauncher);

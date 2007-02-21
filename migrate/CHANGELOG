@@ -24,6 +24,14 @@ Version 1.0.1
 - List of unapplied patches displayed prior to patching
   https://sourceforge.net/support/tracker.php?aid=1658446
   
+- Read-only mode implemented, now you can specify that the
+  system should be read-only, and it will do everything
+  *except* actually apply the patches. If the level isn't correct
+  it will throw an exception, you can use this to enforce consistency
+  while making sure that systems aren't patched automatically
+  (useful in production configurations)
+  https://sourceforge.net/support/tracker.php?aid=1658445
+  
 
 Version 1.0.0
 -------------

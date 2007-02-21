@@ -45,6 +45,9 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     
     /** The patch to the post-patch tasks */
     private String postPatchPath = null;
+    
+    /** Whether we really want to apply the patches, or just look */
+    private boolean readOnly = false;
 
     /**
      * Patches the database, if necessary.
@@ -80,6 +83,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
         launcher.setContext(getContext());
         launcher.setPatchPath(getPatchPath());
         launcher.setPostPatchPath(getPostPatchPath());
+        launcher.setReadOnly(isReadOnly());
         return launcher;
     }
 
@@ -176,5 +180,25 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     public void setPostPatchPath(String postPatchPath)
     {
         this.postPatchPath = postPatchPath;
+    }
+
+    /**
+     * See if we are actually applying patches, or if it is just readonly
+     * 
+     * @return boolean true if we will skip application
+     */
+    public boolean isReadOnly()
+    {
+        return readOnly;
+    }
+
+    /**
+     * Set whether or not to actually apply patches
+     * 
+     * @param readOnly boolean true if we should skip application
+     */
+    public void setReadOnly(boolean readOnly)
+    {
+        this.readOnly = readOnly;
     }
 }

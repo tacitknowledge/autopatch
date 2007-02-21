@@ -75,6 +75,11 @@ public class JdbcMigrationLauncher implements MigrationListener
      * The <code>MigrationContext</code> to use for all migrations.
      */
     private JdbcMigrationContext context = null;
+    
+    /**
+     * Whether we actually want to apply patches, or just look
+     */
+    private boolean readOnly = false;
 
     /**
      * Create a new MigrationProcess and add a SqlScriptMigrationTaskSource
@@ -515,5 +520,25 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void setPatchTable(PatchInfoStore patchTable)
     {
         this.patchTable = patchTable;
+    }
+
+    /**
+     * See if we are actually applying patches, or if it is just readonly
+     * 
+     * @return boolean true if we will skip application
+     */
+    public boolean isReadOnly()
+    {
+        return readOnly;
+    }
+
+    /**
+     * Set whether or not to actually apply patches
+     * 
+     * @param readOnly boolean true if we should skip application
+     */
+    public void setReadOnly(boolean readOnly)
+    {
+        this.readOnly = readOnly;
     }
 }

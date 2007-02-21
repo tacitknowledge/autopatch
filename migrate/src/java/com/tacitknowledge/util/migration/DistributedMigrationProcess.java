@@ -40,6 +40,9 @@ public class DistributedMigrationProcess extends MigrationProcess
     /** The JdbcMigrationLaunchers we are controlling, keyed by system name */
     private HashMap controlledSystems = new HashMap();
     
+    /** Whether we actually want to apply patches, or just look */
+    private boolean readOnly = false;
+    
     /**
      * Creates a new <code>Migration</code> instance.
      */
@@ -90,6 +93,18 @@ public class DistributedMigrationProcess extends MigrationProcess
         else
         {
             log.info("System up-to-date.  No patch tasks will execute.");
+        }
+        
+        // See if we should execute
+        if (isReadOnly())
+        {
+            if (taskCount > 0)
+            {
+                throw new MigrationException("Unapplied patches exist, but read-only flag is set");
+            }
+            
+            log.info("In read-only mode - skipping patch application");
+            return 0;
         }
         
         // Roll through each migration, applying it if necessary
@@ -218,5 +233,25 @@ public class DistributedMigrationProcess extends MigrationProcess
     public void setControlledSystems(HashMap controlledSystems)
     {
         this.controlledSystems = controlledSystems;
+    }
+
+    /**
+     * See if we are actually applying patches, or if it is just readonly
+     * 
+     * @return boolean true if we skip application
+     */
+    public boolean isReadOnly()
+    {
+        return readOnly;
+    }
+
+    /**
+     * Set whether or not to actually apply patches
+     * 
+     * @param readOnly boolean true if we should skip application
+     */
+    public void setReadOnly(boolean readOnly)
+    {
+        this.readOnly = readOnly;
     }
 }

@@ -135,6 +135,37 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     }
     
     /**
+     * Ensure that read-only mode actually works
+     * 
+     * @exception MigrationException if anything goes wrong
+     */    
+    public void testDistributedReadOnlyMode() throws Exception
+    {
+        MigrationProcess process = launcher.getMigrationProcess();
+        process.validateTasks(process.getMigrationTasks());
+        
+        // Make it readonly
+        process.setReadOnly(true);
+
+        // Now do the migrations, and make sure we get the right number of events
+        try
+        {
+            process.doMigrations(3, context);
+            fail("There should have been an exception - unapplied patches and read-only don't work");
+        }
+        catch (MigrationException me)
+        {
+            // we expect this
+            log.debug("got exception: " + me.getMessage());
+        }
+        
+        int patches = process.doMigrations(7, context);
+        assertEquals(0, patches);
+        assertEquals(0, getMigrationStartedCount());
+        assertEquals(0, getMigrationSuccessCount());
+    }
+    
+    /**
      * Make sure we get notified of patch application
      * 
      * @exception MigrationException if anything goes wrong

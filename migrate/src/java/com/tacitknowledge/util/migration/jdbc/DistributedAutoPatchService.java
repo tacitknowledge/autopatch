@@ -49,6 +49,9 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     /** The patch to the post-patch tasks */
     private String postPatchPath = null;
     
+    /** Whether we actually want to apply patches, or just look */
+    private boolean readOnly = false;
+    
     /**
      * Patches all of the databases in your distributed system, if necessary.
      * 
@@ -195,5 +198,25 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     public void setPostPatchPath(String postPatchPath)
     {
         this.postPatchPath = postPatchPath;
+    }
+
+    /**
+     * See if we are actually applying patches, or if it is just readonly
+     * 
+     * @return boolean true if we will skip application
+     */
+    public boolean isReadOnly()
+    {
+        return readOnly;
+    }
+
+    /**
+     * Set whether or not to actually apply patches
+     * 
+     * @param readOnly boolean true if we should skip application
+     */
+    public void setReadOnly(boolean readOnly)
+    {
+        this.readOnly = readOnly;
     }
 }

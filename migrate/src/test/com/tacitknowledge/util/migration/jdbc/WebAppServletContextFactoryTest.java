@@ -47,6 +47,7 @@ public class WebAppServletContextFactoryTest extends TestCase
         String sysName = "testSystem";
         
         sc.setInitParameter("migration.systemname", sysName);
+        sc.setInitParameter("migration.readonly", "true");
         sc.setInitParameter("migration.databasetype", dbType);
         sc.setInitParameter("migration.patchpath", "patches");
         sc.setInitParameter("migration.datasource", "jdbc/testsource");
@@ -71,6 +72,7 @@ public class WebAppServletContextFactoryTest extends TestCase
         JdbcMigrationContext jdbcContext = launcher.getContext();
         assertEquals(dbType, jdbcContext.getDatabaseType().getDatabaseType());
         assertEquals(sysName, jdbcContext.getSystemName());
+        assertEquals(true, launcher.isReadOnly());
     }
 
 }
