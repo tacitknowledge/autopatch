@@ -165,7 +165,7 @@ public class ATGDistributedAutoPatchService extends DistributedAutoPatchService 
      * @see #isFailServerOnError()
      * @param failServerOnError boolean true to fail server on patch failure
      */
-     public void setFailServerOnError(boolean failServerOnError)
+    public void setFailServerOnError(boolean failServerOnError)
     {
         this.failServerOnError = failServerOnError;
     }

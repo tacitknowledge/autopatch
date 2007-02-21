@@ -196,24 +196,24 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
      * @see #isFailServerOnError()
      * @param failServerOnError boolean true to fail server on patch failure
      */
-     public void setFailServerOnError(boolean failServerOnError)
+    public void setFailServerOnError(boolean failServerOnError)
     {
         this.failServerOnError = failServerOnError;
     }
      
-     /**
-      * @return Returns the postPatchPath.
-      */
-     public String getPostPatchPath()
-     {
-         return postPatchPath;
-     }
+    /**
+     * @return Returns the postPatchPath.
+     */
+    public String getPostPatchPath()
+    {
+        return postPatchPath;
+    }
      
-     /**
-      * @param postPatchPath The postPatchPath to set.
-      */
-     public void setPostPatchPath(String postPatchPath)
-     {
-         this.postPatchPath = postPatchPath;
-     }
+    /**
+     * @param postPatchPath The postPatchPath to set.
+     */
+    public void setPostPatchPath(String postPatchPath)
+    {
+        this.postPatchPath = postPatchPath;
+    }
 }
