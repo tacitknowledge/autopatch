@@ -87,8 +87,6 @@ public class PatchTable implements PatchInfoStore
         {
             conn = context.getConnection();
             
-            // TODO: Find a better, cross-platform way to determine if a table exists.
-            //       Simply expecting a SQLException is kind of a hack
             stmt = conn.prepareStatement(getSql("level.read"));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
