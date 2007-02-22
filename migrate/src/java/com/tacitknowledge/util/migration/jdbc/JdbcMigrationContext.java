@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -32,7 +32,8 @@ public interface JdbcMigrationContext extends MigrationContext
     public static final int MAX_SYSTEMNAME_LENGTH = 30;
 
     /**
-     * Returns the database connection to use
+     * Returns a database connection to use. The creator
+     * of the JdbcMigrationContext are responsible for closing the connection.
      * 
      * @return the database connection to use
      * @throws SQLException if an unexpected error occurs

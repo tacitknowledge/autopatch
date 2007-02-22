@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -13,10 +13,6 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.sql.SQLException;
-
-import junit.framework.AssertionFailedError;
-
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
@@ -28,7 +24,6 @@ import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
  * mock JDBC driver. 
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class PatchTableTest extends JDBCTestCaseAdapter
 {
@@ -71,7 +66,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         context.setSystemName("milestone");
         context.setDatabaseType(new DatabaseType("postgres"));
         
-        table = new PatchTable(context, conn);
+        table = new PatchTable(context);
     }
     
     /**
@@ -83,7 +78,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         try
         {
             context.setDatabaseType(new DatabaseType("bad-database-type"));
-            new PatchTable(context, conn);
+            new PatchTable(context);
             fail("Expected IllegalArgumentException because of unknown database type");
         }
         catch (IllegalArgumentException e)
@@ -107,8 +102,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
-        verifyNotCommitted();
+        verifyConnectionClosed();
+        verifyCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
         verifySQLStatementExecuted(table.getSql("patches.create"));
     }
@@ -130,7 +125,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
+        verifyConnectionClosed();
         verifyNotCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
         verifyPreparedStatementNotPresent(table.getSql("patches.create"));
@@ -154,7 +149,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         assertEquals(13, i);
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
+        verifyConnectionClosed();
         verifyNotCommitted();
         verifyPreparedStatementParameter(1, 1, "milestone");
         verifyPreparedStatementNotPresent(table.getSql("level.create"));
@@ -178,8 +173,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         assertEquals(0, i);
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
-        verifyNotCommitted();
+        verifyConnectionClosed();
+        verifyCommitted();
         verifyPreparedStatementPresent(table.getSql("level.create"));
     }
 
@@ -201,8 +196,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyPreparedStatementParameter(table.getSql("level.update"), 2, "milestone");
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
-        verifyNotCommitted();
+        verifyConnectionClosed();
+        verifyCommitted();
     }
     
     /**
@@ -222,7 +217,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         assertFalse(table.isPatchStoreLocked());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
+        verifyConnectionClosed();
         verifyNotCommitted();
     }
     
@@ -243,7 +238,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         assertTrue(table.isPatchStoreLocked());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
+        verifyConnectionClosed();
         verifyNotCommitted();
     }
     
@@ -275,7 +270,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyPreparedStatementNotPresent(table.getSql("lock.obtain"));
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
+        verifyConnectionClosed();
         verifyNotCommitted();
     }
 
@@ -298,8 +293,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
-        verifyNotCommitted();
+        verifyConnectionClosed();
+        verifyCommitted();
     }
     
     /**
@@ -314,22 +309,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyPreparedStatementParameter(table.getSql("lock.release"), 1, "milestone");
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionNotClosed();
-        verifyNotCommitted();
-    }
-    
-    /**
-     * Validates that the <code>Connection</code> has not been closed by the 
-     * class under test.
-     * 
-     * @throws SQLException if an unexpected error occured
-     * @throws AssertionFailedError if the test failed
-     */
-    private void verifyConnectionNotClosed() throws SQLException, AssertionFailedError
-    {
-        if (conn.isClosed())
-        {
-            throw new AssertionFailedError("Connection was closed by PatchTest.");
-        }
+        verifyConnectionClosed();
+        verifyCommitted();
     }
 }

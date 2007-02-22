@@ -99,9 +99,8 @@ public class JdbcMigrationLauncher implements MigrationListener
      * Create a new <code>MigrationLancher</code>.
      *
      * @param context the <code>JdbcMigrationContext</code> to use.
-     * @throws MigrationException if an unexpected error occurs
      */
-    public JdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
+    public JdbcMigrationLauncher(JdbcMigrationContext context)
     {
         this();
         setContext(context);
@@ -281,20 +280,11 @@ public class JdbcMigrationLauncher implements MigrationListener
      * Sets the <code>JdbcMigrationContext</code> used for the migrations.
      *
      * @param jdbcMigrationContext the <code>JdbcMigrationContext</code> used for the migrations
-     * @throws MigrationException if a database connection cannot be obtained
      */
-    public void setContext(JdbcMigrationContext jdbcMigrationContext) 
-        throws MigrationException
+    public void setContext(JdbcMigrationContext jdbcMigrationContext)
     {
         this.context = jdbcMigrationContext;
-        try
-        {
-            patchTable = new PatchTable(context, context.getConnection());
-        }
-        catch (SQLException e)
-        {
-            throw new MigrationException("Could not obtain JDBC Connection", e);
-        }
+        patchTable = new PatchTable(context);
     }
 
     /**
@@ -319,7 +309,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     protected int doMigrations(Connection conn) throws SQLException, MigrationException
     {
-        patchTable = createPatchStore(conn);
+        patchTable = createPatchStore();
 
         // Save auto-commit state
         boolean b = true;
@@ -416,27 +406,15 @@ public class JdbcMigrationLauncher implements MigrationListener
     /**
      * create a patch table object for use in migrations
      * 
-     * @param conn the database connection to use for table access
      * @return PatchTable object for use in accessing patch state information
      * @throws MigrationException if unable to create the store
      */
-    protected PatchInfoStore createPatchStore(Connection conn) throws MigrationException
+    protected PatchInfoStore createPatchStore() throws MigrationException
     {
-        PatchInfoStore piStore = new PatchTable(context, conn);
+        PatchInfoStore piStore = new PatchTable(context);
 
         // Make sure the table is created before claiming it exists by returning
         patchTable.getPatchLevel();
-        try
-        {
-            if (!conn.getAutoCommit())
-            {
-                conn.commit();
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new MigrationException("Unable to commit connection after creating patch store");
-        }
         
         return piStore;
     }

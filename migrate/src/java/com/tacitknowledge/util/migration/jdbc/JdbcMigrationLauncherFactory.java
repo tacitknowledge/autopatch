@@ -194,11 +194,10 @@ public class JdbcMigrationLauncherFactory
      * @param systemName The name of the system we're configuring
      * @param props The Properties object with our configuration information
      * @throws IllegalArgumentException if a required parameter is missing
-     * @throws MigrationException if there is problem setting the context into the launcher
      */
     private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String systemName, 
                                                   Properties props) 
-        throws IllegalArgumentException, MigrationException
+        throws IllegalArgumentException
     {
         launcher.setPatchPath(getRequiredParam(props, systemName + ".patch.path"));
         launcher.setPostPatchPath(props.getProperty(systemName + ".postpatch.path"));

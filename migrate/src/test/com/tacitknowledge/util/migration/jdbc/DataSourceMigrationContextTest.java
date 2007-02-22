@@ -12,7 +12,10 @@
  */
 package com.tacitknowledge.util.migration.jdbc;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+
+import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 import junit.framework.TestCase;
 
@@ -73,9 +76,10 @@ public class DataSourceMigrationContextTest extends TestCase
     public void testUseOfUninitializedContext()
     {
         DataSourceMigrationContext context = new DataSourceMigrationContext();
+        Connection conn = null;
         try
         {
-            context.getConnection();
+            conn = context.getConnection();
             fail("Expected SQLException");
         }
         catch (SQLException e)
@@ -83,6 +87,10 @@ public class DataSourceMigrationContextTest extends TestCase
             // we expect this, assertion only to satisfy checkstyle
             // complaint about empty block
             assertNotNull(e);
+        }
+        finally
+        {
+            SqlUtil.close(conn, null, null);
         }
     }
 }

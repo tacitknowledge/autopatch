@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -11,8 +11,6 @@
  * limitations under the License.
  */
 package com.tacitknowledge.util.migration.jdbc;
-
-import java.sql.SQLException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,22 +71,20 @@ public class AutoPatchSupport
      * Create the patch table (if necessary)
      * 
      * @return PatchTable object for the configured migration launcher
-     * @throws SQLException if there is a problem
      */
-    public PatchTable makePatchTable() throws SQLException
+    public PatchTable makePatchTable()
     {
         JdbcMigrationContext jdbcMigrationContext = launcher.getContext();
-        return new PatchTable(jdbcMigrationContext, jdbcMigrationContext.getConnection());
+        return new PatchTable(jdbcMigrationContext);
     }
     
     /**
      * Set the patch level to the specified level
      * 
      * @param patchLevel the level to set the patch table to
-     * @throws SQLException if there is a problem creating the patch table
      * @throws MigrationException if the store can't be locked
      */
-    public void setPatchLevel(int patchLevel) throws MigrationException, SQLException
+    public void setPatchLevel(int patchLevel) throws MigrationException
     {
         PatchTable patchTable = makePatchTable();
         patchTable.lockPatchStore();
@@ -101,10 +97,9 @@ public class AutoPatchSupport
      * Get the current patch level
      * 
      * @return int with the patch level in the patch database
-     * @throws SQLException if there is a problem creating the patch table
      * @throws MigrationException if there is a problem getting the patch level
      */
-    public int getPatchLevel() throws SQLException, MigrationException
+    public int getPatchLevel() throws MigrationException
     {
         PatchTable patchTable = makePatchTable();
         return patchTable.getPatchLevel();

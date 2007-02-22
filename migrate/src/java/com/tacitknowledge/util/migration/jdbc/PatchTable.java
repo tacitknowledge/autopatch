@@ -1,4 +1,4 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -48,36 +48,23 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  */
 public class PatchTable implements PatchInfoStore
 {
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static Log log = LogFactory.getLog(PatchTable.class);
     
-    /**
-     * The migration configuration 
-     */
+    /** The migration configuration */
     private JdbcMigrationContext context = null;
     
-    /**
-     * The database connection 
-     */
-    private Connection conn = null;
-    
-    /**
-     * Keeps track of table validation (see #createPatchesTableIfNeeded)
-     */
+    /** Keeps track of table validation (see #createPatchesTableIfNeeded) */
     private boolean tableExistenceValidated = false;
     
     /**
      * Create a new <code>PatchTable</code>.
      * 
      * @param migrationContext the migration configuration and connection source
-     * @param connection the database connection to use; this will NOT be closed
      */
-    public PatchTable(JdbcMigrationContext migrationContext, Connection connection)
+    public PatchTable(JdbcMigrationContext migrationContext)
     {
         this.context = migrationContext;
-        this.conn = connection;
         
         if (context.getDatabaseType() == null)
         {
@@ -85,9 +72,7 @@ public class PatchTable implements PatchInfoStore
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public void createPatchStoreIfNeeded() throws MigrationException
     {
         if (tableExistenceValidated)
@@ -95,10 +80,13 @@ public class PatchTable implements PatchInfoStore
             return;
         }
         
+        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try
         {
+            conn = context.getConnection();
+            
             // TODO: Find a better, cross-platform way to determine if a table exists.
             //       Simply expecting a SQLException is kind of a hack
             stmt = conn.prepareStatement(getSql("level.read"));
@@ -119,6 +107,7 @@ public class PatchTable implements PatchInfoStore
                     log.debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
                 }
                 stmt.execute();
+                context.commit();
             }
             catch (SQLException sqle)
             {
@@ -129,21 +118,21 @@ public class PatchTable implements PatchInfoStore
         }
         finally
         {
-            SqlUtil.close(null, stmt, rs);
+            SqlUtil.close(conn, stmt, rs);
         }
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public int getPatchLevel() throws MigrationException
     {
         createPatchStoreIfNeeded();
 
+        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try
         {
+            conn = context.getConnection();
             stmt = conn.prepareStatement(getSql("level.read"));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
@@ -164,25 +153,26 @@ public class PatchTable implements PatchInfoStore
         }
         finally
         {
-            SqlUtil.close(null, stmt, rs);
+            SqlUtil.close(conn, stmt, rs);
         }
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public void updatePatchLevel(int level) throws MigrationException
     {
         // Make sure a patch record already exists for this system
         getPatchLevel();
         
+        Connection conn = null;
         PreparedStatement stmt = null;
         try
         {
+            conn = context.getConnection();
             stmt = conn.prepareStatement(getSql("level.update"));
             stmt.setInt(1, level);
             stmt.setString(2, context.getSystemName());
             stmt.execute();
+            context.commit();
         }
         catch (SQLException e)
         {
@@ -190,21 +180,21 @@ public class PatchTable implements PatchInfoStore
         }
         finally
         {
-            SqlUtil.close(null, stmt, null);
+            SqlUtil.close(conn, stmt, null);
         }
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public boolean isPatchStoreLocked() throws MigrationException
     {
         createPatchStoreIfNeeded();
         
+        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try
         {
+            conn = context.getConnection();
             stmt = conn.prepareStatement(getSql("lock.read"));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
@@ -224,13 +214,11 @@ public class PatchTable implements PatchInfoStore
         }
         finally
         {
-            SqlUtil.close(null, stmt, rs);
+            SqlUtil.close(conn, stmt, rs);
         }
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     public void lockPatchStore() throws MigrationException, IllegalStateException
     {
         if (isPatchStoreLocked())
@@ -240,9 +228,7 @@ public class PatchTable implements PatchInfoStore
         updatePatchLock(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */    
+    /** {@inheritDoc} */
     public void unlockPatchStore() throws MigrationException
     {
         updatePatchLock(false);
@@ -263,17 +249,21 @@ public class PatchTable implements PatchInfoStore
     /**
      * Creates an initial record in the patches table for this system. 
      * 
-     * @throws SQLException if an unrecoverable database error occurs
+     * @exception SQLException if an unrecoverable database error occurs
+     * @exception MigrationException if an unrecoverable database error occurs
      */
-    private void createSystemPatchRecord() throws SQLException
+    private void createSystemPatchRecord() throws MigrationException, SQLException
     {
         String systemName = context.getSystemName();
+        Connection conn = null;
         PreparedStatement stmt = null;
         try
         {
+            conn = context.getConnection();
             stmt = conn.prepareStatement(getSql("level.create"));
             stmt.setString(1, systemName);
             stmt.execute();
+            context.commit();
             log.info("Created patch record for " + systemName);
         }
         catch (SQLException e)
@@ -283,7 +273,7 @@ public class PatchTable implements PatchInfoStore
         }
         finally
         {
-            SqlUtil.close(null, stmt, null);
+            SqlUtil.close(conn, stmt, null);
         }
     }
 
@@ -297,10 +287,12 @@ public class PatchTable implements PatchInfoStore
     private void updatePatchLock(boolean lock) throws MigrationException
     {
         String sqlkey = (lock) ? "lock.obtain" : "lock.release";
+        Connection conn = null;
         PreparedStatement stmt = null;
         
         try
         {
+            conn = context.getConnection();
             stmt = conn.prepareStatement(getSql(sqlkey));
             if (log.isDebugEnabled())
             {
@@ -308,6 +300,7 @@ public class PatchTable implements PatchInfoStore
             }
             stmt.setString(1, context.getSystemName());
             stmt.execute();
+            context.commit();
         }
         catch (SQLException e)
         {
@@ -315,7 +308,7 @@ public class PatchTable implements PatchInfoStore
         }
         finally
         {
-            SqlUtil.close(null, stmt, null);
+            SqlUtil.close(conn, stmt, null);
         }
     }
 }

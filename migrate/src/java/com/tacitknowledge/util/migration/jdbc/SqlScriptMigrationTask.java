@@ -121,8 +121,8 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                 stmt = conn.createStatement();
                 stmt.execute(sqlStatement);
                 SqlUtil.close(null, stmt, null);
-                stmt = null;
             }
+            context.commit();
         }
         catch (Exception e)
         {
@@ -137,11 +137,12 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                 }
             }
             
+            context.rollback();
             throw new MigrationException(message, e);
         }
         finally
         {
-            SqlUtil.close(null, stmt, null);
+            SqlUtil.close(conn, stmt, null);
         }
     }
     

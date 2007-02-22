@@ -1,4 +1,4 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -75,9 +75,8 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
      * Configure and return a JdbcMigrationLauncher to use for patching
      * 
      * @return JdbcMigrationLauncher configured from injected properties
-     * @exception MigrationException if there is a problem setting the context
      */
-    public JdbcMigrationLauncher getLauncher() throws MigrationException
+    public JdbcMigrationLauncher getLauncher()
     {
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
         launcher.setContext(getContext());

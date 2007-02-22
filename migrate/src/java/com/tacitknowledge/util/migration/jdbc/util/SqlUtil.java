@@ -1,4 +1,4 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -19,10 +19,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,18 +26,13 @@ import org.apache.commons.logging.LogFactory;
  * Utility class for dealing with JDBC.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public final class SqlUtil
 {
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static Log log = LogFactory.getLog(SqlUtil.class);
     
-    /**
-     * Hidden constructor for utility class
-     */
+    /** Hidden constructor for utility class */
     private SqlUtil()
     {
         // Hidden
@@ -60,6 +51,7 @@ public final class SqlUtil
         {
             try 
             {
+            	log.debug("Closing resultset: " + rs.toString());
                 rs.close();
             }
             catch (SQLException e)
@@ -72,6 +64,7 @@ public final class SqlUtil
         {
             try 
             {
+            	log.debug("Closing statement: " + stmt.toString());
                 stmt.close();
             }
             catch (SQLException e)
@@ -84,29 +77,17 @@ public final class SqlUtil
         {
             try 
             {
-                conn.close();
+                if (!conn.isClosed())
+                {
+                    log.debug("Closing connection " + conn.toString());
+                    conn.close();
+                }
             }
             catch (SQLException e)
             {
                 log.error("Error closing Connection", e);
             }
         }
-    }
-
-    /**
-     * Returns a connection from the <code>DataSource</code> located in JNDI
-     * under the specified name. 
-     * 
-     * @param  dsn the name of the DataSource in JDNI
-     * @return a connection from the <code>DataSource</code>
-     * @throws NamingException if the datasource could not be found in JNDI
-     * @throws SQLException if a connnection could not be made to the database
-     */
-    public static Connection getConnection(String dsn) throws NamingException, SQLException
-    {
-        InitialContext context = new InitialContext();
-        DataSource ds = (DataSource) context.lookup(dsn);
-        return ds.getConnection();
     }
     
     /**
@@ -124,6 +105,7 @@ public final class SqlUtil
         throws ClassNotFoundException, SQLException
     {
         Class.forName(driver);
+        log.debug("Getting connection to " + url);
         return DriverManager.getConnection(url, user, pass);
     }
 }

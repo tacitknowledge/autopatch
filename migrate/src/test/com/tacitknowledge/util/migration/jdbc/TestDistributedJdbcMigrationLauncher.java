@@ -1,4 +1,4 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -11,8 +11,6 @@
  * limitations under the License.
  */
 package com.tacitknowledge.util.migration.jdbc;
-
-import java.sql.Connection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,9 +46,8 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
      * Delegating constructors
      * 
      * @param context the context to use for migration loading
-     * @exception MigrationException if there is a problem configuring the context
      */
-    public TestDistributedJdbcMigrationLauncher(JdbcMigrationContext context) throws MigrationException
+    public TestDistributedJdbcMigrationLauncher(JdbcMigrationContext context)
     {
         super(context);
     }
@@ -58,18 +55,17 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
     /**
      * Override the patch store creation to be the patch table we have
      * 
-     * @param conn the database connection to use for patch table access
      * @return patchStore held internally
      * @throws MigrationException if creating the store fails
      */
-    protected PatchInfoStore createPatchStore(Connection conn) throws MigrationException
+    protected PatchInfoStore createPatchStore() throws MigrationException
     {
         if (patchStore != null)
         {
             return patchStore;
         }
         
-        return super.createPatchStore(conn);
+        return super.createPatchStore();
     }
     
     /**

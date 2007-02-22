@@ -36,6 +36,10 @@ Version 1.0.1
   features work, including the distributed feature
   Thank you Alex Soto
   
+- Found and fixed improper database connection usage
+  https://sourceforge.net/support/tracker.php?aid=1665584
+  Thank you Alex Soto
+  
 
 Version 1.0.0
 -------------

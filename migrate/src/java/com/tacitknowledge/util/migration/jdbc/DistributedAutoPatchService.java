@@ -1,4 +1,4 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -12,7 +12,6 @@
  */
 
 package com.tacitknowledge.util.migration.jdbc;
-
 import java.util.HashMap;
 
 import javax.sql.DataSource;
@@ -78,9 +77,8 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
      * Configure and return a DistributedJdbcMigrationLauncher to use for patching
      * 
      * @return DistributedJdbcMigrationLauncher configured from injected properties
-     * @exception MigrationException if there is a problem setting the database context
      */
-    public DistributedJdbcMigrationLauncher getLauncher() throws MigrationException
+    public DistributedJdbcMigrationLauncher getLauncher()
     {
         DistributedJdbcMigrationLauncher launcher = getDistributedJdbcMigrationLauncher();
         launcher.setContext(getContext());
