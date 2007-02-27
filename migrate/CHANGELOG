@@ -22,6 +22,7 @@ Version 1.0.1
   Thank you Alex Soto
   
 - List of unapplied patches displayed prior to patching
+  Mike Hardy
   https://sourceforge.net/support/tracker.php?aid=1658446
   
 - Read-only mode implemented, now you can specify that the
@@ -30,6 +31,7 @@ Version 1.0.1
   it will throw an exception, you can use this to enforce consistency
   while making sure that systems aren't patched automatically
   (useful in production configurations)
+  Mike Hardy
   https://sourceforge.net/support/tracker.php?aid=1658445
   
 - Added an example project that demonstrates how most of the AutoPatch
@@ -39,6 +41,11 @@ Version 1.0.1
 - Found and fixed improper database connection usage
   https://sourceforge.net/support/tracker.php?aid=1665584
   Thank you Alex Soto
+  
+- Implemented serial application of same patch across multiple
+  databases, and extended documentation and example to cover this
+  Mike Hardy
+  https://sourceforge.net/support/tracker.php?aid=1661985
   
 
 Version 1.0.0

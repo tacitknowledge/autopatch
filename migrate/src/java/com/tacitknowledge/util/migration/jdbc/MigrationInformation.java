@@ -1,4 +1,5 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -12,6 +13,9 @@
  */
 
 package com.tacitknowledge.util.migration.jdbc;
+
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -93,12 +97,20 @@ public class MigrationInformation
                 JdbcMigrationLauncherFactoryLoader.createFactory();
             JdbcMigrationLauncher launcher
                 = launcherFactory.createMigrationLauncher(systemName);
-            log.info("Current Database patch level is        : "
-                + launcher.getDatabasePatchLevel());
-            int unappliedPatches = launcher.getNextPatchLevel()
-                - launcher.getDatabasePatchLevel() - 1;
-            log.info("Current number of unapplied patches is : " + unappliedPatches); 
-            log.info("The next patch to author should be     : " + launcher.getNextPatchLevel());
+            
+            // Print out information for all contexts
+            Map contextMap = launcher.getContexts();
+            for (Iterator contextIter = contextMap.keySet().iterator(); contextIter.hasNext(); )
+            {
+                JdbcMigrationContext context = (JdbcMigrationContext)contextIter.next();
+            
+                log.info("Current Database patch level is        : "
+                         + launcher.getDatabasePatchLevel(context) + " for context " + context);
+                int unappliedPatches = 
+                    launcher.getNextPatchLevel() - launcher.getDatabasePatchLevel(context) - 1;
+                log.info("Current number of unapplied patches is : " + unappliedPatches); 
+                log.info("The next patch to author should be     : " + launcher.getNextPatchLevel());
+            }
         }
         catch (Exception e)
         {

@@ -33,7 +33,7 @@ import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
 
 /**
- * Creates and configures a new <code>JdbcMigrationContext</code> based on the values
+ * Creates and configures new <code>JdbcMigrationContext</code> objects based on the values
  * in the <em>migration.properties</em> file for the given system.  This is a convenience
  * class for systems that need to initialize the autopatch framework but do not to or can not
  * configure the framework themselves.
@@ -44,14 +44,23 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * <table>
  * <tr><th>Key</th><th>description</th></tr>
  * <tr><td><i>systemName</i>.patch.path</td><td></td></tr>
- * <tr><td><i>systemName</i>.postpatch.path</td><td></td></tr>
- * <tr><td><i>systemName</i>.readonly</td><td>boolean true to skip patch application</td></tr>
  * <tr><td><i>systemName</i>.jdbc.database.type</td>
  *     <td>The database type; also accepts <i>systemName</i>.jdbc.dialect</td></tr>
  * <tr><td><i>systemName</i>.jdbc.driver</td><td>The JDBC driver to use</td></tr>
  * <tr><td><i>systemName</i>.jdbc.url</td><td>The JDBC URL to the database</td></tr>
  * <tr><td><i>systemName</i>.jdbc.username</td><td>The database user name</td></tr>
  * <tr><td><i>systemName</i>.jdbc.password</td><td>The database password</td></tr>
+ * </table>
+ * <p>
+ * Optional properties include:
+ * <table>
+ * <tr><td><i>systemName</i>.postpatch.path</td><td></td></tr>
+ * <tr><td><i>systemName</i>.readonly</td><td>boolean true to skip patch application</td></tr>
+ * <tr><td><i>systemName</i>.jdbc.systems</td><td>Set of names for multiple JDBC connections that
+ *                                                    should all have patches applied. Names will be
+ *                                                    looked up in the same properties file as
+ *                                                    <i>systemName.jdbcname</i>.database.type, where
+ *                                                    all of the jdbc entries above should be present</td></tr>
  * </table>
  *
  * @author Scott Askew (scott@tacitknowledge.com)
@@ -115,31 +124,53 @@ public class JdbcMigrationLauncherFactory
             launcher.setReadOnly(true);
         }
         
-        String databaseType = getRequiredParam("migration.databasetype", sce);
-        context.setDatabaseType(new DatabaseType(databaseType));
-        
         String patchPath = getRequiredParam("migration.patchpath", sce);
         launcher.setPatchPath(patchPath);
         
         String postPatchPath = sce.getServletContext().getInitParameter("migration.postpatchpath");
         launcher.setPostPatchPath(postPatchPath);
         
-        String dataSource = getRequiredParam("migration.datasource", sce);
-        try
+        
+        // FIXME test that we have actually gotten the database names for both cases
+        String databases = sce.getServletContext().getInitParameter("migration.jdbc.systems");
+        String[] databaseNames;
+        if ((databases == null) || "".equals(databases))
         {
-            Context ctx = new InitialContext();
-            if (ctx == null) 
+            databaseNames = new String[1];
+            databaseNames[0] = "";
+        }
+        else
+        {
+            databaseNames = databases.split(",");
+        }
+        
+        for (int i = 0; i < databaseNames.length; i++)
+        {
+            String databaseName = databaseNames[i];
+            if (databaseName != "")
             {
-                throw new IllegalArgumentException("A jndi context must be "
-                        + "present to use this configuration.");
+                databaseName = databaseName + ".";
             }
-            DataSource ds = (DataSource) ctx.lookup("java:comp/env/" + dataSource);
-            context.setDataSource(ds);
-            launcher.setContext(context);
-        } 
-        catch (NamingException e)
-        {
-            throw new MigrationException("Problem with JNDI look up of " + dataSource, e);
+            String databaseType = getRequiredParam("migration." + i + "databasetype", sce);
+            context.setDatabaseType(new DatabaseType(databaseType));
+        
+            String dataSource = getRequiredParam("migration." + i + "datasource", sce);
+            try
+            {
+                Context ctx = new InitialContext();
+                if (ctx == null) 
+                {
+                    throw new IllegalArgumentException("A jndi context must be "
+                                                       + "present to use this configuration.");
+                }
+                DataSource ds = (DataSource) ctx.lookup("java:comp/env/" + dataSource);
+                context.setDataSource(ds);
+                launcher.addContext(context);
+            } 
+            catch (NamingException e)
+            {
+                throw new MigrationException("Problem with JNDI look up of " + dataSource, e);
+            }
         }
     }
     
@@ -206,26 +237,51 @@ public class JdbcMigrationLauncherFactory
             launcher.setReadOnly(true);
         }
 
-        // Set up the data source
-        NonPooledDataSource dataSource = new NonPooledDataSource();
-        dataSource.setDriverClass(getRequiredParam(props, systemName + ".jdbc.driver"));
-        dataSource.setDatabaseUrl(getRequiredParam(props, systemName + ".jdbc.url"));
-        dataSource.setUsername(getRequiredParam(props, systemName + ".jdbc.username"));
-        dataSource.setPassword(getRequiredParam(props, systemName + ".jdbc.password"));
+        // FIXME alter this to look for multiple names, and add them in a loop
+        // FIXME test that we have actually gotten the database names for both cases
+        // FIXME refactor the database name extraction from this and the servlet example
+        String databases = props.getProperty(systemName + ".jdbc.systems");
+        String[] databaseNames;
+        if ((databases == null) || "".equals(databases))
+        {
+            databaseNames = new String[1];
+            databaseNames[0] = "jdbc";
+        }
+        else
+        {
+            databaseNames = databases.split(",");
+        }
         
-        // Set up the JDBC migration context; accepts one of two property names
-        DataSourceMigrationContext context = getDataSourceMigrationContext();
-        String databaseType = getRequiredParam(props,
-            systemName + ".jdbc.database.type", systemName + ".jdbc.dialect");
-        context.setDatabaseType(new DatabaseType(databaseType));
-
-        // Finish setting up the context
-        context.setSystemName(systemName);
+        for (int i = 0; i < databaseNames.length; i++)
+        {
+            String databaseName = databaseNames[i];
+            if (databaseName != "")
+            {
+                databaseName = "." + databaseName;
+            }
+            
+            
+            // Set up the data source
+            NonPooledDataSource dataSource = new NonPooledDataSource();
+            dataSource.setDriverClass(getRequiredParam(props, systemName + databaseName + ".driver"));
+            dataSource.setDatabaseUrl(getRequiredParam(props, systemName + databaseName + ".url"));
+            dataSource.setUsername(getRequiredParam(props, systemName + databaseName + ".username"));
+            dataSource.setPassword(getRequiredParam(props, systemName + databaseName + ".password"));
         
-        context.setDataSource(dataSource);
+            // Set up the JDBC migration context; accepts one of two property names
+            DataSourceMigrationContext context = getDataSourceMigrationContext();
+            String databaseType = getRequiredParam(props,
+                                                   systemName + databaseName + ".database.type", systemName + databaseName + ".dialect");
+            context.setDatabaseType(new DatabaseType(databaseType));
+            
+            // Finish setting up the context
+            context.setSystemName(systemName);
+            
+            context.setDataSource(dataSource);
 
-        // done reading in config, set launcher's context
-        launcher.setContext(context);
+            // done reading in config, set launcher's context
+            launcher.addContext(context);
+        }
     }
     
     /**

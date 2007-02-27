@@ -1,4 +1,5 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -12,6 +13,8 @@
  */
 
 package com.tacitknowledge.util.migration.jdbc;
+
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,10 +104,15 @@ public class DistributedMigrationInformation
                 new DistributedJdbcMigrationLauncherFactory();
             DistributedJdbcMigrationLauncher launcher
                 = (DistributedJdbcMigrationLauncher)launcherFactory.createMigrationLauncher(systemName);
+            
+            // FIXME distributed right now assumes they're all even, get the first. Is that true?
+            Map contextMap = launcher.getContexts();
+            JdbcMigrationContext context = (JdbcMigrationContext)contextMap.keySet().iterator().next();
+            
             log.info("Current Database patch level is        : "
-                + launcher.getDatabasePatchLevel());
+                + launcher.getDatabasePatchLevel(context));
             int unappliedPatches = launcher.getNextPatchLevel()
-                - launcher.getDatabasePatchLevel() - 1;
+                - launcher.getDatabasePatchLevel(context) - 1;
             log.info("Current number of unapplied patches is : " + unappliedPatches); 
             log.info("The next patch to author should be     : " + launcher.getNextPatchLevel());
         }

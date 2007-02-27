@@ -1,5 +1,5 @@
 /* 
- * Copyright 2006 Tacit Knowledge LLC
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -20,8 +20,10 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.jdbc.DataSourceMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
+import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.TestDataSourceMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.TestDistributedJdbcMigrationLauncherFactory;
@@ -72,6 +74,8 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         
         // Make sure we get notification of any migrations
         launcher.getMigrationProcess().addListener(this);
+        
+        context = new TestMigrationContext();
     }
 
     /**
@@ -217,8 +221,9 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         // The orders schema has four tasks that should go, make sure they did
         JdbcMigrationLauncher ordersLauncher = 
             (JdbcMigrationLauncher)controlledSystems.get("orders");
+        // FIXME need to test multiple contexts
         TestDataSourceMigrationContext ordersContext = 
-            (TestDataSourceMigrationContext)ordersLauncher.getContext();
+            (TestDataSourceMigrationContext)ordersLauncher.getContexts().keySet().iterator().next();
         assertEquals("orders", ordersContext.getSystemName());
         assertTrue(ordersContext.hasExecuted("TestTask1"));
         assertTrue(ordersContext.hasExecuted("TestTask2"));
@@ -228,8 +233,9 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         // The core schema has three tasks that should not go, make sure they are there but did not go
         JdbcMigrationLauncher coreLauncher = 
             (JdbcMigrationLauncher)controlledSystems.get("core");
+        // FIXME need to test multiple contexts
         TestDataSourceMigrationContext coreContext = 
-            (TestDataSourceMigrationContext)coreLauncher.getContext();
+            (TestDataSourceMigrationContext)coreLauncher.getContexts().keySet().iterator().next();
         assertEquals(3, coreLauncher.getMigrationProcess().getMigrationTasks().size());
         assertEquals("core", coreContext.getSystemName());
         assertFalse(coreContext.hasExecuted("patch0001_first_patch"));

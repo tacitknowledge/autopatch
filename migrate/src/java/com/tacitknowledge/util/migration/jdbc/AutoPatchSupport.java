@@ -12,14 +12,18 @@
  */
 package com.tacitknowledge.util.migration.jdbc;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationException;
 
 /**
- * Support using AutoPatch via injection I think. Jacques Morel contributed this, 
- * and I'm not sure what it does actually.
+ * Support using AutoPatch via injection and allows you to directly set the patch level. 
+ * Jacques Morel contributed this originally.
  * 
  * @author Jacques Morel
  */
@@ -68,17 +72,6 @@ public class AutoPatchSupport
     }
 
     /**
-     * Create the patch table (if necessary)
-     * 
-     * @return PatchTable object for the configured migration launcher
-     */
-    public PatchTable makePatchTable()
-    {
-        JdbcMigrationContext jdbcMigrationContext = launcher.getContext();
-        return new PatchTable(jdbcMigrationContext);
-    }
-    
-    /**
      * Set the patch level to the specified level
      * 
      * @param patchLevel the level to set the patch table to
@@ -86,11 +79,18 @@ public class AutoPatchSupport
      */
     public void setPatchLevel(int patchLevel) throws MigrationException
     {
-        PatchTable patchTable = makePatchTable();
-        patchTable.lockPatchStore();
-        patchTable.updatePatchLevel(patchLevel);
-        log.info("Set the patch level to " + patchLevel);
-        patchTable.unlockPatchStore();
+        Map contextMap = launcher.getContexts();
+        Set contexts = contextMap.keySet();
+        // FIXME test that setting the patch level works
+        for (Iterator i = contexts.iterator(); i.hasNext(); )
+        {
+            JdbcMigrationContext migrationContext = (JdbcMigrationContext)i.next();
+            PatchTable patchTable = (PatchTable)contextMap.get(migrationContext);
+            patchTable.lockPatchStore();
+            patchTable.updatePatchLevel(patchLevel);
+            log.info("Set the patch level to " + patchLevel + " for context " + migrationContext);
+            patchTable.unlockPatchStore();            
+        }
     }
 
     /**
@@ -101,8 +101,11 @@ public class AutoPatchSupport
      */
     public int getPatchLevel() throws MigrationException
     {
-        PatchTable patchTable = makePatchTable();
-        return patchTable.getPatchLevel();
+        Map contextMap = launcher.getContexts();
+        // Any of the patch tables for any of the contexts should be fine, get the first
+        PatchTable firstPatchTable = (PatchTable)contextMap.values().iterator().next();
+        // FIXME test that getting the patch level works
+        return firstPatchTable.getPatchLevel();
     }
     
     /**

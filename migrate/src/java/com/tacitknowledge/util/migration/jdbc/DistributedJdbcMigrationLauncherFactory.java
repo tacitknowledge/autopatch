@@ -164,7 +164,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         context.setDataSource(dataSource);
 
         // done reading in config, set launcher's context
-        launcher.setContext(context);
+        // FIXME only using one context here, would a distributed one ever go into multiple nodes?
+        launcher.addContext(context);
         
         // Get our controlled systems, and instantiate their launchers
         HashMap controlledSystems = new HashMap();

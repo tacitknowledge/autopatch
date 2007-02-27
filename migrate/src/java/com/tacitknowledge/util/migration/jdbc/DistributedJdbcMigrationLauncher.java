@@ -1,5 +1,5 @@
 /* 
- * Copyright 2006 Tacit Knowledge LLC
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -13,13 +13,9 @@
  */
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import com.tacitknowledge.util.migration.DistributedMigrationProcess;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationProcess;
-import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 /**
  * Core starting point for a distributed database migration run.  This class obtains a connection
@@ -71,24 +67,11 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
      */
     public int doMigrations() throws MigrationException
     {
-        if (getContext() == null)
+        if (getContexts().size() == 0)
         {
             throw new MigrationException("You must configure a migration context");
         }
         
-        Connection conn = null;
-        try
-        {
-            conn = getContext().getConnection();
-            return super.doMigrations(conn);
-        }
-        catch (SQLException e)
-        {
-            throw new MigrationException("SqlException during migration", e);
-        }
-        finally
-        {
-            SqlUtil.close(conn, null, null);
-        }
+        return super.doMigrations();
     }
 }

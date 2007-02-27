@@ -27,24 +27,16 @@ import com.tacitknowledge.util.migration.MigrationException;
  */
 public class DataSourceMigrationContext implements JdbcMigrationContext
 {
-    /**
-     * The database connection to use
-     */
+    /** The database connection to use */
     private Connection connection = null;
 
-    /**
-     * The DataSource to use
-     */
+    /** The DataSource to use */
     private DataSource dataSource = null;
 
-    /**
-     * The name of the system being patched
-     */
+    /** The name of the system being patched */
     private String systemName = null;
 
-    /**
-     * The name of the system being patched
-     */
+    /** The name of the system being patched */
     private DatabaseType databaseType = null;
 
     /**
@@ -60,7 +52,7 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
             DataSource ds = getDataSource();
             if (ds != null)
             {
-                connection = getDataSource().getConnection();
+                connection = ds.getConnection();
             }
             else
             {

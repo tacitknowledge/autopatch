@@ -1,4 +1,5 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -23,6 +24,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 
 /**
@@ -83,6 +85,7 @@ public class DistributedMigrationProcess extends MigrationProcess
                 log.info("Will execute patch task '" + 
                          task.getName() + " [" + task.getClass().getName() + "]" + 
                          "'");
+                log.debug("Task will execute in context '" + context.getClass().getName() + "'");
                 taskCount++;
             }
         }
@@ -116,7 +119,10 @@ public class DistributedMigrationProcess extends MigrationProcess
             {
                 // Execute the task in the context it was loaded from
                 JdbcMigrationLauncher launcher = (JdbcMigrationLauncher)migrationsWithLaunchers.get(task);
-                applyPatch(launcher.getContext(), task, true);
+                MigrationContext launcherContext = (MigrationContext)launcher.getContexts().keySet().iterator().next();
+                applyPatch(launcherContext, task, true);
+
+                
                 taskCount++;
             }
         }
@@ -161,9 +167,13 @@ public class DistributedMigrationProcess extends MigrationProcess
                 MigrationTask task = (MigrationTask)subTaskIter.next();
                 if (log.isDebugEnabled())
                 {
+                    // FIXME all the system names should be the same - put them on the launcher?
+                    String systemName =
+                        ((JdbcMigrationContext)subLauncher.getContexts().keySet().iterator().next())
+                        .getSystemName();
                     log.debug("\tMigration+Launcher binder found subtask " 
                               + task.getName() + " for launcher context " 
-                              + subLauncher.getContext().getSystemName());
+                              + systemName);
                 }
                 
                 // store the task, related to its launcher

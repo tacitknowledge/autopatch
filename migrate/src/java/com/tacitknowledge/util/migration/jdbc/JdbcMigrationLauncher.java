@@ -1,4 +1,4 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* Copyright 2007 Tacit Knowledge LLC
  *
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -15,6 +15,9 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -40,19 +43,10 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  */
 public class JdbcMigrationLauncher implements MigrationListener
 {
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static Log log = LogFactory.getLog(JdbcMigrationLauncher.class);
 
-    /**
-     * The patch level store in use
-     */
-    private PatchInfoStore patchTable = null;
-
-    /**
-     * The <code>MigrationProcess</code> responsible for applying the patches
-     */
+    /** The <code>MigrationProcess</code> responsible for applying the patches */
     private MigrationProcess migrationProcess = null;
 
     /**
@@ -61,29 +55,22 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     private long lockPollMillis = 15000;
 
-    /**
-     * The path containing directories and packages to search through to locate patches.
-     */
+    /** The path containing directories and packages to search through to locate patches. */
     private String patchPath = null;
 
-    /**
-     * The path containing directories and packages to search through to locate post-patch tasks.
-     */
+    /** The path containing directories and packages to search through to locate post-patch tasks. */
     private String postPatchPath = null;
 
-    /**
-     * The <code>MigrationContext</code> to use for all migrations.
+    /** 
+     * The <code>MigrationContext</code> objects to use for all migrations. 
+     * Each one is the key in the map, with the PatchInfoStore being the value
      */
-    private JdbcMigrationContext context = null;
+    private HashMap contexts = new HashMap();
     
-    /**
-     * Whether we actually want to apply patches, or just look
-     */
+    /** Whether we actually want to apply patches, or just look */
     private boolean readOnly = false;
 
-    /**
-     * Create a new MigrationProcess and add a SqlScriptMigrationTaskSource
-     */
+    /** Create a new MigrationProcess and add a SqlScriptMigrationTaskSource */
     public JdbcMigrationLauncher()
     {
         setMigrationProcess(getNewMigrationProcess());
@@ -103,7 +90,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     public JdbcMigrationLauncher(JdbcMigrationContext context)
     {
         this();
-        setContext(context);
+        addContext(context);
     }
     
     /**
@@ -125,7 +112,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public int doMigrations() throws MigrationException
     {
-        if (context == null)
+        if (contexts.size() == 0)
         {
             throw new MigrationException("You must configure a migration context");
         }
@@ -133,8 +120,15 @@ public class JdbcMigrationLauncher implements MigrationListener
         Connection conn = null;
         try
         {
-            conn = context.getConnection();
-            return doMigrations(conn);
+            Iterator contextIter = contexts.keySet().iterator();
+            int migrationCount = 0;
+            while (contextIter.hasNext())
+            {
+                JdbcMigrationContext context = (JdbcMigrationContext)contextIter.next();
+                migrationCount = doMigrations(context);
+                log.info("Executed " + migrationCount + " patches for context " + context);
+            }
+            return migrationCount;
         }
         catch (SQLException e)
         {
@@ -241,6 +235,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     {
         log.debug("Task " + task.getName() + " was successful for context " + ctx);
         int patchLevel = task.getLevel().intValue();
+        PatchInfoStore patchTable = (PatchInfoStore)contexts.get(ctx);
         patchTable.updatePatchLevel(patchLevel);
     }
 
@@ -256,12 +251,14 @@ public class JdbcMigrationLauncher implements MigrationListener
     /**
      * Get the patch level from the database
      *
+     * @param ctx the migration context to get the patch level for
      * @return int representing the current database patch level
      * @exception MigrationException if there is a database connection error,
      *                         or the patch level can't be determined
      */
-    public int getDatabasePatchLevel() throws MigrationException
+    public int getDatabasePatchLevel(MigrationContext ctx) throws MigrationException
     {
+        PatchInfoStore patchTable = (PatchInfoStore)contexts.get(ctx);
         return patchTable.getPatchLevel();
     }
 
@@ -279,43 +276,44 @@ public class JdbcMigrationLauncher implements MigrationListener
     /**
      * Sets the <code>JdbcMigrationContext</code> used for the migrations.
      *
-     * @param jdbcMigrationContext the <code>JdbcMigrationContext</code> used for the migrations
+     * @param context the <code>JdbcMigrationContext</code> used for the migrations
      */
-    public void setContext(JdbcMigrationContext jdbcMigrationContext)
+    public void addContext(JdbcMigrationContext context)
     {
-        this.context = jdbcMigrationContext;
-        patchTable = new PatchTable(context);
+        contexts.put(context, new PatchTable(context));
     }
 
     /**
-     * Returns the <code>JdbcMigrationContext</code> used for the migrations.
+     * Returns the <code>JdbcMigrationContext</code> objects used for the migrations.
      *
-     * @return the <code>JdbcMigrationContext</code> used for the migrations
+     * @return Map of <code>JdbcMigrationContext</code> and <code>PatchInfoStore</code> objects
+     *          used in the migrations
      */
-    public JdbcMigrationContext getContext()
+    public Map getContexts()
     {
-        return context;
+        return contexts;
     }
 
     /**
      * Performs the application migration process in one go
      *
-     * @param  conn the connection to use
+     * @param  context the database context to run the patches in
      * @return the number of patches applied
      * @throws SQLException if an unrecoverable database error occurs while
      *         working with the patches table.
      * @throws MigrationException if an unrecoverable error occurs during
      *         the migration
      */
-    protected int doMigrations(Connection conn) throws SQLException, MigrationException
+    protected int doMigrations(JdbcMigrationContext context) throws SQLException, MigrationException
     {
-        patchTable = createPatchStore();
+        PatchInfoStore patchTable = createPatchStore(context);
 
         // Save auto-commit state
+        Connection conn = context.getConnection();
         boolean b = true;
         try
         {
-            lockPatchStore();
+            lockPatchStore(context);
 
             // make sure we can at least attempt to roll back patches
             // DDL usually can't rollback - we'd need compensating transactions
@@ -379,20 +377,23 @@ public class JdbcMigrationLauncher implements MigrationListener
      * Lock the patch store. This is done safely, such that we safely handle the case where 
      * other migration launchers are patching at the same time.
      * 
+     * @param context the context to lock the store in
      * @throws MigrationException if the reading or setting lock state fails
      */
-    private void lockPatchStore() throws MigrationException
+    private void lockPatchStore(JdbcMigrationContext context) throws MigrationException
     {
         // Patch locks ensure that only one system sharing a patch store will patch
         // it at the same time.
         boolean lockObtained = false;
         while (!lockObtained)
         {
-            waitForFreeLock();
+            waitForFreeLock(context);
 
+            PatchInfoStore piStore = (PatchInfoStore)contexts.get(context);
+            piStore.getPatchLevel();
             try
             {   
-                patchTable.lockPatchStore();
+                piStore.lockPatchStore();
                 lockObtained = true;
             }
             catch (IllegalStateException ise)
@@ -406,15 +407,17 @@ public class JdbcMigrationLauncher implements MigrationListener
     /**
      * create a patch table object for use in migrations
      * 
+     * @param context the context to create the store in
      * @return PatchTable object for use in accessing patch state information
      * @throws MigrationException if unable to create the store
      */
-    protected PatchInfoStore createPatchStore() throws MigrationException
+    protected PatchInfoStore createPatchStore(JdbcMigrationContext context) throws MigrationException
     {
         PatchInfoStore piStore = new PatchTable(context);
 
         // Make sure the table is created before claiming it exists by returning
-        patchTable.getPatchLevel();
+        piStore = (PatchInfoStore)contexts.get(context);
+        piStore.getPatchLevel();
         
         return piStore;
     }
@@ -422,11 +425,13 @@ public class JdbcMigrationLauncher implements MigrationListener
     /**
      * Pauses until the patch lock become available.
      *
+     * @param context the context related to the store
      * @throws MigrationException if an unrecoverable error occurs
      */
-    private void waitForFreeLock() throws MigrationException
+    private void waitForFreeLock(JdbcMigrationContext context) throws MigrationException
     {
-        while (patchTable.isPatchStoreLocked())
+        PatchInfoStore piStore = (PatchInfoStore)contexts.get(context);
+        while (piStore.isPatchStoreLocked())
         {
             log.info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");
             try
@@ -478,26 +483,6 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void setMigrationProcess(MigrationProcess migrationProcess)
     {
         this.migrationProcess = migrationProcess;
-    }
-
-    /**
-     * Get the patch table we use to store migration information
-     * 
-     * @return PatchStore with information about our migration state
-     */
-    public PatchInfoStore getPatchTable()
-    {
-        return patchTable;
-    }
-
-    /**
-     * Set the patch table where we should put information about the migrationo
-     * 
-     * @param patchTable where we should put information about the migration
-     */
-    public void setPatchTable(PatchInfoStore patchTable)
-    {
-        this.patchTable = patchTable;
     }
 
     /**

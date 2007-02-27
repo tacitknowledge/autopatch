@@ -79,7 +79,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher getLauncher()
     {
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
-        launcher.setContext(getContext());
+        launcher.addContext(getContext());
         launcher.setPatchPath(getPatchPath());
         launcher.setPostPatchPath(getPostPatchPath());
         launcher.setReadOnly(isReadOnly());

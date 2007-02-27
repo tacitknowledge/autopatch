@@ -1,4 +1,5 @@
-/* Copyright 2007 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -31,7 +32,7 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
     /** Class logger */
     private static Log log = LogFactory.getLog(TestDistributedJdbcMigrationLauncher.class);
     
-    /** The PatchInfoStore to use for migrations */
+    /** The PatchInfoStore to use for migrations FIXME need to store a map of them */
     private PatchInfoStore patchStore = null;
     
     /**
@@ -58,14 +59,14 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
      * @return patchStore held internally
      * @throws MigrationException if creating the store fails
      */
-    protected PatchInfoStore createPatchStore() throws MigrationException
+    protected PatchInfoStore createPatchStore(JdbcMigrationContext context) throws MigrationException
     {
         if (patchStore != null)
         {
             return patchStore;
         }
         
-        return super.createPatchStore();
+        return super.createPatchStore(context);
     }
     
     /**
