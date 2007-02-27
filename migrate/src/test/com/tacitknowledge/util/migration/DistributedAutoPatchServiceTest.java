@@ -47,7 +47,8 @@ public class DistributedAutoPatchServiceTest extends DistributedJdbcMigrationLau
      */
     protected void setUp() throws Exception
     {
-        // configure the controlled AutoPatchService
+        // configure the controlled AutoPatchService, first by calling super
+        super.setUp();
         
         // core sub-system
         AutoPatchService coreService = new TestAutoPatchService();
