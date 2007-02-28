@@ -113,10 +113,6 @@ public class JdbcMigrationLauncherFactory
     private void configureFromServletContext(JdbcMigrationLauncher launcher, 
             ServletContextEvent sce) throws MigrationException
     {
-        DataSourceMigrationContext context = getDataSourceMigrationContext();
-        String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", sce, this);
-        context.setSystemName(systemName);
-        
         String readOnly = sce.getServletContext().getInitParameter("migration.readonly");
         launcher.setReadOnly(false);
         if ("true".equals(readOnly)) {
@@ -129,18 +125,18 @@ public class JdbcMigrationLauncherFactory
         String postPatchPath = sce.getServletContext().getInitParameter("migration.postpatchpath");
         launcher.setPostPatchPath(postPatchPath);
         
-        
-        // FIXME test that we have actually gotten the database names for both cases
         String databases = sce.getServletContext().getInitParameter("migration.jdbc.systems");
         String[] databaseNames;
         if ((databases == null) || "".equals(databases))
         {
             databaseNames = new String[1];
             databaseNames[0] = "";
+            log.debug("jdbc.systems was null or empty, not multi-node");
         }
         else
         {
             databaseNames = databases.split(",");
+            log.debug("jdbc.systems was set to " + databases + ", configuring multi-node");
         }
         
         for (int i = 0; i < databaseNames.length; i++)
@@ -151,9 +147,13 @@ public class JdbcMigrationLauncherFactory
                 databaseName = databaseName + ".";
             }
             String databaseType = ConfigurationUtil.getRequiredParam("migration." + databaseName + "databasetype", sce, this);
+            String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", sce, this);
+            String dataSource = ConfigurationUtil.getRequiredParam("migration." + databaseName + "datasource", sce, this);
+            
+            DataSourceMigrationContext context = getDataSourceMigrationContext();
+            context.setSystemName(systemName);
             context.setDatabaseType(new DatabaseType(databaseType));
         
-            String dataSource = ConfigurationUtil.getRequiredParam("migration." + databaseName + "datasource", sce, this);
             try
             {
                 Context ctx = new InitialContext();
@@ -164,6 +164,7 @@ public class JdbcMigrationLauncherFactory
                 }
                 DataSource ds = (DataSource) ctx.lookup("java:comp/env/" + dataSource);
                 context.setDataSource(ds);
+                log.debug("adding context with datasource " + dataSource + " of type " + databaseType);
                 launcher.addContext(context);
             } 
             catch (NamingException e)

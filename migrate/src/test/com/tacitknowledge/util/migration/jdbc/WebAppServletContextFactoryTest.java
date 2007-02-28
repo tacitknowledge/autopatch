@@ -36,6 +36,27 @@ import junit.framework.TestCase;
 public class WebAppServletContextFactoryTest extends TestCase
 {
     /**
+     * @see junit.framework.TestCase#setUp()
+     */
+    public void setUp() throws Exception
+    {
+        super.setUp();
+        MockContextFactory.setAsInitial();
+        InitialContext context = new InitialContext();
+        context.createSubcontext("java");
+    }
+    
+    /**
+     * @see junit.framework.TestCase#tearDown()
+     */
+    public void tearDown() throws Exception
+    {
+        super.tearDown();
+        InitialContext context = new InitialContext();
+        context.destroySubcontext("java");
+    }
+    
+    /**
      * Tests that the new mechanism for configuring a launcher from a 
      * servlet context works.
      * 
@@ -56,9 +77,7 @@ public class WebAppServletContextFactoryTest extends TestCase
         sc.setInitParameter("migration.datasource", "jdbc/testsource");
         
         MockDataSource ds = new MockDataSource();
-        MockContextFactory.setAsInitial();
         InitialContext context = new InitialContext();
-        context.createSubcontext("java");
         context.bind("java:comp/env/jdbc/testsource", ds);
         ServletContextEvent sce = new ServletContextEvent(sc);
         JdbcMigrationLauncher launcher = null;
@@ -105,8 +124,8 @@ public class WebAppServletContextFactoryTest extends TestCase
         MockDataSource ds = new MockDataSource();
         MockContextFactory.setAsInitial();
         InitialContext context = new InitialContext();
-        context.createSubcontext("java");
-        context.bind("java:comp/env/jdbc/testsource", ds);
+        context.bind("java:comp/env/jdbc/testsource1", ds);
+        context.bind("java:comp/env/jdbc/testsource2", ds);
         ServletContextEvent sce = new ServletContextEvent(sc);
         JdbcMigrationLauncher launcher = null;
         try
