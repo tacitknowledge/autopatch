@@ -15,13 +15,11 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.sql.DataSource;
 
@@ -30,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
 
 /**
@@ -115,7 +114,7 @@ public class JdbcMigrationLauncherFactory
             ServletContextEvent sce) throws MigrationException
     {
         DataSourceMigrationContext context = getDataSourceMigrationContext();
-        String systemName = getRequiredParam("migration.systemname", sce);
+        String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", sce, this);
         context.setSystemName(systemName);
         
         String readOnly = sce.getServletContext().getInitParameter("migration.readonly");
@@ -124,7 +123,7 @@ public class JdbcMigrationLauncherFactory
             launcher.setReadOnly(true);
         }
         
-        String patchPath = getRequiredParam("migration.patchpath", sce);
+        String patchPath = ConfigurationUtil.getRequiredParam("migration.patchpath", sce, this);
         launcher.setPatchPath(patchPath);
         
         String postPatchPath = sce.getServletContext().getInitParameter("migration.postpatchpath");
@@ -151,10 +150,10 @@ public class JdbcMigrationLauncherFactory
             {
                 databaseName = databaseName + ".";
             }
-            String databaseType = getRequiredParam("migration." + i + "databasetype", sce);
+            String databaseType = ConfigurationUtil.getRequiredParam("migration." + databaseName + "databasetype", sce, this);
             context.setDatabaseType(new DatabaseType(databaseType));
         
-            String dataSource = getRequiredParam("migration." + i + "datasource", sce);
+            String dataSource = ConfigurationUtil.getRequiredParam("migration." + databaseName + "datasource", sce, this);
             try
             {
                 Context ctx = new InitialContext();
@@ -230,16 +229,14 @@ public class JdbcMigrationLauncherFactory
                                                   Properties props) 
         throws IllegalArgumentException
     {
-        launcher.setPatchPath(getRequiredParam(props, systemName + ".patch.path"));
+        launcher.setPatchPath(ConfigurationUtil.getRequiredParam(props, systemName + ".patch.path"));
         launcher.setPostPatchPath(props.getProperty(systemName + ".postpatch.path"));
         launcher.setReadOnly(false);
         if ("true".equals(props.getProperty(systemName + ".readonly"))) {
             launcher.setReadOnly(true);
         }
 
-        // FIXME alter this to look for multiple names, and add them in a loop
-        // FIXME test that we have actually gotten the database names for both cases
-        // FIXME refactor the database name extraction from this and the servlet example
+        // TODO refactor the database name extraction from this and the servlet example
         String databases = props.getProperty(systemName + ".jdbc.systems");
         String[] databaseNames;
         if ((databases == null) || "".equals(databases))
@@ -260,18 +257,19 @@ public class JdbcMigrationLauncherFactory
                 databaseName = "." + databaseName;
             }
             
-            
             // Set up the data source
             NonPooledDataSource dataSource = new NonPooledDataSource();
-            dataSource.setDriverClass(getRequiredParam(props, systemName + databaseName + ".driver"));
-            dataSource.setDatabaseUrl(getRequiredParam(props, systemName + databaseName + ".url"));
-            dataSource.setUsername(getRequiredParam(props, systemName + databaseName + ".username"));
-            dataSource.setPassword(getRequiredParam(props, systemName + databaseName + ".password"));
+            dataSource.setDriverClass(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".driver"));
+            dataSource.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".url"));
+            dataSource.setUsername(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".username"));
+            dataSource.setPassword(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".password"));
         
             // Set up the JDBC migration context; accepts one of two property names
             DataSourceMigrationContext context = getDataSourceMigrationContext();
-            String databaseType = getRequiredParam(props,
-                                                   systemName + databaseName + ".database.type", systemName + databaseName + ".dialect");
+            String databaseType = ConfigurationUtil.getRequiredParam(props,
+                                                                     systemName + databaseName + ".database.type", 
+                                                                     systemName + databaseName + ".dialect");
+            log.debug("setting type to " + databaseType);
             context.setDatabaseType(new DatabaseType(databaseType));
             
             // Finish setting up the context
@@ -302,86 +300,6 @@ public class JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher getJdbcMigrationLauncher()
     {
         return new JdbcMigrationLauncher();
-    }
-
-    /**
-     * Returns the value of the specified configuration parameter.
-     *
-     * @param  props the properties file containing the values
-     * @param  param the parameter to return
-     * @return the value of the specified configuration parameter
-     * @throws IllegalArgumentException if the parameter does not exist
-     */
-    public static String getRequiredParam(Properties props, String param)
-        throws IllegalArgumentException
-    {
-        String value = props.getProperty(param);
-        if (value == null)
-        {
-            System.err.println("Parameter named: " + param + " was not found.");
-            System.err.println("-----Parameters found-----");
-            Iterator propNameIterator = props.keySet().iterator();
-            while (propNameIterator.hasNext())
-            {
-                String name = (String) propNameIterator.next();
-                String val = props.getProperty(name);
-                System.err.println(name + " = " + val);
-            }
-            System.err.println("--------------------------");
-            throw new IllegalArgumentException("'" + param + "' is a required "
-                + "initialization parameter.  Aborting.");
-        }
-        return value;
-    }
-
-    /**
-     * Returns the value of the specified configuration parameter.
-     *
-     * @param  props the properties file containing the values
-     * @param  param the parameter to return
-     * @param  alternate the alternate parameter to return
-     * @return the value of the specified configuration parameter
-     */
-    public static String getRequiredParam(Properties props, String param, String alternate)
-    {
-        try
-        {
-            return getRequiredParam(props, param);
-        }
-        catch (IllegalArgumentException e1)
-        {
-            try
-            {
-                return getRequiredParam(props, alternate);
-            }
-            catch (IllegalArgumentException e2)
-            {
-                throw new IllegalArgumentException("Either '" + param + "' or '" + alternate
-                    + "' must be specified as an initialization parameter.  Aborting.");
-            }
-        }
-    }
-    
-    /**
-     * Returns the value of the specified servlet context initialization parameter.
-     * 
-     * @param  param the parameter to return
-     * @param  sce the <code>ServletContextEvent</code> being handled
-     * @return the value of the specified servlet context initialization parameter
-     * @throws IllegalArgumentException if the parameter does not exist
-     */
-    private String getRequiredParam(String param, ServletContextEvent sce)
-        throws IllegalArgumentException
-    {
-        ServletContext context = sce.getServletContext();
-        String value = context.getInitParameter(param);
-        if (value == null)
-        {
-            throw new IllegalArgumentException("'" + param + "' is a required "
-                + "servlet context initialization parameter for the \""
-                + getClass().getName() + "\" class.  Aborting.");
-        }
-        return value;
     }
 }
 

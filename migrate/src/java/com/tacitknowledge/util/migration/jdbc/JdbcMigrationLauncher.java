@@ -15,9 +15,8 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -65,7 +64,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      * The <code>MigrationContext</code> objects to use for all migrations. 
      * Each one is the key in the map, with the PatchInfoStore being the value
      */
-    private HashMap contexts = new HashMap();
+    private LinkedHashMap contexts = new LinkedHashMap();
     
     /** Whether we actually want to apply patches, or just look */
     private boolean readOnly = false;
@@ -289,7 +288,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      * @return Map of <code>JdbcMigrationContext</code> and <code>PatchInfoStore</code> objects
      *          used in the migrations
      */
-    public Map getContexts()
+    public LinkedHashMap getContexts()
     {
         return contexts;
     }

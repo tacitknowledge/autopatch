@@ -13,6 +13,10 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -48,6 +52,9 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     
     /** Whether we really want to apply the patches, or just look */
     private boolean readOnly = false;
+    
+    /** A set of contexts, in case you want multi-node patches */
+    private List contexts = new ArrayList();
 
     /**
      * Patches the database, if necessary.
@@ -79,7 +86,21 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher getLauncher()
     {
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
-        launcher.addContext(getContext());
+        
+        // If no one has added a collection of contexts to the service,
+        // then take the single-context property configuration and set it in
+        if (contexts.size() == 0)
+        {
+            launcher.addContext(getContext());
+        }
+        // otherwise, add the collection of contexts in there
+        else 
+        {
+            for (Iterator i = contexts.iterator(); i.hasNext(); )
+            {
+                launcher.addContext((JdbcMigrationContext)i.next());
+            }
+        }
         launcher.setPatchPath(getPatchPath());
         launcher.setPostPatchPath(getPostPatchPath());
         launcher.setReadOnly(isReadOnly());
@@ -199,5 +220,35 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     public void setReadOnly(boolean readOnly)
     {
         this.readOnly = readOnly;
+    }
+
+    /**
+     * Get the list of database contexts for multi-node configuration
+     * 
+     * @return List of JdbcMigrationContext objects for multi-node, or empty List
+     */
+    public List getContexts()
+    {
+        return contexts;
+    }
+
+    /**
+     * Set the list of database contexts for multi-node configuration
+     * 
+     * @param contexts List of JdbcMigrationContext objects for multi-node, or empty list
+     */
+    public void setContexts(List contexts)
+    {
+        this.contexts = contexts;
+    }
+    
+    /**
+     * Add a database context to the list of database contexts for multi-node configuration
+     *
+     * @param context the JdbcMigrationContext to use for multi-node patch application
+     */
+    public void addContext(JdbcMigrationContext context)
+    {
+        contexts.add(context);
     }
 }

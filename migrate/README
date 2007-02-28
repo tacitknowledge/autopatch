@@ -78,6 +78,10 @@ o  AutoPatch should be able to globally order patches that execute
        against multiple external systems
 o  AutoPatch should be capable of executing post-patching maintenance
        after patching (things like recompiling pl/sql, etc)
+o  AutoPatch should be capable of executing the same patch across
+       multiple databases with the same schema
+o  AutoPatch should be capable of running in a read only way, showing
+       what it would do, but not changing anything
    
 
 --------------------------------------------------------------------------

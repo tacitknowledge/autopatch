@@ -84,13 +84,15 @@ public class MigrationInformation
      * Get the migration level information for the given system name
      * 
      * @param systemName the name of the system
+     * @return returns the current highest source code patch number
      * @throws Exception if anything goes wrong
      */
-    public void getMigrationInformation(String systemName) throws Exception
+    public int getMigrationInformation(String systemName) throws Exception
     {
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
+        int highestPatch = 0;
         try
         {
             JdbcMigrationLauncherFactory launcherFactory = 
@@ -103,14 +105,19 @@ public class MigrationInformation
             for (Iterator contextIter = contextMap.keySet().iterator(); contextIter.hasNext(); )
             {
                 JdbcMigrationContext context = (JdbcMigrationContext)contextIter.next();
-            
-                log.info("Current Database patch level is        : "
-                         + launcher.getDatabasePatchLevel(context) + " for context " + context);
-                int unappliedPatches = 
-                    launcher.getNextPatchLevel() - launcher.getDatabasePatchLevel(context) - 1;
+                
+                int currentLevel = launcher.getDatabasePatchLevel(context);
+                int nextPatchLevel = launcher.getNextPatchLevel();
+                log.info("Current Database patch level is        : " + currentLevel);
+                int unappliedPatches = nextPatchLevel - launcher.getDatabasePatchLevel(context) - 1;
                 log.info("Current number of unapplied patches is : " + unappliedPatches); 
-                log.info("The next patch to author should be     : " + launcher.getNextPatchLevel());
+                log.info("The next patch to author should be     : " + nextPatchLevel);
+                if ((nextPatchLevel - 1) > highestPatch)
+                {
+                    highestPatch = nextPatchLevel - 1;
+                }
             }
+            return highestPatch;
         }
         catch (Exception e)
         {

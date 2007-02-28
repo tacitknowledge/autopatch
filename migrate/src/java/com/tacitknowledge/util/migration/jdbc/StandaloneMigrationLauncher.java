@@ -1,4 +1,5 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -13,10 +14,10 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 
 
 /**
@@ -68,7 +69,7 @@ public class StandaloneMigrationLauncher
      */
     public static void main(String[] arguments) throws Exception
     {
-        String systemName = getRequiredParam("migration.systemname", 
+        String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", 
                 System.getProperties(), arguments);
         
         // The MigrationLauncher is responsible for handling the interaction
@@ -87,34 +88,5 @@ public class StandaloneMigrationLauncher
             log.error(e);
             throw e;
         }
-    }
-
-    /**
-     * Returns the value of the specified servlet context initialization parameter.
-     * 
-     * @param  param the parameter to return
-     * @param  properties the <code>Properties</code> for the Java system
-     * @param  arguments optionally takes the arguments passed into the main to 
-     * use as the migration system name
-     * @return the value of the specified system initialization parameter
-     * @throws IllegalArgumentException if the parameter does not exist
-     */
-    private static String getRequiredParam(String param, Properties properties, 
-            String[] arguments) throws IllegalArgumentException
-    {
-        String value = properties.getProperty(param);
-        if (value == null)
-        {
-            if ((arguments != null) && (arguments.length > 0))
-            {
-                value = arguments[0].trim();
-            }
-            else
-            {
-                throw new IllegalArgumentException("'" + param + "' is a required "
-                        + "initialization parameter.  Aborting.");
-            }
-        }
-        return value;
     }
 }

@@ -43,7 +43,8 @@ Version 1.0.1
   Thank you Alex Soto
   
 - Implemented serial application of same patch across multiple
-  databases, and extended documentation and example to cover this
+  databases, and extended documentation and example to cover this.
+  This is referred to as "multi-node" patch application in the code and docs
   Mike Hardy
   https://sourceforge.net/support/tracker.php?aid=1661985
   

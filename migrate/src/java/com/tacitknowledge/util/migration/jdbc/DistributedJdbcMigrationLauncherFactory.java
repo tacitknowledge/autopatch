@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import com.tacitknowledge.util.migration.DistributedMigrationProcess;
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
 
 /**
@@ -137,14 +138,14 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         throws IllegalArgumentException, MigrationException
     {
         // Get the name of the context to use for our patch information
-        String patchStoreContextName = getRequiredParam(props, systemName + ".context");
+        String patchStoreContextName = ConfigurationUtil.getRequiredParam(props, systemName + ".context");
         
         // Set up the data source
         NonPooledDataSource dataSource = new NonPooledDataSource();
-        dataSource.setDriverClass(getRequiredParam(props, patchStoreContextName + ".jdbc.driver"));
-        dataSource.setDatabaseUrl(getRequiredParam(props, patchStoreContextName + ".jdbc.url"));
-        dataSource.setUsername(getRequiredParam(props, patchStoreContextName + ".jdbc.username"));
-        dataSource.setPassword(getRequiredParam(props, patchStoreContextName + ".jdbc.password"));
+        dataSource.setDriverClass(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.driver"));
+        dataSource.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.url"));
+        dataSource.setUsername(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.username"));
+        dataSource.setPassword(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.password"));
         
         // Get any post-patch task paths
         launcher.setPostPatchPath(props.getProperty(patchStoreContextName + ".postpatch.path"));
@@ -155,7 +156,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         
         // Set up the JDBC migration context; accepts one of two property names
         DataSourceMigrationContext context = getDataSourceMigrationContext();
-        String databaseType = getRequiredParam(props,
+        String databaseType = ConfigurationUtil.getRequiredParam(props,
             patchStoreContextName + ".jdbc.database.type", patchStoreContextName + ".jdbc.dialect");
         context.setDatabaseType(new DatabaseType(databaseType));
 
@@ -170,7 +171,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         // Get our controlled systems, and instantiate their launchers
         HashMap controlledSystems = new HashMap();
         String[] controlledSystemNames = 
-            getRequiredParam(props, systemName + ".controlled.systems").split(",");
+            ConfigurationUtil.getRequiredParam(props, systemName + ".controlled.systems").split(",");
         for (int i = 0; i < controlledSystemNames.length; i++)
         {
             log.info("Creating controlled patch executor for system " + controlledSystemNames[i]);

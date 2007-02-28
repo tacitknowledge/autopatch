@@ -159,6 +159,7 @@ public class MigrationProcess
      */
     public void addMigrationTaskSource(MigrationTaskSource source)
     {
+        // FIXME test null source protection
         if (source == null)
         {
             throw new IllegalArgumentException("source cannot be null.");
@@ -206,6 +207,7 @@ public class MigrationProcess
         }
         
         // See if we should execute
+        // FIXME test read-only mode throwing an exception or letting it go
         if (isReadOnly())
         {
             if (taskCount > 0)
@@ -272,14 +274,10 @@ public class MigrationProcess
         log.info("A total of " + taskCount + " post-patch tasks will execute.");
         
         // See if we should execute
+        // FIXME test read-only mode with no patches skipping post-patch tasks
         if (isReadOnly())
         {
-            if (taskCount > 0)
-            {
-                throw new MigrationException("Unapplied patches exist, but read-only flag is set");
-            }
-            
-            log.info("In read-only mode - skipping patch application");
+            log.info("In read-only mode - skipping post-patch task execution");
             return 0;
         }
         
@@ -386,19 +384,17 @@ public class MigrationProcess
             {
                 MigrationTaskSource source = (MigrationTaskSource) j.next();
                 List sourceTasks = source.getMigrationTasks(packageName);
-                if (log.isDebugEnabled())
+                if (sourceTasks.size() > 0)
                 {
-                    if (sourceTasks.size() > 0)
-                    {
-                        log.debug("Source [" + source + "] found " 
-                                  + sourceTasks.size() + " patch tasks: "
-                                  + sourceTasks);
-                    }
-                    else
-                    {
-                        log.debug("Source [" + source + "] returned 0 patch tasks.");
-                    }
+                    log.debug("Source [" + source + "] found " 
+                              + sourceTasks.size() + " patch tasks: "
+                              + sourceTasks);
                 }
+                else
+                {
+                    log.debug("Source [" + source + "] returned 0 patch tasks.");
+                }
+                
                 tasks.addAll(sourceTasks);
             }
         }

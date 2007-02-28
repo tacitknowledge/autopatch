@@ -13,6 +13,8 @@
  */
 package com.tacitknowledge.util.migration.jdbc;
 
+import java.util.Iterator;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
@@ -70,11 +72,61 @@ public class WebAppServletContextFactoryTest extends TestCase
             fail("There should not have been an exception");
         }
 
-        // FIXME test multiple contexts
         JdbcMigrationContext jdbcContext = (JdbcMigrationContext)launcher.getContexts().keySet().iterator().next();
         assertEquals(dbType, jdbcContext.getDatabaseType().getDatabaseType());
         assertEquals(sysName, jdbcContext.getSystemName());
         assertEquals(true, launcher.isReadOnly());
     }
 
+    /**
+     * Tests that the new mechanism for configuring a launcher from a 
+     * servlet context works, with multi-node configurations
+     * 
+     * @throws NamingException a problem with the test
+     */
+    public void testConfiguredMultiNodeContext() throws NamingException
+    {
+        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactory();
+        MockServletContext sc = new MockServletContext();
+        
+        String dbType1 = "mysql";
+        String dbType2 = "sybase";
+        String sysName = "testSystem";
+        
+        sc.setInitParameter("migration.systemname", sysName);
+        sc.setInitParameter("migration.readonly", "true");
+        sc.setInitParameter("migration.jdbc.systems", "system1,system2");
+        sc.setInitParameter("migration.system1.databasetype", dbType1);
+        sc.setInitParameter("migration.system1.datasource", "jdbc/testsource1");
+        sc.setInitParameter("migration.system2.databasetype", dbType2);
+        sc.setInitParameter("migration.system2.datasource", "jdbc/testsource2");
+        sc.setInitParameter("migration.patchpath", "patches");
+        
+        MockDataSource ds = new MockDataSource();
+        MockContextFactory.setAsInitial();
+        InitialContext context = new InitialContext();
+        context.createSubcontext("java");
+        context.bind("java:comp/env/jdbc/testsource", ds);
+        ServletContextEvent sce = new ServletContextEvent(sc);
+        JdbcMigrationLauncher launcher = null;
+        try
+        {
+            launcher = launcherFactory.createMigrationLauncher(sce);
+        } 
+        catch (MigrationException e)
+        {
+            e.printStackTrace();
+            fail("There should not have been an exception");
+        }
+
+        Iterator contextIter = launcher.getContexts().keySet().iterator();
+        JdbcMigrationContext jdbcContext1 = (JdbcMigrationContext)contextIter.next();
+        JdbcMigrationContext jdbcContext2 = (JdbcMigrationContext)contextIter.next();
+        assertEquals(dbType1, jdbcContext1.getDatabaseType().getDatabaseType());
+        assertEquals(sysName, jdbcContext1.getSystemName());
+        assertEquals(dbType2, jdbcContext2.getDatabaseType().getDatabaseType());
+        assertEquals(sysName, jdbcContext2.getSystemName());
+        
+        assertEquals(true, launcher.isReadOnly());
+    }
 }

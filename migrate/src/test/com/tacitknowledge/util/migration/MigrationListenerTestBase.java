@@ -14,18 +14,18 @@
 
 package com.tacitknowledge.util.migration;
 
+import com.mockrunner.jdbc.JDBCTestCaseAdapter;
+
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.MigrationTask;
-
-import junit.framework.TestCase;
 
 /**
  * All the stuff you need to write a test that is a MigrationListener
  * 
  * @author  Mike Hardy (mike@tacitknowledge.com)
  */
-public class MigrationListenerTestBase extends TestCase implements MigrationListener
+public class MigrationListenerTestBase extends JDBCTestCaseAdapter implements MigrationListener
 {
     /** the count of times "migration started" was broadcast */
     private int migrationStartedCount = 0;

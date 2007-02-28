@@ -1,5 +1,5 @@
 /* 
- * Copyright 2006 Tacit Knowledge LLC
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -15,8 +15,10 @@ package com.tacitknowledge.util.migration;
 
 import com.mockrunner.mock.jdbc.MockDataSource;
 import com.tacitknowledge.util.migration.jdbc.AutoPatchService;
+import com.tacitknowledge.util.migration.jdbc.DatabaseType;
 import com.tacitknowledge.util.migration.jdbc.DistributedAutoPatchService;
 import com.tacitknowledge.util.migration.jdbc.TestAutoPatchService;
+import com.tacitknowledge.util.migration.jdbc.TestDataSourceMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.TestDistributedAutoPatchService;
 
 /**
@@ -66,10 +68,20 @@ public class DistributedAutoPatchServiceTest extends DistributedJdbcMigrationLau
         
         // catalog: patch path patches.catalog
         AutoPatchService catalogService = new TestAutoPatchService();
-        catalogService.setSystemName("catalog");
-        catalogService.setDatabaseType("postgres");
-        catalogService.setDataSource(new MockDataSource());
         catalogService.setPatchPath("patch.catalog");
+        
+        // make catalog a multi-node patch service
+        TestDataSourceMigrationContext catalogContext1 = new TestDataSourceMigrationContext();
+        TestDataSourceMigrationContext catalogContext2 = new TestDataSourceMigrationContext();
+        catalogContext1.setSystemName("catalog");
+        catalogContext2.setSystemName("catalog");
+        catalogContext1.setDatabaseType(new DatabaseType("postgres"));
+        catalogContext2.setDatabaseType(new DatabaseType("postgres"));
+        catalogContext1.setDataSource(new MockDataSource());
+        catalogContext2.setDataSource(new MockDataSource());
+        catalogService.addContext(catalogContext1);
+        catalogService.addContext(catalogContext2);
+         
         
         // configure the DistributedAutoPatchService
         DistributedAutoPatchService distributedPatchService = new TestDistributedAutoPatchService();

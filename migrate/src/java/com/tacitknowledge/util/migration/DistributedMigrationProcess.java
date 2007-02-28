@@ -167,10 +167,8 @@ public class DistributedMigrationProcess extends MigrationProcess
                 MigrationTask task = (MigrationTask)subTaskIter.next();
                 if (log.isDebugEnabled())
                 {
-                    // FIXME all the system names should be the same - put them on the launcher?
-                    String systemName =
-                        ((JdbcMigrationContext)subLauncher.getContexts().keySet().iterator().next())
-                        .getSystemName();
+                    Iterator launcherIter = subLauncher.getContexts().keySet().iterator();
+                    String systemName = ((JdbcMigrationContext)launcherIter.next()).getSystemName();
                     log.debug("\tMigration+Launcher binder found subtask " 
                               + task.getName() + " for launcher context " 
                               + systemName);
