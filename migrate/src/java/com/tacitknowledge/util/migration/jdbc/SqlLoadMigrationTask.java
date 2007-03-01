@@ -1,4 +1,5 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -35,18 +36,13 @@ import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
  * Base class used for creating bulk data loading <code>MigrationTask</code>s.
  *  
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
 {
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static Log log = LogFactory.getLog(SqlLoadMigrationTask.class);
     
-    /**
-     * Creates a new <code>SqlScriptMigrationTask</code>.
-     */
+    /** Creates a new <code>SqlScriptMigrationTask</code>. */
     public SqlLoadMigrationTask()
     {
         // Nothing to do

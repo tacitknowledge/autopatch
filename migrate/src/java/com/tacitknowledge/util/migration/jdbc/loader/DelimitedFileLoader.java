@@ -1,19 +1,17 @@
-/* Copyright (c) 2004 Tacit Knowledge LLC  
- * See licensing terms below.
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
- * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY  EXPRESSED OR IMPLIED 
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL TACIT KNOWLEDGE LLC OR ITS CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  THIS HEADER MUST
- * BE INCLUDED IN ANY DISTRIBUTIONS OF THIS CODE.
+ * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.tacitknowledge.util.migration.jdbc.loader;
 
 import java.io.BufferedReader;
@@ -40,23 +38,16 @@ import com.tacitknowledge.util.migration.jdbc.SqlLoadMigrationTask;
  * through n) will be mapped to.  
  * 
  * @author Chris A. (chris@tacitknowledge.com)
- * @version $Id$
  */
 public abstract class DelimitedFileLoader extends SqlLoadMigrationTask
 {
-    /**
-     * The path separator
-     */
+    /** The path separator */
     public static final String PATH_SEPARATOR = File.separator;
     
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static Log log = LogFactory.getLog(DelimitedFileLoader.class);
     
-    /**
-     * Private variable that indicates if the header has been parsed or not. 
-     */
+    /** Private variable that indicates if the header has been parsed or not. */
     private boolean parsedHeader = false;
     
     /**
