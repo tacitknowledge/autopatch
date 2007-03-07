@@ -54,7 +54,7 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         log.debug("Testing multi node patching");
         try
         {
-            launcher.doMigrations();
+            distributedLauncher.doMigrations();
         }
         catch (Exception e)
         {
