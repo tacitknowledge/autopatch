@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  * be used in the same way that DistributedMigrationInformation is used
  * 
  * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.DistributedMigrationInformation
+ * @see     com.tacitknowledge.util.migration.jdbc.DistributedMigrationInformation
  */
 public class DistributedMigrationTableUnlock
 {

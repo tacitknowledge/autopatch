@@ -94,6 +94,6 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
     {
         Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:" + database, "sa", "");
         Statement stmt = conn.createStatement();
-        boolean shutdown = stmt.execute("SHUTDOWN");
+        stmt.execute("SHUTDOWN");
     }
 }

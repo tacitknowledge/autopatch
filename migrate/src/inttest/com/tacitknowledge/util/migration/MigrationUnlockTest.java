@@ -78,7 +78,7 @@ public class MigrationUnlockTest extends AutoPatchIntegrationTestBase
      * Lock the patch table for a database
      * 
      * @param database the database name to lock
-     * @exception if getting the patch level fails
+     * @exception Exception if getting the patch level fails
      */
     private void lockPatchTable(String database) throws Exception
     {
@@ -93,7 +93,7 @@ public class MigrationUnlockTest extends AutoPatchIntegrationTestBase
      * Verify that there is no lock in the patch table for a database
      * 
      * @param database the database name to verify
-     * @exception if getting the patch level fails
+     * @exception Exception if getting the patch level fails
      */
     private void verifyPatchTableNotLocked(String database) throws Exception
     {

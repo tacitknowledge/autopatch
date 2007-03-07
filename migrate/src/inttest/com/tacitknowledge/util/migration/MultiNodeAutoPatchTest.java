@@ -92,7 +92,7 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
      * Get the patch level for a given database
      * 
      * @param conn the database connection to use
-     * @exception if getting the patch level fails
+     * @exception Exception if getting the patch level fails
      */
     private int getPatchLevel(Connection conn) throws Exception
     {

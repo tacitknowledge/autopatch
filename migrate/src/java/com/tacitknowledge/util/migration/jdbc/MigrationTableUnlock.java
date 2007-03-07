@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  * be used in the same way that MigrationInformation is used
  * 
  * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.MigrationInformation
+ * @see     com.tacitknowledge.util.migration.jdbc.MigrationInformation
  */
 public class MigrationTableUnlock
 {
