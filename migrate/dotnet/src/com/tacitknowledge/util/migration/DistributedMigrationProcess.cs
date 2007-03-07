@@ -12,8 +12,6 @@
 */
 #region Imports
 using System;
-//UPGRADE_TODO: The type 'java.util.LinkedHashMap' could not be found. If it was not included in the conversion, there may be compiler issues. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1262'"
-using LinkedHashMap;
 using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration.ado;
