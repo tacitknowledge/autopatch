@@ -14,8 +14,14 @@
 
 package com.tacitknowledge.util.migration;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
+import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory;
 
 import junit.framework.TestCase;
 
@@ -27,7 +33,13 @@ import junit.framework.TestCase;
 public abstract class AutoPatchIntegrationTestBase extends TestCase
 {
     /** The DistributedLauncher we're testing */
+    protected DistributedJdbcMigrationLauncher distributedLauncher = null;
+    
+    /** A regular launcher we can test */
     protected JdbcMigrationLauncher launcher = null;
+    
+    /** A multi-node launcher we can test */
+    protected JdbcMigrationLauncher multiNodeLauncher = null;
     
     /**
      * Constructor 
@@ -47,10 +59,15 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        DistributedJdbcMigrationLauncherFactory launcherFactory =
+        DistributedJdbcMigrationLauncherFactory dlFactory =
             new DistributedJdbcMigrationLauncherFactory();
-        launcher = launcherFactory.createMigrationLauncher("integration_test", 
-                                                           "inttest-migration.properties");
+        distributedLauncher = 
+            (DistributedJdbcMigrationLauncher)dlFactory.createMigrationLauncher("integration_test", 
+                                                                                "inttest-migration.properties");
+        
+        JdbcMigrationLauncherFactory lFactory = new JdbcMigrationLauncherFactory();
+        launcher = lFactory.createMigrationLauncher("orders", "inttest-migration.properties");
+        multiNodeLauncher = lFactory.createMigrationLauncher("catalog", "inttest-migration.properties");
     }
     
     /**
@@ -61,5 +78,22 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
     public void tearDown() throws Exception
     {
         super.tearDown();
+        destroyDatabase("core");
+        destroyDatabase("orders");
+        destroyDatabase("catalog1");
+        destroyDatabase("catalog2");
+    }
+    
+    /**
+     * Destroys a database so a future test can use it
+     * 
+     * @param database the name of the database to destroy
+     * @exception Exception if anything goes wrong
+     */
+    private void destroyDatabase(String database) throws Exception
+    {
+        Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:" + database, "sa", "");
+        Statement stmt = conn.createStatement();
+        boolean shutdown = stmt.execute("SHUTDOWN");
     }
 }
