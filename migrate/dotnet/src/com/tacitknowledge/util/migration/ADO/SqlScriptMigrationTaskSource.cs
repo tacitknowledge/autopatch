@@ -16,8 +16,8 @@ using System;
 using Matcher = java.util.regex.Matcher;
 //UPGRADE_TODO: The type 'java.util.regex.Pattern' could not be found. If it was not included in the conversion, there may be compiler issues. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1262'"
 using Pattern = java.util.regex.Pattern;
-using Log = org.apache.commons.logging.Log;
-using LogFactory = org.apache.commons.logging.LogFactory;
+using log4net;
+using log4net.Config;
 using ClassDiscoveryUtil = com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 using MigrationTaskSource = com.tacitknowledge.util.migration.MigrationTaskSource;

@@ -28,7 +28,6 @@ namespace com.tacitknowledge.util.migration.ado
 	public class ADOMigrationLauncherFactoryLoader
 	{
 		/// <summary>Class logger </summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.ADOMigrationLauncherFactoryLoader'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
 		private static ILog log;
 		
 		/// <summary> Create the ADOMigrationLauncherFactory
@@ -38,8 +37,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		public static ADOMigrationLauncherFactory createFactory()
 		{
-			// Get the factory name from the system properties if possible
-			//UPGRADE_TODO: Method 'java.lang.System.getProperties' was converted to 'SupportClass.GetProperties' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javalangSystemgetProperties'"
+			
 			System.String factoryName = SupportClass.GetProperties().Get("migration.factory");
 			log.debug("Creating ADOMigrationLauncher using " + factoryName);
 			if (factoryName == null)

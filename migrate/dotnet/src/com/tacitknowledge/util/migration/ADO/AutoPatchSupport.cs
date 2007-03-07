@@ -78,7 +78,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary>Class logger </summary>
 		//UPGRADE_NOTE: Final was removed from the declaration of 'log '. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1003'"
 		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.AutoPatchSupport'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
-		private static readonly Log log;
+		private static readonly ILog log;
 		
 		/// <summary>The launcher we'll use </summary>
 		private ADOMigrationLauncher launcher;

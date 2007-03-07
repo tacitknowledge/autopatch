@@ -12,6 +12,8 @@
 */
 #region Imports
 using System;
+using log4net;
+using log4net.Config;
 using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 #endregion
@@ -45,11 +47,11 @@ namespace com.tacitknowledge.util.migration.ado
 		
 		/// <seealso cref="MigrationContext.commit()">
 		/// </seealso>
-		public void  commit();
+		 void  commit();
 		
 		/// <seealso cref="MigrationContext.rollback()">
 		/// </seealso>
-		public void  rollback();
+		 void  rollback();
 		
 		/// <returns> the name of the system to patch
 		/// </returns>

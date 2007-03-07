@@ -24,21 +24,8 @@ namespace com.tacitknowledge.util.migration.ado
 	/// in the <em>migration.properties</em> file for the given system.  This is a convenience
 	/// class for systems that need to initialize the autopatch framework but do not to or can not
 	/// configure the framework themselves.
-	/// <p>
-	/// This factory expects a file named <code>migration.properties</code> to be in the root of the
-	/// class path.  This file must contain these properties (where <i>systemName</i> is the name of
-	/// the system being patched):
-	/// <table>
-	/// <tr><th>Key</th><th>description</th></tr>
-	/// <tr><td><i>systemName</i>.patch.path</td><td></td></tr>
-	/// <tr><td><i>systemName</i>.postpatch.path</td><td></td></tr>
-	/// <tr><td><i>systemName</i>.ado.database.type</td>
-	/// <td>The database type; also accepts <i>systemName</i>.ado.dialect</td></tr>
-	/// <tr><td><i>systemName</i>.ado.driver</td><td>The ADO driver to use</td></tr>
-	/// <tr><td><i>systemName</i>.ado.url</td><td>The ADO URL to the database</td></tr>
-	/// <tr><td><i>systemName</i>.ado.username</td><td>The database user name</td></tr>
-	/// <tr><td><i>systemName</i>.ado.password</td><td>The database password</td></tr>
-	/// </table>
+
+
 	/// 
 	/// </summary>
 	/// <author>  Scott Askew (scott@tacitknowledge.com)
