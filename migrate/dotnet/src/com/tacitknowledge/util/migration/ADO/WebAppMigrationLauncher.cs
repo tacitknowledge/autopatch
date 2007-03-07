@@ -13,9 +13,12 @@
 #region Imports
 using System;
 using log4net;
-using log4net.Config;using ClassDiscoveryUtil = com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
-using WebAppResourceListSource = com.tacitknowledge.util.discovery.WebAppResourceListSource;
+using log4net.Config;
+using AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf;
+
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
+using AutopatchNET.dotnet.com.tacitknowledge.util.migration;
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
@@ -55,35 +58,30 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </version>
 	/// <seealso cref="com.tacitknowledge.util.migration.MigrationProcess">
 	/// </seealso>
-	//UPGRADE_ISSUE: Interface 'javax.servlet.ServletContextListener' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextListener'"
-	public class WebAppMigrationLauncher : ServletContextListener
+
+    public class WebAppMigrationLauncher : AutoPatchLauncher
 	{
 		/// <summary> Keeps track of the first run of the class within this web app deployment.
 		/// This should always be true, but you can never be too careful.
 		/// </summary>
 		private static bool firstRun = true;
 		
-		/// <summary> Class logger</summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.WebAppMigrationLauncher'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
+		/// <summary>
+		/// Log object
+		/// </summary>
 		private static ILog log;
 		
-		/// <seealso cref="ServletContextListener.contextInitialized(ServletContextEvent)">
-		/// </seealso>
-		//UPGRADE_ISSUE: Class 'javax.servlet.ServletContextEvent' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-		public virtual void  contextInitialized(ServletContextEvent sce)
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		public override void  initialize()
 		{
 			try
 			{
-				
-				// WEB-INF/classes and WEB-INF/lib are not in the system classpath (as defined by
-				// System.getProperty("java.class.path")); add it to the search path here
-				if (firstRun)
-				{
-					ClassDiscoveryUtil.addResourceListSource(new WebAppResourceListSource(System.Web.HttpContext.Current.Server.MapPath("//WEB-INF")));
-				}
-				firstRun = false;
-				
-				System.String systemName = getRequiredParam("migration.systemname", sce);
+				//TODO: must create way to get System name from configuration. 
+                ConfigurationManager configMgr = new ConfigurationManager();
+                MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
 				
 				// The MigrationLauncher is responsible for handling the interaction
 				// between the PatchTable and the underlying MigrationTasks; as each
@@ -91,8 +89,9 @@ namespace com.tacitknowledge.util.migration.ado
 				try
 				{
 					ADOMigrationLauncherFactory launcherFactory = ADOMigrationLauncherFactoryLoader.createFactory();
-					ADOMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName);
+					ADOMigrationLauncher launcher = launcherFactory.createMigrationLauncher(migrationConfig.Systemname());
 					launcher.doMigrations();
+                    firstRun = false;
 				}
 				catch (MigrationException e)
 				{
@@ -121,37 +120,13 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 		}
 		
-		/// <seealso cref="ServletContextListener.contextDestroyed(ServletContextEvent)">
-		/// </seealso>
-		//UPGRADE_ISSUE: Class 'javax.servlet.ServletContextEvent' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-		public virtual void  contextDestroyed(ServletContextEvent sce)
+		
+		public virtual void  contextDestroyed()
 		{
 			log.debug("context is being destroyed " + sce);
 		}
 		
-		/// <summary> Returns the value of the specified servlet context initialization parameter.
-		/// 
-		/// </summary>
-		/// <param name="param">the parameter to return
-		/// </param>
-		/// <param name="sce">the <code>ServletContextEvent</code> being handled
-		/// </param>
-		/// <returns> the value of the specified servlet context initialization parameter
-		/// </returns>
-		/// <throws>  IllegalArgumentException if the parameter does not exist </throws>
-		//UPGRADE_ISSUE: Class 'javax.servlet.ServletContextEvent' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-		private System.String getRequiredParam(System.String param, ServletContextEvent sce)
-		{
-			//UPGRADE_ISSUE: Method 'javax.servlet.ServletContextEvent.getServletContext' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-			System.Web.HttpApplicationState context = sce.getServletContext();
-			//UPGRADE_ISSUE: Method 'javax.servlet.ServletContext.getInitParameter' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextgetInitParameter_javalangString'"
-			System.String value_Renamed = context.getInitParameter(param);
-			if (value_Renamed == null)
-			{
-				throw new System.ArgumentException("'" + param + "' is a required " + "servlet context initialization parameter for the \"" + GetType().FullName + "\" class.  Aborting.");
-			}
-			return value_Renamed;
-		}
+		
 		static WebAppMigrationLauncher()
 		{
 			log = LogManager.GetLogger(typeof(WebAppMigrationLauncher));
