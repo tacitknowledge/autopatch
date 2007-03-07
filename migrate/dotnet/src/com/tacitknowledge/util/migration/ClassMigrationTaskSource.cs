@@ -14,7 +14,7 @@
 using System;
 using log4net;
 using log4net.Config;
-using ClassDiscoveryUtil = com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
+
 #endregion
 namespace com.tacitknowledge.util.migration
 {
@@ -26,12 +26,15 @@ namespace com.tacitknowledge.util.migration
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public class ClassMigrationTaskSource : MigrationTaskSource
-	{
-		/// <summary>Class logger </summary>
+    {
+        #region Members
+        /// <summary>Class logger </summary>
 		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ClassMigrationTaskSource'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
 		private static ILog log;
-		
-		/// <seealso cref="MigrationTaskSource.getMigrationTasks(String)">
+        #endregion
+
+        #region Methods
+        /// <seealso cref="MigrationTaskSource.getMigrationTasks(String)">
 		/// </seealso>
 		public virtual System.Collections.IList getMigrationTasks(System.String packageName)
 		{
@@ -40,7 +43,7 @@ namespace com.tacitknowledge.util.migration
 				throw new MigrationException("You must specify a package to get tasks for");
 			}
 			
-			System.Type[] taskClasses = ClassDiscoveryUtil.getClasses(packageName, typeof(MigrationTask));
+			//System.Type[] taskClasses = ClassDiscoveryUtil.getClasses(packageName, typeof(MigrationTask));
 			log.debug("Found " + taskClasses.Length + " patches in " + packageName);
 			return instantiateTasks(taskClasses);
 		}
@@ -90,5 +93,6 @@ namespace com.tacitknowledge.util.migration
 		{
 			log = LogManager.GetLogger(typeof(ClassMigrationTaskSource));
 		}
-	}
+    }
+        #endregion
 }

@@ -12,6 +12,7 @@
 */
 #region Imports
 using System;
+using System.Collections;
 using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration.ado;
@@ -28,8 +29,21 @@ namespace com.tacitknowledge.util.migration
 	/// <seealso cref="com.tacitknowledge.util.migration.MigrationProcess">
 	/// </seealso>
 	public class DistributedMigrationProcess:MigrationProcess
-	{
-		/// <summary> Returns a LinkedHashMap of task/launcher pairings, regardless of patch level.
+    {
+
+        #region Members
+        /// <summary>Class logger </summary>
+       
+        private static ILog log;
+
+        /// <summary>The ADOMigrationLaunchers we are controlling, keyed by system name </summary>
+      
+        private System.Collections.Hashtable controlledSystems = new System.Collections.Hashtable();
+
+        #endregion
+
+        #region Methods
+        /// <summary> Returns a LinkedHashMap of task/launcher pairings, regardless of patch level.
 		/// 
 		/// </summary>
 		/// <returns> LinkedHashMap containing MigrationTask / ADOMigrationLauncher pairings
@@ -37,19 +51,17 @@ namespace com.tacitknowledge.util.migration
 		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
 		/// <summary>         created
 		/// </summary>
-	    public LinkedHashMap MigrationTasksWithLaunchers
+	    public HashTable MigrationTasksWithLaunchers
 		{
 			get
 			{
-				LinkedHashMap tasks = new LinkedHashMap();
+				Hashtable tasks = new Hashtable();
 				
 				// Roll through all our controlled system names
-				//UPGRADE_TODO: Method 'java.util.HashMap.keySet' was converted to 'SupportClass.HashSetSupport' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMapkeySet'"
-				//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+				
 				for (System.Collections.IEnumerator controlledSystemIter = new SupportClass.HashSetSupport(ControlledSystems.Keys).GetEnumerator(); controlledSystemIter.MoveNext(); )
 				{
 					// Get the sub launcher that runs patches for the current name
-					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 					System.String controlledSystemName = (System.String) controlledSystemIter.Current;
 					//UPGRADE_TODO: Method 'java.util.HashMap.get' was converted to 'System.Collections.Hashtable.Item' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMapget_javalangObject'"
 					ADOMigrationLauncher subLauncher = (ADOMigrationLauncher) ControlledSystems[controlledSystemName];
@@ -148,13 +160,7 @@ namespace com.tacitknowledge.util.migration
 			}
 			
 		}
-		/// <summary>Class logger </summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.DistributedMigrationProcess'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
-		private static ILog log;
 		
-		/// <summary>The ADOMigrationLaunchers we are controlling, keyed by system name </summary>
-		//UPGRADE_TODO: Class 'java.util.HashMap' was converted to 'System.Collections.Hashtable' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMap'"
-		private System.Collections.Hashtable controlledSystems = new System.Collections.Hashtable();
 		
 		/// <summary> Creates a new <code>Migration</code> instance.</summary>
 		public DistributedMigrationProcess():base()
@@ -215,5 +221,6 @@ namespace com.tacitknowledge.util.migration
 		{
 			log = LogManager.GetLogger(typeof(DistributedMigrationProcess));
 		}
-	}
+    }
+        #endregion
 }
