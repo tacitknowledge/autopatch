@@ -85,7 +85,12 @@ public class DistributedMigrationProcess extends MigrationProcess
                 log.info("Will execute patch task '" + 
                          task.getName() + " [" + task.getClass().getName() + "]" + 
                          "'");
-                log.debug("Task will execute in context '" + context.getClass().getName() + "'");
+                if (log.isDebugEnabled())
+                {
+                    JdbcMigrationLauncher launcher = (JdbcMigrationLauncher)migrationsWithLaunchers.get(task);
+                    MigrationContext launcherContext = (MigrationContext)launcher.getContexts().keySet().iterator().next();
+                    log.debug("Task will execute in context '" + launcherContext + "'");
+                }
                 taskCount++;
             }
         }
@@ -121,8 +126,6 @@ public class DistributedMigrationProcess extends MigrationProcess
                 JdbcMigrationLauncher launcher = (JdbcMigrationLauncher)migrationsWithLaunchers.get(task);
                 MigrationContext launcherContext = (MigrationContext)launcher.getContexts().keySet().iterator().next();
                 applyPatch(launcherContext, task, true);
-
-                
                 taskCount++;
             }
         }

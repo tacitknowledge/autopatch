@@ -58,6 +58,24 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
      * values in the <em>migration.properties</em> file for the given system.
      *
      * @param  systemName the system to patch
+     * @param  propFile name of the properties file in the classpath
+     * @return a fully configured <code>DistributedJdbcMigrationLauncher</code>.
+     * @throws MigrationException if an unexpected error occurs
+     */
+    public JdbcMigrationLauncher createMigrationLauncher(String systemName, String propFile)
+        throws MigrationException
+    {
+        log.info("Creating DistributedJdbcMigrationLauncher for system " + systemName);
+        DistributedJdbcMigrationLauncher launcher = getDistributedJdbcMigrationLauncher();
+        configureFromMigrationProperties(launcher, systemName, propFile);
+        return launcher;
+    }
+    
+    /**
+     * Creates and configures a new <code>JdbcMigrationLauncher</code> based on the
+     * values in the <em>migration.properties</em> file for the given system.
+     *
+     * @param  systemName the system to patch
      * @return a fully configured <code>DistributedJdbcMigrationLauncher</code>.
      * @throws MigrationException if an unexpected error occurs
      */
@@ -66,7 +84,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
     {
         log.info("Creating DistributedJdbcMigrationLauncher for system " + systemName);
         DistributedJdbcMigrationLauncher launcher = getDistributedJdbcMigrationLauncher();
-        configureFromMigrationProperties(launcher, systemName);
+        configureFromMigrationProperties(launcher, systemName, MigrationContext.MIGRATION_CONFIG_FILE);
         return launcher;
     }
     
@@ -84,14 +102,17 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
      * Loads the configuration from the migration config properties file.
      *
      * @param  launcher the launcher to configure
-     * @param systemName the name of the system
+     * @param  systemName the name of the system
+     * @param  propFile the name of the properties file on the classpath
      * @throws MigrationException if an unexpected error occurs
      */
-    private void configureFromMigrationProperties(DistributedJdbcMigrationLauncher launcher, String systemName)
+    private void configureFromMigrationProperties(DistributedJdbcMigrationLauncher launcher, 
+                                                  String systemName,
+                                                  String propFile)
         throws MigrationException
     {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        InputStream is = cl.getResourceAsStream(MigrationContext.MIGRATION_CONFIG_FILE);
+        InputStream is = cl.getResourceAsStream(propFile);
         if (is != null)
         {
             try
@@ -99,7 +120,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
                 Properties props = new Properties();
                 props.load(is);
 
-                configureFromMigrationProperties(launcher, systemName, props);
+                configureFromMigrationProperties(launcher, systemName, props, propFile);
             }
             catch (IOException e)
             {
@@ -119,8 +140,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         }
         else
         {
-            throw new MigrationException("Unable to find migration properties file '"
-                    + MigrationContext.MIGRATION_CONFIG_FILE + "'");
+            throw new MigrationException("Unable to find migration properties file '" + propFile + "'");
         }
     }
     
@@ -130,11 +150,13 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
      * @param launcher The launcher to configure
      * @param systemName The name of the system we're configuring
      * @param props The Properties object with our configuration information
+     * @param propFileName the property file name for configuration
      * @throws IllegalArgumentException if a required parameter is missing
      * @throws MigrationException if there is problem setting the context into the launcher
      */
     private void configureFromMigrationProperties(DistributedJdbcMigrationLauncher launcher, 
-                                                  String systemName, Properties props) 
+                                                  String systemName, Properties props,
+                                                  String propFileName) 
         throws IllegalArgumentException, MigrationException
     {
         // Get the name of the context to use for our patch information
@@ -176,7 +198,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         {
             log.info("Creating controlled patch executor for system " + controlledSystemNames[i]);
             JdbcMigrationLauncherFactory factory = JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i]);
+            JdbcMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i], propFileName);
             controlledSystems.put(controlledSystemNames[i], subLauncher);
             
             // Make sure the controlled migration process gets migration events

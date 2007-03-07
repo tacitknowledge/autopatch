@@ -74,6 +74,24 @@ public class JdbcMigrationLauncherFactory
      * values in the <em>migration.properties</em> file for the given system.
      *
      * @param  systemName the system to patch
+     * @param  propFile the name of the property file to configure from
+     * @return a fully configured <code>JdbcMigrationLauncher</code>.
+     * @throws MigrationException if an unexpected error occurs
+     */
+    public JdbcMigrationLauncher createMigrationLauncher(String systemName, String propFile)
+        throws MigrationException
+    {
+        log.info("Creating JdbcMigrationLauncher for system " + systemName);
+        JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
+        configureFromMigrationProperties(launcher, systemName, propFile);
+        return launcher;
+    }
+    
+    /**
+     * Creates and configures a new <code>JdbcMigrationLauncher</code> based on the
+     * values in the <em>migration.properties</em> file for the given system.
+     *
+     * @param  systemName the system to patch
      * @return a fully configured <code>JdbcMigrationLauncher</code>.
      * @throws MigrationException if an unexpected error occurs
      */
@@ -177,15 +195,32 @@ public class JdbcMigrationLauncherFactory
     /**
      * Loads the configuration from the migration config properties file.
      *
-     * @param  launcher the launcher to configure
+     * @param launcher the launcher to configure
      * @param systemName the name of the system
      * @throws MigrationException if an unexpected error occurs
      */
-    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String systemName)
+    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, 
+                                                  String systemName)
+        throws MigrationException
+    {
+        configureFromMigrationProperties(launcher, systemName, MigrationContext.MIGRATION_CONFIG_FILE);
+    }
+    
+    /**
+     * Loads the configuration from the migration config properties file.
+     *
+     * @param launcher the launcher to configure
+     * @param systemName the name of the system
+     * @param propFile the name of the prop file to configure from
+     * @throws MigrationException if an unexpected error occurs
+     */
+    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, 
+                                                  String systemName,
+                                                  String propFile)
         throws MigrationException
     {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        InputStream is = cl.getResourceAsStream(MigrationContext.MIGRATION_CONFIG_FILE);
+        InputStream is = cl.getResourceAsStream(propFile);
         if (is != null)
         {
             try
@@ -213,8 +248,7 @@ public class JdbcMigrationLauncherFactory
         }
         else
         {
-            throw new MigrationException("Unable to find autopatch properties file '"
-                    + MigrationContext.MIGRATION_CONFIG_FILE + "'");
+            throw new MigrationException("Unable to find autopatch properties file '" + propFile + "'");
         }
     }
 

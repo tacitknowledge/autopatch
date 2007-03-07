@@ -193,7 +193,7 @@ public class MigrationProcess
                 log.info("Will execute patch task '" + 
                          task.getName() + " [" + task.getClass().getName() + "]" + 
                          "'");
-                log.debug("Task will execute in context '" + context.getClass().getName() + "'");
+                log.debug("Task will execute in context '" + context + "'");
                 taskCount++;
             }
         }
@@ -311,6 +311,7 @@ public class MigrationProcess
             log.debug("broadcaster has " + broadcaster.getListeners().size() + " listeners");
         }
         log.info("Executing patch task \"" + label + "\"...");
+        
         try
         {
             long startTime = System.currentTimeMillis();

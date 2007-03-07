@@ -1,0 +1,4 @@
+CREATE TABLE core_table_1 (
+	id INT NOT NULL PRIMARY KEY,
+	value VARCHAR(256)
+);

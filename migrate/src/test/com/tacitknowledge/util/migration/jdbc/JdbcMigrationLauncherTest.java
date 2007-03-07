@@ -90,9 +90,10 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         assertEquals(2, contexts.size());
         Iterator contextIter = contexts.keySet().iterator();
         JdbcMigrationContext context1 = (JdbcMigrationContext)contextIter.next();
-        assertEquals("postgres", context1.getDatabaseType().getDatabaseType());
         JdbcMigrationContext context2 = (JdbcMigrationContext)contextIter.next();
-        assertEquals("sybase", context2.getDatabaseType().getDatabaseType());
+        assertNotSame(context1, context2);
+        assertEquals("sybase", context1.getDatabaseType().getDatabaseType());
+        assertEquals("postgres", context2.getDatabaseType().getDatabaseType());
     }
     
     /**

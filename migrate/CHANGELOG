@@ -48,6 +48,8 @@ Version 1.0.1
   Mike Hardy
   https://sourceforge.net/support/tracker.php?aid=1661985
   
+- Added integration tests utilizing HSQLDB to further automate correctness
+
 
 Version 1.0.0
 -------------

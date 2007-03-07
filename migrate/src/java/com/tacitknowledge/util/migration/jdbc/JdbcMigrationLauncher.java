@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -232,10 +233,15 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
-        log.debug("Task " + task.getName() + " was successful for context " + ctx);
+        log.debug("Task " + task.getName() + " was successful for context " + ctx + " in launcher " + this);
         int patchLevel = task.getLevel().intValue();
-        PatchInfoStore patchTable = (PatchInfoStore)contexts.get(ctx);
-        patchTable.updatePatchLevel(patchLevel);
+        
+        // update all of our controlled patch tables
+        for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext(); )
+        {
+            PatchTable patchTable = (PatchTable)((Map.Entry)patchTableIter.next()).getValue();
+            patchTable.updatePatchLevel(patchLevel);
+        }
     }
 
     /**
@@ -279,7 +285,9 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public void addContext(JdbcMigrationContext context)
     {
-        contexts.put(context, new PatchTable(context));
+        PatchTable patchTable = new PatchTable(context);
+        log.debug("Adding context " + context + " with patch table " + patchTable + " in launcher" + this);
+        contexts.put(context, patchTable);
     }
 
     /**
@@ -307,68 +315,58 @@ public class JdbcMigrationLauncher implements MigrationListener
     {
         PatchInfoStore patchTable = createPatchStore(context);
 
-        // Save auto-commit state
-        Connection conn = context.getConnection();
-        boolean b = true;
+        lockPatchStore(context);
+
+        // Now apply the patches
+        int executedPatchCount = 0;
         try
         {
-            lockPatchStore(context);
-
-            // make sure we can at least attempt to roll back patches
-            // DDL usually can't rollback - we'd need compensating transactions
-            b = conn.getAutoCommit();
+            int patchLevel = patchTable.getPatchLevel();
+            
+            // remember the auto-commit state, and turn auto-commit off
+            Connection conn = context.getConnection();
+            boolean commitState = conn.getAutoCommit();
             conn.setAutoCommit(false);
             
-            // Now apply the patches
-            int executedPatchCount = 0;
+            // run the migrations
             try
             {
-                int patchLevel = patchTable.getPatchLevel();
                 executedPatchCount = migrationProcess.doMigrations(patchLevel, context);
-                
-            }
-            catch (MigrationException me)
-            {
-                // If there was any kind of error, we don't want to eat it, but we do
-                // want to unlock the patch store. So do that, then re-throw.
-                patchTable.unlockPatchStore();
-                throw me;
-            }
-            finally
-            {
-                try
-                {
-                    conn.commit();
-                }
-                catch (SQLException e)
-                {
-                    log.error("Error unlocking patch table: ", e);
-                }
             }
             
-            // Do any post-patch tasks
-            try
+            // restore autocommit state
+            finally 
             {
-                migrationProcess.doPostPatchMigrations(context);
-                return executedPatchCount;
-            }
-            finally
-            {
-                try
+                if ((conn != null) && !conn.isClosed())
                 {
-                    patchTable.unlockPatchStore();
-                    conn.commit();
-                }
-                catch (SQLException e)
-                {
-                    log.error("Error unlocking patch table: ", e);
+                    conn.setAutoCommit(commitState);
                 }
             }
         }
+        catch (MigrationException me)
+        {
+            // If there was any kind of error, we don't want to eat it, but we do
+            // want to unlock the patch store. So do that, then re-throw.
+            patchTable.unlockPatchStore();
+            throw me;
+        }
+        
+        // Do any post-patch tasks
+        try
+        {
+            migrationProcess.doPostPatchMigrations(context);
+            return executedPatchCount;
+        }
         finally
         {
-            // restore auto-commit setting
-            conn.setAutoCommit(b);
+            try
+            {
+                patchTable.unlockPatchStore();
+            }
+            catch (MigrationException e)
+            {
+                log.error("Error unlocking patch table: ", e);
+            }
         }
     }
 

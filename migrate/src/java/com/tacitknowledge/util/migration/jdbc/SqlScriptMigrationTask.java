@@ -142,7 +142,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
         finally
         {
-            SqlUtil.close(conn, stmt, null);
+            SqlUtil.close(null, stmt, null);
         }
     }
     

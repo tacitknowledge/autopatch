@@ -27,5 +27,6 @@
 	<classpathentry kind="lib" path="lib/ant/junit.jar"/>
 	<classpathentry kind="var" path="DYNAMO_HOME/DAS/lib/das.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
+	<classpathentry kind="lib" path="lib/test/hsqldb.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

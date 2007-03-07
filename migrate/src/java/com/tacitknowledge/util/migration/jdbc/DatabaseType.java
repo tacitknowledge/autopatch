@@ -1,4 +1,5 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/*
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -42,14 +43,10 @@ import java.util.Properties;
  */
 public class DatabaseType
 {
-    /**
-     * The SQL statements and properties that are unique to this database flavor.
-     */
+    /** The SQL statements and properties that are unique to this database flavor. */
     private Properties properties = new Properties();
     
-    /**
-     * The database type
-     */
+    /** The database type */
     private String databaseType = "";
     
     /**
