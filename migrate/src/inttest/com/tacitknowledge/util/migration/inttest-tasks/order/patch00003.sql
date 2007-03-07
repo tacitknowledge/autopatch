@@ -3,4 +3,4 @@ CREATE TABLE order_table_2 (
 	value VARCHAR(256)
 );
 
-INSERT INTO order_table_2 (id, value) VALUES (1, 'test_value');
+INSERT INTO order_table_2 (id, value) VALUES (1, 'order_table_2');
