@@ -84,29 +84,12 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
-    <Reference Include="System.Design">
-      <Name>System.Design</Name>
-    </Reference>
-    <Reference Include="System.DirectoryServices">
-      <Name>System.DirectoryServices</Name>
-    </Reference>
-    <Reference Include="System.Drawing">
-      <Name>System.Drawing</Name>
-    </Reference>
-    <Reference Include="System.Management">
-      <Name>System.Management</Name>
-    </Reference>
-    <Reference Include="System.Runtime.Remoting">
-      <Name>System.Runtime.Remoting</Name>
-    </Reference>
     <Reference Include="System.Web">
       <Name>System.Web</Name>
-    </Reference>
-    <Reference Include="System.Windows.Forms">
-      <Name>System.Windows.Forms</Name>
     </Reference>
     <Reference Include="System.Xml">
       <Name>System.Xml</Name>
@@ -114,68 +97,54 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="inttest\com\tacitknowledge\util\migration\NoOpTestCase.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\DistributedMigrationProcess.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\AutoPatchService.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\AutoPatchSupport.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\DatabaseType.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\DataSourceMigrationContext.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\DistributedAutoPatchService.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\DistributedADOMigrationLauncher.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\DistributedADOMigrationLauncherFactory.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\DistributedMigrationInformation.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\DistributedStandaloneMigrationLauncher.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\ADOMigrationContext.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncher.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncherFactory.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncherFactoryLoader.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\loader\DelimitedFileLoader.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\loader\ExcelFileLoader.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\loader\FileLoadingUtility.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\MigrationInformation.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\PatchTable.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\SqlLoadMigrationTask.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\SqlScriptMigrationTask.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\SqlScriptMigrationTaskSource.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\StandaloneMigrationLauncher.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\util\ConnectionWrapperDataSource.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\util\NonPooledDataSource.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\util\SqlUtil.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\WebAppJNDIMigrationLauncher.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\ADO\WebAppMigrationLauncher.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationBroadcaster.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationContext.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationException.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationListener.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationProcess.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationTask.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationTaskSource.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\MigrationTaskSupport.cs" />
-    <Compile Include="dotnet\com\tacitknowledge\util\migration\PatchInfoStore.cs" />
-    <Compile Include="Resource.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resource.resx</DependentUpon>
-    </Compile>
-    <Compile Include="SupportClass.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\DistributedMigrationProcess.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\AutoPatchService.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\AutoPatchSupport.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\DatabaseType.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\DataSourceMigrationContext.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\DistributedAutoPatchService.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\DistributedADOMigrationLauncher.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\DistributedADOMigrationLauncherFactory.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\DistributedMigrationInformation.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\DistributedStandaloneMigrationLauncher.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\ADOMigrationContext.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncher.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncherFactory.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncherFactoryLoader.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\DelimitedFileLoader.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\ExcelFileLoader.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\FileLoadingUtility.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\MigrationInformation.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\PatchTable.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\SqlLoadMigrationTask.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\SqlScriptMigrationTask.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\SqlScriptMigrationTaskSource.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\StandaloneMigrationLauncher.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ConnectionWrapperDataSource.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\NonPooledDataSource.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\SqlUtil.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\WebAppMigrationLauncher.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationBroadcaster.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationContext.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationException.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationListener.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationProcess.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationTask.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationTaskSource.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\ConfigurationFactory.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\ConfigurationManager.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\DBConfiguration.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\MigrationConfiguration.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationTaskSupport.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\PatchInfoStore.cs" />
     <Content Include="App_Config.xml" />
-    <Content Include="dotnet\com\tacitknowledge\util\migration\ADO\hsqldb.resources" />
-    <Content Include="dotnet\com\tacitknowledge\util\migration\ADO\mysql.resources" />
-    <Content Include="dotnet\com\tacitknowledge\util\migration\ADO\oracle.resources" />
-    <Content Include="dotnet\com\tacitknowledge\util\migration\ADO\postgres.resources" />
     <None Include="app.log4net" />
-    <None Include="ClassDiagram1.cd" />
     <None Include="_ConversionReport.htm">
       <SubType>Preview</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resource.resx">
-      <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
