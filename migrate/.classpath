@@ -8,7 +8,6 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/build/ant-optional-1.5.4.jar"/>
-	<classpathentry kind="lib" path="lib/build/checkstyle-all-3.3.jar"/>
 	<classpathentry kind="lib" path="lib/build/servletapi-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/core/commons-logging-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/poi-2.5.1.jar"/>
@@ -28,6 +27,7 @@
 	<classpathentry kind="var" path="DYNAMO_HOME/DAS/lib/das.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
 	<classpathentry kind="lib" path="lib/test/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/build/checkstyle-all-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/dbunit-2.2.jar" sourcepath="/opt/software/dbunit-2.2/src/java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
