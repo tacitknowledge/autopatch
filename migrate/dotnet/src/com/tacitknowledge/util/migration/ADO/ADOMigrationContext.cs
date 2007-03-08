@@ -12,26 +12,18 @@
 */
 #region Imports
 using System;
-using log4net;
-using log4net.Config;
-using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
 	
-	/// <summary> Contains the configuration and resources for a database patch run.  
-	/// 
-	/// </summary>
-	/// <author>  Scott Askew (scott@tacitknowledge.com)
-	/// </author>
-	public struct ADOMigrationContext_Fields{
-		/// <summary> Max length for the systemName columne</summary>
-		public readonly static int MAX_SYSTEMNAME_LENGTH = 30;
-	}
+	
 	public interface ADOMigrationContext:MigrationContext
-	{
-		//UPGRADE_NOTE: Members of interface 'ADOMigrationContext' were extracted into structure 'ADOMigrationContext_Fields'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1045'"
+    {
+
+        
+        #region Methods
+           
 		/// <summary> Returns the database connection to use
 		/// 
 		/// </summary>
@@ -39,26 +31,23 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		/// <throws>  SQLException if an unexpected error occurs </throws>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		System.Data.OleDb.OleDbConnection Connection
+		System.Data.Common.DbConnection Connection
 		{
 			get;
 			
 		}
 		
-		/// <seealso cref="MigrationContext.commit()">
-		/// </seealso>
-		 void  commit();
 		
-		/// <seealso cref="MigrationContext.rollback()">
-		/// </seealso>
-		 void  rollback();
 		
 		/// <returns> the name of the system to patch
 		/// </returns>
-		System.String getSystemName();
+		String getSystemName();
 		
 		/// <returns> Returns the database type.
 		/// </returns>
 		DatabaseType getDatabaseType();
+
+        
 	}
+#endregion
 }
