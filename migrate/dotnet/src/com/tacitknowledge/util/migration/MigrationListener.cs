@@ -22,8 +22,10 @@ namespace com.tacitknowledge.util.migration
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public interface MigrationListener
-	{
-		/// <summary> Notifies the listener that the given task is about to start execution.
+    {
+
+        #region Methods
+        /// <summary> Notifies the listener that the given task is about to start execution.
 		/// 
 		/// </summary>
 		/// <param name="task">the recently finished task
@@ -54,5 +56,7 @@ namespace com.tacitknowledge.util.migration
 		/// </param>
 		/// <throws>  MigrationException if an unrecoverable error occurs </throws>
 		void  migrationFailed(MigrationTask task, MigrationContext context, MigrationException e);
-	}
+    }
+        #endregion
+
 }
