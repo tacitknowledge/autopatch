@@ -82,7 +82,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			catch (System.Exception e)
 			{
-				log.error(e);
+				log.Error(e);
 				throw e;
 			}
 		}
