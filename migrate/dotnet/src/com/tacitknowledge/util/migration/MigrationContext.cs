@@ -24,15 +24,13 @@ namespace com.tacitknowledge.util.migration
 	/// </author>
 	/// <version>  $Id$
 	/// </version>
-	public struct MigrationContext_Fields{
-		/// <summary> The name of the migration configuration file</summary>
-		public readonly static System.String MIGRATION_CONFIG_FILE = "migration.properties";
-	}
+	
 	public interface MigrationContext
-	{
-		//UPGRADE_NOTE: Members of interface 'MigrationContext' were extracted into structure 'MigrationContext_Fields'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1045'"
-		
-		/// <summary> Commits the current migration transaction.
+    {
+        
+
+        #region Methods
+        /// <summary> Commits the current migration transaction.
 		/// 
 		/// </summary>
 		/// <throws>  MigrationException if there was an unrecoverable error committing </throws>
@@ -47,5 +45,6 @@ namespace com.tacitknowledge.util.migration
 		/// <summary>         the transaction
 		/// </summary>
 		void  rollback();
-	}
+    }
+        #endregion
 }
