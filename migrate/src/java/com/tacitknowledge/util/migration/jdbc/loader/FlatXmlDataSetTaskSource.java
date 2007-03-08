@@ -24,7 +24,8 @@ import com.tacitknowledge.util.migration.MigrationTaskSource;
  * @author Alex Soto <alex@tacitknowledge.com>
  * @author Alex Soto <apsoto@gmail.com>
  */
-public class FlatXmlDataSetTaskSource implements MigrationTaskSource {
+public class FlatXmlDataSetTaskSource implements MigrationTaskSource 
+{
 
     /** Class logger */
     private static Log log = LogFactory.getLog(FlatXmlDataSetTaskSource.class);
@@ -35,10 +36,11 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource {
     private static final String XML_PATCH_REGEX = "^patch(\\d+)(_.+)?\\.xml";
 
 
-    /* (non-Javadoc)
-     * @see com.tacitknowledge.util.migration.MigrationTaskSource#getMigrationTasks(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
-    public List getMigrationTasks(String packageName) throws MigrationException {
+    public List getMigrationTasks(String packageName) throws MigrationException 
+    {
         String path = packageName.replace('.', '/');
         String[] xmlFiles = ClassDiscoveryUtil.getResources(path, XML_PATCH_REGEX);
 
@@ -56,10 +58,10 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource {
      *  
      * @param  xmlFiles the classpath-relative array of xml files
      * @return a list of {@link FlatXmlDataSetMigrationTask}
-     * @throws MigrationException 
+     * @throws MigrationException in unexpected error occurs 
      */
-
-    private List createMigrationTasks(String[] xmlFiles) throws MigrationException {
+    private List createMigrationTasks(String[] xmlFiles) throws MigrationException 
+    {
         Pattern p = Pattern.compile(XML_PATCH_REGEX);
         List tasks = new ArrayList();
         for (int i = 0; i < xmlFiles.length; i++)
@@ -73,7 +75,8 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource {
 
             // Get the patch number out of the file name
             Matcher matcher = p.matcher(xmlFilename);
-            if (!matcher.matches() || matcher.groupCount() != 2) {
+            if (!matcher.matches() || matcher.groupCount() != 2) 
+            {
                 throw new MigrationException("Invalid XML patch name: " + xmlFilename);
             }
             
