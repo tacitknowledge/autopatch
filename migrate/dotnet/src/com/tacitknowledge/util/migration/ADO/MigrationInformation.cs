@@ -104,14 +104,14 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				ADOMigrationLauncherFactory launcherFactory = ADOMigrationLauncherFactoryLoader.createFactory();
 				ADOMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName);
-				log.info("Current Database patch level is        : " + launcher.DatabasePatchLevel);
+				log.Info("Current Database patch level is        : " + launcher.DatabasePatchLevel);
 				int unappliedPatches = launcher.NextPatchLevel - launcher.DatabasePatchLevel - 1;
-				log.info("Current number of unapplied patches is : " + unappliedPatches);
-				log.info("The next patch to author should be     : " + launcher.NextPatchLevel);
+				log.Info("Current number of unapplied patches is : " + unappliedPatches);
+				log.Info("The next patch to author should be     : " + launcher.NextPatchLevel);
 			}
 			catch (System.Exception e)
 			{
-				log.error(e);
+				log.Error(e);
 				throw e;
 			}
 		}

@@ -168,19 +168,19 @@ namespace com.tacitknowledge.util.migration.ado
 				stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.read"));
 				SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
 				rs = stmt.ExecuteReader();
-				log.debug("'patches' table already exists.");
+				log.Debug("'patches' table already exists.");
 				tableExistenceValidated = true;
 			}
 			catch (System.Data.OleDb.OleDbException e)
 			{
 				SqlUtil.close(null, stmt, rs);
-				log.info("'patches' table must not exist; creating....");
+				log.Info("'patches' table must not exist; creating....");
 				try
 				{
 					stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("patches.create"));
-					if (log.isDebugEnabled())
+					if (log.IsDebugEnabled())
 					{
-						log.debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
+						log.Debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
 					}
 					stmt.ExecuteNonQuery();
 				}
@@ -189,7 +189,7 @@ namespace com.tacitknowledge.util.migration.ado
 					throw new MigrationException("Unable to create patch table", sqle);
 				}
 				tableExistenceValidated = true;
-				log.info("Created 'patches' table.");
+				log.Info("Created 'patches' table.");
 			}
 			finally
 			{
@@ -263,11 +263,11 @@ namespace com.tacitknowledge.util.migration.ado
 				stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.create"));
 				SupportClass.TransactionManager.manager.SetValue(stmt, 1, systemName);
 				stmt.ExecuteNonQuery();
-				log.info("Created patch record for " + systemName);
+				log.Info("Created patch record for " + systemName);
 			}
 			catch (System.Data.OleDb.OleDbException e)
 			{
-				log.error("Error creating patch record for system '" + systemName + "'", e);
+				log.Error("Error creating patch record for system '" + systemName + "'", e);
 				throw e;
 			}
 			finally
@@ -291,9 +291,9 @@ namespace com.tacitknowledge.util.migration.ado
 			try
 			{
 				stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql(sqlkey));
-				if (log.isDebugEnabled())
+				if (log.IsDebugEnabled())
 				{
-					log.debug("Updating patch table lock: " + getSql(sqlkey));
+					log.Debug("Updating patch table lock: " + getSql(sqlkey));
 				}
 				SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
 				stmt.ExecuteNonQuery();
