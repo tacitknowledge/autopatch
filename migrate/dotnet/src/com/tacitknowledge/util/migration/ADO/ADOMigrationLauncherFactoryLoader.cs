@@ -39,7 +39,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			
 			System.String factoryName = SupportClass.GetProperties().Get("migration.factory");
-			log.debug("Creating ADOMigrationLauncher using " + factoryName);
+			log.Debug("Creating ADOMigrationLauncher using " + factoryName);
 			if (factoryName == null)
 			{
 				factoryName = typeof(ADOMigrationLauncherFactory).FullName;

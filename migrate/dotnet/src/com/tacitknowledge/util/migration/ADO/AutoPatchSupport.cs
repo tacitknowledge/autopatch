@@ -56,7 +56,7 @@ namespace com.tacitknowledge.util.migration.ado
 				PatchTable patchTable = makePatchTable();
 				patchTable.lockPatchStore();
 				patchTable.updatePatchLevel(value);
-				log.info("Set the patch level to " + value);
+				log.Info("Set the patch level to " + value);
 				patchTable.unlockPatchStore();
 			}
 			
