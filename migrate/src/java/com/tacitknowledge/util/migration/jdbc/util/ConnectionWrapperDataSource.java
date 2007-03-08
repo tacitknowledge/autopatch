@@ -52,49 +52,37 @@ public class ConnectionWrapperDataSource implements DataSource
         this.connection = connection;
     }
 
-    /**
-     * @see javax.sql.DataSource#getConnection()
-     */
+    /** {@inheritDoc} */
     public Connection getConnection() throws SQLException
     {
         return connection;
     }
 
-    /**
-     * @see javax.sql.DataSource#getConnection(java.lang.String, java.lang.String)
-     */
+    /** {@inheritDoc} */
     public Connection getConnection(String user, String pass) throws SQLException
     {
         return connection;
     }
 
-    /**
-     * @see javax.sql.DataSource#getLogWriter()
-     */
+    /** {@inheritDoc} */
     public PrintWriter getLogWriter() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /**
-     * @see javax.sql.DataSource#setLogWriter(java.io.PrintWriter)
-     */
+    /** {@inheritDoc} */
     public void setLogWriter(PrintWriter arg0) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /**
-     * @see javax.sql.DataSource#getLoginTimeout()
-     */
+    /** {@inheritDoc} */
     public int getLoginTimeout() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /**
-     * @see javax.sql.DataSource#setLoginTimeout(int)
-     */
+    /** {@inheritDoc} */
     public void setLoginTimeout(int arg0) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);

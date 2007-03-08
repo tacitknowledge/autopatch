@@ -48,9 +48,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
         // Nothing to do
     }
     
-    /**
-     * @see MigrationTaskSupport#migrate(MigrationContext)
-     */
+    /** {@inheritDoc} */
     public void migrate(MigrationContext ctx) throws MigrationException
     {
         DataSourceMigrationContext context = (DataSourceMigrationContext) ctx;
@@ -130,9 +128,7 @@ public abstract class SqlLoadMigrationTask extends MigrationTaskSupport
      */
     protected abstract String getStatmentSql();
 
-    /**
-     * @see java.lang.Object#toString()
-     */
+    /** {@inheritDoc} */
     public String toString()
     {
         return getName();

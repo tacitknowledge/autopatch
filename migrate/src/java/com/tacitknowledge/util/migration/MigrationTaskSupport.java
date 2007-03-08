@@ -1,4 +1,5 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -10,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.tacitknowledge.util.migration;
 
 /**
@@ -30,9 +30,7 @@ public abstract class MigrationTaskSupport implements MigrationTask
      */
     private Integer level;
 
-    /**
-     * @see MigrationTask#getName()
-     */
+    /** {@inheritDoc} */
     public String getName()
     {
         return name;
@@ -48,9 +46,7 @@ public abstract class MigrationTaskSupport implements MigrationTask
         this.name = name;
     }
 
-    /**
-     * @see MigrationTask#getLevel()
-     */
+    /** {@inheritDoc} */
     public Integer getLevel()
     {
         return level;
@@ -66,9 +62,7 @@ public abstract class MigrationTaskSupport implements MigrationTask
         this.level = lvl;
     }
 
-    /**
-     * @see Comparable#compareTo(Object)
-     */
+    /** {@inheritDoc} */
     public int compareTo(Object o)
     {
         MigrationTask task = (MigrationTask) o;

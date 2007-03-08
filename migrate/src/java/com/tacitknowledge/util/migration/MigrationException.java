@@ -1,4 +1,5 @@
-/* Copyright 2004 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -14,15 +15,16 @@
 package com.tacitknowledge.util.migration;
 
 /**
- * 
+ * An exception we can use to type things as we send problems up
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @version $Id$
  */
 public class MigrationException extends Exception
 {
-    /**
-     * @see Exception#Exception(String) 
+    /** 
+     * Make a new MigrationException with the given message
+     * 
+     * @param message the message to include in the exception
      */
     public MigrationException(String message)
     {
@@ -30,7 +32,10 @@ public class MigrationException extends Exception
     }
 
     /**
-     * @see Exception#Exception(String, Throwable) 
+     * Make a new MigrationException with the given message and cause
+     * 
+     * @param message the message to include in the exception
+     * @param cause the cause of the problem
      */
     public MigrationException(String message, Throwable cause)
     {

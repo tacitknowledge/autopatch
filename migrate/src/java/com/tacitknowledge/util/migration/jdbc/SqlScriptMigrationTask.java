@@ -1,4 +1,5 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -97,9 +98,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         sql = sqlBuffer.toString();
     }
 
-    /**
-     * @see MigrationTaskSupport#migrate(MigrationContext)
-     */
+    /** {@inheritDoc} */
     public void migrate(MigrationContext ctx) throws MigrationException
     {
         JdbcMigrationContext context = (JdbcMigrationContext) ctx;
@@ -239,9 +238,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         return statements;
     }
 
-    /**
-     * @see java.lang.Object#toString()
-     */
+    /** {@inheritDoc} */
     public String toString()
     {
         return getName();

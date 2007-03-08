@@ -221,18 +221,14 @@ public class JdbcMigrationLauncher implements MigrationListener
         }
     }
 
-    /**
-     * @see MigrationListener#migrationStarted(MigrationTask, MigrationContext)
-     */
+    /** {@inheritDoc} */
     public void migrationStarted(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
         log.debug("Started task " + task.getName() + " for context " + ctx);
     }
 
-    /**
-     * @see MigrationListener#migrationSuccessful(MigrationTask, MigrationContext)
-     */
+    /** {@inheritDoc} */
     public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
@@ -249,9 +245,7 @@ public class JdbcMigrationLauncher implements MigrationListener
         }
     }
 
-    /**
-     * @see MigrationListener#migrationFailed(MigrationTask, MigrationContext, MigrationException)
-     */
+    /** {@inheritDoc} */
     public void migrationFailed(MigrationTask task, MigrationContext ctx, MigrationException e)
         throws MigrationException
     {

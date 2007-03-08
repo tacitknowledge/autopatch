@@ -1,4 +1,5 @@
-/* Copyright 2005 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -70,9 +71,7 @@ public class WebAppMigrationLauncher implements ServletContextListener
      */
     private static Log log = LogFactory.getLog(WebAppMigrationLauncher.class);
     
-    /**
-     * @see ServletContextListener#contextInitialized(ServletContextEvent)
-     */
+    /** {@inheritDoc} */
     public void contextInitialized(ServletContextEvent sce)
     {
         try
@@ -125,9 +124,7 @@ public class WebAppMigrationLauncher implements ServletContextListener
         }
     }
 
-    /**
-     * @see ServletContextListener#contextDestroyed(ServletContextEvent)
-     */
+    /** {@inheritDoc} */
     public void contextDestroyed(ServletContextEvent sce)
     {
         log.debug("context is being destroyed " + sce);
