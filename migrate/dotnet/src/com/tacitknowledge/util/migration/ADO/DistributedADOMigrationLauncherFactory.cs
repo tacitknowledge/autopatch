@@ -73,9 +73,9 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> a fully configured <code>DistributedADOMigrationLauncher</code>.
 		/// </returns>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public override ADOMigrationLauncher createMigrationLauncher(System.String systemName)
+		public ADOMigrationLauncher createMigrationLauncher(System.String systemName)
 		{
-			log.info("Creating DistributedADOMigrationLauncher for system " + systemName);
+			log.Info("Creating DistributedADOMigrationLauncher for system " + systemName);
 			DistributedADOMigrationLauncher launcher = DistributedADOMigrationLauncher;
 			configureFromMigrationProperties(launcher, systemName);
 			return launcher;
@@ -175,7 +175,7 @@ namespace com.tacitknowledge.util.migration.ado
 			System.String[] controlledSystemNames = getRequiredParam(props, systemName + ".controlled.systems").split(",");
 			for (int i = 0; i < controlledSystemNames.Length; i++)
 			{
-				log.info("Creating controlled migration launcher for system " + controlledSystemNames[i]);
+				log.Info("Creating controlled migration launcher for system " + controlledSystemNames[i]);
 				ADOMigrationLauncherFactory factory = ADOMigrationLauncherFactoryLoader.createFactory();
 				ADOMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i]);
 				controlledSystems[controlledSystemNames[i]] = subLauncher;
