@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ConfigurationUtil.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
@@ -114,9 +115,6 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncherFactory.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\ADOMigrationLauncherFactoryLoader.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\DelimitedFileLoader.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\ExcelFileLoader.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\FileLoadingUtility.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\MigrationInformation.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\PatchTable.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\SqlLoadMigrationTask.cs" />
@@ -145,6 +143,9 @@
     <None Include="_ConversionReport.htm">
       <SubType>Preview</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\com\tacitknowledge\util\migration\ADO\loader\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
