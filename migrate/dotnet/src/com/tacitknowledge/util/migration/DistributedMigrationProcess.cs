@@ -51,7 +51,7 @@ namespace com.tacitknowledge.util.migration
 		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
 		/// <summary>         created
 		/// </summary>
-	    public HashTable MigrationTasksWithLaunchers
+	    public Hashtable MigrationTasksWithLaunchers
 		{
 			get
 			{
@@ -68,15 +68,15 @@ namespace com.tacitknowledge.util.migration
 					
 					// Get all the tasks for that sub launcher
 					System.Collections.IList subTasks = subLauncher.MigrationProcess.MigrationTasks;
-					log.info("Found " + subTasks.Count + " for system " + controlledSystemName);
+					log.Info("Found " + subTasks.Count + " for system " + controlledSystemName);
 					//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
 					for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
 					{
 						//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 						MigrationTask task = (MigrationTask) subTaskIter.Current;
-						if (log.isDebugEnabled())
+						if (log.IsDebugEnabled)
 						{
-							log.debug("\tMigration+Launcher binder found subtask " + task.getName() + " for launcher context " + subLauncher.Context.getSystemName());
+							log.Debug("\tMigration+Launcher binder found subtask " + task.getName() + " for launcher context " + subLauncher.Context.getSystemName());
 						}
 						
 						// store the task, related to its launcher
@@ -111,14 +111,14 @@ namespace com.tacitknowledge.util.migration
 					//UPGRADE_TODO: Method 'java.util.HashMap.get' was converted to 'System.Collections.Hashtable.Item' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMapget_javalangObject'"
 					ADOMigrationLauncher launcher = (ADOMigrationLauncher) ControlledSystems[controlledSystemName];
 					System.Collections.IList subTasks = launcher.MigrationProcess.MigrationTasks;
-					log.info("Found " + subTasks.Count + " for system " + controlledSystemName);
-					if (log.isDebugEnabled())
+					log.Info("Found " + subTasks.Count + " for system " + controlledSystemName);
+					if (log.IsDebugEnabled())
 					{
 						//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
 						for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
 						{
 							//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-							log.debug("\tFound subtask " + ((MigrationTask) subTaskIter.Current).getName());
+							log.Debug("\tFound subtask " + ((MigrationTask) subTaskIter.Current).getName());
 						}
 					}
 					SupportClass.ICollectionSupport.AddAll(tasks, subTasks);
@@ -129,7 +129,7 @@ namespace com.tacitknowledge.util.migration
 				// help them discover why.
 				if (tasks.Count == 0)
 				{
-					log.info("No patches were discovered in your classpath. " + "Run with DEBUG logging enabled for patch search details.");
+					log.Info("No patches were discovered in your classpath. " + "Run with DEBUG logging enabled for patch search details.");
 				}
 				
 				return tasks;
@@ -179,7 +179,7 @@ namespace com.tacitknowledge.util.migration
 		/// </returns>
 		public override int doMigrations(int currentLevel, MigrationContext context)
 		{
-			log.debug("Starting doMigrations");
+			log.Debug("Starting doMigrations");
 			
 			// Get all the migrations, with their launchers, then get the list of just the migrations
 			LinkedHashMap migrationsWithLaunchers = MigrationTasksWithLaunchers;
@@ -208,11 +208,12 @@ namespace com.tacitknowledge.util.migration
 			
 			if (taskCount > 0)
 			{
-				log.info("Migration complete (" + taskCount + " tasks executed)");
+				log.Info("Migration complete (" + taskCount + " tasks executed)");
+                
 			}
 			else
 			{
-				log.info("System up-to-date.  No migration tasks have been run.");
+				log.Info("System up-to-date.  No migration tasks have been run.");
 			}
 			
 			return taskCount;
