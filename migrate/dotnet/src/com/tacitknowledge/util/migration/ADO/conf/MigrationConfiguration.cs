@@ -13,7 +13,7 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
     {
 
 
-        private String launcher = "";
+     
 
         #region Methods
         /*
@@ -27,10 +27,10 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
             set { this["launcher"] = value; }
         }
 
-        public String Systemname
+        public String SystemName
         {
             get { return (string) this["systemname"];}
-            set { this["systemname"];}
+            set { this["systemname"] = value;}
         }
 
         #endregion
