@@ -356,7 +356,7 @@ namespace com.tacitknowledge.util.migration.ado
 		public virtual void  migrationStarted(MigrationTask task, MigrationContext ctx)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-			log.debug("Started task " + task.getName() + " for context " + ctx);
+			log.Debug("Started task " + task.getName() + " for context " + ctx);
 		}
 		
 		/// <seealso cref="MigrationListener.migrationSuccessful(MigrationTask, MigrationContext)">
@@ -364,7 +364,7 @@ namespace com.tacitknowledge.util.migration.ado
 		public virtual void  migrationSuccessful(MigrationTask task, MigrationContext ctx)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-			log.debug("Task " + task.getName() + " was successful for context " + ctx);
+			log.Debug("Task " + task.getName() + " was successful for context " + ctx);
 			int patchLevel = task.getLevel();
 			patchTable.updatePatchLevel(patchLevel);
 		}
@@ -374,7 +374,7 @@ namespace com.tacitknowledge.util.migration.ado
 		public virtual void  migrationFailed(MigrationTask task, MigrationContext ctx, MigrationException e)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-			log.debug("Task " + task.getName() + " failed for context " + ctx, e);
+			log.Debug("Task " + task.getName() + " failed for context " + ctx, e);
 		}
 		
 		/// <summary> Performs the application migration process in one go
@@ -428,7 +428,7 @@ namespace com.tacitknowledge.util.migration.ado
 					}
 					catch (System.Data.OleDb.OleDbException e)
 					{
-						log.error("Error unlocking patch table: ", e);
+						log.Error("Error unlocking patch table: ", e);
 					}
 				}
 				
@@ -447,7 +447,7 @@ namespace com.tacitknowledge.util.migration.ado
 					}
 					catch (System.Data.OleDb.OleDbException e)
 					{
-						log.error("Error unlocking patch table: ", e);
+						log.Error("Error unlocking patch table: ", e);
 					}
 				}
 			}
@@ -523,7 +523,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			while (patchTable.PatchStoreLocked)
 			{
-				log.info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");
+				log.Info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");
 				try
 				{
 					//UPGRADE_TODO: Method 'java.lang.Thread.sleep' was converted to 'System.Threading.Thread.Sleep' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javalangThreadsleep_long'"
@@ -531,7 +531,7 @@ namespace com.tacitknowledge.util.migration.ado
 				}
 				catch (System.Threading.ThreadInterruptedException e)
 				{
-					log.error("Received InterruptedException while waiting for patch lock", e);
+					log.Error("Received InterruptedException while waiting for patch lock", e);
 				}
 			}
 		}
