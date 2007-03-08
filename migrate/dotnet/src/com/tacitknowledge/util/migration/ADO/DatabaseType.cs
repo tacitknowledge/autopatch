@@ -40,8 +40,20 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <author>  Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public class DatabaseType
-	{
-		/// <summary> Determines if the database supports multiple SQL and DDL statements in a single
+    {
+
+        #region Members
+        /// <summary> The SQL statements and properties that are unique to this database flavor.</summary>
+        private System.Collections.Specialized.NameValueCollection properties = new System.Collections.Specialized.NameValueCollection();
+
+        /// <summary> The database type</summary>
+        private System.String databaseType = "";
+
+        #endregion
+
+        #region Methods
+
+        /// <summary> Determines if the database supports multiple SQL and DDL statements in a single
 		/// <code>Statement.execute</code> call. 
 		/// 
 		/// </summary>
@@ -58,13 +70,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			
 		}
-		/// <summary> The SQL statements and properties that are unique to this database flavor.</summary>
-		//UPGRADE_ISSUE: Class hierarchy differences between 'java.util.Properties' and 'System.Collections.Specialized.NameValueCollection' may cause compilation errors. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1186'"
-		//UPGRADE_TODO: Format of property file may need to be changed. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1089'"
-		private System.Collections.Specialized.NameValueCollection properties = new System.Collections.Specialized.NameValueCollection();
 		
-		/// <summary> The database type</summary>
-		private System.String databaseType = "";
 		
 		/// <summary> Creates a new <code>DatabaseType</code>.
 		/// 
@@ -73,13 +79,17 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		public DatabaseType(System.String databaseType)
 		{
+             /*
+              * Should be using .resx files for properties
+              */ 
+
 			//UPGRADE_ISSUE: Method 'java.lang.Class.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetResourceAsStream_javalangString'"
 			System.IO.Stream is_Renamed = GetType().getResourceAsStream(databaseType + ".properties");
 			if (is_Renamed == null)
 			{
 				//UPGRADE_ISSUE: Method 'java.lang.Package.getName' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangPackage'"
 				//UPGRADE_ISSUE: Method 'java.lang.Class.getPackage' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetPackage'"
-				throw new System.ArgumentException("Could not find SQL properties " + " file for database '" + databaseType + "'; make sure that there " + " is a '" + databaseType + ".properties' file in package '" + GetType().getPackage().getName() + "'.");
+				throw new System.ArgumentException("Could not find SQL properties " + " file for database '" + databaseType + "'; make sure that there " + " is a '" + databaseType + ".properties' file in package.");
 			}
 			try
 			{
@@ -126,5 +136,6 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			return properties.Get(propertyName);
 		}
-	}
+    }
+        #endregion
 }
