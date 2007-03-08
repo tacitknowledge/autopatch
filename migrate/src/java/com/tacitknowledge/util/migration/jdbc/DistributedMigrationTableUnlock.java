@@ -69,13 +69,14 @@ public class DistributedMigrationTableUnlock
         // task is executed, the patch level is incremented, etc.
         try
         {
-            DistributedJdbcMigrationLauncherFactory launcherFactory = 
+            DistributedJdbcMigrationLauncherFactory factory = 
                 new DistributedJdbcMigrationLauncherFactory();
             DistributedJdbcMigrationLauncher launcher
-                = (DistributedJdbcMigrationLauncher)launcherFactory.createMigrationLauncher(systemName);
+                = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
             
            Map contextMap = launcher.getContexts();
-           JdbcMigrationContext context = (JdbcMigrationContext)contextMap.keySet().iterator().next();
+           JdbcMigrationContext context = 
+               (JdbcMigrationContext) contextMap.keySet().iterator().next();
            launcher.createPatchStore(context).unlockPatchStore();
         }
         catch (Exception e)

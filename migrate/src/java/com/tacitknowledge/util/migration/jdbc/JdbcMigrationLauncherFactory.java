@@ -55,11 +55,13 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * <table>
  * <tr><td><i>systemName</i>.postpatch.path</td><td></td></tr>
  * <tr><td><i>systemName</i>.readonly</td><td>boolean true to skip patch application</td></tr>
- * <tr><td><i>systemName</i>.jdbc.systems</td><td>Set of names for multiple JDBC connections that
- *                                                    should all have patches applied. Names will be
- *                                                    looked up in the same properties file as
- *                                                    <i>systemName.jdbcname</i>.database.type, where
- *                                                    all of the jdbc entries above should be present</td></tr>
+ * <tr><td><i>systemName</i>.jdbc.systems</td>
+ *      <td>Set of names for multiple JDBC connections that
+ *           should all have patches applied. Names will be
+ *           looked up in the same properties file as
+ *           <i>systemName.jdbcname</i>.database.type, where
+ *           all of the jdbc entries above should be present</td>
+ * </tr>
  * </table>
  *
  * @author Scott Askew (scott@tacitknowledge.com)
@@ -133,7 +135,8 @@ public class JdbcMigrationLauncherFactory
     {
         String readOnly = sce.getServletContext().getInitParameter("migration.readonly");
         launcher.setReadOnly(false);
-        if ("true".equals(readOnly)) {
+        if ("true".equals(readOnly)) 
+        {
             launcher.setReadOnly(true);
         }
         
@@ -164,9 +167,15 @@ public class JdbcMigrationLauncherFactory
             {
                 databaseName = databaseName + ".";
             }
-            String databaseType = ConfigurationUtil.getRequiredParam("migration." + databaseName + "databasetype", sce, this);
-            String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", sce, this);
-            String dataSource = ConfigurationUtil.getRequiredParam("migration." + databaseName + "datasource", sce, this);
+            String databaseType = 
+                ConfigurationUtil.getRequiredParam("migration." + databaseName + "databasetype", 
+                                                   sce, this);
+            String systemName = 
+                ConfigurationUtil.getRequiredParam("migration.systemname", 
+                                                   sce, this);
+            String dataSource = 
+                ConfigurationUtil.getRequiredParam("migration." + databaseName + "datasource", 
+                                                   sce, this);
             
             DataSourceMigrationContext context = getDataSourceMigrationContext();
             context.setSystemName(systemName);
@@ -182,7 +191,8 @@ public class JdbcMigrationLauncherFactory
                 }
                 DataSource ds = (DataSource) ctx.lookup("java:comp/env/" + dataSource);
                 context.setDataSource(ds);
-                log.debug("adding context with datasource " + dataSource + " of type " + databaseType);
+                log.debug("adding context with datasource " + dataSource 
+                          + " of type " + databaseType);
                 launcher.addContext(context);
             } 
             catch (NamingException e)
@@ -203,7 +213,9 @@ public class JdbcMigrationLauncherFactory
                                                   String systemName)
         throws MigrationException
     {
-        configureFromMigrationProperties(launcher, systemName, MigrationContext.MIGRATION_CONFIG_FILE);
+        configureFromMigrationProperties(launcher, 
+                                         systemName, 
+                                         MigrationContext.MIGRATION_CONFIG_FILE);
     }
     
     /**
@@ -248,7 +260,8 @@ public class JdbcMigrationLauncherFactory
         }
         else
         {
-            throw new MigrationException("Unable to find autopatch properties file '" + propFile + "'");
+            throw new MigrationException("Unable to find autopatch properties file '" 
+                                         + propFile + "'");
         }
     }
 
@@ -256,23 +269,24 @@ public class JdbcMigrationLauncherFactory
      * Configure the launcher from the provided properties, system name
      * 
      * @param launcher The launcher to configure
-     * @param systemName The name of the system we're configuring
+     * @param system The name of the system we're configuring
      * @param props The Properties object with our configuration information
      * @throws IllegalArgumentException if a required parameter is missing
      */
-    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String systemName, 
+    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String system, 
                                                   Properties props) 
         throws IllegalArgumentException
     {
-        launcher.setPatchPath(ConfigurationUtil.getRequiredParam(props, systemName + ".patch.path"));
-        launcher.setPostPatchPath(props.getProperty(systemName + ".postpatch.path"));
+        launcher.setPatchPath(ConfigurationUtil.getRequiredParam(props, system + ".patch.path"));
+        launcher.setPostPatchPath(props.getProperty(system + ".postpatch.path"));
         launcher.setReadOnly(false);
-        if ("true".equals(props.getProperty(systemName + ".readonly"))) {
+        if ("true".equals(props.getProperty(system + ".readonly"))) 
+        {
             launcher.setReadOnly(true);
         }
 
         // TODO refactor the database name extraction from this and the servlet example
-        String databases = props.getProperty(systemName + ".jdbc.systems");
+        String databases = props.getProperty(system + ".jdbc.systems");
         String[] databaseNames;
         if ((databases == null) || "".equals(databases))
         {
@@ -286,29 +300,34 @@ public class JdbcMigrationLauncherFactory
         
         for (int i = 0; i < databaseNames.length; i++)
         {
-            String databaseName = databaseNames[i];
-            if (databaseName != "")
+            String db = databaseNames[i];
+            if (db != "")
             {
-                databaseName = "." + databaseName;
+                db = "." + db;
             }
             
             // Set up the data source
             NonPooledDataSource dataSource = new NonPooledDataSource();
-            dataSource.setDriverClass(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".driver"));
-            dataSource.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".url"));
-            dataSource.setUsername(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".username"));
-            dataSource.setPassword(ConfigurationUtil.getRequiredParam(props, systemName + databaseName + ".password"));
+            dataSource.setDriverClass(ConfigurationUtil.getRequiredParam(props, 
+                                                                         system + db + ".driver"));
+            dataSource.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, 
+                                                                         system + db + ".url"));
+            dataSource.setUsername(ConfigurationUtil.getRequiredParam(props, 
+                                                                      system + db + ".username"));
+            dataSource.setPassword(ConfigurationUtil.getRequiredParam(props, 
+                                                                      system + db + ".password"));
         
             // Set up the JDBC migration context; accepts one of two property names
             DataSourceMigrationContext context = getDataSourceMigrationContext();
-            String databaseType = ConfigurationUtil.getRequiredParam(props,
-                                                                     systemName + databaseName + ".database.type", 
-                                                                     systemName + databaseName + ".dialect");
+            String databaseType = 
+                ConfigurationUtil.getRequiredParam(props,
+                                                   system + db + ".database.type", 
+                                                   system + db + ".dialect");
             log.debug("setting type to " + databaseType);
             context.setDatabaseType(new DatabaseType(databaseType));
             
             // Finish setting up the context
-            context.setSystemName(systemName);
+            context.setSystemName(system);
             
             context.setDataSource(dataSource);
 

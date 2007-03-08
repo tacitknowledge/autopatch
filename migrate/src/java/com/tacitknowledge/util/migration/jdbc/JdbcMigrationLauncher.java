@@ -60,7 +60,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     /** The path containing directories and packages to search through to locate patches. */
     private String patchPath = null;
 
-    /** The path containing directories and packages to search through to locate post-patch tasks. */
+    /** The path containing directories and packages to search for post-patch tasks. */
     private String postPatchPath = null;
 
     /** 
@@ -127,7 +127,7 @@ public class JdbcMigrationLauncher implements MigrationListener
             int migrationCount = 0;
             while (contextIter.hasNext())
             {
-                JdbcMigrationContext context = (JdbcMigrationContext)contextIter.next();
+                JdbcMigrationContext context = (JdbcMigrationContext) contextIter.next();
                 migrationCount = doMigrations(context);
                 log.info("Executed " + migrationCount + " patches for context " + context);
             }
@@ -236,13 +236,15 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
-        log.debug("Task " + task.getName() + " was successful for context " + ctx + " in launcher " + this);
+        log.debug("Task " + task.getName() 
+                  + " was successful for context " + ctx 
+                  + " in launcher " + this);
         int patchLevel = task.getLevel().intValue();
         
         // update all of our controlled patch tables
-        for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext(); )
+        for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
         {
-            PatchTable patchTable = (PatchTable)((Map.Entry)patchTableIter.next()).getValue();
+            PatchTable patchTable = (PatchTable) ((Map.Entry) patchTableIter.next()).getValue();
             patchTable.updatePatchLevel(patchLevel);
         }
     }
@@ -266,7 +268,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public int getDatabasePatchLevel(MigrationContext ctx) throws MigrationException
     {
-        PatchInfoStore patchTable = (PatchInfoStore)contexts.get(ctx);
+        PatchInfoStore patchTable = (PatchInfoStore) contexts.get(ctx);
         return patchTable.getPatchLevel();
     }
 
@@ -289,7 +291,9 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void addContext(JdbcMigrationContext context)
     {
         PatchTable patchTable = new PatchTable(context);
-        log.debug("Adding context " + context + " with patch table " + patchTable + " in launcher" + this);
+        log.debug("Adding context " + context 
+                  + " with patch table " + patchTable 
+                  + " in launcher" + this);
         contexts.put(context, patchTable);
     }
 
@@ -389,7 +393,7 @@ public class JdbcMigrationLauncher implements MigrationListener
         {
             waitForFreeLock(context);
 
-            PatchInfoStore piStore = (PatchInfoStore)contexts.get(context);
+            PatchInfoStore piStore = (PatchInfoStore) contexts.get(context);
             piStore.getPatchLevel();
             try
             {   
@@ -411,12 +415,13 @@ public class JdbcMigrationLauncher implements MigrationListener
      * @return PatchTable object for use in accessing patch state information
      * @throws MigrationException if unable to create the store
      */
-    protected PatchInfoStore createPatchStore(JdbcMigrationContext context) throws MigrationException
+    protected PatchInfoStore createPatchStore(JdbcMigrationContext context) 
+    throws MigrationException
     {
         PatchInfoStore piStore = new PatchTable(context);
 
         // Make sure the table is created before claiming it exists by returning
-        piStore = (PatchInfoStore)contexts.get(context);
+        piStore = (PatchInfoStore) contexts.get(context);
         piStore.getPatchLevel();
         
         return piStore;
@@ -430,7 +435,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     private void waitForFreeLock(JdbcMigrationContext context) throws MigrationException
     {
-        PatchInfoStore piStore = (PatchInfoStore)contexts.get(context);
+        PatchInfoStore piStore = (PatchInfoStore) contexts.get(context);
         while (piStore.isPatchStoreLocked())
         {
             log.info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");

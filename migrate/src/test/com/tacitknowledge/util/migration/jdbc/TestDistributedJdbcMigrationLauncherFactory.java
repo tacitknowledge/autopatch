@@ -1,5 +1,5 @@
 /* 
- * Copyright 2006 Tacit Knowledge LLC
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -18,7 +18,8 @@ package com.tacitknowledge.util.migration.jdbc;
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
-public class TestDistributedJdbcMigrationLauncherFactory extends DistributedJdbcMigrationLauncherFactory
+public class TestDistributedJdbcMigrationLauncherFactory 
+    extends DistributedJdbcMigrationLauncherFactory
 {
     /**
      * Returns TestDataSourceMigrationContext

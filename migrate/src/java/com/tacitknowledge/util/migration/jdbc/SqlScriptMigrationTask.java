@@ -200,17 +200,18 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                         if (!inQuotedString)
                         {
                             // If we're in a stored procedure, just keep rolling
-                            if (context.getDatabaseType().getDatabaseType().equals("oracle") &&
-                                    (currentStatement.toString().trim()
-                                            .toLowerCase().startsWith("begin") ||
-                                     currentStatement.toString().trim()
-                                        .toLowerCase().startsWith("create or replace method") ||
-                                     currentStatement.toString().trim()
-                                        .toLowerCase().startsWith("create or replace function") ||
-                                     currentStatement.toString().trim()
-                                        .toLowerCase().startsWith("create or replace procedure") ||
-                                     currentStatement.toString().toString()
-                                        .toLowerCase().startsWith("create or replace package"))) {
+                            if (context.getDatabaseType().getDatabaseType().equals("oracle") 
+                                    && (currentStatement.toString().trim()
+                                           .toLowerCase().startsWith("begin") 
+                                       || currentStatement.toString().trim()
+                                           .toLowerCase().startsWith("create or replace method") 
+                                       || currentStatement.toString().trim()
+                                           .toLowerCase().startsWith("create or replace function") 
+                                       || currentStatement.toString().trim()
+                                           .toLowerCase().startsWith("create or replace procedure") 
+                                       || currentStatement.toString().toString()
+                                           .toLowerCase().startsWith("create or replace package"))) 
+                            {
                                 currentStatement.append(sqlChars[i]);
                             }
                             else 

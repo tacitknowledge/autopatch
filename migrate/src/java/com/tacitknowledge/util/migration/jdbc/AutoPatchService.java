@@ -96,9 +96,9 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
         // otherwise, add the collection of contexts in there
         else 
         {
-            for (Iterator i = contexts.iterator(); i.hasNext(); )
+            for (Iterator i = contexts.iterator(); i.hasNext();)
             {
-                launcher.addContext((JdbcMigrationContext)i.next());
+                launcher.addContext((JdbcMigrationContext) i.next());
             }
         }
         launcher.setPatchPath(getPatchPath());

@@ -33,13 +33,13 @@ import junit.framework.TestCase;
 public abstract class AutoPatchIntegrationTestBase extends TestCase
 {
     /** The DistributedLauncher we're testing */
-    protected DistributedJdbcMigrationLauncher distributedLauncher = null;
+    private DistributedJdbcMigrationLauncher distributedLauncher = null;
     
     /** A regular launcher we can test */
-    protected JdbcMigrationLauncher launcher = null;
+    private JdbcMigrationLauncher launcher = null;
     
     /** A multi-node launcher we can test */
-    protected JdbcMigrationLauncher multiNodeLauncher = null;
+    private JdbcMigrationLauncher multiNodeLauncher = null;
     
     /**
      * Constructor 
@@ -62,12 +62,14 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
         DistributedJdbcMigrationLauncherFactory dlFactory =
             new DistributedJdbcMigrationLauncherFactory();
         distributedLauncher = 
-            (DistributedJdbcMigrationLauncher)dlFactory.createMigrationLauncher("integration_test", 
-                                                                                "inttest-migration.properties");
+            (DistributedJdbcMigrationLauncher) 
+              dlFactory.createMigrationLauncher("integration_test", 
+                                                "inttest-migration.properties");
         
         JdbcMigrationLauncherFactory lFactory = new JdbcMigrationLauncherFactory();
         launcher = lFactory.createMigrationLauncher("orders", "inttest-migration.properties");
-        multiNodeLauncher = lFactory.createMigrationLauncher("catalog", "inttest-migration.properties");
+        multiNodeLauncher = lFactory.createMigrationLauncher("catalog", 
+                                                             "inttest-migration.properties");
     }
     
     /**
@@ -95,5 +97,65 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
         Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:" + database, "sa", "");
         Statement stmt = conn.createStatement();
         stmt.execute("SHUTDOWN");
+    }
+
+    /**
+     * Get the DistributedLauncher under test
+     * 
+     * @return DistributedJdbcMigrationLauncher
+     */
+    public DistributedJdbcMigrationLauncher getDistributedLauncher()
+    {
+        return distributedLauncher;
+    }
+
+    /**
+     * Set the DistributedJdbcMigrationLauncher to test
+     * 
+     * @param distributedLauncher the launcher to test for distributed functionality
+     */
+    public void setDistributedLauncher(DistributedJdbcMigrationLauncher distributedLauncher)
+    {
+        this.distributedLauncher = distributedLauncher;
+    }
+
+    /**
+     * Get the JdbcMigrationLauncher to test
+     * 
+     * @return JdbcMigrationLauncher to test
+     */
+    public JdbcMigrationLauncher getLauncher()
+    {
+        return launcher;
+    }
+
+    /**
+     * Set the JdbcMigrationLauncher to test
+     * 
+     * @param launcher the launcher to test for core functionality
+     */
+    public void setLauncher(JdbcMigrationLauncher launcher)
+    {
+        this.launcher = launcher;
+    }
+
+    /**
+     * Get the JdbcMigrationLauncher to test for multi-node functionality
+     * 
+     * @return JdbcMigrationLauncher configured for multi-node
+     */
+    public JdbcMigrationLauncher getMultiNodeLauncher()
+    {
+        return multiNodeLauncher;
+    }
+
+    /**
+     * Set the JdbcMigrationLauncher to use for multi-node functional testing
+     * 
+     * @param multiNodeLauncher the launcher to test for multi-node functionality
+     */
+    public void setMultiNodeLauncher(JdbcMigrationLauncher multiNodeLauncher)
+    {
+        this.multiNodeLauncher = multiNodeLauncher;
     }
 }

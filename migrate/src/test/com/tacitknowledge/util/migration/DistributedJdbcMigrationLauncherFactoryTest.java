@@ -38,10 +38,10 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     private static Log log = LogFactory.getLog(DistributedJdbcMigrationLauncherFactoryTest.class);
     
     /** The launcher we're testing */
-    protected DistributedJdbcMigrationLauncher launcher = null;
+    private DistributedJdbcMigrationLauncher launcher = null;
     
     /** A MigrationContext for us */
-    protected TestMigrationContext context = null;
+    private TestMigrationContext context = null;
     
     /**
      * constructor that takes a name
@@ -63,12 +63,15 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         log.debug("setting up " + this.getClass().getName());
         
         // Make sure we load our test launcher factory, which fakes out the data source context
-        System.getProperties().setProperty("migration.factory", 
-                                           "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
-        DistributedJdbcMigrationLauncherFactory factory = new TestDistributedJdbcMigrationLauncherFactory();
+        System.getProperties()
+          .setProperty("migration.factory", 
+                       "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
+        DistributedJdbcMigrationLauncherFactory factory = 
+            new TestDistributedJdbcMigrationLauncherFactory();
         
         // Create the launcher (this does configure it as a side-effect)
-        launcher = (DistributedJdbcMigrationLauncher)factory.createMigrationLauncher("orchestration");
+        launcher = 
+            (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher("orchestration");
         
         // Make sure we get notification of any migrations
         launcher.getMigrationProcess().addListener(this);
@@ -90,7 +93,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     public void testDistributedLauncherConfiguration()
     {
         HashMap controlledSystems = 
-            ((DistributedMigrationProcess)launcher.getMigrationProcess()).getControlledSystems();
+            ((DistributedMigrationProcess) launcher.getMigrationProcess()).getControlledSystems();
         assertEquals(3, controlledSystems.size());
     }
     
@@ -102,7 +105,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     public void testDistributedMigrationTaskLoading() throws MigrationException
     {
         DistributedMigrationProcess process = 
-            (DistributedMigrationProcess)launcher.getMigrationProcess();
+            (DistributedMigrationProcess) launcher.getMigrationProcess();
         assertEquals(7, process.getMigrationTasks().size());
         assertEquals(7, process.getMigrationTasksWithLaunchers().size());
     }
@@ -110,7 +113,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     /**
      * Ensure that overlapping tasks even among sub-launchers are detected
      * 
-     * @exception MigrationException if anything goes wrong
+     * @exception Exception if anything goes wrong
      */    
     public void testDistributedMigrationTaskValidation() throws Exception
     {
@@ -139,7 +142,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     /**
      * Ensure that read-only mode actually works
      * 
-     * @exception MigrationException if anything goes wrong
+     * @exception Exception if anything goes wrong
      */    
     public void testDistributedReadOnlyMode() throws Exception
     {
@@ -153,7 +156,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         try
         {
             process.doMigrations(3, context);
-            fail("There should have been an exception - unapplied patches and read-only don't work");
+            fail("There should have been an exception - unapplied patches + read-only don't work");
         }
         catch (MigrationException me)
         {
@@ -170,7 +173,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     /**
      * Make sure we get notified of patch application
      * 
-     * @exception MigrationException if anything goes wrong
+     * @exception Exception if anything goes wrong
      */    
     public void testDistributedMigrationEvents() throws Exception
     {
@@ -182,14 +185,14 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         
         // The sub-MigrationProcesses should have one listener each - the sub-launcher
         HashMap controlledSystems = 
-            ((DistributedMigrationProcess)launcher.getMigrationProcess()).getControlledSystems();
+            ((DistributedMigrationProcess) launcher.getMigrationProcess()).getControlledSystems();
         
         for (Iterator controlledSystemIter = controlledSystems.keySet().iterator();
         controlledSystemIter.hasNext();)
         {
-            String controlledSystemName = (String)controlledSystemIter.next();
+            String controlledSystemName = (String) controlledSystemIter.next();
             JdbcMigrationLauncher subLauncher = 
-                (JdbcMigrationLauncher)controlledSystems.get(controlledSystemName);
+                (JdbcMigrationLauncher) controlledSystems.get(controlledSystemName);
             MigrationProcess subProcess = subLauncher.getMigrationProcess();
             assertEquals(1, subProcess.getListeners().size());
         }
@@ -205,12 +208,12 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     /**
      * Make sure we the right patches go in the right spot
      * 
-     * @exception MigrationException if anything goes wrong
+     * @exception Exception if anything goes wrong
      */    
     public void testDistributedMigrationContextTargetting() throws Exception
     {
         HashMap controlledSystems = 
-            ((DistributedMigrationProcess)launcher.getMigrationProcess()).getControlledSystems();
+            ((DistributedMigrationProcess) launcher.getMigrationProcess()).getControlledSystems();
         
         // Now do the migrations, and make sure we get the right number of events
         MigrationProcess process = launcher.getMigrationProcess();
@@ -218,26 +221,67 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         
         // The orders schema has four tasks that should go, make sure they did
         JdbcMigrationLauncher ordersLauncher = 
-            (JdbcMigrationLauncher)controlledSystems.get("orders");
+            (JdbcMigrationLauncher) controlledSystems.get("orders");
         // FIXME need to test multiple contexts
         TestDataSourceMigrationContext ordersContext = 
-            (TestDataSourceMigrationContext)ordersLauncher.getContexts().keySet().iterator().next();
+            (TestDataSourceMigrationContext) 
+                ordersLauncher.getContexts().keySet().iterator().next();
         assertEquals("orders", ordersContext.getSystemName());
         assertTrue(ordersContext.hasExecuted("TestTask1"));
         assertTrue(ordersContext.hasExecuted("TestTask2"));
         assertTrue(ordersContext.hasExecuted("TestTask3"));
         assertTrue(ordersContext.hasExecuted("TestTask4"));
         
-        // The core schema has three tasks that should not go, make sure they are there but did not go
+        // The core schema has three tasks that should not go, make sure they exist but did not go
         JdbcMigrationLauncher coreLauncher = 
-            (JdbcMigrationLauncher)controlledSystems.get("core");
+            (JdbcMigrationLauncher) controlledSystems.get("core");
         // FIXME need to test multiple contexts
         TestDataSourceMigrationContext coreContext = 
-            (TestDataSourceMigrationContext)coreLauncher.getContexts().keySet().iterator().next();
+            (TestDataSourceMigrationContext) coreLauncher.getContexts().keySet().iterator().next();
         assertEquals(3, coreLauncher.getMigrationProcess().getMigrationTasks().size());
         assertEquals("core", coreContext.getSystemName());
         assertFalse(coreContext.hasExecuted("patch0001_first_patch"));
         assertFalse(coreContext.hasExecuted("patch0002_second_patch"));
         assertFalse(coreContext.hasExecuted("patch0003_third_patch"));
+    }
+
+    /**
+     * Get the MigrationContext to use during testing
+     * 
+     * @return TestMigrationContext object
+     */
+    public TestMigrationContext getContext()
+    {
+        return context;
+    }
+
+    /**
+     * Set the MigrationContext to use for testing
+     * 
+     * @param context a TestMigrationContext object to use for testing
+     */
+    public void setContext(TestMigrationContext context)
+    {
+        this.context = context;
+    }
+
+    /**
+     * Get the launcher to use for testing
+     * 
+     * @return DistributedJdbcMigrationLauncher to use for testing
+     */
+    public DistributedJdbcMigrationLauncher getLauncher()
+    {
+        return launcher;
+    }
+
+    /**
+     * Set the launcher to test
+     * 
+     * @param launcher the DistributedJdbcMigrationLauncher to test
+     */
+    public void setLauncher(DistributedJdbcMigrationLauncher launcher)
+    {
+        this.launcher = launcher;
     }
 }

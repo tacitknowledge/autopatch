@@ -18,7 +18,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.PatchInfoStore;
 
@@ -56,10 +55,12 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
     /**
      * Override the patch store creation to be the patch table we have
      * 
+     * @param context the context to use for the patch store
      * @return patchStore held internally
      * @throws MigrationException if creating the store fails
      */
-    protected PatchInfoStore createPatchStore(JdbcMigrationContext context) throws MigrationException
+    protected PatchInfoStore createPatchStore(JdbcMigrationContext context) 
+        throws MigrationException
     {
         if (patchStore != null)
         {
@@ -80,7 +81,7 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
     }
 
     /**
-     * @see MigrationListener#migrationSuccessful(MigrationTask, MigrationContext)
+     * {@inheritDoc}
      */
     public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
         throws MigrationException

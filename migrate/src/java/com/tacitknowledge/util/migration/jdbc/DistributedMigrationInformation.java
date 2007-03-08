@@ -93,14 +93,15 @@ public class DistributedMigrationInformation
         // task is executed, the patch level is incremented, etc.
         try
         {
-            DistributedJdbcMigrationLauncherFactory launcherFactory = 
+            DistributedJdbcMigrationLauncherFactory factory = 
                 new DistributedJdbcMigrationLauncherFactory();
             DistributedJdbcMigrationLauncher launcher
-                = (DistributedJdbcMigrationLauncher)launcherFactory.createMigrationLauncher(systemName);
+                = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
             
             // FIXME test that the migration information is correct
             Map contextMap = launcher.getContexts();
-            JdbcMigrationContext context = (JdbcMigrationContext)contextMap.keySet().iterator().next();
+            JdbcMigrationContext context = 
+                (JdbcMigrationContext) contextMap.keySet().iterator().next();
             
             int currentLevel = launcher.getDatabasePatchLevel(context);
             int nextPatchLevel = launcher.getNextPatchLevel();

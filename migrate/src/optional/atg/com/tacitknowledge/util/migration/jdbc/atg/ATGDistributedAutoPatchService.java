@@ -49,7 +49,7 @@ public class ATGDistributedAutoPatchService extends DistributedAutoPatchService 
      */
     public void startService(ServiceEvent se) throws ServiceException
     {
-        if ((se.getService() == this) && (isRunning() == false))
+        if ((se.getService() == this) && !isRunning())
         {
             setRunning(true);
             setNucleus(se.getNucleus());
@@ -74,7 +74,8 @@ public class ATGDistributedAutoPatchService extends DistributedAutoPatchService 
                 System.err.println("There was a problem patching the database");
                 me.printStackTrace(System.err);
                 System.err.println("Shutting down server to prevent inconsistency");
-                System.err.println("Change the 'failServerOnError' property if you want it to start anyway");
+                System.err.println("Change the 'failServerOnError' property " 
+                                   + "if you want it to start anyway");
                 System.exit(1);
             }
             
@@ -96,7 +97,7 @@ public class ATGDistributedAutoPatchService extends DistributedAutoPatchService 
 
     /**
      * Get the service configuration used to start us
-     * @return Configuration
+     * @return Configuration the configuration to use
      */
     public Configuration getServiceConfiguration()
     {
@@ -105,11 +106,11 @@ public class ATGDistributedAutoPatchService extends DistributedAutoPatchService 
 
     /**
      * Set the service configuration the Nucleus is using for us
-     * @param configuration
+     * @param config the configuration to use
      */
-    public void setServiceConfiguration(Configuration configuration)
+    public void setServiceConfiguration(Configuration config)
     {
-        this.configuration = configuration;
+        this.configuration = config;
     }
 
     /**
@@ -123,7 +124,7 @@ public class ATGDistributedAutoPatchService extends DistributedAutoPatchService 
 
     /**
      * Set the Nucleus that started us
-     * @param nucleus
+     * @param nucleus the Nucleus object to use for resolution
      */
     public void setNucleus(Nucleus nucleus)
     {
@@ -141,7 +142,7 @@ public class ATGDistributedAutoPatchService extends DistributedAutoPatchService 
 
     /**
      * Set whether we are running
-     * @param running
+     * @param running whether we are running or not
      */
     public void setRunning(boolean running)
     {

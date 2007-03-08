@@ -28,6 +28,14 @@ import javax.servlet.ServletContextEvent;
 public class ConfigurationUtil
 {
     /**
+     * Shouldn't be used
+     */
+    private ConfigurationUtil()
+    {
+        // do nothing
+    }
+    
+    /**
      * Returns the value of the specified servlet context initialization parameter.
      * 
      * @param  param the parameter to return
@@ -119,7 +127,7 @@ public class ConfigurationUtil
      * 
      * @param  param the parameter to return
      * @param  sce the <code>ServletContextEvent</code> being handled
-     * @param  caller the calling object, used for printing debugging information if there is a problem
+     * @param  caller calling object, used for printing information if there is a problem
      * @return the value of the specified servlet context initialization parameter
      * @throws IllegalArgumentException if the parameter does not exist
      */

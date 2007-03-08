@@ -102,9 +102,9 @@ public class MigrationInformation
             
             // Print out information for all contexts
             Map contextMap = launcher.getContexts();
-            for (Iterator contextIter = contextMap.keySet().iterator(); contextIter.hasNext(); )
+            for (Iterator contextIter = contextMap.keySet().iterator(); contextIter.hasNext();)
             {
-                JdbcMigrationContext context = (JdbcMigrationContext)contextIter.next();
+                JdbcMigrationContext context = (JdbcMigrationContext) contextIter.next();
                 
                 int currentLevel = launcher.getDatabasePatchLevel(context);
                 int nextPatchLevel = launcher.getNextPatchLevel();

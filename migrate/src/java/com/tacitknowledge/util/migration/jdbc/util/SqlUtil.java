@@ -53,7 +53,7 @@ public final class SqlUtil
         {
             try 
             {
-            	log.debug("Closing resultset: " + rs.toString());
+                log.debug("Closing resultset: " + rs.toString());
                 rs.close();
             }
             catch (SQLException e)
@@ -66,7 +66,7 @@ public final class SqlUtil
         {
             try 
             {
-            	log.debug("Closing statement: " + stmt.toString());
+                log.debug("Closing statement: " + stmt.toString());
                 stmt.close();
             }
             catch (SQLException e)
@@ -110,28 +110,32 @@ public final class SqlUtil
     public static Connection getConnection(String driver, String url, String user, String pass) 
         throws ClassNotFoundException, SQLException
     {
-    	Connection conn = null;
-    	try
-    	{
-	        Class.forName(driver);
-	        log.debug("Getting connection to " + url);
-	        conn = DriverManager.getConnection(url, user, pass);
-    	}
-    	catch(Exception e)
-    	{
-    		/* work around for DriverManager 'feature'.  
-    		 * In some cases, the jdbc driver jar is injected into a new child classloader (for
-    		 * example, maven provides different class loaders for different build lifecycle phases).
-    		 * Since DriverManager uses the calling class' loader instead of the current context's
-    		 * loader, it fails to find the driver.
-    		 * Our work around is to give the current context's class loader a shot at finding the driver
-    		 * in cases where DriverManager fails.  This 'may be' a security hole which is why
-             * DriverManager implements things in such a way that it doesn't use the current thread
-             * context class loader.
-    		 */ 
+        Connection conn = null;
+        try
+        {
+            Class.forName(driver);
+            log.debug("Getting connection to " + url);
+            conn = DriverManager.getConnection(url, user, pass);
+        }
+        catch (Exception e)
+        {
+            /* work around for DriverManager 'feature'.  
+             * In some cases, the jdbc driver jar is injected into a new 
+             * child classloader (for example, maven provides different 
+             * class loaders for different build lifecycle phases). 
+             * 
+             * Since DriverManager uses the calling class' loader instead 
+             * of the current context's loader, it fails to find the driver.
+             * 
+             * Our work around is to give the current context's class loader 
+             * a shot at finding the driver in cases where DriverManager fails.  
+             * This 'may be' a security hole which is why DriverManager implements 
+             * things in such a way that it doesn't use the current thread context class loader.
+             */ 
             try 
             {
-                Class driverClass = Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
+                Class driverClass =
+                    Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
                 Driver driverImpl = (Driver) driverClass.newInstance();
                 Properties props = new Properties();
                 props.put("user", user);
@@ -148,8 +152,8 @@ public final class SqlUtil
                 log.debug(iae);
                 throw new SQLException(iae.getMessage());
             }
-    	}
-    	
-    	return conn;
+        }
+        
+        return conn;
     }
 }

@@ -55,7 +55,7 @@ public class MigrationUnlockTest extends AutoPatchIntegrationTestBase
         log.debug("Testing forcible migration table unlocking");
         try
         {
-            launcher.doMigrations();
+            getLauncher().doMigrations();
         }
         catch (Exception e)
         {

@@ -190,9 +190,9 @@ public class MigrationProcess
             MigrationTask task = (MigrationTask) i.next();
             if (task.getLevel().intValue() > currentLevel)
             {
-                log.info("Will execute patch task '" + 
-                         task.getName() + " [" + task.getClass().getName() + "]" + 
-                         "'");
+                log.info("Will execute patch task '" 
+                         + task.getName() + " [" + task.getClass().getName() + "]" 
+                         + "'");
                 log.debug("Task will execute in context '" + context + "'");
                 taskCount++;
             }
@@ -246,6 +246,7 @@ public class MigrationProcess
     /**
      * Run post-migration tasks
      * 
+     * @param context the context to use for the post-patch migrations
      * @return the number of <code>MigrationTask</code>s that executed
      * @exception MigrationException if a post-patch task fails
      */
@@ -267,9 +268,8 @@ public class MigrationProcess
         for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
         {
             MigrationTask task = (MigrationTask) i.next();
-            log.info("Will execute post-patch task '" + 
-                     task.getName() + " [" + task.getClass().getName() + "]" + 
-                         "'");
+            log.info("Will execute post-patch task '" 
+                     +  task.getName() + " [" + task.getClass().getName() + "]" + "'");
         }
         log.info("A total of " + taskCount + " post-patch tasks will execute.");
         

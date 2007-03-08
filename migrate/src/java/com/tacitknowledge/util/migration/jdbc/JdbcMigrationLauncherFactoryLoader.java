@@ -28,6 +28,14 @@ public class JdbcMigrationLauncherFactoryLoader
     private static Log log = LogFactory.getLog(JdbcMigrationLauncherFactoryLoader.class);
     
     /**
+     * Shouldn't be used
+     */
+    private JdbcMigrationLauncherFactoryLoader()
+    {
+        // do nothing
+    }
+    
+    /**
      * Create the JdbcMigrationLauncherFactory
      * 
      * @return JdbcMigrationLauncherFactory (or subclass)
@@ -50,8 +58,8 @@ public class JdbcMigrationLauncherFactoryLoader
         } 
         catch (ClassNotFoundException e) 
         {
-            throw new IllegalArgumentException("Migration factory class '" + factoryName + 
-                                                "' not found.  Aborting.");
+            throw new IllegalArgumentException("Migration factory class '" 
+                                               + factoryName +  "' not found.  Aborting.");
         }
         try 
         {
@@ -59,8 +67,8 @@ public class JdbcMigrationLauncherFactoryLoader
         } 
         catch (Exception e) 
         {
-            throw new RuntimeException("Problem while instantiating factory class '" + 
-                                       factoryName + "'.  Aborting.", e);
+            throw new RuntimeException("Problem while instantiating factory class '" 
+                                       + factoryName + "'.  Aborting.", e);
         }
     }
 }

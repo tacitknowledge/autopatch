@@ -54,7 +54,7 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         log.debug("Testing multi node patching");
         try
         {
-            distributedLauncher.doMigrations();
+            getDistributedLauncher().doMigrations();
         }
         catch (Exception e)
         {
@@ -92,6 +92,7 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
      * Get the patch level for a given database
      * 
      * @param conn the database connection to use
+     * @return int representing the patch level
      * @exception Exception if getting the patch level fails
      */
     private int getPatchLevel(Connection conn) throws Exception

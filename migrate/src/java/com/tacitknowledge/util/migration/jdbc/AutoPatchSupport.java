@@ -30,7 +30,7 @@ import com.tacitknowledge.util.migration.MigrationException;
 public class AutoPatchSupport
 {
     /** Class logger */
-    private static final Log log = LogFactory.getLog(AutoPatchSupport.class);
+    private static Log log = LogFactory.getLog(AutoPatchSupport.class);
 
     /** The launcher we'll use */
     private JdbcMigrationLauncher launcher;
@@ -82,10 +82,10 @@ public class AutoPatchSupport
         Map contextMap = launcher.getContexts();
         Set contexts = contextMap.keySet();
         // FIXME test that setting the patch level works
-        for (Iterator i = contexts.iterator(); i.hasNext(); )
+        for (Iterator i = contexts.iterator(); i.hasNext();)
         {
-            JdbcMigrationContext migrationContext = (JdbcMigrationContext)i.next();
-            PatchTable patchTable = (PatchTable)contextMap.get(migrationContext);
+            JdbcMigrationContext migrationContext = (JdbcMigrationContext) i.next();
+            PatchTable patchTable = (PatchTable) contextMap.get(migrationContext);
             patchTable.lockPatchStore();
             patchTable.updatePatchLevel(patchLevel);
             log.info("Set the patch level to " + patchLevel + " for context " + migrationContext);
@@ -103,7 +103,7 @@ public class AutoPatchSupport
     {
         Map contextMap = launcher.getContexts();
         // Any of the patch tables for any of the contexts should be fine, get the first
-        PatchTable firstPatchTable = (PatchTable)contextMap.values().iterator().next();
+        PatchTable firstPatchTable = (PatchTable) contextMap.values().iterator().next();
         // FIXME test that getting the patch level works
         return firstPatchTable.getPatchLevel();
     }

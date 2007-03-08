@@ -18,8 +18,6 @@ package com.tacitknowledge.util.migration;
 import java.util.List;
 import junit.framework.TestCase;
 
-import com.tacitknowledge.util.migration.MigrationException;
-
 /**
  * Exercise the ClassMigrationTaskSource object
  * 

@@ -33,7 +33,7 @@ public class MigrationBroadcasterTest extends TestCase implements MigrationListe
     private boolean failed = false;
 
     /** The broadcaster being tested */
-    MigrationBroadcaster broadcaster = null;
+    private MigrationBroadcaster broadcaster = null;
     
     /**
      * Set up our test state

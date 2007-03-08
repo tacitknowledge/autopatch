@@ -37,6 +37,7 @@ public class FlatXmlDataSetMigrationTask extends MigrationTaskSupport
      */
     public FlatXmlDataSetMigrationTask() 
     {
+        // does nothing
     }
 
     /**

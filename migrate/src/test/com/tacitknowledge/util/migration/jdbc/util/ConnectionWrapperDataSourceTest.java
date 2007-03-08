@@ -38,6 +38,8 @@ public class ConnectionWrapperDataSourceTest extends JDBCTestCaseAdapter
     
     /**
      * Test connection wrapping to make sure we get and return the same one
+     * 
+     * @exception Exception if anything goes wrong
      */
     public void testConnectionWrapping() throws Exception
     {

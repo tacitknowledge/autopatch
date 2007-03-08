@@ -36,7 +36,8 @@ import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
  *       fork="true"
  *       classpathref="patch.classpath" 
  *       failonerror="true" 
- *       classname="com.tacitknowledge.util.migration.jdbc.DistributedStandaloneMigrationLauncher"&gt;
+ *       classname=
+ *         "com.tacitknowledge.util.migration.jdbc.DistributedStandaloneMigrationLauncher"&gt;
  *     &lt;sysproperty key="migration.systemname" value="${application.name}"/&gt;
  *   &lt;/java&gt;
  * &lt;/target&gt;

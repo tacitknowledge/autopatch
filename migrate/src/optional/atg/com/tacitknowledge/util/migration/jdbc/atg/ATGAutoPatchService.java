@@ -55,7 +55,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
      */
     public void startService(ServiceEvent se) throws ServiceException
     {
-        if ((se.getService() == this) && (isRunning() == false))
+        if ((se.getService() == this) && !isRunning())
         {
             setRunning(true);
             setNucleus(se.getNucleus());
@@ -69,7 +69,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
      */
     public void doStartService() throws ServiceException
     {
-        if (isPatchOnStartup() == true)
+        if (isPatchOnStartup())
         {
             try
             {
@@ -82,7 +82,8 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
                     System.err.println("There was a problem patching the database");
                     me.printStackTrace(System.err);
                     System.err.println("Shutting down server to prevent inconsistency");
-                    System.err.println("Change the 'failServerOnError' property if you want it to start anyway");
+                    System.err.println("Change the 'failServerOnError' property if "
+                                       + "you want it to start anyway");
                     System.exit(1);
                 }
                 
@@ -112,16 +113,16 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
 
     /**
      * Set the service configuration the Nucleus is using for us
-     * @param configuration
+     * @param config the config for the service
      */
-    public void setServiceConfiguration(Configuration configuration)
+    public void setServiceConfiguration(Configuration config)
     {
-        this.configuration = configuration;
+        this.configuration = config;
     }
 
     /**
      * Get the Nucleus that started us
-     * @return Nucleus
+     * @return Nucleus the Nucleus resolver to use
      */
     public Nucleus getNucleus()
     {
@@ -130,7 +131,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
 
     /**
      * Set the Nucleus that started us
-     * @param nucleus
+     * @param nucleus the Nucleus resolver to use
      */
     public void setNucleus(Nucleus nucleus)
     {
@@ -148,7 +149,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
 
     /**
      * Set whether we are running
-     * @param running
+     * @param running whether the server is running or not
      */
     public void setRunning(boolean running)
     {

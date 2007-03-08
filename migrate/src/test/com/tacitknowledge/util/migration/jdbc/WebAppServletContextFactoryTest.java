@@ -91,7 +91,8 @@ public class WebAppServletContextFactoryTest extends TestCase
             fail("There should not have been an exception");
         }
 
-        JdbcMigrationContext jdbcContext = (JdbcMigrationContext)launcher.getContexts().keySet().iterator().next();
+        JdbcMigrationContext jdbcContext = 
+            (JdbcMigrationContext) launcher.getContexts().keySet().iterator().next();
         assertEquals(dbType, jdbcContext.getDatabaseType().getDatabaseType());
         assertEquals(sysName, jdbcContext.getSystemName());
         assertEquals(true, launcher.isReadOnly());
@@ -139,8 +140,8 @@ public class WebAppServletContextFactoryTest extends TestCase
         }
 
         Iterator contextIter = launcher.getContexts().keySet().iterator();
-        JdbcMigrationContext jdbcContext1 = (JdbcMigrationContext)contextIter.next();
-        JdbcMigrationContext jdbcContext2 = (JdbcMigrationContext)contextIter.next();
+        JdbcMigrationContext jdbcContext1 = (JdbcMigrationContext) contextIter.next();
+        JdbcMigrationContext jdbcContext2 = (JdbcMigrationContext) contextIter.next();
         assertEquals(dbType1, jdbcContext1.getDatabaseType().getDatabaseType());
         assertEquals(sysName, jdbcContext1.getSystemName());
         assertEquals(dbType2, jdbcContext2.getDatabaseType().getDatabaseType());

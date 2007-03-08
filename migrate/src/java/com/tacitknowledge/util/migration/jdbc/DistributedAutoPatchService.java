@@ -94,14 +94,16 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
             // We need the system name, all of the contexts should be the same, take the first
             // FIXME should the system name be on the launcher instead of the context?
             Map subContextMap = subLauncher.getContexts();
-            String subSystemName = ((JdbcMigrationContext)subContextMap.keySet().iterator().next()).getSystemName();
+            String subSystemName = 
+                ((JdbcMigrationContext) subContextMap.keySet().iterator().next()).getSystemName();
             controlledLaunchers.put(subSystemName, subLauncher);
             
             // Make sure the controlled migration process gets migration events
             launcher.getMigrationProcess().addListener(subLauncher);
         }
         
-        ((DistributedMigrationProcess)launcher.getMigrationProcess()).setControlledSystems(controlledLaunchers);
+        ((DistributedMigrationProcess) launcher.getMigrationProcess())
+            .setControlledSystems(controlledLaunchers);
         launcher.setPostPatchPath(getPostPatchPath());
         
         return launcher;

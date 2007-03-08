@@ -26,17 +26,17 @@ import com.tacitknowledge.util.migration.PatchInfoStore;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
 /**
-* Exercise the data source migration context
-*
-* @author Mike Hardy <mailto:mike@tacitknowledge.com/>
-*/
+ * Exercise the data source migration context
+ *
+ * @author Mike Hardy <mailto:mike@tacitknowledge.com/>
+ */
 public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
 {
     /** The mock JDBC connection to use during the tests */
     private MockConnection conn = null;
     
     /** The launcher we're testing */
-    protected JdbcMigrationLauncher launcher = null;
+    private JdbcMigrationLauncher launcher = null;
     
     /**
      * The <code>JDBCMigrationConteext</code> used for testing
@@ -70,8 +70,9 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         // Set up a complete launcher from a known properties file for some other tests
         
         // Make sure we load our test launcher factory, which fakes out the data source context
-        System.getProperties().setProperty("migration.factory", 
-                                           "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
+        System.getProperties()
+           .setProperty("migration.factory", 
+                        "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
         JdbcMigrationLauncherFactory factory = new TestJdbcMigrationLauncherFactory();
         
         // Create the launcher (this does configure it as a side-effect)
@@ -83,14 +84,16 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
     
     /**
      * Verify that the configuration for multi-node made it through
+     * 
+     * @exception Exception if there is a problem
      */
     public void testMultiNodeConfiguration() throws Exception
     {
         Map contexts = launcher.getContexts();
         assertEquals(2, contexts.size());
         Iterator contextIter = contexts.keySet().iterator();
-        JdbcMigrationContext context1 = (JdbcMigrationContext)contextIter.next();
-        JdbcMigrationContext context2 = (JdbcMigrationContext)contextIter.next();
+        JdbcMigrationContext context1 = (JdbcMigrationContext) contextIter.next();
+        JdbcMigrationContext context2 = (JdbcMigrationContext) contextIter.next();
         assertNotSame(context1, context2);
         assertEquals("sybase", context1.getDatabaseType().getDatabaseType());
         assertEquals("postgres", context2.getDatabaseType().getDatabaseType());
@@ -98,6 +101,8 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
     
     /**
      * Test doing migrations
+     * 
+     * @exception Exception if there is a problem
      */
     public void testDoMigrationsWithLockRace() throws Exception
     {
@@ -109,7 +114,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         
         
         MockControl mockControl = MockControl.createControl(PatchInfoStore.class);
-        PatchInfoStore patchStore = (PatchInfoStore)mockControl.getMock();
+        PatchInfoStore patchStore = (PatchInfoStore) mockControl.getMock();
         
         // First they see if it is locked, and it is, so they spin
         patchStore.isPatchStoreLocked();
@@ -119,7 +124,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         patchStore.isPatchStoreLocked();
         mockControl.setReturnValue(false);
         patchStore.lockPatchStore();
-        mockControl.setThrowable(new IllegalStateException("The table is already locked in this test"));
+        mockControl.setThrowable(new IllegalStateException("The table is already locked"));
         
         // Finally they see if it is locked again, and it isn't, and it works
         patchStore.isPatchStoreLocked();
@@ -142,5 +147,25 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         testLauncher.setPatchStore(patchStore);
         testLauncher.setPatchPath("com.tacitknowledge.util.migration.tasks.normal");
         testLauncher.doMigrations();
+    }
+
+    /**
+     * The Launcher to test
+     * 
+     * @return JdbcMigrationLauncher to test
+     */
+    public JdbcMigrationLauncher getLauncher()
+    {
+        return launcher;
+    }
+
+    /**
+     * Set the Launcher to test
+     * 
+     * @param launcher JdbcMigrationLauncher to use for testing
+     */
+    public void setLauncher(JdbcMigrationLauncher launcher)
+    {
+        this.launcher = launcher;
     }
 }

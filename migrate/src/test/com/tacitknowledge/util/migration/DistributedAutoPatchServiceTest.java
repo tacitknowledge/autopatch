@@ -96,9 +96,9 @@ public class DistributedAutoPatchServiceTest extends DistributedJdbcMigrationLau
         distributedPatchService.setDataSource(new MockDataSource());
         
         // instantiate everything
-        launcher = distributedPatchService.getLauncher();
+        setLauncher(distributedPatchService.getLauncher());
         
         // set ourselves up as a listener for any migrations that run
-        launcher.getMigrationProcess().addListener(this);
+        getLauncher().getMigrationProcess().addListener(this);
     }
 }

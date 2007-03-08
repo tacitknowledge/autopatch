@@ -16,10 +16,6 @@ package com.tacitknowledge.util.migration;
 
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 
-import com.tacitknowledge.util.migration.MigrationContext;
-import com.tacitknowledge.util.migration.MigrationListener;
-import com.tacitknowledge.util.migration.MigrationTask;
-
 /**
  * All the stuff you need to write a test that is a MigrationListener
  * 

@@ -84,7 +84,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
     {
         log.info("Creating DistributedJdbcMigrationLauncher for system " + systemName);
         DistributedJdbcMigrationLauncher launcher = getDistributedJdbcMigrationLauncher();
-        configureFromMigrationProperties(launcher, systemName, MigrationContext.MIGRATION_CONFIG_FILE);
+        configureFromMigrationProperties(launcher, systemName, 
+                                         MigrationContext.MIGRATION_CONFIG_FILE);
         return launcher;
     }
     
@@ -140,7 +141,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         }
         else
         {
-            throw new MigrationException("Unable to find migration properties file '" + propFile + "'");
+            throw new MigrationException("Unable to find migration properties file '" 
+                                         + propFile + "'");
         }
     }
     
@@ -160,31 +162,33 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         throws IllegalArgumentException, MigrationException
     {
         // Get the name of the context to use for our patch information
-        String patchStoreContextName = ConfigurationUtil.getRequiredParam(props, systemName + ".context");
+        String patchContext = 
+            ConfigurationUtil.getRequiredParam(props, systemName + ".context");
         
         // Set up the data source
-        NonPooledDataSource dataSource = new NonPooledDataSource();
-        dataSource.setDriverClass(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.driver"));
-        dataSource.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.url"));
-        dataSource.setUsername(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.username"));
-        dataSource.setPassword(ConfigurationUtil.getRequiredParam(props, patchStoreContextName + ".jdbc.password"));
+        NonPooledDataSource ds = new NonPooledDataSource();
+        ds.setDriverClass(ConfigurationUtil.getRequiredParam(props, patchContext + ".jdbc.driver"));
+        ds.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, patchContext + ".jdbc.url"));
+        ds.setUsername(ConfigurationUtil.getRequiredParam(props, patchContext + ".jdbc.username"));
+        ds.setPassword(ConfigurationUtil.getRequiredParam(props, patchContext + ".jdbc.password"));
         
         // Get any post-patch task paths
-        launcher.setPostPatchPath(props.getProperty(patchStoreContextName + ".postpatch.path"));
+        launcher.setPostPatchPath(props.getProperty(patchContext + ".postpatch.path"));
         launcher.setReadOnly(false);
-        if ("true".equals(props.getProperty(systemName + ".readonly"))) {
+        if ("true".equals(props.getProperty(systemName + ".readonly"))) 
+        {
             launcher.setReadOnly(true);
         }
         
         // Set up the JDBC migration context; accepts one of two property names
         DataSourceMigrationContext context = getDataSourceMigrationContext();
         String databaseType = ConfigurationUtil.getRequiredParam(props,
-            patchStoreContextName + ".jdbc.database.type", patchStoreContextName + ".jdbc.dialect");
+            patchContext + ".jdbc.database.type", patchContext + ".jdbc.dialect");
         context.setDatabaseType(new DatabaseType(databaseType));
 
         // Finish setting up the context
         context.setSystemName(systemName);
-        context.setDataSource(dataSource);
+        context.setDataSource(ds);
 
         // done reading in config, set launcher's context
         // FIXME only using one context here, would a distributed one ever go into multiple nodes?
@@ -193,12 +197,15 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         // Get our controlled systems, and instantiate their launchers
         HashMap controlledSystems = new HashMap();
         String[] controlledSystemNames = 
-            ConfigurationUtil.getRequiredParam(props, systemName + ".controlled.systems").split(",");
+            ConfigurationUtil.getRequiredParam(props, 
+                                               systemName + ".controlled.systems").split(",");
         for (int i = 0; i < controlledSystemNames.length; i++)
         {
             log.info("Creating controlled patch executor for system " + controlledSystemNames[i]);
-            JdbcMigrationLauncherFactory factory = JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i], propFileName);
+            JdbcMigrationLauncherFactory factory = 
+                JdbcMigrationLauncherFactoryLoader.createFactory();
+            JdbcMigrationLauncher subLauncher = 
+                factory.createMigrationLauncher(controlledSystemNames[i], propFileName);
             controlledSystems.put(controlledSystemNames[i], subLauncher);
             
             // Make sure the controlled migration process gets migration events
@@ -206,6 +213,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         }
         
         // communicate our new-found controlled systems to the migration process
-        ((DistributedMigrationProcess)launcher.getMigrationProcess()).setControlledSystems(controlledSystems);
+        ((DistributedMigrationProcess) launcher.getMigrationProcess())
+            .setControlledSystems(controlledSystems);
     }
 }

@@ -82,16 +82,17 @@ public class DistributedMigrationProcess extends MigrationProcess
             MigrationTask task = (MigrationTask) i.next();
             if (task.getLevel().intValue() > currentLevel)
             {
-                log.info("Will execute patch task '" + 
-                         task.getName() + " [" + task.getClass().getName() + "]" + 
-                         "'");
+                log.info("Will execute patch task '" 
+                         + task.getName() + " [" + task.getClass().getName() + "]" 
+                         + "'");
                 if (log.isDebugEnabled())
                 {
-                    JdbcMigrationLauncher launcher = (JdbcMigrationLauncher)migrationsWithLaunchers.get(task);
+                    JdbcMigrationLauncher launcher = 
+                        (JdbcMigrationLauncher) migrationsWithLaunchers.get(task);
                     // Get all the contexts the task will execute in
-                    for (Iterator contextIter = launcher.getContexts().keySet().iterator(); contextIter.hasNext(); )
+                    for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
                     {
-                        MigrationContext launcherContext = (MigrationContext)contextIter.next();
+                        MigrationContext launcherContext = (MigrationContext) j.next();
                         log.debug("Task will execute in context '" + launcherContext + "'");
                     }
                 }
@@ -127,11 +128,12 @@ public class DistributedMigrationProcess extends MigrationProcess
             if (task.getLevel().intValue() > currentLevel)
             {
                 // Execute the task in the context it was loaded from
-                JdbcMigrationLauncher launcher = (JdbcMigrationLauncher)migrationsWithLaunchers.get(task);
+                JdbcMigrationLauncher launcher = 
+                    (JdbcMigrationLauncher) migrationsWithLaunchers.get(task);
                 // Get all the contexts the task will execute in
-                for (Iterator contextIter = launcher.getContexts().keySet().iterator(); contextIter.hasNext(); )
+                for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
                 {
-                    MigrationContext launcherContext = (MigrationContext)contextIter.next();
+                    MigrationContext launcherContext = (MigrationContext) j.next();
                     applyPatch(launcherContext, task, true);
                 }
                 taskCount++;
@@ -166,20 +168,20 @@ public class DistributedMigrationProcess extends MigrationProcess
             controlledSystemIter.hasNext();)
         {
             // Get the sub launcher that runs patches for the current name
-            String controlledSystemName = (String)controlledSystemIter.next();
+            String controlledSystemName = (String) controlledSystemIter.next();
             JdbcMigrationLauncher subLauncher = 
-                (JdbcMigrationLauncher)getControlledSystems().get(controlledSystemName);
+                (JdbcMigrationLauncher) getControlledSystems().get(controlledSystemName);
             
             // Get all the tasks for that sub launcher
             List subTasks = subLauncher.getMigrationProcess().getMigrationTasks();
             log.info("Found " + subTasks.size() + " for system " + controlledSystemName);
             for (Iterator subTaskIter = subTasks.iterator(); subTaskIter.hasNext();)
             {
-                MigrationTask task = (MigrationTask)subTaskIter.next();
+                MigrationTask task = (MigrationTask) subTaskIter.next();
                 if (log.isDebugEnabled())
                 {
-                    Iterator launcherIter = subLauncher.getContexts().keySet().iterator();
-                    String systemName = ((JdbcMigrationContext)launcherIter.next()).getSystemName();
+                    Iterator launchers = subLauncher.getContexts().keySet().iterator();
+                    String systemName = ((JdbcMigrationContext) launchers.next()).getSystemName();
                     log.debug("\tMigration+Launcher binder found subtask " 
                               + task.getName() + " for launcher context " 
                               + systemName);
@@ -207,16 +209,16 @@ public class DistributedMigrationProcess extends MigrationProcess
         for (Iterator controlledSystemIter = getControlledSystems().keySet().iterator();
             controlledSystemIter.hasNext();)
         {
-            String controlledSystemName = (String)controlledSystemIter.next();
+            String controlledSystemName = (String) controlledSystemIter.next();
             JdbcMigrationLauncher launcher = 
-                (JdbcMigrationLauncher)getControlledSystems().get(controlledSystemName);
+                (JdbcMigrationLauncher) getControlledSystems().get(controlledSystemName);
             List subTasks = launcher.getMigrationProcess().getMigrationTasks();
             log.info("Found " + subTasks.size() + " for system " + controlledSystemName);
             if (log.isDebugEnabled())
             {
                 for (Iterator subTaskIter = subTasks.iterator(); subTaskIter.hasNext();)
                 {
-                    log.debug("\tFound subtask " + ((MigrationTask)subTaskIter.next()).getName());
+                    log.debug("\tFound subtask " + ((MigrationTask) subTaskIter.next()).getName());
                 }
             }
             tasks.addAll(subTasks);
@@ -247,7 +249,7 @@ public class DistributedMigrationProcess extends MigrationProcess
     /**
      * Set the list of systems to control
      * 
-     * @param controlledSystems HashMap of JdbcMigrationLauncher objects keyed by String system names
+     * @param controlledSystems HashMap of system name / JdbcMigrationLauncher pairs
      */
     public void setControlledSystems(HashMap controlledSystems)
     {

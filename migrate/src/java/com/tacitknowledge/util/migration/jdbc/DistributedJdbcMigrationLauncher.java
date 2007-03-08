@@ -18,10 +18,11 @@ import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationProcess;
 
 /**
- * Core starting point for a distributed database migration run.  This class obtains a connection
- * to the orchestration database, checks its patch level, delegates the actual execution of the migration
- * tasks to a <code>MigrationProcess</code> instance, and then commits and cleans everything
- * up at the end.
+ * Core starting point for a distributed database migration run.  
+ * This class obtains a connection to the orchestration database, 
+ * checks its patch level, delegates the actual execution of the 
+ * migration tasks to a <code>MigrationProcess</code> instance, 
+ * and then commits and cleans everything up at the end.
  * <p>
  * This class is <b>NOT</b> threadsafe.
  *
