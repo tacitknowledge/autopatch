@@ -37,10 +37,6 @@ namespace com.tacitknowledge.util.migration.ado
         /// <summary>The name of the schema to patch </summary>
         private System.String systemName = null;
 
-        /// <summary>The data source used to patch the schema </summary>
-        //UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
-        private DataSource dataSource = null;
-
         /// <summary>The type of database </summary>
         private System.String databaseType = null;
 
@@ -83,29 +79,12 @@ namespace com.tacitknowledge.util.migration.ado
 				DataSourceMigrationContext context = DataSourceMigrationContext;
 				context.setSystemName(SystemName);
 				context.setDatabaseType(new DatabaseType(DatabaseType));
-				context.DataSource = DataSource;
+				
 				return context;
 			}
 			
 		}
-		/// <returns> Returns the dataSource.
-		/// </returns>
-		//UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
-		/// <param name="dataSource">The dataSource to set.
-		/// </param>
-		virtual public DataSource DataSource
-		{
-			get
-			{
-				return dataSource;
-			}
-			
-			set
-			{
-				this.dataSource = value;
-			}
-			
-		}
+		
 		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
 		/// <returns> Returns the systemName.
 		/// </returns>
@@ -189,9 +168,9 @@ namespace com.tacitknowledge.util.migration.ado
 			
 			try
 			{
-				log.info("Applying patches....");
+				log.Info("Applying patches....");
 				int patchesApplied = launcher.doMigrations();
-				log.info("Applied " + patchesApplied + " " + (patchesApplied == 1?"patch":"patches") + ".");
+				log.Info("Applied " + patchesApplied + " " + (patchesApplied == 1?"patch":"patches") + ".");
 			}
 			catch (MigrationException e)
 			{
