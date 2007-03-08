@@ -13,10 +13,15 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import java.sql.SQLException;
+
+import org.easymock.MockControl;
+
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
+import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
 /**
@@ -53,7 +58,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
     }
     
     /**
-     * @see com.mockrunner.jdbc.JDBCTestCaseAdapter#setUp()
+     * {@inheritDoc}
      */
     protected void setUp() throws Exception
     {
@@ -106,6 +111,35 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
         verifySQLStatementExecuted(table.getSql("patches.create"));
+    }
+    
+    /**
+     * Tests when trying to get a connection to the database to create the patch table fails.
+     * @throws SQLException shouldn't occur, only declared to make the code below more readable.
+     */
+    public void testCreatePatchesTableWithoutConnection() throws SQLException
+    {
+        MockControl contextControl = MockControl.createControl(JdbcMigrationContext.class);
+        JdbcMigrationContext mockContext = (JdbcMigrationContext) contextControl.getMock();
+        
+        // setup mock calls
+        mockContext.getDatabaseType();
+        contextControl.setReturnValue(new DatabaseType("postgres"), MockControl.ONE_OR_MORE);
+        
+        mockContext.getConnection();
+        contextControl.setThrowable(new SQLException("An exception during getConnection"));
+        contextControl.replay();
+        
+        table = new PatchTable(mockContext);
+        try 
+        {
+            table.createPatchStoreIfNeeded();
+            fail("Expected a MigrationException");
+        } 
+        catch (MigrationException e) 
+        {
+            contextControl.verify();
+        }
     }
 
     /**

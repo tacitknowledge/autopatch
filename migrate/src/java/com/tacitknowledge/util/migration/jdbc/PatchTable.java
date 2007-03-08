@@ -95,7 +95,17 @@ public class PatchTable implements PatchInfoStore
         }
         catch (SQLException e)
         {
+            // logging error in case it's not a simple patch table doesn't exist error
+            log.debug(e.getMessage());   
             SqlUtil.close(null, stmt, rs);
+            
+            // check connection is valid before using, because the getConnection() call
+            // could have thrown the SQLException
+            if (null == conn)
+            {
+                throw new MigrationException("Unable to create a connection.", e);
+            }
+
             log.info("'patches' table must not exist; creating....");
             try
             {
