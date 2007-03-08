@@ -23,11 +23,11 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
          * Returns the provider name to use for connection
          * 
          */
-        [ConfigurationProperty("providername")]
-        public String ProviderName
+        [ConfigurationProperty("type")]
+        public String DatabaseType
         {
-            get { return (string)this["providername"]; }
-            set { this["providername"] = value; }
+            get { return (string)this["type"]; }
+            set { this["type"] = value; }
         }
 
 
