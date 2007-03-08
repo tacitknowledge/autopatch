@@ -228,7 +228,8 @@ namespace com.tacitknowledge.util.migration
 		/// </returns>
 		public virtual int doMigrations(int currentLevel, MigrationContext context)
 		{
-			log.trace("Starting doMigrations");
+			log.Info("Starting doMigrations");
+            
 			System.Collections.IList migrations = MigrationTasks;
 			validateTasks(migrations);
 			SupportClass.CollectionsSupport.Sort(migrations, null);
@@ -248,11 +249,11 @@ namespace com.tacitknowledge.util.migration
 			
 			if (taskCount > 0)
 			{
-				log.info("Migration complete (" + taskCount + " tasks executed)");
+				log.Info("Migration complete (" + taskCount + " tasks executed)");
 			}
 			else
 			{
-				log.info("System up-to-date.  No migration tasks have been run.");
+				log.Info("System up-to-date.  No migration tasks have been run.");
 			}
 			
 			return taskCount;
@@ -267,7 +268,7 @@ namespace com.tacitknowledge.util.migration
 		/// </exception>
 		public virtual int doPostPatchMigrations(MigrationContext context)
 		{
-			log.info("Running post-patch tasks...");
+			log.Info("Running post-patch tasks...");
 			System.Collections.IList postMigrationTasks = PostPatchMigrationTasks;
 			validateTasks(postMigrationTasks);
 			SupportClass.CollectionsSupport.Sort(postMigrationTasks, null);
@@ -282,11 +283,11 @@ namespace com.tacitknowledge.util.migration
 			
 			if (taskCount > 0)
 			{
-				log.info("Post-patch tasks complete (" + taskCount + " tasks executed)");
+				log.Info("Post-patch tasks complete (" + taskCount + " tasks executed)");
 			}
 			else
 			{
-				log.info("No post-patch tasks have been run.");
+				log.Info("No post-patch tasks have been run.");
 			}
 			
 			return taskCount;
@@ -308,15 +309,15 @@ namespace com.tacitknowledge.util.migration
 			if (broadcast)
 			{
 				broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
-				log.debug("broadcaster has " + broadcaster.Listeners.Count + " listeners");
+				log.Debug("broadcaster has " + broadcaster.Listeners.Count + " listeners");
 			}
-			log.info("Running migration task \"" + label + "\"...");
+			log.Info("Running migration task \"" + label + "\"...");
 			try
 			{
 				long startTime = (System.DateTime.Now.Ticks - 621355968000000000) / 10000;
 				task.migrate(context);
 				long duration = (System.DateTime.Now.Ticks - 621355968000000000) / 10000 - startTime;
-				log.info("Finished migration task \"" + label + "\" (" + duration + " millis.)");
+				log.Info("Finished migration task \"" + label + "\" (" + duration + " millis.)");
 				if (broadcast)
 				{
 					broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
@@ -332,11 +333,11 @@ namespace com.tacitknowledge.util.migration
 				try
 				{
 					context.rollback();
-					log.info("Migration failed; rollback successful");
+					log.Info("Migration failed; rollback successful");
 				}
 				catch (MigrationException me)
 				{
-					log.info("Migration failed; COULD NOT ROLL BACK TRANSACTION", me);
+					log.Info("Migration failed; COULD NOT ROLL BACK TRANSACTION", me);
 				}
 				throw e;
 			}
@@ -358,7 +359,7 @@ namespace com.tacitknowledge.util.migration
 			{
 				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 				System.String packageName = (System.String) i.Current;
-				log.debug("Searching for migration tasks in package " + packageName);
+				log.Debug("Searching for migration tasks in package " + packageName);
 				
 				//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
 				for (System.Collections.IEnumerator j = migrationTaskSources.GetEnumerator(); j.MoveNext(); )
@@ -366,17 +367,18 @@ namespace com.tacitknowledge.util.migration
 					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 					MigrationTaskSource source = (MigrationTaskSource) j.Current;
 					System.Collections.IList sourceTasks = source.getMigrationTasks(packageName);
-					if (log.isDebugEnabled())
+					if (log.IsDebugEnabled)
+                        
 					{
 						if (sourceTasks.Count > 0)
 						{
 							//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-							log.debug("Source [" + source + "] found " + sourceTasks.Count + " migration tasks: " + SupportClass.CollectionToString(sourceTasks));
+							log.Debug("Source [" + source + "] found " + sourceTasks.Count + " migration tasks: " + SupportClass.CollectionToString(sourceTasks));
 						}
 						else
 						{
 							//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-							log.debug("Source [" + source + "] returned 0 migration tasks.");
+							log.Debug("Source [" + source + "] returned 0 migration tasks.");
 						}
 					}
 					SupportClass.ICollectionSupport.AddAll(tasks, sourceTasks);
@@ -388,7 +390,7 @@ namespace com.tacitknowledge.util.migration
 			// help them discover why.
 			if (tasks.Count == 0)
 			{
-				log.info("No migration tasks were discovered in your classpath. " + "Run with DEBUG logging enabled for migration task search details.");
+				log.Info("No migration tasks were discovered in your classpath. " + "Run with DEBUG logging enabled for migration task search details.");
 			}
 			
 			return tasks;
