@@ -30,6 +30,7 @@ import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.MigrationProcess;
 import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.PatchInfoStore;
+import com.tacitknowledge.util.migration.jdbc.loader.FlatXmlDataSetTaskSource;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 /**
@@ -81,6 +82,7 @@ public class JdbcMigrationLauncher implements MigrationListener
         migrationProcess.addListener(this);
         
         getMigrationProcess().addMigrationTaskSource(new SqlScriptMigrationTaskSource());
+        getMigrationProcess().addMigrationTaskSource(new FlatXmlDataSetTaskSource());
     }
 
     /**

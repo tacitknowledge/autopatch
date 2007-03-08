@@ -84,6 +84,10 @@ public final class SqlUtil
                     log.debug("Closing connection " + conn.toString());
                     conn.close();
                 }
+                else
+                {
+                    log.debug("Connection (" + conn.toString() + ") already closed.");
+                }
             }
             catch (SQLException e)
             {

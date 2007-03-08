@@ -68,7 +68,7 @@ o  Patches should execute before any server logic
        state of the external systems
 o  AutoPatch must enforce a total natural ordering on all patches.
      - This allows a developer to depend on the results of previous
-       patches, for instance a patch can use database tables definied 
+       patches, for instance a patch can use database tables defined 
        in patches that were executed previously
 o  AutoPatch must ensure that each patch is applied once and only once
      - Having them apply multiple times would mean the patch author
@@ -108,7 +108,7 @@ in a durable way, so that it knows the patch level across multiple runs.
 3c) Patch Loading
 -----------------
 The launcher searches the classpath for any available objects that
-implement a common patch type, or any sql files that are in a
+implement a common patch type, or any files that are in a
 directory known to hold patches.
 
 3d) Patch Ordering
@@ -199,7 +199,17 @@ quickly implement domain data loads with the use of tab-delimited text
 files and a sub-class that understands how to insert one row of the
 data at a time.
 
-The final sub-class currently implemented is
+Another data load type is the FlatXmlDataSetTaskSource.  This class allows
+you to use xml data files to bulk load data into the system.  As per the
+name, the xml format is the same as the DBUnit FlatXmlDataSet format
+type (http://dbunit.sourceforge.net/apidocs/org/dbunit/dataset/xml/FlatXmlDataSet.html).  
+Data sets in this format must match the typical patch naming
+standard, except that it must end with a .xml suffix (patchNNNN_<name>.xml).
+Examples:
+patch0002_initial_data.xml
+patch0005_load_stuff.xml
+
+Another sub-class currently implemented is
 MigrationTaskSupport. This is a more basic patch object, and allows
 for any arbitrary logic to be implemented in Java and executed under 
 the guise of a patch. It is potentially very useful to perform a data 
@@ -212,7 +222,7 @@ Its important to realize that patches must have a total global ordering -
 meaning that each patch must be associated with a unique level.
 
 Java patches get the opportunity to specify their own level, but for
-the raw sql patches, ordering is based on the naming convention
+the sql and xml patches, ordering is based on the naming convention
 specified above. This may seem cavalier at first, but its simple and easy
 to do in practice so long as you check the current patch level before
 creating a new patch, and coordinate with your fellow patch authors if
@@ -389,6 +399,11 @@ configuration file.
 --------------
 Java patches may be implemented by subclassing MigrationTaskSupport.
 
+&d) XML Data Patch
+------------------
+Create an xml file that follows the format of DBUnit's FlatXmlDataSet format.
+http://dbunit.sourceforge.net/apidocs/org/dbunit/dataset/xml/FlatXmlDataSet.html
+Also, it should follow the naming convention patchNNNN_<name>.xml.
 
 --------------------------------------------------------------------------
 

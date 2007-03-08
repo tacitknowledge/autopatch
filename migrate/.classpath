@@ -28,5 +28,6 @@
 	<classpathentry kind="var" path="DYNAMO_HOME/DAS/lib/das.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
 	<classpathentry kind="lib" path="lib/test/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/core/dbunit-2.2.jar" sourcepath="/opt/software/dbunit-2.2/src/java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
