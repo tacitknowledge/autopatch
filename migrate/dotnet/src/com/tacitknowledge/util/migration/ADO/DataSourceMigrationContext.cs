@@ -12,6 +12,7 @@
 */
 #region Imports
 using System;
+using AutopatchNET.src.com.tacitknowledge.util.migration;
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 #endregion
 namespace com.tacitknowledge.util.migration.ado
@@ -23,73 +24,50 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public class DataSourceMigrationContext : ADOMigrationContext
-	{
-		/// <summary> Returns the database connection to use
+    {
+
+        #region Members
+        /// <summary> The database connection to use</summary>
+        //UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
+        private System.Data.Common.DbConnection connection = null;
+
+        /// <summary> The DataSource to use</summary>
+        //UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
+        private MigrationDataSource dataSource = null;
+
+        /// <summary> The name of the system being patched</summary>
+        private String systemName = null;
+
+        /// <summary> The name of the system being patched</summary>
+        private DatabaseType databaseType = null;
+
+        #endregion
+
+        #region Methods
+        /// <summary> Returns the database connection to use
 		/// 
 		/// </summary>
 		/// <returns> the database connection to use
 		/// </returns>
 		/// <throws>  SQLException if an unexpected error occurs </throws>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		public System.Data.OleDb.OleDbConnection Connection
+		public System.Data.Common.DbConnection Connection
 		{
 			get
 			{
 				if ((connection == null) || (connection.State == System.Data.ConnectionState.Closed))
 				{
-					//UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
-					DataSource ds = DataSource;
-					if (ds != null)
-					{
-						javax.sql.DataSource generatedAux = DataSource;
-						System.Data.OleDb.OleDbConnection temp_Connection;
-						//UPGRADE_TODO: Change connection string to .NET format. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1063'"
-						//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-						temp_Connection = new System.Data.OleDb.OleDbConnection();
-						temp_Connection.Open();
-						connection = temp_Connection;
-					}
-					else
-					{
-						//UPGRADE_ISSUE: Constructor 'java.sql.SQLException.SQLException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptionSQLException_javalangString'"
-						throw new SQLException("Datasource is null");
-					}
+					
+					/*
+                     * Obtain a connection object for talking to the Data store
+                     */
+ 
 				}
 				return connection;
 			}
 			
 		}
-		/// <returns> Returns the dataSource.
-		/// </returns>
-		//UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
-		/// <param name="dataSource">The dataSource to set.
-		/// </param>
-		virtual public DataSource DataSource
-		{
-			get
-			{
-				return dataSource;
-			}
-			
-			set
-			{
-				this.dataSource = value;
-			}
-			
-		}
-		/// <summary> The database connection to use</summary>
-		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		private System.Data.OleDb.OleDbConnection connection = null;
 		
-		/// <summary> The DataSource to use</summary>
-		//UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
-		private DataSource dataSource = null;
-		
-		/// <summary> The name of the system being patched</summary>
-		private System.String systemName = null;
-		
-		/// <summary> The name of the system being patched</summary>
-		private DatabaseType databaseType = null;
 		
 		/// <seealso cref="ADOMigrationContext.commit()">
 		/// </seealso>
@@ -162,6 +140,7 @@ namespace com.tacitknowledge.util.migration.ado
 				throw new System.ArgumentException("systemName cannot be longer than " + com.tacitknowledge.util.migration.ado.ADOMigrationContext_Fields.MAX_SYSTEMNAME_LENGTH + " characters");
 			}
 			this.systemName = name;
-		}
-	}
+        }
+        #endregion
+    }
 }
