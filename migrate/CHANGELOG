@@ -54,6 +54,12 @@ Version 1.0.1
 - Implemented forcible table unlocking (useful if JVMs crash)
   Mike Hardy
   https://sourceforge.net/support/tracker.php?aid=1658547
+  
+- Big Checkstyle cleanup
+
+- Added XML file loader (useful to import DbUnit files)
+  Alex Soto
+  
 
 Version 1.0.0
 -------------
