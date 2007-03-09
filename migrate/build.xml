@@ -398,11 +398,19 @@
     </copy>
     <copy todir="${dist.home}/docs" file="${basedir}/README"/>
     <copy todir="${dist.home}/docs" file="${basedir}/migration.properties"/>
-    <jar jarfile="${build.home}/tk-${component.name}-${component.version}-src.jar"
-         basedir="${basedir}/dist">
-    </jar>
-    <move file="${build.home}/tk-${component.name}-${component.version}-src.jar"
-          todir="${dist.home}"/>
+    <mkdir dir="${build.home}/tk-${component.name}-${component.version}"/>
+    <move todir="${build.home}/tk-${component.name}-${component.version}">
+       <fileset dir="${dist.home}" />
+    </move>
+    <mkdir dir="${dist.home}/tk-${component.name}-${component.version}"/>
+    <move todir="${dist.home}/tk-${component.name}-${component.version}">
+       <fileset dir="${build.home}/tk-${component.name}-${component.version}" />
+    </move>
+    <zip destfile="${build.home}/tk-${component.name}-${component.version}-all.zip"
+          basedir="${basedir}/dist">
+    </zip>
+    <move file="${build.home}/tk-${component.name}-${component.version}-all.zip"
+         todir="${dist.home}"/>
   </target>
 
 <!-- ============= Standards check on the full tree ====================== -->

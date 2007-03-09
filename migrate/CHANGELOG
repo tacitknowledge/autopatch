@@ -60,6 +60,10 @@ Version 1.0.1
 - Added XML file loader (useful to import DbUnit files)
   Alex Soto
   
+- More friendly distribution packaging - a zip file, 
+  and unpacks into a sub-directory instead of the current directory
+  Mike Hardy
+  
 
 Version 1.0.0
 -------------
