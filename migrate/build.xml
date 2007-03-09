@@ -148,8 +148,8 @@
   <!-- Construct unit test classpath -->
   <path id="inttest.classpath">
 
-      <!-- Add everything in the compile classpath -->
-    <path refid="compile.classpath"/>
+      <!-- Add everything in the unittest classpath -->
+    <path refid="test.classpath"/>
 
     <!-- Add the test binary path and test support libraries -->
     <pathelement location="${build.home}/inttests"/>
