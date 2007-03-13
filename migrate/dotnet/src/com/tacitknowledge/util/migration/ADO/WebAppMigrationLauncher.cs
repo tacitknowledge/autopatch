@@ -59,7 +59,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <seealso cref="com.tacitknowledge.util.migration.MigrationProcess">
 	/// </seealso>
 
-    public class WebAppMigrationLauncher : AutoPatchLauncher
+    public class WebAppMigrationLauncher 
 	{
 		/// <summary> Keeps track of the first run of the class within this web app deployment.
 		/// This should always be true, but you can never be too careful.
@@ -75,7 +75,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary>
 		/// 
 		/// </summary>
-		public override void  initialize()
+		public void  initialize()
 		{
 			try
 			{
@@ -89,7 +89,7 @@ namespace com.tacitknowledge.util.migration.ado
 				try
 				{
 					ADOMigrationLauncherFactory launcherFactory = ADOMigrationLauncherFactoryLoader.createFactory();
-					ADOMigrationLauncher launcher = launcherFactory.createMigrationLauncher(migrationConfig.Systemname());
+					ADOMigrationLauncher launcher = launcherFactory.createMigrationLauncher(migrationConfig.SystemName);
 					launcher.doMigrations();
                     firstRun = false;
 				}
@@ -108,7 +108,7 @@ namespace com.tacitknowledge.util.migration.ado
 				// as many places as possible - debugging migration
 				// problems requires detection first, and that means
 				// getting the word of failures out.
-				log.error(e);
+				log.Error(e);
 				//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Throwable.getMessage' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 				System.Console.Out.WriteLine(e.Message);
 				SupportClass.WriteStackTrace(e, System.Console.Out);
@@ -121,10 +121,6 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		
-		public virtual void  contextDestroyed()
-		{
-			log.debug("context is being destroyed " + sce);
-		}
 		
 		
 		static WebAppMigrationLauncher()
