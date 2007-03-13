@@ -44,7 +44,7 @@ namespace com.tacitknowledge.util.migration
 			}
 			
 			//System.Type[] taskClasses = ClassDiscoveryUtil.getClasses(packageName, typeof(MigrationTask));
-			log.debug("Found " + taskClasses.Length + " patches in " + packageName);
+			log.Debug("Found " + taskClasses.Length + " patches in " + packageName);
 			return instantiateTasks(taskClasses);
 		}
 		
@@ -78,7 +78,7 @@ namespace com.tacitknowledge.util.migration
 					else
 					{
 						//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Class.getName' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-						log.warn("MigrationTask " + taskClass.FullName + " had no migration name. Is that intentional? Skipping task.");
+						log.Warn("MigrationTask " + taskClass.FullName + " had no migration name. Is that intentional? Skipping task.");
 					}
 				}
 				catch (System.Exception e)
