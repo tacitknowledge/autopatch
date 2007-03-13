@@ -87,14 +87,14 @@ namespace com.tacitknowledge.util.migration.ado
 			catch (System.Exception e)
 			{
 				System.String message = getName() + ": Error running SQL \"" + StatmentSql + "\"";
-				log.error(message, e);
+				log.Error(message, e);
 				if (e is System.Data.OleDb.OleDbException)
 				{
 					//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
 					if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
 					{
 						//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-						log.error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
+						log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
 					}
 				}
 				
