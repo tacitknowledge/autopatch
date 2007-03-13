@@ -73,7 +73,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> a fully configured <code>DistributedADOMigrationLauncher</code>.
 		/// </returns>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public ADOMigrationLauncher createMigrationLauncher(System.String systemName)
+		public new ADOMigrationLauncher createMigrationLauncher(System.String systemName)
 		{
 			log.Info("Creating DistributedADOMigrationLauncher for system " + systemName);
 			DistributedADOMigrationLauncher launcher = DistributedADOMigrationLauncher;
