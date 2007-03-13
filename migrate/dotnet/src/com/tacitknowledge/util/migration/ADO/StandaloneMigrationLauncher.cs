@@ -14,6 +14,7 @@
 using System;
 using log4net;
 using log4net.Config;
+using com.tacitknowledge.util.migration;
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
@@ -68,9 +69,13 @@ namespace com.tacitknowledge.util.migration.ado
 		[STAThread]
 		public static void  Main(System.String[] arguments)
 		{
-			//UPGRADE_TODO: Method 'java.lang.System.getProperties' was converted to 'SupportClass.GetProperties' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javalangSystemgetProperties'"
-			System.String systemName = getRequiredParam("migration.systemname", SupportClass.GetProperties(), arguments);
+
+            ConfigurationManager configMgr = new ConfigurationManager();
+            MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
+
+
 			
+            String systemName = migrationConfig.SystemName;
 			// The MigrationLauncher is responsible for handling the interaction
 			// between the PatchTable and the underlying MigrationTasks; as each
 			// task is executed, the patch level is incremented, etc.
@@ -82,7 +87,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			catch (System.Exception e)
 			{
-				log.error(e);
+				log.Error(e);
 				throw e;
 			}
 		}
