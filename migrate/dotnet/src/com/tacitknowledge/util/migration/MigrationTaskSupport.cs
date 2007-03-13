@@ -69,8 +69,8 @@ namespace com.tacitknowledge.util.migration
 		public virtual int CompareTo(System.Object o)
 		{
 			MigrationTask task = (MigrationTask) o;
-			//UPGRADE_TODO: The 'System.Int32' structure does not have an equivalent to NULL. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1291'"
-			if (task.getLevel() == null)
+			
+			if (task.getLevel() == 0)
 			{
 				return 1;
 			}
