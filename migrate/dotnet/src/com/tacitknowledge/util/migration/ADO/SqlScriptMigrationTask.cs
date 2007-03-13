@@ -110,9 +110,9 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 					sqlStatement = ((System.String) i.Current);
-					if (log.isDebugEnabled())
+					if (log.IsDebugEnabled())
 					{
-						log.debug(getName() + ": Attempting to execute: " + sqlStatement);
+						log.Debug(getName() + ": Attempting to execute: " + sqlStatement);
 					}
 					//UPGRADE_TODO: Method 'java.sql.Connection.createStatement' was converted to 'SupportClass.TransactionManager.manager.CreateStatement' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlConnectioncreateStatement'"
 					stmt = SupportClass.TransactionManager.manager.CreateStatement(conn);
@@ -128,7 +128,7 @@ namespace com.tacitknowledge.util.migration.ado
 			catch (System.Exception e)
 			{
 				System.String message = getName() + ": Error running SQL \"" + sqlStatement + "\"";
-				log.error(message, e);
+				log.Error(message, e);
 				
 				if (e is System.Data.OleDb.OleDbException)
 				{
@@ -136,7 +136,7 @@ namespace com.tacitknowledge.util.migration.ado
 					if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
 					{
 						//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-						log.error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
+						log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
 					}
 				}
 				
