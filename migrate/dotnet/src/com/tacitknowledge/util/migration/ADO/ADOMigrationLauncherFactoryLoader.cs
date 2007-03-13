@@ -63,7 +63,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			catch (System.Exception e)
 			{
-				throw new RuntimeException("Problem while instantiating factory class '" + factoryName + "'.  Aborting.", e);
+				throw new ApplicationException("Problem while instantiating factory class '" + factoryName + "'.  Aborting.", e);
 			}
 		}
 		static ADOMigrationLauncherFactoryLoader()
