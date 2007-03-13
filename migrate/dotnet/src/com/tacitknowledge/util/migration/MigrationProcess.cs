@@ -14,6 +14,8 @@
 using System;
 using log4net;
 using log4net.Config;
+
+using AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util;
 #endregion
 namespace com.tacitknowledge.util.migration
 {
@@ -57,8 +59,33 @@ namespace com.tacitknowledge.util.migration
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public class MigrationProcess
-	{
-		/// <summary> Returns a list of all migration tasks, regardless of patch level.
+    {
+
+        #region Members
+        /// <summary>Class logger </summary>
+        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.MigrationProcess'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
+        private static ILog log;
+
+        /// <summary> The list of package names containing the <code>MigrationTask</code>s
+        /// and SQL scripts to execute as patches
+        /// </summary>
+        private System.Collections.IList patchResourcePackages = new System.Collections.ArrayList();
+
+        /// <summary> The list of package names containing <code>MigrationTask</code>s
+        /// and SQL scripts to execute after patch execution
+        /// </summary>
+        private System.Collections.IList postPatchResourcePackages = new System.Collections.ArrayList();
+
+        /// <summary> Migration task providers</summary>
+        private System.Collections.IList migrationTaskSources = new System.Collections.ArrayList();
+
+        /// <summary> Used to broadcast migration task notifications</summary>
+        private MigrationBroadcaster broadcaster = new MigrationBroadcaster();
+
+        #endregion
+
+        #region Methods
+        /// <summary> Returns a list of all migration tasks, regardless of patch level.
 		/// 
 		/// </summary>
 		/// <returns> a list of all migration tasks
@@ -98,14 +125,19 @@ namespace com.tacitknowledge.util.migration
 		{
 			get
 			{
-				System.Collections.IList tasks = MigrationTasks;
+				System.Collections.ArrayList tasks = (System.Collections.ArrayList)MigrationTasks;
 				
 				if (tasks.Count == 0)
 				{
 					return 1;
 				}
 				
-				SupportClass.CollectionsSupport.Sort(tasks, null);
+                /*
+                 * Sort tasks. 
+                 * Validate them. 
+                 * Get the last task number
+                 */
+                tasks.Sort();
 				validateTasks(tasks);
 				MigrationTask lastTask = (MigrationTask) tasks[tasks.Count - 1];
 				
@@ -126,25 +158,7 @@ namespace com.tacitknowledge.util.migration
 			}
 			
 		}
-		/// <summary>Class logger </summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.MigrationProcess'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
-		private static ILog log;
-		
-		/// <summary> The list of package names containing the <code>MigrationTask</code>s
-		/// and SQL scripts to execute as patches
-		/// </summary>
-		private System.Collections.IList patchResourcePackages = new System.Collections.ArrayList();
-		
-		/// <summary> The list of package names containing <code>MigrationTask</code>s
-		/// and SQL scripts to execute after patch execution
-		/// </summary>
-		private System.Collections.IList postPatchResourcePackages = new System.Collections.ArrayList();
-		
-		/// <summary> Migration task providers</summary>
-		private System.Collections.IList migrationTaskSources = new System.Collections.ArrayList();
-		
-		/// <summary> Used to broadcast migration task notifications</summary>
-		private MigrationBroadcaster broadcaster = new MigrationBroadcaster();
+	
 		
 		/// <summary> Creates a new <code>Migration</code> instance.</summary>
 		public MigrationProcess()
@@ -230,15 +244,18 @@ namespace com.tacitknowledge.util.migration
 		{
 			log.Info("Starting doMigrations");
             
-			System.Collections.IList migrations = MigrationTasks;
+			System.Collections.ArrayList migrations = (System.Collections.ArrayList)MigrationTasks;
+            migrations.Sort();
 			validateTasks(migrations);
-			SupportClass.CollectionsSupport.Sort(migrations, null);
 			int taskCount = 0;
 			
-			//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+			
+
 			for (System.Collections.IEnumerator i = migrations.GetEnumerator(); i.MoveNext(); )
 			{
-				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
+				/*
+                 * Loop through migration tasks and see if we should apply them
+                 */ 
 				MigrationTask task = (MigrationTask) i.Current;
 				if (task.getLevel() > currentLevel)
 				{
@@ -269,11 +286,22 @@ namespace com.tacitknowledge.util.migration
 		public virtual int doPostPatchMigrations(MigrationContext context)
 		{
 			log.Info("Running post-patch tasks...");
-			System.Collections.IList postMigrationTasks = PostPatchMigrationTasks;
+			System.Collections.ArrayList postMigrationTasks = (System.Collections.ArrayList)PostPatchMigrationTasks;
+
+
+            postMigrationTasks.Sort();
 			validateTasks(postMigrationTasks);
-			SupportClass.CollectionsSupport.Sort(postMigrationTasks, null);
+
+            if (postMigrationTasks.Count == 0)
+            {
+                /*
+                 * No post migration tasks to perform
+                 */
+                return 0;
+            }
+
 			int taskCount = 0;
-			//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+			
 			for (System.Collections.IEnumerator i = postMigrationTasks.GetEnumerator(); i.MoveNext(); taskCount++)
 			{
 				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
@@ -354,17 +382,17 @@ namespace com.tacitknowledge.util.migration
 		private System.Collections.IList getTasksFromPackages(System.Collections.IList resourcePackages)
 		{
 			System.Collections.IList tasks = new System.Collections.ArrayList();
-			//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+			
 			for (System.Collections.IEnumerator i = resourcePackages.GetEnumerator(); i.MoveNext(); )
 			{
-				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
+				
 				System.String packageName = (System.String) i.Current;
 				log.Debug("Searching for migration tasks in package " + packageName);
 				
-				//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+				
 				for (System.Collections.IEnumerator j = migrationTaskSources.GetEnumerator(); j.MoveNext(); )
 				{
-					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
+					
 					MigrationTaskSource source = (MigrationTaskSource) j.Current;
 					System.Collections.IList sourceTasks = source.getMigrationTasks(packageName);
 					if (log.IsDebugEnabled)
@@ -372,16 +400,28 @@ namespace com.tacitknowledge.util.migration
 					{
 						if (sourceTasks.Count > 0)
 						{
-							//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-							log.Debug("Source [" + source + "] found " + sourceTasks.Count + " migration tasks: " + SupportClass.CollectionToString(sourceTasks));
-						}
+                            /*
+                             * We have tasks to add so we'll add them here
+                             */
+                            						
+							log.Debug("Source [" + source + "] found " + sourceTasks.Count + " migration tasks: " + sourceTasks.ToString());
+                            foreach (MigrationTaskSource mts in sourceTasks)
+                            {
+                                /*
+                                 * Add the source task
+                                 */ 
+                                tasks.Add(mts);
+                            }
+                        
+                        }
 						else
 						{
-							//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
+							
 							log.Debug("Source [" + source + "] returned 0 migration tasks.");
 						}
 					}
-					SupportClass.ICollectionSupport.AddAll(tasks, sourceTasks);
+                    
+                   
 				}
 			}
 			
@@ -441,33 +481,36 @@ namespace com.tacitknowledge.util.migration
 		/// <throws>  MigrationException if the migration tasks are not correctly defined </throws>
 		public virtual void  validateTasks(System.Collections.IList migrations)
 		{
-			//UPGRADE_TODO: Class 'java.util.HashMap' was converted to 'System.Collections.Hashtable' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMap'"
-			System.Collections.IDictionary usedOrderNumbers = new System.Collections.Hashtable();
-			//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+			/*
+             * We need to get tasks in the right order here
+             */ 
+			System.Collections.IDictionary useOrderedNumbers = new System.Collections.Hashtable();
+			
 			for (System.Collections.IEnumerator i = migrations.GetEnumerator(); i.MoveNext(); )
 			{
 				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 				MigrationTask task = (MigrationTask) i.Current;
 				
 				System.Int32 level = task.getLevel();
-				//UPGRADE_TODO: The 'System.Int32' structure does not have an equivalent to NULL. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1291'"
-				if (level == null)
+				
+				if (level == 0)
 				{
 					throw new MigrationException("Migration task '" + getTaskLabel(task) + "' does not have a patch level defined.");
 				}
-				
-				if (usedOrderNumbers.Contains(level))
+
+                if (useOrderedNumbers.Contains(level))
 				{
-					MigrationTask otherTask = (MigrationTask) usedOrderNumbers[level];
+					MigrationTask otherTask = (MigrationTask) useOrderedNumbers[level];
 					throw new MigrationException("Migration task " + getTaskLabel(task) + " has a conflicting patch level with " + getTaskLabel(otherTask) + "; both are configured for patch level " + level);
 				}
-				
-				usedOrderNumbers[level] = task;
+
+                useOrderedNumbers[level] = task;
 			}
 		}
 		static MigrationProcess()
 		{
 			log = LogManager.GetLogger(typeof(MigrationProcess));
 		}
-	}
+    }
+        #endregion
 }
