@@ -30,7 +30,7 @@ namespace com.tacitknowledge.util.migration.ado.util
 	/// </version>
 	public sealed class SqlUtil
     {
-        #region Member Variables
+        #region Members
         /// <summary> Class logger</summary>
 		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.util.SqlUtil'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
 		private static ILog log;
@@ -54,7 +54,8 @@ namespace com.tacitknowledge.util.migration.ado.util
 		/// </param>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
 		//UPGRADE_TODO: Interface 'java.sql.ResultSet' was converted to 'System.Data.OleDb.OleDbDataReader' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlResultSet'"
-		public static void  close(System.Data.OleDb.OleDbConnection conn, System.Data.OleDb.OleDbCommand stmt, System.Data.OleDb.OleDbDataReader rs)
+		/*
+        public static void  close(System.Data.Common.DbConnection conn, System.Data.OleDb.OleDbCommand stmt, System.Data.OleDb.OleDbDataReader rs)
 		{
 			if (rs != null)
 			{
@@ -64,7 +65,8 @@ namespace com.tacitknowledge.util.migration.ado.util
 				}
 				catch (System.Data.OleDb.OleDbException e)
 				{
-					log.error("Error closing ResultSet", e);
+					log.Error("Error closing ResultSet", e);
+                    
 				}
 			}
 			
@@ -73,11 +75,11 @@ namespace com.tacitknowledge.util.migration.ado.util
 				try
 				{
 					//UPGRADE_ISSUE: Method 'java.sql.Statement.close' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlStatementclose'"
-					stmt.close();
+					//stmt.close();
 				}
 				catch (System.Data.OleDb.OleDbException e)
 				{
-					log.error("Error closing Statment", e);
+					log.Error("Error closing Statment", e);
 				}
 			}
 			
@@ -89,11 +91,13 @@ namespace com.tacitknowledge.util.migration.ado.util
 				}
 				catch (System.Data.OleDb.OleDbException e)
 				{
-					log.error("Error closing Connection", e);
+					log.Error("Error closing Connection", e);
 				}
 			}
 		}
-		
+		*/
+
+        /*
 		/// <summary> Returns a connection from the <code>DataSource</code> located in JNDI
 		/// under the specified name. 
 		/// 
@@ -147,6 +151,7 @@ namespace com.tacitknowledge.util.migration.ado.util
 			temp_Connection.Open();
 			return temp_Connection;
 		}
+         * */
 		static SqlUtil()
 		{
             log = LogManager.GetLogger(typeof(SqlUtil));
