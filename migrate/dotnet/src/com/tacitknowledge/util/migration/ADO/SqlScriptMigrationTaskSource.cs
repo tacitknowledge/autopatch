@@ -13,12 +13,12 @@
 #region Imports
 using System;
 //UPGRADE_TODO: The type 'java.util.regex.Matcher' could not be found. If it was not included in the conversion, there may be compiler issues. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1262'"
-using Matcher = java.util.regex.Matcher;
+//using Matcher = java.util.regex.Matcher;
 //UPGRADE_TODO: The type 'java.util.regex.Pattern' could not be found. If it was not included in the conversion, there may be compiler issues. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1262'"
-using Pattern = java.util.regex.Pattern;
+//using Pattern = java.util.regex.Pattern;
 using log4net;
 using log4net.Config;
-using ClassDiscoveryUtil = com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
+
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 using MigrationTaskSource = com.tacitknowledge.util.migration.MigrationTaskSource;
 #endregion
@@ -33,8 +33,9 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public class SqlScriptMigrationTaskSource : MigrationTaskSource
-	{
-		/// <summary>Class logger </summary>
+    {
+        #region Methods
+        /// <summary>Class logger </summary>
 		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.SqlScriptMigrationTaskSource'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
 		private static ILog log;
 		
@@ -47,12 +48,12 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			System.String path = packageName.Replace('.', '/');
 			System.String[] scripts = ClassDiscoveryUtil.getResources(path, SQL_PATCH_REGEX);
-			if (log.isDebugEnabled())
+			if (log.IsDebugEnabled())
 			{
-				log.debug("Found " + scripts.Length + " patches in path: " + path);
+				log.Debug("Found " + scripts.Length + " patches in path: " + path);
 				for (int i = 0; i < scripts.Length; i++)
 				{
-					log.debug(" -- \"" + scripts[i] + "\"");
+					log.Debug(" -- \"" + scripts[i] + "\"");
 				}
 			}
 			return createMigrationScripts(scripts);
@@ -76,7 +77,7 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				System.String script = scripts[i];
 				script = script.Replace('\\', '/');
-				log.debug("Examining possible SQL patch file \"" + script + "\"");
+				log.Debug("Examining possible SQL patch file \"" + script + "\"");
 				//UPGRADE_ISSUE: Method 'java.lang.Class.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetResourceAsStream_javalangString'"
 				System.IO.Stream is_Renamed = GetType().getResourceAsStream("/" + script);
 				
@@ -120,4 +121,5 @@ namespace com.tacitknowledge.util.migration.ado
 			log = LogManager.GetLogger(typeof(SqlScriptMigrationTaskSource));
 		}
 	}
+#endregion
 }
