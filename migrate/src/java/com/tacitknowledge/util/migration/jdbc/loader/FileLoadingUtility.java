@@ -57,7 +57,8 @@ public class FileLoadingUtility
      */
     public InputStream getResourceAsStream()
     {
-        InputStream stream = getClass().getResourceAsStream(fileName);
+        InputStream stream =
+            Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
         if (stream == null)
         {
             stream = ClassLoader.getSystemResourceAsStream(fileName);

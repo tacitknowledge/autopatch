@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="lib/build/servletapi-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/core/commons-logging-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/poi-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/core/tk-util-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/commons-beanutils-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/commons-collections-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/test/commons-digester-1.5.jar"/>
@@ -29,5 +28,6 @@
 	<classpathentry kind="lib" path="lib/test/hsqldb.jar"/>
 	<classpathentry kind="lib" path="lib/build/checkstyle-all-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/dbunit-2.2.jar" sourcepath="/opt/software/dbunit-2.2/src/java"/>
+	<classpathentry kind="lib" path="lib/core/tk-util-1.1.2.jar" sourcepath="lib/core/tk-util-1.1.2-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -80,7 +80,8 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
             String script = scripts[i];
             script = script.replace('\\', '/');
             log.debug("Examining possible SQL patch file \"" + script + "\"");
-            InputStream is = getClass().getResourceAsStream("/" + script);
+            InputStream is = 
+                Thread.currentThread().getContextClassLoader().getResourceAsStream(script);
 
             if (is == null)
             {
