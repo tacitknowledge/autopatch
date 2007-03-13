@@ -13,7 +13,12 @@
 #region Imports
 using System;
 using log4net;
-using log4net.Config;using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
+using log4net.Config;
+
+
+using AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf;
+
+using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 using NonPooledDataSource = com.tacitknowledge.util.migration.ado.util.NonPooledDataSource;
 #endregion
@@ -31,13 +36,21 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <author>  Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public class ADOMigrationLauncherFactory
-	{
-		/// <summary> Get a DataSourceMigrationContext
+    {
+
+        #region Members
+        /// <summary>Class logger </summary>
+        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.ADOMigrationLauncherFactory'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
+        private static ILog log;
+        #endregion
+
+        #region Methods
+        /// <summary> Get a DataSourceMigrationContext
 		/// 
 		/// </summary>
 		/// <returns> DataSourceMigrationContext for use with the launcher
 		/// </returns>
-		virtual public DataSourceMigrationContext DataSourceMigrationContext
+		public DataSourceMigrationContext DataSourceMigrationContext
 		{
 			get
 			{
@@ -50,7 +63,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </summary>
 		/// <returns> ADOMigrationLauncher
 		/// </returns>
-		virtual public ADOMigrationLauncher ADOMigrationLauncher
+		 public ADOMigrationLauncher ADOMigrationLauncher
 		{
 			get
 			{
@@ -58,12 +71,9 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			
 		}
-		/// <summary>Class logger </summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.ADOMigrationLauncherFactory'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
-		private static ILog log;
 		
 		/// <summary> Creates and configures a new <code>ADOMigrationLauncher</code> based on the
-		/// values in the <em>migration.properties</em> file for the given system.
+		/// values in the <em>MigrationConfiguration object</em> file for the given system.
 		/// 
 		/// </summary>
 		/// <param name="systemName">the system to patch
@@ -71,9 +81,9 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> a fully configured <code>ADOMigrationLauncher</code>.
 		/// </returns>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public virtual ADOMigrationLauncher createMigrationLauncher(System.String systemName)
+		public ADOMigrationLauncher createMigrationLauncher(System.String systemName)
 		{
-			log.info("Creating ADOMigrationLauncher for system " + systemName);
+			log.Info("Creating ADOMigrationLauncher for system " + systemName);
 			ADOMigrationLauncher launcher = ADOMigrationLauncher;
 			configureFromMigrationProperties(launcher, systemName);
 			return launcher;
@@ -88,11 +98,11 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> a fully configured <code>ADOMigrationLauncher</code>.
 		/// </returns>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		//UPGRADE_ISSUE: Class 'javax.servlet.ServletContextEvent' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-		public virtual ADOMigrationLauncher createMigrationLauncher(ServletContextEvent sce)
+		
+		public ADOMigrationLauncher createMigrationLauncher()
 		{
 			ADOMigrationLauncher launcher = ADOMigrationLauncher;
-			configureFromServletContext(launcher, sce);
+			configureFromConfiguration(launcher);
 			return launcher;
 		}
 		
@@ -105,36 +115,37 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="sce">the event to get the context and associated parameters from
 		/// </param>
 		/// <throws>  MigrationException if a problem with the look up in JNDI occurs </throws>
-		//UPGRADE_ISSUE: Class 'javax.servlet.ServletContextEvent' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-		private void  configureFromServletContext(ADOMigrationLauncher launcher, ServletContextEvent sce)
+		
+		private void  configureFromConfiguration(ADOMigrationLauncher launcher)
 		{
-			DataSourceMigrationContext context = DataSourceMigrationContext;
-			System.String systemName = getRequiredParam("migration.systemname", sce);
+            ConfigurationManager configMgr = new ConfigurationManager();
+            MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
+            DBConfiguration dbConfig = configMgr.getDBConfiguration();
+
+            System.String systemName = migrationConfig.SystemName;
 			context.setSystemName(systemName);
-			
-			System.String databaseType = getRequiredParam("migration.databasetype", sce);
+
+            System.String databaseType = dbConfig.DatabaseType;
+
 			context.setDatabaseType(new DatabaseType(databaseType));
 			
 			System.String patchPath = getRequiredParam("migration.patchpath", sce);
 			launcher.PatchPath = patchPath;
 			
-			//UPGRADE_ISSUE: Method 'javax.servlet.ServletContext.getInitParameter' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextgetInitParameter_javalangString'"
-			//UPGRADE_ISSUE: Method 'javax.servlet.ServletContextEvent.getServletContext' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
+			
 			System.String postPatchPath = sce.getServletContext().getInitParameter("migration.postpatchpath");
 			launcher.PostPatchPath = postPatchPath;
 			
 			System.String dataSource = getRequiredParam("migration.datasource", sce);
 			try
 			{
-				//UPGRADE_TODO: Constructor 'javax.naming.InitialContext.InitialContext' was converted to 'System.DirectoryServices.DirectoryEntry' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaxnamingInitialContextInitialContext'"
-				//UPGRADE_TODO: Adjust remoting context initialization manually. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1258'"
+				
 				System.DirectoryServices.DirectoryEntry ctx = new System.DirectoryServices.DirectoryEntry();
 				if (ctx == null)
 				{
 					throw new System.ArgumentException("A jndi context must be " + "present to use this configuration.");
 				}
-				//UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
-				//UPGRADE_TODO: Method 'javax.naming.Context.lookup' was converted to 'System.Activator.GetObject' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaxnamingContextlookup_javalangString'"
+				
 				DataSource ds = (DataSource) Activator.GetObject(typeof(System.MarshalByRefObject), SupportClass.ParseURILookup("java:comp/env/" + dataSource));
 				context.DataSource = ds;
 				launcher.Context = context;
@@ -277,7 +288,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		/// <returns> the value of the specified configuration parameter
 		/// </returns>
-		//UPGRADE_ISSUE: Class hierarchy differences between 'java.util.Properties' and 'System.Collections.Specialized.NameValueCollection' may cause compilation errors. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1186'"
+		
 		public static System.String getRequiredParam(System.Collections.Specialized.NameValueCollection props, System.String param, System.String alternate)
 		{
 			try
@@ -297,23 +308,21 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 		}
 		
-		/// <summary> Returns the value of the specified servlet context initialization parameter.
+		/// <summary> Returns the value of the specified configuration parameter.
 		/// 
 		/// </summary>
 		/// <param name="param">the parameter to return
 		/// </param>
-		/// <param name="sce">the <code>ServletContextEvent</code> being handled
-		/// </param>
 		/// <returns> the value of the specified servlet context initialization parameter
 		/// </returns>
 		/// <throws>  IllegalArgumentException if the parameter does not exist </throws>
-		//UPGRADE_ISSUE: Class 'javax.servlet.ServletContextEvent' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-		private System.String getRequiredParam(System.String param, ServletContextEvent sce)
+		
+		private System.String getRequiredParam(System.String param)
 		{
-			//UPGRADE_ISSUE: Method 'javax.servlet.ServletContextEvent.getServletContext' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextEvent'"
-			System.Web.HttpApplicationState context = sce.getServletContext();
-			//UPGRADE_ISSUE: Method 'javax.servlet.ServletContext.getInitParameter' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxservletServletContextgetInitParameter_javalangString'"
-			System.String value_Renamed = context.getInitParameter(param);
+			/*
+             * use ConfigurationManager to retrieve a required parameter
+             */ 
+			
 			if (value_Renamed == null)
 			{
 				throw new System.ArgumentException("'" + param + "' is a required " + "servlet context initialization parameter for the \"" + GetType().FullName + "\" class.  Aborting.");
@@ -324,5 +333,6 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			log = LogManager.GetLogger(typeof(ADOMigrationLauncherFactory));
 		}
-	}
+    }
+        #endregion
 }
