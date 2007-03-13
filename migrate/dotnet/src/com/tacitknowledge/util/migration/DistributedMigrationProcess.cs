@@ -16,6 +16,9 @@ using System.Collections;
 using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration.ado;
+using AutopatchNET.src.com.tacitknowledge.util.migration.ADO;
+using AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util;
+
 #endregion
 namespace com.tacitknowledge.util.migration
 {
@@ -37,8 +40,9 @@ namespace com.tacitknowledge.util.migration
         private static ILog log;
 
         /// <summary>The ADOMigrationLaunchers we are controlling, keyed by system name </summary>
-      
-        private System.Collections.Hashtable controlledSystems = new System.Collections.Hashtable();
+
+        private AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util.ControlledSystemsList controlledSystems = new AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util.ControlledSystemsList();
+
 
         #endregion
 
@@ -46,7 +50,7 @@ namespace com.tacitknowledge.util.migration
         /// <summary> Returns a LinkedHashMap of task/launcher pairings, regardless of patch level.
 		/// 
 		/// </summary>
-		/// <returns> LinkedHashMap containing MigrationTask / ADOMigrationLauncher pairings
+		/// <returns> Hashtable containing MigrationTask / ADOMigrationLauncher pairings
 		/// </returns>
 		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
 		/// <summary>         created
@@ -58,21 +62,18 @@ namespace com.tacitknowledge.util.migration
 				Hashtable tasks = new Hashtable();
 				
 				// Roll through all our controlled system names
-				
-				for (System.Collections.IEnumerator controlledSystemIter = new SupportClass.HashSetSupport(ControlledSystems.Keys).GetEnumerator(); controlledSystemIter.MoveNext(); )
-				{
-					// Get the sub launcher that runs patches for the current name
-					System.String controlledSystemName = (System.String) controlledSystemIter.Current;
-					//UPGRADE_TODO: Method 'java.util.HashMap.get' was converted to 'System.Collections.Hashtable.Item' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMapget_javalangObject'"
-					ADOMigrationLauncher subLauncher = (ADOMigrationLauncher) ControlledSystems[controlledSystemName];
+                foreach (ControlledSystem cs in ControlledSystems)
+                    {
+                        //Get the sublauncher that runs patches for the current name
+                        ADOMigrationLauncher subLauncher = cs.AdoMigrationLauncher;
 					
 					// Get all the tasks for that sub launcher
 					System.Collections.IList subTasks = subLauncher.MigrationProcess.MigrationTasks;
-					log.Info("Found " + subTasks.Count + " for system " + controlledSystemName);
-					//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+					log.Info("Found " + subTasks.Count + " for system " + cs.ControlledSystemName);
+					
 					for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
 					{
-						//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
+						
 						MigrationTask task = (MigrationTask) subTaskIter.Current;
 						if (log.IsDebugEnabled)
 						{
@@ -80,7 +81,7 @@ namespace com.tacitknowledge.util.migration
 						}
 						
 						// store the task, related to its launcher
-						tasks.put(task, subLauncher);
+						tasks.Add(task, subLauncher);
 					}
 				}
 				
@@ -94,34 +95,32 @@ namespace com.tacitknowledge.util.migration
 		/// <returns> List containing MigrationTask objects
 		/// </returns>
 		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
-		/// <summary>         created
-		/// </summary>
 		override public System.Collections.IList MigrationTasks
 		{
 			get
 			{
 				System.Collections.IList tasks = new System.Collections.ArrayList();
 				
-				//UPGRADE_TODO: Method 'java.util.HashMap.keySet' was converted to 'SupportClass.HashSetSupport' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMapkeySet'"
-				//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
-				for (System.Collections.IEnumerator controlledSystemIter = new SupportClass.HashSetSupport(ControlledSystems.Keys).GetEnumerator(); controlledSystemIter.MoveNext(); )
-				{
-					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-					System.String controlledSystemName = (System.String) controlledSystemIter.Current;
-					//UPGRADE_TODO: Method 'java.util.HashMap.get' was converted to 'System.Collections.Hashtable.Item' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMapget_javalangObject'"
-					ADOMigrationLauncher launcher = (ADOMigrationLauncher) ControlledSystems[controlledSystemName];
+				
+				//for (System.Collections.IEnumerator controlledSystemIter = new SupportClass.HashSetSupport(ControlledSystems.Keys).GetEnumerator(); controlledSystemIter.MoveNext(); )
+				
+                foreach (ControlledSystem cs in controlledSystems)
+                {
+
+                    ADOMigrationLauncher launcher = cs.AdoMigrationLauncher;
 					System.Collections.IList subTasks = launcher.MigrationProcess.MigrationTasks;
-					log.Info("Found " + subTasks.Count + " for system " + controlledSystemName);
-					if (log.IsDebugEnabled())
+					log.Info("Found " + subTasks.Count + " for system " + cs.ControlledSystemName);
+					if (log.IsDebugEnabled)
 					{
 						//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
 						for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
 						{
 							//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 							log.Debug("\tFound subtask " + ((MigrationTask) subTaskIter.Current).getName());
+                            tasks.Add(subTasks);
 						}
 					}
-					SupportClass.ICollectionSupport.AddAll(tasks, subTasks);
+					
 				}
 				
 				// Its difficult to tell what's going on when you don't see any patches.
@@ -139,15 +138,17 @@ namespace com.tacitknowledge.util.migration
 		/// <summary> Get the list of systems we are controlling
 		/// 
 		/// </summary>
-		/// <returns> HashMap of ADOMigrationLauncher objects keyed by String system names
+		/// <returns> Hashlist of ADOMigrationLauncher objects keyed by String system names
 		/// </returns>
-		//UPGRADE_TODO: Class 'java.util.HashMap' was converted to 'System.Collections.Hashtable' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMap'"
-		/// <summary> Set the list of systems to control
+		
+		/// <summary> 
+        /// Set the list of systems to control
 		/// 
 		/// </summary>
-		/// <param name="controlledSystems">HashMap of ADOMigrationLauncher objects keyed by String system names
+        /// <returns>A list of systems to control and the ADOMigrationlauncher for controlling them</returns>
+		/// <param name="controlledSystems">HashList of ADOMigrationLauncher objects keyed by String system names
 		/// </param>
-		public System.Collections.Hashtable ControlledSystems
+        public AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util.ControlledSystemsList ControlledSystems
 		{
 			get
 			{
@@ -182,26 +183,29 @@ namespace com.tacitknowledge.util.migration
 			log.Debug("Starting doMigrations");
 			
 			// Get all the migrations, with their launchers, then get the list of just the migrations
-			LinkedHashMap migrationsWithLaunchers = MigrationTasksWithLaunchers;
-			System.Collections.IList migrations = new System.Collections.ArrayList();
-			migrations.addAll(migrationsWithLaunchers.keySet());
-			
-			// make sure the migrations are okay, then sort them
-			validateTasks(migrations);
-			SupportClass.CollectionsSupport.Sort(migrations, null);
+			Hashtable migrationsWithLaunchers = MigrationTasksWithLaunchers;
+            System.Collections.ArrayList migrations = new ArrayList();
+            foreach (MigrationTask mt in migrationsWithLaunchers)
+            {
+                migrations.Add(mt);
+
+                // make sure the migrations are okay, then sort them
+               
+            }
+            validateTasks(migrations);
+            migrations.Sort();
 			
 			// Roll through each migration, applying it if necessary
 			int taskCount = 0;
-			//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
-			for (System.Collections.IEnumerator i = migrations.GetEnumerator(); i.MoveNext(); )
+			//we can use foreach here as we have an ArrayList of MigrationTasks or migrations
+			foreach (MigrationTask mts in migrations)
 			{
-				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-				MigrationTask task = (MigrationTask) i.Current;
-				if (task.getLevel() > currentLevel)
+				
+				if (mts.getLevel() > currentLevel)
 				{
 					// Execute the task in the context it was loaded from
-					ADOMigrationLauncher launcher = (ADOMigrationLauncher) migrationsWithLaunchers.get_Renamed(task);
-					applyPatch(launcher.Context, task, true);
+                    ADOMigrationLauncher launcher = (ADOMigrationLauncher)migrationsWithLaunchers[mts];
+					applyPatch(launcher.Context, mts, true);
 					taskCount++;
 				}
 			}
