@@ -47,7 +47,7 @@ namespace AutopatchNET.src.com.tacitknowledge.util.migration.ADO.data
              * Determine the type of database we're configured to use
              */
             log.Debug("Getting configuration information from ConfigurationManager");
-            ConfigurationManager configMgr = new ConfigurationManager();
+            MigrationConfigurationManager configMgr = new MigrationConfigurationManager();
             DBConfiguration dbConfig = configMgr.getDBConfiguration();
             
             /*
