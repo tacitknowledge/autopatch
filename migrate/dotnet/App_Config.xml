@@ -5,5 +5,5 @@
     <section name="MigrationSettings" type="AutopatchNET.com.tacitknowledge.util.migration.ADO.conf.MigrationConfiguration, AutoPatchNET, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" />
   </configSections>
   <MigrationDatabaseSettings type="SQLServer" username="admin" password="admin" server="localhost" />
-  <MigrationSettings launcher="com.tacitknowledge.util.migration.ADO.WebAppMigrationLauncher" systemname="applicationname"/>
+  <MigrationSettings launcher="com.tacitknowledge.util.migration.ADO.WebAppMigrationLauncher" systemname="applicationname" patchpath="c:\work\patches" postpatchpath="c:\work\patches\postpatchpath"/>
 </configuration>
