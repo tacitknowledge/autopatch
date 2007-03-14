@@ -29,9 +29,6 @@ namespace com.tacitknowledge.util.migration.ado
 	/// in the <em>migration.properties</em> file for the given system.  This is a convenience
 	/// class for systems that need to initialize the autopatch framework but do not to or can not
 	/// configure the framework themselves.
-
-
-	/// 
 	/// </summary>
 	/// <author>  Scott Askew (scott@tacitknowledge.com)
 	/// </author>
@@ -120,23 +117,18 @@ namespace com.tacitknowledge.util.migration.ado
 		{
             MigrationConfigurationManager configMgr = new MigrationConfigurationManager();
             MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
+            
             DBConfiguration dbConfig = configMgr.getDBConfiguration();
 
-            System.String systemName = migrationConfig.SystemName;
-			context.setSystemName(systemName);
+            launcher.SystemName = migrationConfig.SystemName;
 
-            System.String databaseType = dbConfig.DatabaseType;
+			 DataSourceMigrationContext.setDatabaseType(dbConfig.DatabaseType);
 
-			context.setDatabaseType(new DatabaseType(databaseType));
+            launcher.PatchPath = migrationConfig.PatchPath;
 			
-			System.String patchPath = getRequiredParam("migration.patchpath", sce);
-			launcher.PatchPath = patchPath;
+			launcher.PostPatchPath = migrationConfig.PostPatchPath;
 			
 			
-			System.String postPatchPath = sce.getServletContext().getInitParameter("migration.postpatchpath");
-			launcher.PostPatchPath = postPatchPath;
-			
-			System.String dataSource = getRequiredParam("migration.datasource", sce);
 			try
 			{
 				
