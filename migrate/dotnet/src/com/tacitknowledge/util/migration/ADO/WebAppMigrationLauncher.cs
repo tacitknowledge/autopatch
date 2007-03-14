@@ -80,7 +80,7 @@ namespace com.tacitknowledge.util.migration.ado
 			try
 			{
 				//TODO: must create way to get System name from configuration. 
-                ConfigurationManager configMgr = new ConfigurationManager();
+                MigrationConfigurationManager configMgr = new MigrationConfigurationManager();
                 MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
 				
 				// The MigrationLauncher is responsible for handling the interaction
@@ -99,7 +99,7 @@ namespace com.tacitknowledge.util.migration.ado
 					// application from being deployed.  In this case, the intention is
 					// for migration-enabled applications to fail-fast if there are any
 					// errors during migration.
-					throw new RuntimeException("Migration exception caught during migration", e);
+					throw new ApplicationException("Migration exception caught during migration", e);
 				}
 			}
 			catch (System.SystemException e)
@@ -108,13 +108,13 @@ namespace com.tacitknowledge.util.migration.ado
 				// as many places as possible - debugging migration
 				// problems requires detection first, and that means
 				// getting the word of failures out.
-				log.Error(e);
-				//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Throwable.getMessage' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
+				log.Error(e.StackTrace);
+				
 				System.Console.Out.WriteLine(e.Message);
-				SupportClass.WriteStackTrace(e, System.Console.Out);
-				//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Throwable.getMessage' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
+				
+				
 				System.Console.Error.WriteLine(e.Message);
-				SupportClass.WriteStackTrace(e, System.Console.Error);
+				
 				
 				throw e;
 			}
