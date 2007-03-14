@@ -15,8 +15,8 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: log4net.Config.DOMConfigurator()]
-[assembly: log4net.Config.DOMConfigurator(ConfigFile = "app.log4net", ConfigFileExtension = "log4net", Watch = true)]
+
+[assembly: log4net.Config.XmlConfigurator(ConfigFile = "app.log4net", ConfigFileExtension = "log4net", Watch = true)]
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
