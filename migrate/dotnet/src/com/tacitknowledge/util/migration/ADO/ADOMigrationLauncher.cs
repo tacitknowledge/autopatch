@@ -12,14 +12,12 @@
 */
 #region Imports
 using System;
+using System.Data.Common;
 using log4net;
 using log4net.Config;
-using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
-using MigrationListener = com.tacitknowledge.util.migration.MigrationListener;
-using MigrationProcess = com.tacitknowledge.util.migration.MigrationProcess;
-using MigrationTask = com.tacitknowledge.util.migration.MigrationTask;
-using PatchInfoStore = com.tacitknowledge.util.migration.PatchInfoStore;
+using com.tacitknowledge.util.migration;
+
+
 using SqlUtil = com.tacitknowledge.util.migration.ado.util.SqlUtil;
 #endregion
 namespace com.tacitknowledge.util.migration.ado
@@ -36,8 +34,52 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
 	public class ADOMigrationLauncher : MigrationListener
-	{
-		/// <summary> Get the MigrationProcess we'll use to migrate things
+    {
+
+        #region Members
+        /// <summary> Class logger</summary>
+        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.ADOMigrationLauncher'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
+        private static ILog log;
+
+        /// <summary>
+        /// The name of the system we're updating (Multi-node)
+        /// </summary>
+        private String systemName = null;
+
+        /// <summary> The patch level store in use</summary>
+        private PatchInfoStore patchTable = null;
+
+        /// <summary> The <code>MigrationProcess</code> responsible for applying the patches</summary>
+        private MigrationProcess migrationProcess = null;
+
+        /// <summary> The amount time, in milliseconds, between attempts to obtain a lock on the
+        /// patches table.  Defaults to 15 seconds.
+        /// </summary>
+        private long lockPollMillis = 15000;
+
+        /// <summary> The path containing directories and packages to search through to locate patches.</summary>
+        private System.String patchPath = null;
+
+        /// <summary> The path containing directories and packages to search through to locate post-patch tasks.</summary>
+        private System.String postPatchPath = null;
+
+        /// <summary> The <code>MigrationContext</code> to use for all migrations.</summary>
+        private ADOMigrationContext context = null;
+		
+        #endregion 
+
+        # region Methods
+
+        /// <summary>
+        /// The name of the system we're updating
+        /// </summary>
+        public String SystemName
+        {
+            get { return systemName; }
+            set { systemName = value; }
+        }
+
+        /// <summary> Get the MigrationProcess we'll use to migrate things
 		/// 
 		/// </summary>
 		/// <returns> MigrationProcess for migration control
@@ -272,29 +314,6 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			
 		}
-		/// <summary> Class logger</summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.ADOMigrationLauncher'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
-		private static ILog log;
-		
-		/// <summary> The patch level store in use</summary>
-		private PatchInfoStore patchTable = null;
-		
-		/// <summary> The <code>MigrationProcess</code> responsible for applying the patches</summary>
-		private MigrationProcess migrationProcess = null;
-		
-		/// <summary> The amount time, in milliseconds, between attempts to obtain a lock on the
-		/// patches table.  Defaults to 15 seconds.
-		/// </summary>
-		private long lockPollMillis = 15000;
-		
-		/// <summary> The path containing directories and packages to search through to locate patches.</summary>
-		private System.String patchPath = null;
-		
-		/// <summary> The path containing directories and packages to search through to locate post-patch tasks.</summary>
-		private System.String postPatchPath = null;
-		
-		/// <summary> The <code>MigrationContext</code> to use for all migrations.</summary>
-		private ADOMigrationContext context = null;
 		
 		/// <summary> Create a new MigrationProcess and add a SqlScriptMigrationTaskSource</summary>
 		public ADOMigrationLauncher()
@@ -391,7 +410,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary>         the migration
 		/// </summary>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		protected internal virtual int doMigrations(System.Data.OleDb.OleDbConnection conn)
+		protected internal virtual int doMigrations(DbConnection conn)
 		{
 			patchTable = createPatchStore(conn);
 			
@@ -538,6 +557,7 @@ namespace com.tacitknowledge.util.migration.ado
 		static ADOMigrationLauncher()
 		{
 			log = LogManager.GetLogger(typeof(ADOMigrationLauncher));
-		}
-	}
+        }
+        #endregion
+    }
 }
