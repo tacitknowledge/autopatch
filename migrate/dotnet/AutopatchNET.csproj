@@ -88,6 +88,7 @@
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
+    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Web">
       <Name>System.Web</Name>
     </Reference>
@@ -97,9 +98,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ConfigurationUtil.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\ControlledSystem.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\data\DBConnectionFactory.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ControlledSystemsList.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\Hashlist.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\MigrationTaskList.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\DistributedMigrationProcess.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\AutoPatchService.cs" />
@@ -127,13 +130,14 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\WebAppMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationBroadcaster.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationContext.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\MigrationDataSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationException.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationListener.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationProcess.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationTask.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationTaskSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\ConfigurationFactory.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\ConfigurationManager.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\MigrationConfigurationManager.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\DBConfiguration.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\MigrationConfiguration.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationTaskSupport.cs" />
