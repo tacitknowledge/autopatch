@@ -15,6 +15,7 @@ using System;
 using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration;
+using AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf;
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
@@ -70,7 +71,7 @@ namespace com.tacitknowledge.util.migration.ado
 		public static void  Main(System.String[] arguments)
 		{
 
-            ConfigurationManager configMgr = new ConfigurationManager();
+            MigrationConfigurationManager configMgr = new MigrationConfigurationManager();
             MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
 
 
