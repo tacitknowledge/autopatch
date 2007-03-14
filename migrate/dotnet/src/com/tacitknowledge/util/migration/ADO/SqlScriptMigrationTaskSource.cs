@@ -19,8 +19,11 @@ using System;
 using log4net;
 using log4net.Config;
 
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
-using MigrationTaskSource = com.tacitknowledge.util.migration.MigrationTaskSource;
+using com.tacitknowledge.util.migration;
+
+
+using System.Text.RegularExpressions;
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
