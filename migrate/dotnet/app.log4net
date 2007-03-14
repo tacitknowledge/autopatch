@@ -37,7 +37,7 @@
     </appender>
     <!-- Setup the root category, add the appenders and set the default level -->
     <root>
-      <level value="INFO" />
+      <level value="DEBUG" />
       <appender-ref ref="RollingFileAppender" />
     </root>
     
