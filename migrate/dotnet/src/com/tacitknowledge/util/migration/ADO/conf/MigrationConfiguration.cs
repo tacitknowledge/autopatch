@@ -26,11 +26,23 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
             get { return (string)this["launcher"]; }
             set { this["launcher"] = value; }
         }
-
+        [ConfigurationProperty("systemname")]
         public String SystemName
         {
             get { return (string) this["systemname"];}
             set { this["systemname"] = value;}
+        }
+        [ConfigurationProperty("patchpath")]
+        public String PatchPath
+        {
+            get { return (string)this["patchpath"]; }
+            set { this["patchpath"] = value; }
+        }
+        [ConfigurationProperty("postpatchpath")]
+        public String PostPatchPath
+        {
+            get { return (string)this["postpatchpath"]; }
+            set { this["postpatchpath"] = value; }
         }
 
         #endregion
