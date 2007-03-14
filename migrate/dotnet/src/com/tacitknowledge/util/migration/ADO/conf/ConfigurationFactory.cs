@@ -21,49 +21,109 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
          * Log
          */ 
         private static ILog log;
+        /*
+         * MigrationConfiguration object
+         */
+        private MigrationConfiguration migrationConfig = null;
+
+        public MigrationConfiguration MigrationConfiguration
+        {
+            get {
+                if (migrationConfig != null)
+                {
+                    return migrationConfig;
+
+                }
+                else
+                {
+                    getMigrationConfiguration();
+                    return migrationConfig;
+                }
+                
+                 }
+            set { migrationConfig = value; }
+        }
+
+        /*
+         * DBConfiguration oejct
+         */
+        private DBConfiguration dbConfig = null;
+
+        public DBConfiguration DbConfiguration
+        {
+            get {
+
+                if (dbConfig != null)
+                {
+                    return dbConfig;
+                   
+                }
+                else
+                {
+                    getDBConfiguration();
+                    return dbConfig;
+                }
+
+                
+                }
+            set { dbConfig = value; }
+        }
+
 
         #endregion
 
         #region Methods
 
-        public DBConfiguration getDBConfiguration()
+
+
+
+
+        private void getDBConfiguration()
         {
-            try
-            {
-                // Retrieve DB configuration settings from app.config file
-                DBConfiguration configData = ConfigurationManager.GetSection("MigrationDatabaseSettings") as DBConfiguration;
-            }
-            catch (Exception e)
+            if (dbConfig != null)
             {
 
-                log.Fatal("Error retrieving MigrationDatabaseSettings: " + e.ToString);
+                try
+                {
+
+                    // Retrieve DB configuration settings from app.config file
+                    dbConfig = ConfigurationManager.GetSection("MigrationDatabaseSettings") as DBConfiguration;
+
+                }
+                catch (Exception e)
+                {
+
+                    log.Fatal("Error retrieving MigrationDatabaseSettings: " + e.StackTrace);
+                    throw new ApplicationException("ConfigurationFactory::getDBConfiguration - error retrieving DB Configuration settings:" + e.StackTrace);
+                }
 
             }
-            return configData;
-            }
+            
+        }
 
-        public MigrationConfiguration getMigrationConfiguration()
+
+        private void getMigrationConfiguration()
         {
-
-            try
+            if (migrationConfig != null)
             {
-                MigrationConfiguration configData = ConfigurationManager.GetSection("MigrationSettings") as MigrationConfiguration;
+                try
+                {
+                    migrationConfig = ConfigurationManager.GetSection("MigrationSettings") as MigrationConfiguration;
+                }
+                catch (Exception e)
+                {
+
+                    log.Debug("Error retrieving Migration Settings: " + e.StackTrace);
+                    throw new ApplicationException("ConfigurationFactory::getMigrationConfiguration - error retrieving Migration settings:" + e.StackTrace);
+                }
             }
-            catch(Exception e) {
-
-                log.Debug("Error retrieving MigrationSettings: " + e.ToString);
-                
-            }
-
-            return configData;
-
-         }
-
+        }
 
         static ConfigurationFactory()
         {
             //Get Logger
             log = LogManager.GetLogger(typeof(ConfigurationFactory));
+            
         }
 
         #endregion
