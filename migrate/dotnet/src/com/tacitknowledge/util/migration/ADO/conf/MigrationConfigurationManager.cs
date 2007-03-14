@@ -54,15 +54,10 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
         public MigrationConfiguration getMigrationConfiguration()
         {
 
-                try
-                {
+              
                     
-                    return migrationConfig = configFactory.getMigrationConfiguration();
-                }
-                catch (Exception e)
-                {
-                    log.Debug("Error getting MigrationConfiguration object from ConfigurationFactory: " + e.ToString);
-                }
+                    return migrationConfig = configFactory.MigrationConfiguration;
+               
 
         }
 
@@ -72,14 +67,9 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
         public DBConfiguration getDBConfiguration()
         {
 
-            try
-            {
-                return configFactory.getDBConfiguration();
-            }catch(Exception e){
-            
-                log.Debug("Error getting DBConfiguration object from ConfigurationFactory: " + e.ToString);
-
-            }
+          
+                return configFactory.DbConfiguration;
+           
 
         }
 
