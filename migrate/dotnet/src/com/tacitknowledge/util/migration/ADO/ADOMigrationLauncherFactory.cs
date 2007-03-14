@@ -118,7 +118,7 @@ namespace com.tacitknowledge.util.migration.ado
 		
 		private void  configureFromConfiguration(ADOMigrationLauncher launcher)
 		{
-            ConfigurationManager configMgr = new ConfigurationManager();
+            MigrationConfigurationManager configMgr = new MigrationConfigurationManager();
             MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
             DBConfiguration dbConfig = configMgr.getDBConfiguration();
 
@@ -167,43 +167,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
 		private void  configureFromMigrationProperties(ADOMigrationLauncher launcher, System.String systemName)
 		{
-			//UPGRADE_ISSUE: Class 'java.lang.ClassLoader' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassLoader'"
-			//UPGRADE_ISSUE: Method 'java.lang.Thread.getContextClassLoader' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangThreadgetContextClassLoader'"
-			ClassLoader cl = SupportClass.ThreadClass.Current().getContextClassLoader();
-			//UPGRADE_ISSUE: Method 'java.lang.ClassLoader.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassLoader'"
-			System.IO.Stream is_Renamed = cl.getResourceAsStream(com.tacitknowledge.util.migration.MigrationContext_Fields.MIGRATION_CONFIG_FILE);
-			if (is_Renamed != null)
-			{
-				try
-				{
-					//UPGRADE_ISSUE: Class hierarchy differences between 'java.util.Properties' and 'System.Collections.Specialized.NameValueCollection' may cause compilation errors. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1186'"
-					//UPGRADE_TODO: Format of property file may need to be changed. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1089'"
-					System.Collections.Specialized.NameValueCollection props = new System.Collections.Specialized.NameValueCollection();
-					//UPGRADE_TODO: Method 'java.util.Properties.load' was converted to 'System.Collections.Specialized.NameValueCollection' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilPropertiesload_javaioInputStream'"
-					props = new System.Collections.Specialized.NameValueCollection(System.Configuration.ConfigurationSettings.AppSettings);
-					
-					configureFromMigrationProperties(launcher, systemName, props);
-				}
-				catch (System.IO.IOException e)
-				{
-					throw new MigrationException("Error reading in migration properties file", e);
-				}
-				finally
-				{
-					try
-					{
-						is_Renamed.Close();
-					}
-					catch (System.IO.IOException ioe)
-					{
-						throw new MigrationException("Error closing migration properties file", ioe);
-					}
-				}
-			}
-			else
-			{
-				throw new MigrationException("Unable to find migration properties file '" + com.tacitknowledge.util.migration.MigrationContext_Fields.MIGRATION_CONFIG_FILE + "'");
-			}
+			//TODO: alter this to use MigrationConfigurationManager
 		}
 		
 		/// <summary> Configure the launcher from the provided properties, system name
@@ -217,7 +181,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		/// <throws>  IllegalArgumentException if a required parameter is missing </throws>
 		/// <throws>  MigrationException if there is problem setting the context into the launcher </throws>
-		//UPGRADE_ISSUE: Class hierarchy differences between 'java.util.Properties' and 'System.Collections.Specialized.NameValueCollection' may cause compilation errors. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1186'"
+		
 		private void  configureFromMigrationProperties(ADOMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
 		{
 			launcher.PatchPath = getRequiredParam(props, systemName + ".patch.path");
@@ -255,7 +219,8 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		/// <throws>  IllegalArgumentException if the parameter does not exist </throws>
 		//UPGRADE_ISSUE: Class hierarchy differences between 'java.util.Properties' and 'System.Collections.Specialized.NameValueCollection' may cause compilation errors. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1186'"
-		public static System.String getRequiredParam(System.Collections.Specialized.NameValueCollection props, System.String param)
+		//TODO: Alter parameter retrieval to use MigrationConfigurationManager
+       /* public static System.String getRequiredParam(System.Collections.Specialized.NameValueCollection props, System.String param)
 		{
 			System.String value_Renamed = props.Get(param);
 			if (value_Renamed == null)
@@ -275,7 +240,7 @@ namespace com.tacitknowledge.util.migration.ado
 				throw new System.ArgumentException("'" + param + "' is a required " + "initialization parameter.  Aborting.");
 			}
 			return value_Renamed;
-		}
+		}*/
 		
 		/// <summary> Returns the value of the specified configuration parameter.
 		/// 
@@ -288,15 +253,16 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		/// <returns> the value of the specified configuration parameter
 		/// </returns>
-		
-		public static System.String getRequiredParam(System.Collections.Specialized.NameValueCollection props, System.String param, System.String alternate)
+		//TODO: Alter class to use MigrationConfigurationManager
+		/*public static System.String getRequiredParam(System.Collections.Specialized.NameValueCollection props, System.String param, System.String alternate)
 		{
 			try
 			{
 				return getRequiredParam(props, param);
 			}
 			catch (System.ArgumentException e1)
-			{
+            {
+                log.Debug("ArgumentException in getRequiredParam: " + e1.StackTrace);
 				try
 				{
 					return getRequiredParam(props, alternate);
@@ -307,7 +273,7 @@ namespace com.tacitknowledge.util.migration.ado
 				}
 			}
 		}
-		
+		*/
 		/// <summary> Returns the value of the specified configuration parameter.
 		/// 
 		/// </summary>
@@ -316,19 +282,19 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> the value of the specified servlet context initialization parameter
 		/// </returns>
 		/// <throws>  IllegalArgumentException if the parameter does not exist </throws>
-		
-		private System.String getRequiredParam(System.String param)
+        //TODO: use ConfigurationManager to retrieve a required parameter
+		/*private System.String getRequiredParam(System.String param)
 		{
 			/*
-             * use ConfigurationManager to retrieve a required parameter
+             * 
              */ 
-			
+			/*
 			if (value_Renamed == null)
 			{
 				throw new System.ArgumentException("'" + param + "' is a required " + "servlet context initialization parameter for the \"" + GetType().FullName + "\" class.  Aborting.");
 			}
 			return value_Renamed;
-		}
+		}*/
 		static ADOMigrationLauncherFactory()
 		{
 			log = LogManager.GetLogger(typeof(ADOMigrationLauncherFactory));
