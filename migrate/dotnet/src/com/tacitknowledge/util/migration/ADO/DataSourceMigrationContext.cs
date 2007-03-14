@@ -31,8 +31,8 @@ namespace com.tacitknowledge.util.migration.ado
         //UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
         private System.Data.Common.DbConnection connection = null;
 
-        /// <summary> The DataSource to use</summary>
-        //UPGRADE_ISSUE: Interface 'javax.sql.DataSource' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javaxsqlDataSource'"
+        /// <summary>Will provide the DBConnection required to talk to the data store</summary>
+        
         private MigrationDataSource dataSource = null;
 
         /// <summary> The name of the system being patched</summary>
@@ -40,6 +40,8 @@ namespace com.tacitknowledge.util.migration.ado
 
         /// <summary> The name of the system being patched</summary>
         private DatabaseType databaseType = null;
+
+        private static Int32 MAX_SYSTEMNAME_LENGTH = 30;
 
         #endregion
 
@@ -50,7 +52,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> the database connection to use
 		/// </returns>
 		/// <throws>  SQLException if an unexpected error occurs </throws>
-		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
+		
 		public System.Data.Common.DbConnection Connection
 		{
 			get
@@ -61,7 +63,9 @@ namespace com.tacitknowledge.util.migration.ado
 					/*
                      * Obtain a connection object for talking to the Data store
                      */
- 
+                    dataSource = new MigrationDataSource();
+                    connection = dataSource.getConnection();
+                    return connection;
 				}
 				return connection;
 			}
@@ -135,9 +139,9 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				throw new System.ArgumentException("systemName cannot be null");
 			}
-			if (name.Length > com.tacitknowledge.util.migration.ado.ADOMigrationContext_Fields.MAX_SYSTEMNAME_LENGTH)
+            if (name.Length > MAX_SYSTEMNAME_LENGTH)
 			{
-				throw new System.ArgumentException("systemName cannot be longer than " + com.tacitknowledge.util.migration.ado.ADOMigrationContext_Fields.MAX_SYSTEMNAME_LENGTH + " characters");
+                throw new System.ArgumentException("systemName cannot be longer than " + MAX_SYSTEMNAME_LENGTH + " characters");
 			}
 			this.systemName = name;
         }
