@@ -2,7 +2,6 @@
 <?php include("includes/navbar.inc"); ?>
 <?= navbar("Contact Us"); ?>
 <?php include("includes/updates.inc"); ?>
-<?php include("includes/jobs.inc"); ?>
 
 	<h3>We look forward to your feedback!</h3>
 
