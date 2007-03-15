@@ -14,9 +14,8 @@
 using System;
 using log4net;
 using log4net.Config;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
-using PatchInfoStore = com.tacitknowledge.util.migration.PatchInfoStore;
-using SqlUtil = com.tacitknowledge.util.migration.ado.util.SqlUtil;
+using com.tacitknowledge.util.migration;
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
