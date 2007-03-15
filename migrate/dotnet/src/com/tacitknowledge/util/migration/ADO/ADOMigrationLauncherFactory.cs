@@ -18,9 +18,8 @@ using log4net.Config;
 
 using AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf;
 
-using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
-using NonPooledDataSource = com.tacitknowledge.util.migration.ado.util.NonPooledDataSource;
+using com.tacitknowledge.util.migration;
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
@@ -86,68 +85,7 @@ namespace com.tacitknowledge.util.migration.ado
 			return launcher;
 		}
 		
-		/// <summary> Creates and configures a new <code>ADOMigrationLauncher</code> based on the
-		/// values in the servlet context and JNDI for a web-application.
-		/// 
-		/// </summary>
-		/// <param name="sce">the name of the context event to use in getting properties
-		/// </param>
-		/// <returns> a fully configured <code>ADOMigrationLauncher</code>.
-		/// </returns>
-		/// <throws>  MigrationException if an unexpected error occurs </throws>
 		
-		public ADOMigrationLauncher createMigrationLauncher()
-		{
-			ADOMigrationLauncher launcher = ADOMigrationLauncher;
-			configureFromConfiguration(launcher);
-			return launcher;
-		}
-		
-		/// <summary> Used to configure the migration launcher with properties from a servlet 
-		/// context.  You do not need migration.properties to use this method.
-		/// 
-		/// </summary>
-		/// <param name="launcher">the launcher to configure
-		/// </param>
-		/// <param name="sce">the event to get the context and associated parameters from
-		/// </param>
-		/// <throws>  MigrationException if a problem with the look up in JNDI occurs </throws>
-		
-		private void  configureFromConfiguration(ADOMigrationLauncher launcher)
-		{
-            MigrationConfigurationManager configMgr = new MigrationConfigurationManager();
-            MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
-            
-            DBConfiguration dbConfig = configMgr.getDBConfiguration();
-
-            launcher.SystemName = migrationConfig.SystemName;
-
-			 DataSourceMigrationContext.setDatabaseType(dbConfig.DatabaseType);
-
-            launcher.PatchPath = migrationConfig.PatchPath;
-			
-			launcher.PostPatchPath = migrationConfig.PostPatchPath;
-			
-			
-			try
-			{
-				
-				System.DirectoryServices.DirectoryEntry ctx = new System.DirectoryServices.DirectoryEntry();
-				if (ctx == null)
-				{
-					throw new System.ArgumentException("A jndi context must be " + "present to use this configuration.");
-				}
-				
-				DataSource ds = (DataSource) Activator.GetObject(typeof(System.MarshalByRefObject), SupportClass.ParseURILookup("java:comp/env/" + dataSource));
-				context.DataSource = ds;
-				launcher.Context = context;
-			}
-			//UPGRADE_NOTE: Exception 'javax.naming.NamingException' was converted to 'System.Exception' which has different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1100'"
-			catch (System.Exception e)
-			{
-				throw new MigrationException("Problem with JNDI look up of " + dataSource, e);
-			}
-		}
 		
 		/// <summary> Loads the configuration from the migration config properties file.
 		/// 
@@ -176,15 +114,16 @@ namespace com.tacitknowledge.util.migration.ado
 		
 		private void  configureFromMigrationProperties(ADOMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
 		{
+            //TODO: change to use MigrationConfigurationManager
 			launcher.PatchPath = getRequiredParam(props, systemName + ".patch.path");
 			launcher.PostPatchPath = props.Get(systemName + ".postpatch.path");
 			
 			// Set up the data source
-			NonPooledDataSource dataSource = new NonPooledDataSource();
+			/*NonPooledDataSource dataSource = new NonPooledDataSource();
 			dataSource.DriverClass = getRequiredParam(props, systemName + ".ado.driver");
 			dataSource.DatabaseUrl = getRequiredParam(props, systemName + ".ado.url");
 			dataSource.Username = getRequiredParam(props, systemName + ".ado.username");
-			dataSource.Password = getRequiredParam(props, systemName + ".ado.password");
+			dataSource.Password = getRequiredParam(props, systemName + ".ado.password");*/
 			
 			// Set up the ADO migration context; accepts one of two property names
 			DataSourceMigrationContext context = DataSourceMigrationContext;
