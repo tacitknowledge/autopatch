@@ -5,7 +5,7 @@
 
 <h3>AutoPatch in other languages</h3>
 
-<p>AutoPatch is an idea on how to apply an agile process to persistent storage more than an implementation.</p>
+<p>The primary implementation of AutoPatch is in Java, but AutoPatch is an idea on how to apply an agile process to persistent storage more than an implementation.</p>
 
 <p>As such, we have implemented this idea (to a larger or smaller degree) in other languages as well.
 

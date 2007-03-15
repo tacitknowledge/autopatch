@@ -15,7 +15,7 @@
     <div class="tacitlogo">Sponsored by:<br>
     <a href="http://www.tacitknowledge.com"><img src="images/tacit_knowledge_logo.gif" width="124" height="57" alt="Sponsored by Tacit Knowledge: Continuous Development" border="0" /></a><br>Continuous Deployment</div>
 	<a href="index.php"><img src="images/autopatch_logo.gif" width="331" height="75" alt="AutoPatch" border="0" /></a><br>
-    <span class="tagline">The automated Java patching system</span><br><br>
+    <span class="tagline">The automated patching system</span><br><br>
     <div class="headerbottom">&nbsp;</div></div>
 
 <div id="content">

@@ -2,7 +2,7 @@
 <?php include("includes/navbar.inc"); ?>
 <?= navbar("Contact Us"); ?>
 <?php include("includes/updates.inc"); ?>
-    
+<?php include("includes/jobs.inc"); ?>
 
 	<h3>We look forward to your feedback!</h3>
 
@@ -12,7 +12,7 @@
 
 	<p>We don't have a mailing list yet, but to date we haven't needed one. We will create one if the issue tracker traffic dictates it.</p>
 
-	<p>Alternatively, you send email to mike - at - tacitknowledge.com with direct correspondence.</p>
+	<p>Alternatively, you may send email to mike - at - tacitknowledge.com for direct correspondence.</p>
 
 	<p>Thanks!</p>
 
