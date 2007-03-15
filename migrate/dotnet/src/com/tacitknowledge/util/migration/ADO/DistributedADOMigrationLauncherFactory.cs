@@ -15,10 +15,8 @@
 using System;
 using log4net;
 using log4net.Config;
-using DistributedMigrationProcess = com.tacitknowledge.util.migration.DistributedMigrationProcess;
-using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
-using NonPooledDataSource = com.tacitknowledge.util.migration.ado.util.NonPooledDataSource;
+using com.tacitknowledge.util.migration;
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
@@ -148,7 +146,7 @@ namespace com.tacitknowledge.util.migration.ado
 			System.String patchStoreContextName = getRequiredParam(props, systemName + ".context");
 			
 			// Set up the data source
-			NonPooledDataSource dataSource = new NonPooledDataSource();
+			
 			dataSource.DriverClass = getRequiredParam(props, patchStoreContextName + ".ado.driver");
 			dataSource.DatabaseUrl = getRequiredParam(props, patchStoreContextName + ".ado.url");
 			dataSource.Username = getRequiredParam(props, patchStoreContextName + ".ado.username");
