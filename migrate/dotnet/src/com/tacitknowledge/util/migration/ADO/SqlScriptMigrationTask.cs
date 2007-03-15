@@ -13,10 +13,9 @@
 #region Imports
 using System;
 using log4net;
-using log4net.Config;using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
-using MigrationTaskSupport = com.tacitknowledge.util.migration.MigrationTaskSupport;
-using SqlUtil = com.tacitknowledge.util.migration.ado.util.SqlUtil;
+using log4net.Config;
+using com.tacitknowledge.util.migration;
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
