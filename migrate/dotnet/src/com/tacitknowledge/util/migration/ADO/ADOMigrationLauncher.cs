@@ -17,8 +17,6 @@ using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration;
 
-
-using SqlUtil = com.tacitknowledge.util.migration.ado.util.SqlUtil;
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
