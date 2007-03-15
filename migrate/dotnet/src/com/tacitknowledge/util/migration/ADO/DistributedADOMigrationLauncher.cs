@@ -13,10 +13,9 @@
 */
 #region Imports
 using System;
-using DistributedMigrationProcess = com.tacitknowledge.util.migration.DistributedMigrationProcess;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
-using MigrationProcess = com.tacitknowledge.util.migration.MigrationProcess;
-using SqlUtil = com.tacitknowledge.util.migration.ado.util.SqlUtil;
+using com.tacitknowledge.util.migration;
+
+
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
