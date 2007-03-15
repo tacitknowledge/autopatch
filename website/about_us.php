@@ -11,6 +11,9 @@
 	<p>Tacit Knowledge uses a development process that focuses on the idea of "Continuous Deployment" - an agile process from requirements gathering through development and including operational
 	tasks - allowing its clients not just to develop code efficiently, but to handle <b>all</b> aspects of their applications lifecycle efficiently.
 
+<?php include("includes/jobs.inc"); ?>
+
+
 	<p>AutoPatch has been developed over the last few years as an in-house tool for use by consultants at Tacit Knowledge.</p>
 
 	<p>Over time, we realized that we were using it on all of our projects, and we were successfully delivering solutions without
