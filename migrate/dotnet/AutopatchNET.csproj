@@ -74,13 +74,13 @@
   <ItemGroup>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\log4net-1.2.10\bin\net\2.0\release\log4net.dll</HintPath>
+      <HintPath>..\..\..\..\DOTNET\log4net\log4net-1.2.10\bin\net\2.0\release\log4net.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <Name>mscorlib</Name>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.2.9.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
-    <Reference Include="nunit.framework.tests, Version=2.2.9.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="nunit.framework, Version=2.2.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
+    <Reference Include="nunit.framework.tests, Version=2.2.8.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -125,8 +125,6 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\SqlScriptMigrationTaskSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\StandaloneMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ConnectionWrapperDataSource.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\NonPooledDataSource.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\SqlUtil.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\WebAppMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationBroadcaster.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationContext.cs" />
@@ -144,9 +142,6 @@
     <Compile Include="src\com\tacitknowledge\util\migration\PatchInfoStore.cs" />
     <Content Include="App_Config.xml" />
     <None Include="app.log4net" />
-    <None Include="_ConversionReport.htm">
-      <SubType>Preview</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\com\tacitknowledge\util\migration\ADO\loader\" />
