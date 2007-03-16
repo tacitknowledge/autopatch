@@ -9,6 +9,12 @@
 
 <p>As such, we have implemented this idea (to a larger or smaller degree) in other languages as well.
 
-<p>We have basic implementations in PHP, Ruby (it's different than stock Migrations - it works on Windows/SQLServer), and .NET. <a href="contact_us.php">contact us</a> if you are interested.</p>
+<p>We have basic implementations in:
+<ul>
+<li><a href="http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate/php/">PHP</a>
+<li><a href="http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate/ruby/">Ruby</a> (it's different than stock Migrations - it works on Windows/SQLServer)
+<li><a href="http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate/dotnet/">.NET</a>.
+</ul>
+</p>
 
 <?php include("includes/footer.inc"); ?>

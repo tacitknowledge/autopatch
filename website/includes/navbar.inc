@@ -15,6 +15,7 @@ function navbar()
 			"Links" => "links.php",
 			"Other Languages" => "other_languages.php",
 			"Quick Start" => "quick_start.php",
+			"How to Help" => "how_to_help.php",
 			"SourceForge Download" => "https://sourceforge.net/project/showfiles.php?group_id=106637"
 			
 	);
