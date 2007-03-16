@@ -12,7 +12,7 @@
   <li>It is always a good idea to <a href="contact_us.php">contact us</a> and let us know why you are interested in working on autopatch. What do you wish it did that it doesn't do? What would you change? How would you change it? Think of this as the design phase. This is very important to do prior to starting work so you don't duplicate effort in progress or do work that won't be accepted into the codebase</li>
   <li>Create a sourceforge.net account, and use it to sign up to the <a href="https://sourceforge.net/mailarchive/forum.php?forum_id=51711">autopatch-cvs</a> mailing list so you can see what other people are working on
   <li>After coordinating with the rest of the group and getting on the mailing list, propose some code - post a patch to autopatch-cvs for a bug or your new feature, and we will review it. There will likely be some changes requested, but this is a very important step to make sure that everyone understands the code, and the codebase will still look uniform once your changes are committed</li>
-  <li>Third, get the final change committed. If you are not a developer on the project, post the final patch on autopatch-cvs and one of the developer will commit it for you, otherwise, commit it yourself, and it will show up in the next release.
+  <li>Get the final change committed. If you are not a developer on the project, post the final patch on autopatch-cvs and one of the developer will commit it for you, otherwise, commit it yourself, and it will show up in the next release.
 </ol>
 </p>
 
