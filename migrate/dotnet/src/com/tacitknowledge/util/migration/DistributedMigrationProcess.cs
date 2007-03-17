@@ -50,7 +50,7 @@ namespace com.tacitknowledge.util.migration
         /// <summary> Returns a LinkedHashMap of task/launcher pairings, regardless of patch level.
 		/// 
 		/// </summary>
-		/// <returns> Hashtable containing MigrationTask / ADOMigrationLauncher pairings
+		/// <returns> Hashtable containing IMigrationTask / ADOMigrationLauncher pairings
 		/// </returns>
 		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
 		/// <summary>         created
@@ -74,10 +74,10 @@ namespace com.tacitknowledge.util.migration
 					for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
 					{
 						
-						MigrationTask task = (MigrationTask) subTaskIter.Current;
+						IMigrationTask task = (IMigrationTask) subTaskIter.Current;
 						if (log.IsDebugEnabled)
 						{
-							log.Debug("\tMigration+Launcher binder found subtask " + task.getName() + " for launcher context " + subLauncher.Context.getSystemName());
+							log.Debug("\tMigration+Launcher binder found subtask " + task.Name + " for launcher context " + subLauncher.Context.getSystemName());
 						}
 						
 						// store the task, related to its launcher
@@ -92,7 +92,7 @@ namespace com.tacitknowledge.util.migration
 		/// <summary> Returns a List of MigrationTasks, regardless of patch level.
 		/// 
 		/// </summary>
-		/// <returns> List containing MigrationTask objects
+		/// <returns> List containing IMigrationTask objects
 		/// </returns>
 		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
 		override public System.Collections.IList MigrationTasks
@@ -116,7 +116,7 @@ namespace com.tacitknowledge.util.migration
 						for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
 						{
 							//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-							log.Debug("\tFound subtask " + ((MigrationTask) subTaskIter.Current).getName());
+							log.Debug("\tFound subtask " + ((IMigrationTask) subTaskIter.Current).Name);
                             tasks.Add(subTasks);
 						}
 					}
@@ -176,16 +176,16 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="context">information and resources that are available to the migration tasks
 		/// </param>
 		/// <throws>  MigrationException if a migration fails </throws>
-		/// <returns> the number of <code>MigrationTask</code>s that have executed
+		/// <returns> the number of <code>IMigrationTask</code>s that have executed
 		/// </returns>
-		public override int doMigrations(int currentLevel, MigrationContext context)
+		public override int doMigrations(int currentLevel, IMigrationContext context)
 		{
 			log.Debug("Starting doMigrations");
 			
 			// Get all the migrations, with their launchers, then get the list of just the migrations
 			Hashtable migrationsWithLaunchers = MigrationTasksWithLaunchers;
             System.Collections.ArrayList migrations = new ArrayList();
-            foreach (MigrationTask mt in migrationsWithLaunchers)
+            foreach (IMigrationTask mt in migrationsWithLaunchers)
             {
                 migrations.Add(mt);
 
@@ -198,10 +198,10 @@ namespace com.tacitknowledge.util.migration
 			// Roll through each migration, applying it if necessary
 			int taskCount = 0;
 			//we can use foreach here as we have an ArrayList of MigrationTasks or migrations
-			foreach (MigrationTask mts in migrations)
+			foreach (IMigrationTask mts in migrations)
 			{
 				
-				if (mts.getLevel() > currentLevel)
+				if (mts.Level > currentLevel)
 				{
 					// Execute the task in the context it was loaded from
                     ADOMigrationLauncher launcher = (ADOMigrationLauncher)migrationsWithLaunchers[mts];

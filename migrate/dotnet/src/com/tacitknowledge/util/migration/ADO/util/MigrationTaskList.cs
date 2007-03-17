@@ -16,21 +16,21 @@ namespace AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util
     public class MigrationTaskList : Hashlist
     {
         /// <summary>
-        /// returns a MigrationTask based on a key
+        /// returns a IMigrationTask based on a key
         /// </summary>
         /// <param name="Key"></param>
         /// <returns></returns>
-        public new MigrationTask this[string Key]
+        public new IMigrationTask this[string Key]
         {
-            get { return (MigrationTask)base[Key]; }
+            get { return (IMigrationTask)base[Key]; }
         }
 
-        public new MigrationTask this[int Index]
+        public new IMigrationTask this[int Index]
         {
             get
             {
                 object oTemp = base[Index];
-                return (MigrationTask)oTemp;
+                return (IMigrationTask)oTemp;
             }
         }
 

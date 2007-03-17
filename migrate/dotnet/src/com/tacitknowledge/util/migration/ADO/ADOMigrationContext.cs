@@ -18,7 +18,7 @@ namespace com.tacitknowledge.util.migration.ado
 {
 	
 	
-	public interface ADOMigrationContext:MigrationContext
+	public interface ADOMigrationContext:IMigrationContext
     {
 
         

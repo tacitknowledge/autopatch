@@ -20,12 +20,12 @@ namespace com.tacitknowledge.util.migration
 {
 	
 	/// <summary> Returns a list of all public, concrete classes that implement the
-	/// <code>MigrationTask</code> in a specific package.
+	/// <code>IMigrationTask</code> in a specific package.
 	/// 
 	/// </summary>
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class ClassMigrationTaskSource : MigrationTaskSource
+	public class ClassMigrationTaskSource : IMigrationTaskSource
     {
         #region Members
         /// <summary>Class logger </summary>
@@ -34,16 +34,16 @@ namespace com.tacitknowledge.util.migration
         #endregion
 
         #region Methods
-        /// <seealso cref="MigrationTaskSource.getMigrationTasks(String)">
+        /// <seealso cref="IMigrationTaskSource.GetMigrationTasks(String)">
 		/// </seealso>
-		public virtual System.Collections.IList getMigrationTasks(System.String packageName)
+		public virtual System.Collections.IList GetMigrationTasks(System.String packageName)
 		{
 			if (packageName == null)
 			{
 				throw new MigrationException("You must specify a package to get tasks for");
 			}
 			
-			//System.Type[] taskClasses = ClassDiscoveryUtil.getClasses(packageName, typeof(MigrationTask));
+			//System.Type[] taskClasses = ClassDiscoveryUtil.getClasses(packageName, typeof(IMigrationTask));
 			log.Debug("Found " + taskClasses.Length + " patches in " + packageName);
 			return instantiateTasks(taskClasses);
 		}
@@ -70,21 +70,21 @@ namespace com.tacitknowledge.util.migration
 					System.Object o = System.Activator.CreateInstance(taskClass);
 					
 					// It's not legal to have a null name.
-					MigrationTask task = (MigrationTask) o;
-					if (task.getName() != null)
+					IMigrationTask task = (IMigrationTask) o;
+					if (task.Name != null)
 					{
 						tasks.Add(o);
 					}
 					else
 					{
 						//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Class.getName' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-						log.Warn("MigrationTask " + taskClass.FullName + " had no migration name. Is that intentional? Skipping task.");
+						log.Warn("IMigrationTask " + taskClass.FullName + " had no migration name. Is that intentional? Skipping task.");
 					}
 				}
 				catch (System.Exception e)
 				{
 					//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Class.getName' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-					throw new MigrationException("Could not instantiate MigrationTask " + taskClass.FullName, e);
+					throw new MigrationException("Could not instantiate IMigrationTask " + taskClass.FullName, e);
 				}
 			}
 			return tasks;

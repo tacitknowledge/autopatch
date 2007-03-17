@@ -35,7 +35,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class SqlScriptMigrationTaskSource : MigrationTaskSource
+	public class SqlScriptMigrationTaskSource : IMigrationTaskSource
     {
         #region Methods
         /// <summary>Class logger </summary>
@@ -45,9 +45,9 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary> The regular expression used to match SQL patch files.</summary>
 		private const System.String SQL_PATCH_REGEX = "^patch(\\d+)(_.+)?\\.sql";
 		
-		/// <seealso cref="MigrationTaskSource.getMigrationTasks(String)">
+		/// <seealso cref="IMigrationTaskSource.GetMigrationTasks(String)">
 		/// </seealso>
-		public virtual System.Collections.IList getMigrationTasks(System.String packageName)
+		public virtual System.Collections.IList GetMigrationTasks(System.String packageName)
 		{
 			System.String path = packageName.Replace('.', '/');
 			System.String[] scripts = ClassDiscoveryUtil.getResources(path, SQL_PATCH_REGEX);
@@ -108,7 +108,7 @@ namespace com.tacitknowledge.util.migration.ado
 						
 						// Free the resource
 						is_Renamed.Close();
-						task.setName(scriptFileName);
+						task.Name = scriptFileName;
 						tasks.Add(task);
 					}
 					catch (System.IO.IOException e)

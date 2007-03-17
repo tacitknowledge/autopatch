@@ -73,9 +73,9 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		
-		/// <seealso cref="ADOMigrationContext.commit()">
+		/// <seealso cref="ADOMigrationContext.Commit()">
 		/// </seealso>
-		public virtual void  commit()
+		public virtual void  Commit()
 		{
 			try
 			{
@@ -87,9 +87,9 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 		}
 		
-		/// <seealso cref="ADOMigrationContext.rollback()">
+		/// <seealso cref="ADOMigrationContext.Rollback()">
 		/// </seealso>
-		public virtual void  rollback()
+		public virtual void  Rollback()
 		{
 			try
 			{

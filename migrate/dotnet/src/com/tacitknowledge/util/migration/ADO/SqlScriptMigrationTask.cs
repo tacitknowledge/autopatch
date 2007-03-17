@@ -52,10 +52,8 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		public SqlScriptMigrationTask(System.String name, int level, System.String sql)
 		{
-			setName(name);
-			System.Int32 tempAux = (System.Int32) level;
-			//UPGRADE_NOTE: ref keyword was added to struct-type parameters. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1303'"
-			setLevel(ref tempAux);
+			Name = name;
+			Level = level;
 			this.sql = sql;
 		}
 		
@@ -73,10 +71,8 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  IOException if there was problem reading the input stream </throws>
 		public SqlScriptMigrationTask(System.String name, int level, System.IO.Stream is_Renamed)
 		{
-			setName(name);
-			System.Int32 tempAux = (System.Int32) level;
-			//UPGRADE_NOTE: ref keyword was added to struct-type parameters. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1303'"
-			setLevel(ref tempAux);
+			Name = name;
+			Level = level;
 			System.Text.StringBuilder sqlBuffer = new System.Text.StringBuilder();
 			//UPGRADE_TODO: The differences in the expected value  of parameters for constructor 'java.io.BufferedReader.BufferedReader'  may cause compilation errors.  "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1092'"
 			//UPGRADE_WARNING: At least one expression was used more than once in the target code. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1181'"
@@ -90,9 +86,9 @@ namespace com.tacitknowledge.util.migration.ado
 			sql = sqlBuffer.ToString();
 		}
 		
-		/// <seealso cref="MigrationTaskSupport.migrate(MigrationContext)">
+		/// <seealso cref="MigrationTaskSupport.Migrate(IMigrationContext)">
 		/// </seealso>
-		public override void  migrate(MigrationContext ctx)
+		public override void  Migrate(IMigrationContext ctx)
 		{
 			ADOMigrationContext context = (ADOMigrationContext) ctx;
 			
@@ -111,7 +107,7 @@ namespace com.tacitknowledge.util.migration.ado
 					sqlStatement = ((System.String) i.Current);
 					if (log.IsDebugEnabled())
 					{
-						log.Debug(getName() + ": Attempting to execute: " + sqlStatement);
+						log.Debug(Name + ": Attempting to execute: " + sqlStatement);
 					}
 					//UPGRADE_TODO: Method 'java.sql.Connection.createStatement' was converted to 'SupportClass.TransactionManager.manager.CreateStatement' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlConnectioncreateStatement'"
 					stmt = SupportClass.TransactionManager.manager.CreateStatement(conn);
@@ -126,7 +122,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			catch (System.Exception e)
 			{
-				System.String message = getName() + ": Error running SQL \"" + sqlStatement + "\"";
+				System.String message = Name + ": Error running SQL \"" + sqlStatement + "\"";
 				log.Error(message, e);
 				
 				if (e is System.Data.OleDb.OleDbException)
@@ -153,7 +149,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// file.
 		/// 
 		/// </summary>
-		/// <param name="context">the MigrationContext, to figure out db type and if it 
+		/// <param name="context">the IMigrationContext, to figure out db type and if it 
 		/// can handle multiple statements at once
 		/// </param>
 		/// <returns> a list of SQL and DDL statements to execute
@@ -239,7 +235,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </seealso>
 		public override System.String ToString()
 		{
-			return getName();
+			return Name;
 		}
 		//UPGRADE_TODO: The following method was automatically generated and it must be implemented in order to preserve the class logic. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1232'"
 		override public System.Int32 CompareTo(System.Object obj)

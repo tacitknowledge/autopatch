@@ -41,14 +41,14 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class PatchTable : PatchInfoStore
+	public class PatchTable : IPatchInfoStore
 	{
 		/// <summary> {@inheritDoc}</summary>
 		virtual public int PatchLevel
 		{
 			get
 			{
-				createPatchStoreIfNeeded();
+				CreatePatchStoreIfNeeded();
 				
 				System.Data.OleDb.OleDbCommand stmt = null;
 				//UPGRADE_TODO: Interface 'java.sql.ResultSet' was converted to 'System.Data.OleDb.OleDbDataReader' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlResultSet'"
@@ -85,7 +85,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			get
 			{
-				createPatchStoreIfNeeded();
+				CreatePatchStoreIfNeeded();
 				
 				System.Data.OleDb.OleDbCommand stmt = null;
 				//UPGRADE_TODO: Interface 'java.sql.ResultSet' was converted to 'System.Data.OleDb.OleDbDataReader' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlResultSet'"
@@ -150,7 +150,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		/// <summary> {@inheritDoc}</summary>
-		public virtual void  createPatchStoreIfNeeded()
+		public virtual void  CreatePatchStoreIfNeeded()
 		{
 			if (tableExistenceValidated)
 			{
@@ -197,7 +197,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		/// <summary> {@inheritDoc}</summary>
-		public virtual void  updatePatchLevel(int level)
+		public virtual void  UpdatePatchLevel(int level)
 		{
 			// Make sure a patch record already exists for this system
 			int generatedAux = PatchLevel;
@@ -221,7 +221,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		/// <summary> {@inheritDoc}</summary>
-		public virtual void  lockPatchStore()
+		public virtual void  LockPatchStore()
 		{
 			if (PatchStoreLocked)
 			{
@@ -231,7 +231,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		/// <summary> {@inheritDoc}</summary>
-		public virtual void  unlockPatchStore()
+		public virtual void  UnlockPatchStore()
 		{
 			updatePatchLock(false);
 		}

@@ -18,26 +18,38 @@ using System;
 namespace com.tacitknowledge.util.migration
 {
     /// <summary>
-    /// An exception thrown by different migration processes.
+    /// A single, idempotent migration task.
     /// </summary>
     /// <author>Scott Askew (scott@tacitknowledge.com)</author>
-    /// <author>Ian Mortimer (imorti@tacitknowledge.com)</author>
+    /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
     /// <version>$Id$</version>
-    [Serializable]
-    public class MigrationException : Exception
+    public interface IMigrationTask : IComparable<IMigrationTask>
     {
-        #region Constructors
-        /// <seealso cref="System.Exception.Exception(String)"/>
-        public MigrationException(String message)
-            : base(message)
+        #region Properties
+        /// <summary>
+        /// The name of this migration task.
+        /// </summary>
+        String Name
         {
+            get;
         }
 
-        /// <seealso cref="System.Exception.Exception(String, Exception)"/>
-        public MigrationException(String message, Exception cause)
-            : base(message, cause)
+        /// <summary>
+        /// The relative order in which this migration should occur.
+        /// </summary>
+        int? Level
         {
+            get;
         }
+        #endregion
+
+        #region Public methods
+        /// <summary>
+        /// Performs a migration.
+        /// </summary>
+        /// <param name="context">the <code>IMigrationContext</code> for this run</param>
+        /// <exception cref="MigrationException">if an unexpected error occurred</exception>
+        void Migrate(IMigrationContext context);
         #endregion
     }
 }

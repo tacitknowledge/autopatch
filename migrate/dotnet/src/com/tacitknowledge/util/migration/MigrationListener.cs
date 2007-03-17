@@ -33,7 +33,7 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="context">the migration context
 		/// </param>
 		/// <throws>  MigrationException if an unrecoverable error occurs </throws>
-		void  migrationStarted(MigrationTask task, MigrationContext context);
+		void  migrationStarted(IMigrationTask task, IMigrationContext context);
 		
 		/// <summary> Notifies the listener that the given task has completed execution. 
 		/// 
@@ -43,7 +43,7 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="context">the migration context
 		/// </param>
 		/// <throws>  MigrationException if an unrecoverable error occurs </throws>
-		void  migrationSuccessful(MigrationTask task, MigrationContext context);
+		void  migrationSuccessful(IMigrationTask task, IMigrationContext context);
 		
 		/// <summary> Notifies the listener that the given task has completed execution. 
 		/// 
@@ -55,7 +55,7 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="e">the <code>MigrationException</code> thrown by the task
 		/// </param>
 		/// <throws>  MigrationException if an unrecoverable error occurs </throws>
-		void  migrationFailed(MigrationTask task, MigrationContext context, MigrationException e);
+		void  migrationFailed(IMigrationTask task, IMigrationContext context, MigrationException e);
     }
         #endregion
 

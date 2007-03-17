@@ -21,14 +21,14 @@ namespace com.tacitknowledge.util.migration
 {
 	
 	/// <summary> Discovers and executes a sequence of system patches.  Patches take the form
-	/// of <code>MigrationTask</code> instances, each of which performs an atomic
-	/// migration or patch transaction.  <code>MigrationTask</code>s are executed
-	/// sequentially based on the result of <code>MigrationTask.getOrder</code>.  No
+	/// of <code>IMigrationTask</code> instances, each of which performs an atomic
+	/// migration or patch transaction.  <code>IMigrationTask</code>s are executed
+	/// sequentially based on the result of <code>IMigrationTask.getOrder</code>.  No
 	/// two tasks can return the same result for <code>getOrder</code>, and this
 	/// class will throw a <code>MigrationException</code> should such a situation
 	/// occur.
 	/// <p>
-	/// One useful pre-defined <code>MigrationTask</code> is
+	/// One useful pre-defined <code>IMigrationTask</code> is
 	/// <code>SqlScriptMigrationTask</code>, which wraps a .SQL file and executes
 	/// all statements inside it.  Any file in the migration task search path that
 	/// matches the pattern "^patch(\d+)(_.+)?\.sql" will be wrapped with the 
@@ -47,11 +47,11 @@ namespace com.tacitknowledge.util.migration
 	/// <i>... figure out the current patch level...</i>
 	/// migrationRunner.doMigration(currentLevel, context);
 	/// <i>... update patch level</i>
-	/// <i>... commit MigrationContext ...</i>
+	/// <i>... commit IMigrationContext ...</i>
 	/// }
 	/// catch (MigrationException e)
 	/// {
-	/// <i>... rollback MigrationContext ...</i>
+	/// <i>... rollback IMigrationContext ...</i>
 	/// }
 	/// </pre>
 	/// 
@@ -66,12 +66,12 @@ namespace com.tacitknowledge.util.migration
         //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.MigrationProcess'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
         private static ILog log;
 
-        /// <summary> The list of package names containing the <code>MigrationTask</code>s
+        /// <summary> The list of package names containing the <code>IMigrationTask</code>s
         /// and SQL scripts to execute as patches
         /// </summary>
         private System.Collections.IList patchResourcePackages = new System.Collections.ArrayList();
 
-        /// <summary> The list of package names containing <code>MigrationTask</code>s
+        /// <summary> The list of package names containing <code>IMigrationTask</code>s
         /// and SQL scripts to execute after patch execution
         /// </summary>
         private System.Collections.IList postPatchResourcePackages = new System.Collections.ArrayList();
@@ -139,9 +139,9 @@ namespace com.tacitknowledge.util.migration
                  */
                 tasks.Sort();
 				validateTasks(tasks);
-				MigrationTask lastTask = (MigrationTask) tasks[tasks.Count - 1];
+				IMigrationTask lastTask = (IMigrationTask) tasks[tasks.Count - 1];
 				
-				return lastTask.getLevel() + 1;
+				return lastTask.Level + 1;
 			}
 			
 		}
@@ -214,14 +214,14 @@ namespace com.tacitknowledge.util.migration
 			addPostPatchResourcePackage(packageName);
 		}
 		
-		/// <summary> Adds a <code>MigrationTaskSource</code> to the list of sources that
-		/// provide this instance with <code>MigrationTask</code>s.
+		/// <summary> Adds a <code>IMigrationTaskSource</code> to the list of sources that
+		/// provide this instance with <code>IMigrationTask</code>s.
 		/// 
 		/// </summary>
-		/// <param name="source">the <code>MigrationTaskSource</code> to add; may not
+		/// <param name="source">the <code>IMigrationTaskSource</code> to add; may not
 		/// be <code>null</code>
 		/// </param>
-		public virtual void  addMigrationTaskSource(MigrationTaskSource source)
+		public virtual void  addMigrationTaskSource(IMigrationTaskSource source)
 		{
 			if (source == null)
 			{
@@ -238,9 +238,9 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="context">information and resources that are available to the migration tasks
 		/// </param>
 		/// <throws>  MigrationException if a migration fails </throws>
-		/// <returns> the number of <code>MigrationTask</code>s that have executed
+		/// <returns> the number of <code>IMigrationTask</code>s that have executed
 		/// </returns>
-		public virtual int doMigrations(int currentLevel, MigrationContext context)
+		public virtual int doMigrations(int currentLevel, IMigrationContext context)
 		{
 			log.Info("Starting doMigrations");
             
@@ -256,8 +256,8 @@ namespace com.tacitknowledge.util.migration
 				/*
                  * Loop through migration tasks and see if we should apply them
                  */ 
-				MigrationTask task = (MigrationTask) i.Current;
-				if (task.getLevel() > currentLevel)
+				IMigrationTask task = (IMigrationTask) i.Current;
+				if (task.Level > currentLevel)
 				{
 					applyPatch(context, task, true);
 					taskCount++;
@@ -279,11 +279,11 @@ namespace com.tacitknowledge.util.migration
 		/// <summary> Run post-migration tasks
 		/// 
 		/// </summary>
-		/// <returns> the number of <code>MigrationTask</code>s that executed
+		/// <returns> the number of <code>IMigrationTask</code>s that executed
 		/// </returns>
 		/// <exception cref="MigrationException">if a post-patch task fails
 		/// </exception>
-		public virtual int doPostPatchMigrations(MigrationContext context)
+		public virtual int doPostPatchMigrations(IMigrationContext context)
 		{
 			log.Info("Running post-patch tasks...");
 			System.Collections.ArrayList postMigrationTasks = (System.Collections.ArrayList)PostPatchMigrationTasks;
@@ -305,7 +305,7 @@ namespace com.tacitknowledge.util.migration
 			for (System.Collections.IEnumerator i = postMigrationTasks.GetEnumerator(); i.MoveNext(); taskCount++)
 			{
 				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-				MigrationTask task = (MigrationTask) i.Current;
+				IMigrationTask task = (IMigrationTask) i.Current;
 				applyPatch(context, task, false);
 			}
 			
@@ -331,7 +331,7 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="broadcast">whether to broadcast to listeners that the patch applied
 		/// </param>
 		/// <throws>  MigrationException if the patch application fails </throws>
-		public virtual void  applyPatch(MigrationContext context, MigrationTask task, bool broadcast)
+		public virtual void  applyPatch(IMigrationContext context, IMigrationTask task, bool broadcast)
 		{
 			System.String label = getTaskLabel(task);
 			if (broadcast)
@@ -343,14 +343,14 @@ namespace com.tacitknowledge.util.migration
 			try
 			{
 				long startTime = (System.DateTime.Now.Ticks - 621355968000000000) / 10000;
-				task.migrate(context);
+				task.Migrate(context);
 				long duration = (System.DateTime.Now.Ticks - 621355968000000000) / 10000 - startTime;
 				log.Info("Finished migration task \"" + label + "\" (" + duration + " millis.)");
 				if (broadcast)
 				{
 					broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
 				}
-				context.commit();
+				context.Commit();
 			}
 			catch (MigrationException e)
 			{
@@ -360,7 +360,7 @@ namespace com.tacitknowledge.util.migration
 				}
 				try
 				{
-					context.rollback();
+					context.Rollback();
 					log.Info("Migration failed; rollback successful");
 				}
 				catch (MigrationException me)
@@ -371,12 +371,12 @@ namespace com.tacitknowledge.util.migration
 			}
 		}
 		
-		/// <summary> Instantiate all the MigrationTask objects in the given resource packages
+		/// <summary> Instantiate all the IMigrationTask objects in the given resource packages
 		/// 
 		/// </summary>
 		/// <param name="resourcePackages">a List of Strings specifying package names to look for tasks in
 		/// </param>
-		/// <returns> List of MigrationTask objects instantiated from the given packages
+		/// <returns> List of IMigrationTask objects instantiated from the given packages
 		/// </returns>
 		/// <throws>  MigrationException if one or more post-patch migration tasks could not be created </throws>
 		private System.Collections.IList getTasksFromPackages(System.Collections.IList resourcePackages)
@@ -393,8 +393,8 @@ namespace com.tacitknowledge.util.migration
 				for (System.Collections.IEnumerator j = migrationTaskSources.GetEnumerator(); j.MoveNext(); )
 				{
 					
-					MigrationTaskSource source = (MigrationTaskSource) j.Current;
-					System.Collections.IList sourceTasks = source.getMigrationTasks(packageName);
+					IMigrationTaskSource source = (IMigrationTaskSource) j.Current;
+					System.Collections.IList sourceTasks = source.GetMigrationTasks(packageName);
 					if (log.IsDebugEnabled)
                         
 					{
@@ -405,7 +405,7 @@ namespace com.tacitknowledge.util.migration
                              */
                             						
 							log.Debug("Source [" + source + "] found " + sourceTasks.Count + " migration tasks: " + sourceTasks.ToString());
-                            foreach (MigrationTaskSource mts in sourceTasks)
+                            foreach (IMigrationTaskSource mts in sourceTasks)
                             {
                                 /*
                                  * Add the source task
@@ -468,9 +468,9 @@ namespace com.tacitknowledge.util.migration
 		/// </param>
 		/// <returns> a user-friendly label for the specified task
 		/// </returns>
-		private System.String getTaskLabel(MigrationTask task)
+		private System.String getTaskLabel(IMigrationTask task)
 		{
-			return task.getName() + " [" + task.GetType().FullName + "]";
+			return task.Name + " [" + task.GetType().FullName + "]";
 		}
 		
 		/// <summary> Ensures that no two <code>MigrationTasks</code> have the same ordering.
@@ -489,9 +489,9 @@ namespace com.tacitknowledge.util.migration
 			for (System.Collections.IEnumerator i = migrations.GetEnumerator(); i.MoveNext(); )
 			{
 				//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-				MigrationTask task = (MigrationTask) i.Current;
+				IMigrationTask task = (IMigrationTask) i.Current;
 				
-				System.Int32 level = task.getLevel();
+				System.Int32 level = task.Level;
 				
 				if (level == 0)
 				{
@@ -500,7 +500,7 @@ namespace com.tacitknowledge.util.migration
 
                 if (useOrderedNumbers.Contains(level))
 				{
-					MigrationTask otherTask = (MigrationTask) useOrderedNumbers[level];
+					IMigrationTask otherTask = (IMigrationTask) useOrderedNumbers[level];
 					throw new MigrationException("Migration task " + getTaskLabel(task) + " has a conflicting patch level with " + getTaskLabel(otherTask) + "; both are configured for patch level " + level);
 				}
 

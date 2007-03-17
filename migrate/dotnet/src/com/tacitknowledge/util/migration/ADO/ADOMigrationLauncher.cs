@@ -45,7 +45,7 @@ namespace com.tacitknowledge.util.migration.ado
         private String systemName = null;
 
         /// <summary> The patch level store in use</summary>
-        private PatchInfoStore patchTable = null;
+        private IPatchInfoStore patchTable = null;
 
         /// <summary> The <code>MigrationProcess</code> responsible for applying the patches</summary>
         private MigrationProcess migrationProcess = null;
@@ -61,7 +61,7 @@ namespace com.tacitknowledge.util.migration.ado
         /// <summary> The path containing directories and packages to search through to locate post-patch tasks.</summary>
         private System.String postPatchPath = null;
 
-        /// <summary> The <code>MigrationContext</code> to use for all migrations.</summary>
+        /// <summary> The <code>IMigrationContext</code> to use for all migrations.</summary>
         private ADOMigrationContext context = null;
 		
         #endregion 
@@ -77,7 +77,7 @@ namespace com.tacitknowledge.util.migration.ado
             set { systemName = value; }
         }
 
-        /// <summary> Get the MigrationProcess we'll use to migrate things
+        /// <summary> Get the MigrationProcess we'll use to Migrate things
 		/// 
 		/// </summary>
 		/// <returns> MigrationProcess for migration control
@@ -299,7 +299,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </summary>
 		/// <param name="patchTable">where we should put information about the migration
 		/// </param>
-		virtual public PatchInfoStore PatchTable
+		virtual public IPatchInfoStore PatchTable
 		{
 			get
 			{
@@ -368,30 +368,30 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 		}
 		
-		/// <seealso cref="MigrationListener.migrationStarted(MigrationTask, MigrationContext)">
+		/// <seealso cref="MigrationListener.migrationStarted(IMigrationTask, IMigrationContext)">
 		/// </seealso>
-		public virtual void  migrationStarted(MigrationTask task, MigrationContext ctx)
+		public virtual void  migrationStarted(IMigrationTask task, IMigrationContext ctx)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-			log.Debug("Started task " + task.getName() + " for context " + ctx);
+			log.Debug("Started task " + task.Name + " for context " + ctx);
 		}
 		
-		/// <seealso cref="MigrationListener.migrationSuccessful(MigrationTask, MigrationContext)">
+		/// <seealso cref="MigrationListener.migrationSuccessful(IMigrationTask, IMigrationContext)">
 		/// </seealso>
-		public virtual void  migrationSuccessful(MigrationTask task, MigrationContext ctx)
+		public virtual void  migrationSuccessful(IMigrationTask task, IMigrationContext ctx)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-			log.Debug("Task " + task.getName() + " was successful for context " + ctx);
-			int patchLevel = task.getLevel();
-			patchTable.updatePatchLevel(patchLevel);
+			log.Debug("Task " + task.Name + " was successful for context " + ctx);
+			int patchLevel = task.Level;
+			patchTable.UpdatePatchLevel(patchLevel);
 		}
 		
-		/// <seealso cref="MigrationListener.migrationFailed(MigrationTask, MigrationContext, MigrationException)">
+		/// <seealso cref="MigrationListener.migrationFailed(IMigrationTask, IMigrationContext, MigrationException)">
 		/// </seealso>
-		public virtual void  migrationFailed(MigrationTask task, MigrationContext ctx, MigrationException e)
+		public virtual void  migrationFailed(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-			log.Debug("Task " + task.getName() + " failed for context " + ctx, e);
+			log.Debug("Task " + task.Name + " failed for context " + ctx, e);
 		}
 		
 		/// <summary> Performs the application migration process in one go
@@ -434,7 +434,7 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					// If there was any kind of error, we don't want to eat it, but we do
 					// want to unlock the patch store. So do that, then re-throw.
-					patchTable.unlockPatchStore();
+					patchTable.UnlockPatchStore();
 					throw me;
 				}
 				finally
@@ -459,7 +459,7 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					try
 					{
-						patchTable.unlockPatchStore();
+						patchTable.UnlockPatchStore();
 						SupportClass.TransactionManager.manager.Commit(conn);
 					}
 					catch (System.Data.OleDb.OleDbException e)
@@ -491,7 +491,7 @@ namespace com.tacitknowledge.util.migration.ado
 				
 				try
 				{
-					patchTable.lockPatchStore();
+					patchTable.LockPatchStore();
 					lockObtained = true;
 				}
 				catch (System.SystemException ise)
@@ -511,9 +511,9 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		/// <throws>  MigrationException if unable to create the store </throws>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		protected internal virtual PatchInfoStore createPatchStore(System.Data.OleDb.OleDbConnection conn)
+		protected internal virtual IPatchInfoStore createPatchStore(System.Data.OleDb.OleDbConnection conn)
 		{
-			PatchInfoStore piStore = new PatchTable(context, conn);
+			IPatchInfoStore piStore = new PatchTable(context, conn);
 			
 			// Make sure the table is created before claiming it exists by returning
 			int generatedAux = patchTable.PatchLevel;

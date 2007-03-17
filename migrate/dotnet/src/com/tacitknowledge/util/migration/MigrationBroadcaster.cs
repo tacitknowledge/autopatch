@@ -67,7 +67,7 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="e">the exception thrown by the task if the task failed
 		/// </param>
 		/// <throws>  MigrationException if one of the listeners threw an exception  </throws>
-		public virtual void  notifyListeners(MigrationTask task, MigrationContext context, MigrationException e, int eventType)
+		public virtual void  notifyListeners(IMigrationTask task, IMigrationContext context, MigrationException e, int eventType)
 		{
 			//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
 			for (System.Collections.IEnumerator i = listeners.GetEnumerator(); i.MoveNext(); )
@@ -109,7 +109,7 @@ namespace com.tacitknowledge.util.migration
 		/// <param name="eventType">TASK_START, TASK_SUCCESS, or TASK_FAIL
 		/// </param>
 		/// <throws>  MigrationException if one of the listeners threw an exception  </throws>
-		public virtual void  notifyListeners(MigrationTask task, MigrationContext context, int eventType)
+		public virtual void  notifyListeners(IMigrationTask task, IMigrationContext context, int eventType)
 		{
 			notifyListeners(task, context, null, eventType);
 		}

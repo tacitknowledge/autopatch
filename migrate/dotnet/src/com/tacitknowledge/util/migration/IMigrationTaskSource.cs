@@ -13,31 +13,27 @@
  */
 #region Imports
 using System;
+using System.Collections.Generic;
 #endregion
 
 namespace com.tacitknowledge.util.migration
 {
     /// <summary>
-    /// An exception thrown by different migration processes.
+    /// A source of <code>IMigrationTask</code>s.
     /// </summary>
     /// <author>Scott Askew (scott@tacitknowledge.com)</author>
-    /// <author>Ian Mortimer (imorti@tacitknowledge.com)</author>
+    /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
     /// <version>$Id$</version>
-    [Serializable]
-    public class MigrationException : Exception
+    public interface IMigrationTaskSource
     {
-        #region Constructors
-        /// <seealso cref="System.Exception.Exception(String)"/>
-        public MigrationException(String message)
-            : base(message)
-        {
-        }
-
-        /// <seealso cref="System.Exception.Exception(String, Exception)"/>
-        public MigrationException(String message, Exception cause)
-            : base(message, cause)
-        {
-        }
+        #region Public methods
+        /// <summary>
+        /// Returns a list of <code>IMigrationTask</code>s that are in the given package.
+        /// </summary>
+        /// <param name="packageName">package to search for migration tasks</param>
+        /// <returns>A list of migration tasks. If no tasks were found, then an empty list must be returned.</returns>
+        /// <exception cref="MigrationException">if an unrecoverable error occurred</exception>
+        IList<IMigrationTask> GetMigrationTasks(String packageName);
         #endregion
     }
 }

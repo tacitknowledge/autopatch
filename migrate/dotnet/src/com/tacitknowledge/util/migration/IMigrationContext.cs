@@ -18,26 +18,25 @@ using System;
 namespace com.tacitknowledge.util.migration
 {
     /// <summary>
-    /// An exception thrown by different migration processes.
+    /// Provides system resources to migration tasks.
     /// </summary>
     /// <author>Scott Askew (scott@tacitknowledge.com)</author>
     /// <author>Ian Mortimer (imorti@tacitknowledge.com)</author>
     /// <version>$Id$</version>
-    [Serializable]
-    public class MigrationException : Exception
+    public interface IMigrationContext
     {
-        #region Constructors
-        /// <seealso cref="System.Exception.Exception(String)"/>
-        public MigrationException(String message)
-            : base(message)
-        {
-        }
+        #region Public methods
+        /// <summary>
+        /// Commits the current migration transaction.
+        /// </summary>
+        /// <exception cref="MigrationException">if there was an unrecoverable error committing the transaction</exception>
+        void Commit();
 
-        /// <seealso cref="System.Exception.Exception(String, Exception)"/>
-        public MigrationException(String message, Exception cause)
-            : base(message, cause)
-        {
-        }
+        /// <summary>
+        /// Rolls back the current migration transaction.
+        /// </summary>
+        /// <exception cref="MigrationException">if there was an unrecoverable error rolling the transaction back</exception>
+        void Rollback();
         #endregion
     }
 }

@@ -13,14 +13,14 @@
 #region Imports
 using System;
 using log4net;
-using log4net.Config;using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
+using log4net.Config;using MigrationContext = com.tacitknowledge.util.migration.IMigrationContext;
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 using MigrationTaskSupport = com.tacitknowledge.util.migration.MigrationTaskSupport;
 #endregion
 namespace com.tacitknowledge.util.migration.ado
 {
 	
-	/// <summary> Base class used for creating bulk data loading <code>MigrationTask</code>s.
+	/// <summary> Base class used for creating bulk data loading <code>IMigrationTask</code>s.
 	/// 
 	/// </summary>
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
@@ -53,9 +53,9 @@ namespace com.tacitknowledge.util.migration.ado
 			// Nothing to do
 		}
 		
-		/// <seealso cref="MigrationTaskSupport.migrate(MigrationContext)">
+		/// <seealso cref="MigrationTaskSupport.Migrate(IMigrationContext)">
 		/// </seealso>
-		public override void  migrate(MigrationContext ctx)
+		public override void  Migrate(IMigrationContext ctx)
 		{
 			DataSourceMigrationContext context = (DataSourceMigrationContext) ctx;
 			
@@ -86,7 +86,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			catch (System.Exception e)
 			{
-				System.String message = getName() + ": Error running SQL \"" + StatmentSql + "\"";
+				System.String message = Name + ": Error running SQL \"" + StatmentSql + "\"";
 				log.Error(message, e);
 				if (e is System.Data.OleDb.OleDbException)
 				{
@@ -121,7 +121,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </seealso>
 		public override System.String ToString()
 		{
-			return getName();
+			return Name;
 		}
 		
 		/// <summary> Returns the data to load as a list of rows.

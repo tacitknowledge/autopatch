@@ -54,10 +54,10 @@ namespace com.tacitknowledge.util.migration.ado
 			set
 			{
 				PatchTable patchTable = makePatchTable();
-				patchTable.lockPatchStore();
-				patchTable.updatePatchLevel(value);
+				patchTable.LockPatchStore();
+				patchTable.UpdatePatchLevel(value);
 				log.Info("Set the patch level to " + value);
-				patchTable.unlockPatchStore();
+				patchTable.UnlockPatchStore();
 			}
 			
 		}
