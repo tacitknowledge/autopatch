@@ -24,7 +24,7 @@ using log4net.Config;
 
 using HSSFWorkbook = org.apache.poi.hssf.usermodel.HSSFWorkbook;
 using POIFSFileSystem = org.apache.poi.poifs.filesystem.POIFSFileSystem;
-using MigrationContext = com.tacitknowledge.util.migration.MigrationContext;
+using MigrationContext = com.tacitknowledge.util.migration.IMigrationContext;
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 using MigrationTaskSupport = com.tacitknowledge.util.migration.MigrationTaskSupport;
 using DataSourceMigrationContext = com.tacitknowledge.util.migration.ado.DataSourceMigrationContext;
