@@ -135,11 +135,9 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\StandaloneMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ConnectionWrapperDataSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\WebAppMigrationLauncher.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\MigrationBroadcaster.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\IMigrationContext.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationDataSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationException.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\MigrationListener.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationProcess.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\IMigrationTask.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\IMigrationTaskSource.cs" />
