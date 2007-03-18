@@ -74,13 +74,15 @@
   <ItemGroup>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\DOTNET\log4net\log4net-1.2.10\bin\net\2.0\release\log4net.dll</HintPath>
+      <HintPath>lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <Name>mscorlib</Name>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.2.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
-    <Reference Include="nunit.framework.tests, Version=2.2.8.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="nunit.framework, Version=2.2.10.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -98,11 +100,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\conf\ConfigurationManager.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\ControlledSystem.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\data\DBConnectionFactory.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\DelimitedFileLoader.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\ExcelFileLoader.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\FileLoadingUtility.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ControlledSystemsList.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\Hashlist.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\MigrationTaskList.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ADO\WebAppJNDIMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
@@ -148,9 +155,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="sqlserver.resources" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\com\tacitknowledge\util\migration\ADO\loader\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

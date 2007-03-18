@@ -28,12 +28,12 @@ namespace com.tacitknowledge.util.migration
     {
         #region Public methods
         /// <summary>
-        /// Returns a list of <code>IMigrationTask</code>s that are in the given package.
+        /// Returns a list of <code>IMigrationTask</code>s that are in the given assembly.
         /// </summary>
-        /// <param name="packageName">package to search for migration tasks</param>
+        /// <param name="assemblyPath">assembly to search for migration tasks</param>
         /// <returns>A list of migration tasks. If no tasks were found, then an empty list must be returned.</returns>
         /// <exception cref="MigrationException">if an unrecoverable error occurred</exception>
-        IList<IMigrationTask> GetMigrationTasks(String packageName);
+        IList<IMigrationTask> GetMigrationTasks(String assemblyPath);
         #endregion
     }
 }
