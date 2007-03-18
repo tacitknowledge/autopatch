@@ -103,6 +103,8 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ControlledSystemsList.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\Hashlist.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\MigrationTaskList.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\DistributedMigrationProcess.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\AutoPatchService.cs" />
