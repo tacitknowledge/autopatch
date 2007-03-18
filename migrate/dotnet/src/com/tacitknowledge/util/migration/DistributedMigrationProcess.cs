@@ -178,9 +178,9 @@ namespace com.tacitknowledge.util.migration
 		/// <throws>  MigrationException if a migration fails </throws>
 		/// <returns> the number of <code>IMigrationTask</code>s that have executed
 		/// </returns>
-		public override int doMigrations(int currentLevel, IMigrationContext context)
+		public override int DoMigrations(int currentLevel, IMigrationContext context)
 		{
-			log.Debug("Starting doMigrations");
+			log.Debug("Starting DoMigrations");
 			
 			// Get all the migrations, with their launchers, then get the list of just the migrations
 			Hashtable migrationsWithLaunchers = MigrationTasksWithLaunchers;
@@ -192,7 +192,7 @@ namespace com.tacitknowledge.util.migration
                 // make sure the migrations are okay, then sort them
                
             }
-            validateTasks(migrations);
+            ValidateTasks(migrations);
             migrations.Sort();
 			
 			// Roll through each migration, applying it if necessary
@@ -205,7 +205,7 @@ namespace com.tacitknowledge.util.migration
 				{
 					// Execute the task in the context it was loaded from
                     ADOMigrationLauncher launcher = (ADOMigrationLauncher)migrationsWithLaunchers[mts];
-					applyPatch(launcher.Context, mts, true);
+					ApplyPatch(launcher.Context, mts, true);
 					taskCount++;
 				}
 			}

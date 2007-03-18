@@ -53,7 +53,10 @@ namespace com.tacitknowledge.util.migration.ado
 					controlledLaunchers[subContext.getSystemName()] = subLauncher;
 					
 					// Make sure the controlled migration process gets migration events
-					launcher.MigrationProcess.addListener(subLauncher);
+					//launcher.MigrationProcess.addListener(subLauncher);
+                    launcher.MigrationProcess.MigrationStarted += new MigrationProcess.MigrationStatusEventHandler(subLauncher.MigrationStarted);
+                    launcher.MigrationProcess.MigrationSuccessful += new MigrationProcess.MigrationStatusEventHandler(subLauncher.MigrationSuccessful);
+                    launcher.MigrationProcess.MigrationFailed += new MigrationProcess.MigrationStatusEventHandler(subLauncher.MigrationFailed);
 				}
 				
 				((DistributedMigrationProcess) launcher.MigrationProcess).ControlledSystems = controlledLaunchers;

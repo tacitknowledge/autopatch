@@ -27,13 +27,13 @@ namespace com.tacitknowledge.util.migration
     public class MigrationException : Exception
     {
         #region Constructors
-        /// <seealso cref="System.Exception.Exception(String)"/>
+        /// <seealso cref="Exception(String)"/>
         public MigrationException(String message)
             : base(message)
         {
         }
 
-        /// <seealso cref="System.Exception.Exception(String, Exception)"/>
+        /// <seealso cref="Exception(String, Exception)"/>
         public MigrationException(String message, Exception cause)
             : base(message, cause)
         {

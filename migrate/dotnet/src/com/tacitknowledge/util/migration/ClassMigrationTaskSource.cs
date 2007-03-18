@@ -22,12 +22,15 @@ using log4net;
 namespace com.tacitknowledge.util.migration
 {
     /// <summary>
+    /// <para>
     /// Returns a list of all public, concrete classes that implement the <code>IMigrationTask</code>
     /// in a specific assembly.
     /// <remarks>
     /// Class patches are deployed in assemblies, so this class expects a direct location (path)
     /// of the assembly to be passed in to query its information for classes it is interested in.
     /// </remarks>
+    /// </para>
+    /// <para>
     /// <example>Example 1 (using a hard-coded direct path):
     /// <code>
     /// IList &lt;IMigrationTask&gt; tasks = null;
@@ -35,6 +38,8 @@ namespace com.tacitknowledge.util.migration
     /// tasks = source.GetMigrationTasks("D:/Some/Project/Folder/TestLibrary.DLL");
     /// </code>
     /// </example>
+    /// </para>
+    /// <para>
     /// <example>Example 2 (extracting the path of a referenced assembly from one of its classes):
     /// <code>
     /// IList &lt;IMigrationTask&gt; tasks = null;
@@ -42,6 +47,7 @@ namespace com.tacitknowledge.util.migration
     /// tasks = source.GetMigrationTasks(typeof(TestLibrary.Class1).Assembly.CodeBase);
     /// </code>
     /// </example>
+    /// </para>
     /// </summary>
     /// <author>Scott Askew (scott@tacitknowledge.com)</author>
     /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
@@ -73,7 +79,7 @@ namespace com.tacitknowledge.util.migration
 
             IList<Type> taskTypes = GetClasses(assemblyPath, typeof(IMigrationTask));
             log.Debug("Found " + taskTypes.Count + " patches in " + assemblyPath);
-            //System.Console.WriteLine("Found " + taskTypes.Count + " patches in " + assemblyPath);
+            //Console.WriteLine("Found " + taskTypes.Count + " patches in " + assemblyPath);
 
             return InstantiateTasks(assemblyPath, taskTypes);
         }
@@ -91,10 +97,8 @@ namespace com.tacitknowledge.util.migration
         {
             IList<IMigrationTask> tasks = new List<IMigrationTask>();
 
-            for (int i = 0; i < taskTypes.Count; i++)
+            foreach (Type taskType in taskTypes)
             {
-                Type taskType = taskTypes[i];
-
                 try
                 {
                     ObjectHandle oh = Activator.CreateInstanceFrom(assemblyPath, taskType.FullName);
@@ -103,20 +107,20 @@ namespace com.tacitknowledge.util.migration
                     if (task == null)
                     {
                         log.Debug("IMigrationTask " + taskType.FullName + " is of wrong type. Skipping");
-                        //System.Console.WriteLine("IMigrationTask " + taskType.FullName + " is of wrong type. Skipping");
+                        //Console.WriteLine("IMigrationTask " + taskType.FullName + " is of wrong type. Skipping");
                     }
                     else if (task.Name != null)
                     {
                         tasks.Add(task);
                         log.Debug("Added IMigrationTask " + taskType.FullName);
-                        //System.Console.WriteLine("Added IMigrationTask: " + taskType.FullName);
-                        //System.Console.WriteLine("IMigrationTask.Name = " + task.Name);
-                        //System.Console.WriteLine("IMigrationTask.Level = " + task.Level);
+                        //Console.WriteLine("Added IMigrationTask: " + taskType.FullName);
+                        //Console.WriteLine("IMigrationTask.Name = " + task.Name);
+                        //Console.WriteLine("IMigrationTask.Level = " + task.Level);
                     }
                     else
                     {
                         log.Warn("IMigrationTask " + taskType.FullName + " had no migration name. Is that intentional? Skipping task.");
-                        //System.Console.WriteLine("IMigrationTask " + taskType.FullName + " had no migration name. Is that intentional? Skipping task.");
+                        //Console.WriteLine("IMigrationTask " + taskType.FullName + " had no migration name. Is that intentional? Skipping task.");
                     }
                 }
                 catch (Exception e)

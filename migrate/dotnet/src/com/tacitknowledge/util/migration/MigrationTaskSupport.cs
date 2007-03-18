@@ -38,7 +38,7 @@ namespace com.tacitknowledge.util.migration
             set { name = value; }
         }
 
-        /// <seealso cref="IMigrationTask.getLevel()"/>
+        /// <seealso cref="IMigrationTask.Level"/>
         public int? Level
         {
             get { return level; }
@@ -47,7 +47,7 @@ namespace com.tacitknowledge.util.migration
         #endregion
 
         #region Public methods
-        /// <see cref="System.IComparable(IMigrationTask)"/>
+        /// <seealso cref="IComparable.CompareTo(Object)"/>
         public int CompareTo(IMigrationTask task)
         {
             if (!task.Level.HasValue)
@@ -56,13 +56,14 @@ namespace com.tacitknowledge.util.migration
             }
 
             Int32 taskLevel = task.Level.Value;
+            Int32 curLevel = Level.Value;
 
-            return taskLevel.CompareTo(task.Level);
+            return curLevel.CompareTo(taskLevel);
         }
         #endregion
 
         #region Abstract methods
-        /// <see cref="MigrationTask.Migrate(IMigrationContext)"/>
+        /// <see cref="IMigrationTask.Migrate(IMigrationContext)"/>
         public abstract void Migrate(IMigrationContext context);
         #endregion
     }

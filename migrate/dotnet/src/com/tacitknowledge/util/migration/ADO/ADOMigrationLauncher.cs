@@ -31,7 +31,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class ADOMigrationLauncher : MigrationListener
+	public class ADOMigrationLauncher
     {
 
         #region Members
@@ -121,11 +121,11 @@ namespace com.tacitknowledge.util.migration.ado
 					System.String path = st.NextToken();
 					if (path.IndexOf('/') > - 1)
 					{
-						migrationProcess.addPatchResourceDirectory(path);
+						migrationProcess.AddPatchResourceDirectory(path);
 					}
 					else
 					{
-						migrationProcess.addPatchResourcePackage(path);
+						migrationProcess.AddPatchResourceAssembly(path);
 					}
 				}
 			}
@@ -166,11 +166,11 @@ namespace com.tacitknowledge.util.migration.ado
 					System.String path = st.NextToken();
 					if (path.IndexOf('/') > - 1)
 					{
-						migrationProcess.addPostPatchResourceDirectory(path);
+						migrationProcess.AddPostPatchResourceDirectory(path);
 					}
 					else
 					{
-						migrationProcess.addPostPatchResourcePackage(path);
+						migrationProcess.AddPostPatchResourceAssembly(path);
 					}
 				}
 			}
@@ -319,10 +319,12 @@ namespace com.tacitknowledge.util.migration.ado
 			MigrationProcess = NewMigrationProcess;
 			
 			// Make sure this class is notified when a patch is applied so that
-			// the patch level can be updated (see #migrationSuccessful).
-			migrationProcess.addListener(this);
+			// the patch level can be updated (see #MigrationSuccessful).
+            migrationProcess.MigrationStarted += new MigrationProcess.MigrationStatusEventHandler(MigrationStarted);
+            migrationProcess.MigrationSuccessful += new MigrationProcess.MigrationStatusEventHandler(MigrationSuccessful);
+            migrationProcess.MigrationFailed += new MigrationProcess.MigrationStatusEventHandler(MigrationFailed);
 			
-			MigrationProcess.addMigrationTaskSource(new SqlScriptMigrationTaskSource());
+			MigrationProcess.AddMigrationTaskSource(new SqlScriptMigrationTaskSource());
 		}
 		
 		/// <summary> Create a new <code>MigrationLancher</code>.
@@ -367,28 +369,25 @@ namespace com.tacitknowledge.util.migration.ado
 				SqlUtil.close(conn, null, null);
 			}
 		}
-		
-		/// <seealso cref="MigrationListener.migrationStarted(IMigrationTask, IMigrationContext)">
-		/// </seealso>
-		public virtual void  migrationStarted(IMigrationTask task, IMigrationContext ctx)
+
+        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext)"/>
+		public void MigrationStarted(IMigrationTask task, IMigrationContext ctx)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Started task " + task.Name + " for context " + ctx);
 		}
-		
-		/// <seealso cref="MigrationListener.migrationSuccessful(IMigrationTask, IMigrationContext)">
-		/// </seealso>
-		public virtual void  migrationSuccessful(IMigrationTask task, IMigrationContext ctx)
+
+        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext)"/>
+        public virtual void MigrationSuccessful(IMigrationTask task, IMigrationContext ctx)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Task " + task.Name + " was successful for context " + ctx);
-			int patchLevel = task.Level;
+			int patchLevel = task.Level.Value;
 			patchTable.UpdatePatchLevel(patchLevel);
 		}
-		
-		/// <seealso cref="MigrationListener.migrationFailed(IMigrationTask, IMigrationContext, MigrationException)">
-		/// </seealso>
-		public virtual void  migrationFailed(IMigrationTask task, IMigrationContext ctx, MigrationException e)
+
+        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext)"/>
+        public virtual void MigrationFailed(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Task " + task.Name + " failed for context " + ctx, e);
@@ -428,7 +427,7 @@ namespace com.tacitknowledge.util.migration.ado
 				try
 				{
 					int patchLevel = patchTable.PatchLevel;
-					executedPatchCount = migrationProcess.doMigrations(patchLevel, context);
+					executedPatchCount = migrationProcess.DoMigrations(patchLevel, context);
 				}
 				catch (MigrationException me)
 				{
@@ -452,7 +451,7 @@ namespace com.tacitknowledge.util.migration.ado
 				// Do any post-patch tasks
 				try
 				{
-					migrationProcess.doPostPatchMigrations(context);
+					migrationProcess.DoPostPatchMigrations(context);
 					return executedPatchCount;
 				}
 				finally

@@ -21,7 +21,6 @@ namespace com.tacitknowledge.util.migration
     /// Provides system resources to migration tasks.
     /// </summary>
     /// <author>Scott Askew (scott@tacitknowledge.com)</author>
-    /// <author>Ian Mortimer (imorti@tacitknowledge.com)</author>
     /// <version>$Id$</version>
     public interface IMigrationContext
     {

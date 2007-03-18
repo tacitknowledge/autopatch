@@ -13,6 +13,7 @@
 #region Imports
 using System;
 using AutopatchNET.src.com.tacitknowledge.util.migration;
+using com.tacitknowledge.util.migration;
 using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 #endregion
 namespace com.tacitknowledge.util.migration.ado

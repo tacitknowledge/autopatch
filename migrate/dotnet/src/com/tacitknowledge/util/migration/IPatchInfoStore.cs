@@ -17,11 +17,11 @@ using System;
 
 namespace com.tacitknowledge.util.migration
 {
-	/// <summary>
+    /// <summary>
     /// Interface for the persistence of information related to the patch level
-	/// of the system, as well as whether patches are currently being applied.
-	/// </summary>
-	/// <author>Mike Hardy (mike@tacitknowledge.com)</author>
+    /// of the system, as well as whether patches are currently being applied.
+    /// </summary>
+    /// <author>Mike Hardy (mike@tacitknowledge.com)</author>
     /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
     /// <version>$Id$</version>
     public interface IPatchInfoStore
@@ -29,18 +29,18 @@ namespace com.tacitknowledge.util.migration
         #region Public properties
         /// <summary>
         /// Returns the current patch level of the system.
-		/// </summary>
-		int PatchLevel
-		{
-			get;
-		}
+        /// </summary>
+        int PatchLevel
+        {
+            get;
+        }
 
         /// <summary>
         /// Determines if the patch store is already locked.
-		/// </summary>
-		bool PatchStoreLocked
-		{
-			get;
+        /// </summary>
+        bool PatchStoreLocked
+        {
+            get;
         }
         #endregion
 
@@ -56,14 +56,14 @@ namespace com.tacitknowledge.util.migration
         /// </summary>
         /// <param name="level">the new system patch level</param>
         /// <exception cref="MigrationException">if updating the patch level failed</exception>
-		void UpdatePatchLevel(int level);
-		
+        void UpdatePatchLevel(int level);
+
         /// <summary>
         /// Places a lock for this system on the patch store.
         /// </summary>
         /// <exception cref="MigrationException">if locking the store fails</exception>
         /// <exception cref="IllegalStateException">if a lock already exists</exception>
-		void LockPatchStore();
+        void LockPatchStore();
 
         /// <summary>
         /// Removes any locks for this system on the patch store.
