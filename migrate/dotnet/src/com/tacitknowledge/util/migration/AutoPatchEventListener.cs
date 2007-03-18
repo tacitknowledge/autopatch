@@ -25,7 +25,7 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration
          * Keep track of first run. Should be moot at this point as this is called from Global.asax file at appplication
          * start up, however for debugging purposes this could be useful. 
          */
-        private static bool firstRun = true;
+        //private static bool firstRun = true;
 
         /*
          * Log4Net logger
@@ -59,7 +59,7 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration
             /*
              * Load the class we're configured to use for managing migrations
              */
-            lancher = System.Activator.CreateInstance(AutopatchNET, String(migrationConfig.Launcher));
+            launcher = null;// System.Activator.CreateInstance(AutopatchNET, String(migrationConfig.Launcher));
 
             launcher.initialize();
 

@@ -115,7 +115,7 @@ namespace com.tacitknowledge.util.migration.ado
 		private void  configureFromMigrationProperties(ADOMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
 		{
             //TODO: change to use MigrationConfigurationManager
-			launcher.PatchPath = getRequiredParam(props, systemName + ".patch.path");
+            launcher.PatchPath = null;//getRequiredParam(props, systemName + ".patch.path");
 			launcher.PostPatchPath = props.Get(systemName + ".postpatch.path");
 			
 			// Set up the data source
@@ -127,13 +127,14 @@ namespace com.tacitknowledge.util.migration.ado
 			
 			// Set up the ADO migration context; accepts one of two property names
 			DataSourceMigrationContext context = DataSourceMigrationContext;
-			System.String databaseType = getRequiredParam(props, systemName + ".ado.database.type", systemName + ".ado.dialect");
+            //TODO: change to use MigrationConfigurationManager
+            System.String databaseType = null;// getRequiredParam(props, systemName + ".ado.database.type", systemName + ".ado.dialect");
 			context.setDatabaseType(new DatabaseType(databaseType));
 			
 			// Finish setting up the context
 			context.setSystemName(systemName);
 			
-			context.DataSource = dataSource;
+			//context.DataSource = dataSource;
 			
 			// done reading in config, set launcher's context
 			launcher.Context = context;

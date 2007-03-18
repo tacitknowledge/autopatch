@@ -57,11 +57,11 @@ namespace com.tacitknowledge.util.migration.ado.loader
 			get
 			{
 				//UPGRADE_ISSUE: Method 'java.lang.Class.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetResourceAsStream_javalangString'"
-				System.IO.Stream stream = GetType().getResourceAsStream(fileName);
+                System.IO.Stream stream = null;// GetType().getResourceAsStream(fileName);
 				if (stream == null)
 				{
 					//UPGRADE_ISSUE: Method 'java.lang.ClassLoader.getSystemResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassLoader'"
-					stream = ClassLoader.getSystemResourceAsStream(fileName);
+                    stream = null;// ClassLoader.getSystemResourceAsStream(fileName);
 				}
 				if (stream == null)
 				{
@@ -73,7 +73,7 @@ namespace com.tacitknowledge.util.migration.ado.loader
 					}
 					catch (System.IO.FileNotFoundException e)
 					{
-						log.error("The file: " + fileName + " was not found.", e);
+						log.Error("The file: " + fileName + " was not found.", e);
 						throw new System.ArgumentException("Must have a valid file name.");
 					}
 				}

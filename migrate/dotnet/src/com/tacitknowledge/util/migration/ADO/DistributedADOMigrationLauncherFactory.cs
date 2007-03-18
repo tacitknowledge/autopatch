@@ -91,9 +91,9 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			//UPGRADE_ISSUE: Class 'java.lang.ClassLoader' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassLoader'"
 			//UPGRADE_ISSUE: Method 'java.lang.Thread.getContextClassLoader' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangThreadgetContextClassLoader'"
-			ClassLoader cl = SupportClass.ThreadClass.Current().getContextClassLoader();
+			//ClassLoader cl = SupportClass.ThreadClass.Current().getContextClassLoader();
 			//UPGRADE_ISSUE: Method 'java.lang.ClassLoader.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassLoader'"
-			System.IO.Stream is_Renamed = cl.getResourceAsStream(com.tacitknowledge.util.migration.MigrationContext_Fields.MIGRATION_CONFIG_FILE);
+            System.IO.Stream is_Renamed = null;// cl.getResourceAsStream(com.tacitknowledge.util.migration.MigrationContext_Fields.MIGRATION_CONFIG_FILE);
 			if (is_Renamed != null)
 			{
 				try
@@ -124,7 +124,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			else
 			{
-				throw new MigrationException("Unable to find migration properties file '" + com.tacitknowledge.util.migration.MigrationContext_Fields.MIGRATION_CONFIG_FILE + "'");
+				throw new MigrationException("Unable to find migration properties file '"/* TODO + com.tacitknowledge.util.migration.MigrationContext_Fields.MIGRATION_CONFIG_FILE*/ + "'");
 			}
 		}
 		
@@ -143,26 +143,26 @@ namespace com.tacitknowledge.util.migration.ado
 		private void  configureFromMigrationProperties(DistributedADOMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
 		{
 			// Get the name of the context to use for our patch information
-			System.String patchStoreContextName = getRequiredParam(props, systemName + ".context");
+            System.String patchStoreContextName = null;//getRequiredParam(props, systemName + ".context");
 			
 			// Set up the data source
-			
+			/* TODO
 			dataSource.DriverClass = getRequiredParam(props, patchStoreContextName + ".ado.driver");
 			dataSource.DatabaseUrl = getRequiredParam(props, patchStoreContextName + ".ado.url");
 			dataSource.Username = getRequiredParam(props, patchStoreContextName + ".ado.username");
 			dataSource.Password = getRequiredParam(props, patchStoreContextName + ".ado.password");
-			
+			*/
 			// Get any post-patch task paths
 			launcher.PostPatchPath = props.Get(patchStoreContextName + ".postpatch.path");
 			
 			// Set up the ADO migration context; accepts one of two property names
 			DataSourceMigrationContext context = DataSourceMigrationContext;
-			System.String databaseType = getRequiredParam(props, patchStoreContextName + ".ado.database.type", patchStoreContextName + ".ado.dialect");
+            System.String databaseType = null;// getRequiredParam(props, patchStoreContextName + ".ado.database.type", patchStoreContextName + ".ado.dialect");
 			context.setDatabaseType(new DatabaseType(databaseType));
 			
 			// Finish setting up the context
 			context.setSystemName(systemName);
-			context.DataSource = dataSource;
+			//context.DataSource = dataSource;
 			
 			// done reading in config, set launcher's context
 			launcher.Context = context;
@@ -170,7 +170,7 @@ namespace com.tacitknowledge.util.migration.ado
 			// Get our controlled systems, and instantiate their launchers
 			//UPGRADE_TODO: Class 'java.util.HashMap' was converted to 'System.Collections.Hashtable' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMap'"
 			System.Collections.Hashtable controlledSystems = new System.Collections.Hashtable();
-			System.String[] controlledSystemNames = getRequiredParam(props, systemName + ".controlled.systems").split(",");
+            System.String[] controlledSystemNames = null;// getRequiredParam(props, systemName + ".controlled.systems").split(",");
 			for (int i = 0; i < controlledSystemNames.Length; i++)
 			{
 				log.Info("Creating controlled migration launcher for system " + controlledSystemNames[i]);
@@ -186,7 +186,7 @@ namespace com.tacitknowledge.util.migration.ado
             }
 			
 			// communicate our new-found controlled systems to the migration process
-			((DistributedMigrationProcess) launcher.MigrationProcess).ControlledSystems = controlledSystems;
+            ((DistributedMigrationProcess)launcher.MigrationProcess).ControlledSystems = null;// controlledSystems;
 		}
 		static DistributedADOMigrationLauncherFactory()
 		{

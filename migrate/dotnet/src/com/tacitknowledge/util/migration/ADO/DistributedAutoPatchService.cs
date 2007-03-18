@@ -58,8 +58,8 @@ namespace com.tacitknowledge.util.migration.ado
                     launcher.MigrationProcess.MigrationSuccessful += new MigrationProcess.MigrationStatusEventHandler(subLauncher.MigrationSuccessful);
                     launcher.MigrationProcess.MigrationFailed += new MigrationProcess.MigrationStatusEventHandler(subLauncher.MigrationFailed);
 				}
-				
-				((DistributedMigrationProcess) launcher.MigrationProcess).ControlledSystems = controlledLaunchers;
+
+                ((DistributedMigrationProcess)launcher.MigrationProcess).ControlledSystems = null;// controlledLaunchers;
 				launcher.PostPatchPath = PostPatchPath;
 				
 				return launcher;

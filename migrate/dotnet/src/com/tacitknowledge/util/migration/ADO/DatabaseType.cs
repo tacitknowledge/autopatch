@@ -84,7 +84,7 @@ namespace com.tacitknowledge.util.migration.ado
               */ 
 
 			//UPGRADE_ISSUE: Method 'java.lang.Class.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetResourceAsStream_javalangString'"
-			System.IO.Stream is_Renamed = GetType().getResourceAsStream(databaseType + ".properties");
+            System.IO.Stream is_Renamed = null;// GetType().getResourceAsStream(databaseType + ".properties");
 			if (is_Renamed == null)
 			{
 				//UPGRADE_ISSUE: Method 'java.lang.Package.getName' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangPackage'"
@@ -98,7 +98,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			catch (System.IO.IOException e)
 			{
-				throw new System.ArgumentException("Could not read SQL properties " + " file for database '" + databaseType + "'.");
+				throw new System.ArgumentException("Could not read SQL properties " + " file for database '" + databaseType + "'.", e);
 			}
 			finally
 			{
@@ -106,7 +106,7 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					is_Renamed.Close();
 				}
-				catch (System.IO.IOException e1)
+				catch (System.IO.IOException)
 				{
 					// not important
 				}

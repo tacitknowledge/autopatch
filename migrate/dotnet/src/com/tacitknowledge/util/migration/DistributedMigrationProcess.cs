@@ -12,7 +12,7 @@
 */
 #region Imports
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration.ado;
@@ -47,34 +47,33 @@ namespace com.tacitknowledge.util.migration
         #endregion
 
         #region Methods
-        /// <summary> Returns a LinkedHashMap of task/launcher pairings, regardless of patch level.
-		/// 
+        /// <summary>
+        /// Returns a dictionary of task/launcher pairings, regardless of patch level.
 		/// </summary>
-		/// <returns> Hashtable containing IMigrationTask / ADOMigrationLauncher pairings
+		/// <returns>
+        /// Dictionary containing <code>IMigrationTask</code>s / <code>ADOMigrationLauncher</code> pairings
 		/// </returns>
-		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
-		/// <summary>         created
-		/// </summary>
-	    public Hashtable MigrationTasksWithLaunchers
+        /// <exception cref="MigrationException">
+        /// if one or more migration tasks could not be created
+        /// </exception>
+	    public IDictionary<IMigrationTask, ADOMigrationLauncher> MigrationTasksWithLaunchers
 		{
 			get
 			{
-				Hashtable tasks = new Hashtable();
+                IDictionary<IMigrationTask, ADOMigrationLauncher> tasks = new Dictionary<IMigrationTask, ADOMigrationLauncher>();
 				
 				// Roll through all our controlled system names
                 foreach (ControlledSystem cs in ControlledSystems)
-                    {
-                        //Get the sublauncher that runs patches for the current name
-                        ADOMigrationLauncher subLauncher = cs.AdoMigrationLauncher;
+                {
+                    //Get the sublauncher that runs patches for the current name
+                    ADOMigrationLauncher subLauncher = cs.AdoMigrationLauncher;
 					
 					// Get all the tasks for that sub launcher
-					System.Collections.IList subTasks = subLauncher.MigrationProcess.MigrationTasks;
+					IList<IMigrationTask> subTasks = subLauncher.MigrationProcess.MigrationTasks;
 					log.Info("Found " + subTasks.Count + " for system " + cs.ControlledSystemName);
 					
-					for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
+                    foreach (IMigrationTask task in subTasks)
 					{
-						
-						IMigrationTask task = (IMigrationTask) subTaskIter.Current;
 						if (log.IsDebugEnabled)
 						{
 							log.Debug("\tMigration+Launcher binder found subtask " + task.Name + " for launcher context " + subLauncher.Context.getSystemName());
@@ -95,11 +94,11 @@ namespace com.tacitknowledge.util.migration
 		/// <returns> List containing IMigrationTask objects
 		/// </returns>
 		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
-		override public System.Collections.IList MigrationTasks
+        public override IList<IMigrationTask> MigrationTasks
 		{
 			get
 			{
-				System.Collections.IList tasks = new System.Collections.ArrayList();
+                IList<IMigrationTask> tasks = new List<IMigrationTask>();
 				
 				
 				//for (System.Collections.IEnumerator controlledSystemIter = new SupportClass.HashSetSupport(ControlledSystems.Keys).GetEnumerator(); controlledSystemIter.MoveNext(); )
@@ -108,16 +107,15 @@ namespace com.tacitknowledge.util.migration
                 {
 
                     ADOMigrationLauncher launcher = cs.AdoMigrationLauncher;
-					System.Collections.IList subTasks = launcher.MigrationProcess.MigrationTasks;
+					IList<IMigrationTask> subTasks = launcher.MigrationProcess.MigrationTasks;
 					log.Info("Found " + subTasks.Count + " for system " + cs.ControlledSystemName);
 					if (log.IsDebugEnabled)
 					{
-						//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
-						for (System.Collections.IEnumerator subTaskIter = subTasks.GetEnumerator(); subTaskIter.MoveNext(); )
+                        foreach (IMigrationTask task in subTasks)
 						{
 							//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-							log.Debug("\tFound subtask " + ((IMigrationTask) subTaskIter.Current).Name);
-                            tasks.Add(subTasks);
+							log.Debug("\tFound subtask " + task.Name);
+                            tasks.Add(task);
 						}
 					}
 					
@@ -183,9 +181,9 @@ namespace com.tacitknowledge.util.migration
 			log.Debug("Starting DoMigrations");
 			
 			// Get all the migrations, with their launchers, then get the list of just the migrations
-			Hashtable migrationsWithLaunchers = MigrationTasksWithLaunchers;
-            System.Collections.ArrayList migrations = new ArrayList();
-            foreach (IMigrationTask mt in migrationsWithLaunchers)
+			IDictionary<IMigrationTask, ADOMigrationLauncher> migrationsWithLaunchers = MigrationTasksWithLaunchers;
+            List<IMigrationTask> migrations = new List<IMigrationTask>();
+            foreach (IMigrationTask mt in migrationsWithLaunchers.Keys)
             {
                 migrations.Add(mt);
 

@@ -55,8 +55,8 @@ namespace com.tacitknowledge.util.migration.ado
 				System.Data.OleDb.OleDbDataReader rs = null;
 				try
 				{
-					stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.read"));
-					SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
+                    stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.read"));
+                    //SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
 					rs = stmt.ExecuteReader();
 					if (rs.Read())
 					{
@@ -75,7 +75,7 @@ namespace com.tacitknowledge.util.migration.ado
 				}
 				finally
 				{
-					SqlUtil.close(null, stmt, rs);
+					//SqlUtil.close(null, stmt, rs);
 				}
 			}
 			
@@ -92,8 +92,8 @@ namespace com.tacitknowledge.util.migration.ado
 				System.Data.OleDb.OleDbDataReader rs = null;
 				try
 				{
-					stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("lock.read"));
-					SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
+                    stmt = null;//SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("lock.read"));
+					//SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
 					rs = stmt.ExecuteReader();
 					
 					if (rs.Read())
@@ -111,7 +111,7 @@ namespace com.tacitknowledge.util.migration.ado
 				}
 				finally
 				{
-					SqlUtil.close(null, stmt, rs);
+					//SqlUtil.close(null, stmt, rs);
 				}
 			}
 			
@@ -125,7 +125,7 @@ namespace com.tacitknowledge.util.migration.ado
 		
 		/// <summary> The database connection </summary>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		private System.Data.OleDb.OleDbConnection conn = null;
+        private System.Data.Common.DbConnection conn = null;
 		
 		/// <summary> Keeps track of table validation (see #createPatchesTableIfNeeded)</summary>
 		private bool tableExistenceValidated = false;
@@ -138,7 +138,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="connection">the database connection to use; this will NOT be closed
 		/// </param>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		public PatchTable(ADOMigrationContext migrationContext, System.Data.OleDb.OleDbConnection connection)
+        public PatchTable(ADOMigrationContext migrationContext, System.Data.Common.DbConnection connection)
 		{
 			this.context = migrationContext;
 			this.conn = connection;
@@ -164,20 +164,20 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				// TODO: Find a better, cross-platform way to determine if a table exists.
 				//       Simply expecting a SQLException is kind of a hack
-				stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.read"));
-				SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
+                stmt = null;//SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.read"));
+				//SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
 				rs = stmt.ExecuteReader();
 				log.Debug("'patches' table already exists.");
 				tableExistenceValidated = true;
 			}
-			catch (System.Data.OleDb.OleDbException e)
+			catch (System.Data.OleDb.OleDbException)
 			{
-				SqlUtil.close(null, stmt, rs);
+				//SqlUtil.close(null, stmt, rs);
 				log.Info("'patches' table must not exist; creating....");
 				try
 				{
-					stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("patches.create"));
-					if (log.IsDebugEnabled())
+                    stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("patches.create"));
+					if (log.IsDebugEnabled)
 					{
 						log.Debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
 					}
@@ -192,7 +192,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				SqlUtil.close(null, stmt, rs);
+				//SqlUtil.close(null, stmt, rs);
 			}
 		}
 		
@@ -205,9 +205,9 @@ namespace com.tacitknowledge.util.migration.ado
 			System.Data.OleDb.OleDbCommand stmt = null;
 			try
 			{
-				stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.update"));
-				SupportClass.TransactionManager.manager.SetValue(stmt, 1, level);
-				SupportClass.TransactionManager.manager.SetValue(stmt, 2, context.getSystemName());
+                stmt = null; // SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.update"));
+                //SupportClass.TransactionManager.manager.SetValue(stmt, 1, level);
+                //SupportClass.TransactionManager.manager.SetValue(stmt, 2, context.getSystemName());
 				stmt.ExecuteNonQuery();
 			}
 			catch (System.Data.OleDb.OleDbException e)
@@ -216,7 +216,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				SqlUtil.close(null, stmt, null);
+                //SqlUtil.close(null, stmt, null);
 			}
 		}
 		
@@ -259,8 +259,8 @@ namespace com.tacitknowledge.util.migration.ado
 			System.Data.OleDb.OleDbCommand stmt = null;
 			try
 			{
-				stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.create"));
-				SupportClass.TransactionManager.manager.SetValue(stmt, 1, systemName);
+                stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.create"));
+                //SupportClass.TransactionManager.manager.SetValue(stmt, 1, systemName);
 				stmt.ExecuteNonQuery();
 				log.Info("Created patch record for " + systemName);
 			}
@@ -271,7 +271,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				SqlUtil.close(null, stmt, null);
+                //SqlUtil.close(null, stmt, null);
 			}
 		}
 		
@@ -289,12 +289,12 @@ namespace com.tacitknowledge.util.migration.ado
 			
 			try
 			{
-				stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql(sqlkey));
-				if (log.IsDebugEnabled())
+                stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql(sqlkey));
+				if (log.IsDebugEnabled)
 				{
 					log.Debug("Updating patch table lock: " + getSql(sqlkey));
 				}
-				SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
+				//SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
 				stmt.ExecuteNonQuery();
 			}
 			catch (System.Data.OleDb.OleDbException e)
@@ -303,7 +303,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				SqlUtil.close(null, stmt, null);
+                //SqlUtil.close(null, stmt, null);
 			}
 		}
 		static PatchTable()

@@ -74,7 +74,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			DistributedMigrationInformation info = new DistributedMigrationInformation();
 			//UPGRADE_ISSUE: Method 'java.lang.System.getProperty' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangSystem'"
-			System.String migrationName = System_Renamed.getProperty("systemname");
+            System.String migrationName = null;// System_Renamed.getProperty("systemname");
 			if (migrationName == null)
 			{
 				if ((arguments != null) && (arguments.Length > 0))

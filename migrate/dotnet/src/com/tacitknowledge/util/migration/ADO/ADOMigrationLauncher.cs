@@ -115,19 +115,19 @@ namespace com.tacitknowledge.util.migration.ado
 			set
 			{
 				this.patchPath = value;
-				SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
-				while (st.HasMoreTokens())
-				{
-					System.String path = st.NextToken();
-					if (path.IndexOf('/') > - 1)
-					{
-						migrationProcess.AddPatchResourceDirectory(path);
-					}
-					else
-					{
-						migrationProcess.AddPatchResourceAssembly(path);
-					}
-				}
+                //SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
+                //while (st.HasMoreTokens())
+                //{
+                //    System.String path = st.NextToken();
+                //    if (path.IndexOf('/') > - 1)
+                //    {
+                //        migrationProcess.AddPatchResourceDirectory(path);
+                //    }
+                //    else
+                //    {
+                //        migrationProcess.AddPatchResourceAssembly(path);
+                //    }
+                //}
 			}
 			
 		}
@@ -160,19 +160,19 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					return ;
 				}
-				SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
-				while (st.HasMoreTokens())
-				{
-					System.String path = st.NextToken();
-					if (path.IndexOf('/') > - 1)
-					{
-						migrationProcess.AddPostPatchResourceDirectory(path);
-					}
-					else
-					{
-						migrationProcess.AddPostPatchResourceAssembly(path);
-					}
-				}
+                //SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
+                //while (st.HasMoreTokens())
+                //{
+                //    System.String path = st.NextToken();
+                //    if (path.IndexOf('/') > - 1)
+                //    {
+                //        migrationProcess.AddPostPatchResourceDirectory(path);
+                //    }
+                //    else
+                //    {
+                //        migrationProcess.AddPostPatchResourceAssembly(path);
+                //    }
+                //}
 			}
 			
 		}
@@ -354,7 +354,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			
 			//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-			System.Data.OleDb.OleDbConnection conn = null;
+			System.Data.Common.DbConnection conn = null;
 			try
 			{
 				conn = context.Connection;
@@ -366,19 +366,19 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				SqlUtil.close(conn, null, null);
+				//SqlUtil.close(conn, null, null);
 			}
 		}
 
-        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext)"/>
-		public void MigrationStarted(IMigrationTask task, IMigrationContext ctx)
+        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext, MigrationException)"/>
+        public void MigrationStarted(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Started task " + task.Name + " for context " + ctx);
 		}
 
-        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext)"/>
-        public virtual void MigrationSuccessful(IMigrationTask task, IMigrationContext ctx)
+        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext, MigrationException)"/>
+        public void MigrationSuccessful(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Task " + task.Name + " was successful for context " + ctx);
@@ -386,8 +386,8 @@ namespace com.tacitknowledge.util.migration.ado
 			patchTable.UpdatePatchLevel(patchLevel);
 		}
 
-        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext)"/>
-        public virtual void MigrationFailed(IMigrationTask task, IMigrationContext ctx, MigrationException e)
+        /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext, MigrationException)"/>
+        public void MigrationFailed(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Task " + task.Name + " failed for context " + ctx, e);
@@ -412,15 +412,15 @@ namespace com.tacitknowledge.util.migration.ado
 			patchTable = createPatchStore(conn);
 			
 			// Save auto-commit state
-			bool b = true;
+			//bool b = true;
 			try
 			{
 				lockPatchStore();
 				
 				// make sure we can at least attempt to roll back patches
 				// DDL usually can't rollback - we'd need compensating transactions
-				b = SupportClass.TransactionManager.manager.GetAutoCommit(conn);
-				SupportClass.TransactionManager.manager.SetAutoCommit(conn, false);
+                //b = SupportClass.TransactionManager.manager.GetAutoCommit(conn);
+				//SupportClass.TransactionManager.manager.SetAutoCommit(conn, false);
 				
 				// Now apply the patches
 				int executedPatchCount = 0;
@@ -440,7 +440,7 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					try
 					{
-						SupportClass.TransactionManager.manager.Commit(conn);
+						//SupportClass.TransactionManager.manager.Commit(conn);
 					}
 					catch (System.Data.OleDb.OleDbException e)
 					{
@@ -459,7 +459,7 @@ namespace com.tacitknowledge.util.migration.ado
 					try
 					{
 						patchTable.UnlockPatchStore();
-						SupportClass.TransactionManager.manager.Commit(conn);
+						//SupportClass.TransactionManager.manager.Commit(conn);
 					}
 					catch (System.Data.OleDb.OleDbException e)
 					{
@@ -470,7 +470,7 @@ namespace com.tacitknowledge.util.migration.ado
 			finally
 			{
 				// restore auto-commit setting
-				SupportClass.TransactionManager.manager.SetAutoCommit(conn, b);
+				//SupportClass.TransactionManager.manager.SetAutoCommit(conn, b);
 			}
 		}
 		
@@ -493,7 +493,7 @@ namespace com.tacitknowledge.util.migration.ado
 					patchTable.LockPatchStore();
 					lockObtained = true;
 				}
-				catch (System.SystemException ise)
+				catch (System.SystemException)
 				{
 					// this happens when someone woke up at the same time,
 					// raced us to the lock and won. We re-sleep and try again.
@@ -510,7 +510,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		/// <throws>  MigrationException if unable to create the store </throws>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		protected internal virtual IPatchInfoStore createPatchStore(System.Data.OleDb.OleDbConnection conn)
+		protected internal virtual IPatchInfoStore createPatchStore(System.Data.Common.DbConnection conn)
 		{
 			IPatchInfoStore piStore = new PatchTable(context, conn);
 			
@@ -518,14 +518,14 @@ namespace com.tacitknowledge.util.migration.ado
 			int generatedAux = patchTable.PatchLevel;
 			try
 			{
-				if (!SupportClass.TransactionManager.manager.GetAutoCommit(conn))
-				{
-					SupportClass.TransactionManager.manager.Commit(conn);
-				}
+                //if (!SupportClass.TransactionManager.manager.GetAutoCommit(conn))
+                //{
+                //    SupportClass.TransactionManager.manager.Commit(conn);
+                //}
 			}
 			catch (System.Data.OleDb.OleDbException sqle)
 			{
-				throw new MigrationException("Unable to commit connection after creating patch store");
+				throw new MigrationException("Unable to commit connection after creating patch store", sqle);
 			}
 			
 			return piStore;

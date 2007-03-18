@@ -77,7 +77,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			
 			//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-			System.Data.OleDb.OleDbConnection conn = null;
+			System.Data.Common.DbConnection conn = null;
 			try
 			{
 				conn = Context.Connection;
@@ -89,7 +89,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				SqlUtil.close(conn, null, null);
+                //SqlUtil.close(conn, null, null);
 			}
 		}
 	}

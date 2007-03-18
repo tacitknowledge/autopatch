@@ -37,8 +37,8 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		public static ADOMigrationLauncherFactory createFactory()
 		{
-			
-			System.String factoryName = SupportClass.GetProperties().Get("migration.factory");
+
+            System.String factoryName = null;// SupportClass.GetProperties().Get("migration.factory");
 			log.Debug("Creating ADOMigrationLauncher using " + factoryName);
 			if (factoryName == null)
 			{
@@ -55,7 +55,7 @@ namespace com.tacitknowledge.util.migration.ado
 			//UPGRADE_NOTE: Exception 'java.lang.ClassNotFoundException' was converted to 'System.Exception' which has different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1100'"
 			catch (System.Exception e)
 			{
-				throw new System.ArgumentException("Migration factory class '" + factoryName + "' not found.  Aborting.");
+				throw new System.ArgumentException("Migration factory class '" + factoryName + "' not found.  Aborting.", e);
 			}
 			try
 			{

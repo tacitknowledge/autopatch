@@ -80,7 +80,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			try
 			{
-				SupportClass.TransactionManager.manager.Commit(Connection);
+                //SupportClass.TransactionManager.manager.Commit(Connection);
 			}
 			catch (System.Data.OleDb.OleDbException e)
 			{
@@ -94,7 +94,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			try
 			{
-				SupportClass.TransactionManager.manager.RollBack(Connection);
+                //SupportClass.TransactionManager.manager.RollBack(Connection);
 			}
 			catch (System.Data.OleDb.OleDbException e)
 			{

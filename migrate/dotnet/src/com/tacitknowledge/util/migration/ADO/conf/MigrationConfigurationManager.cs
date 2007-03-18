@@ -68,7 +68,8 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
         {
 
           
-                return configFactory.DbConfiguration;
+                dbConfig = configFactory.DbConfiguration;
+                return dbConfig;
            
 
         }

@@ -32,7 +32,7 @@ namespace com.tacitknowledge.util.migration
 
         #region Public properties
         /// <seealso cref="IMigrationTask.Name"/>
-        public String Name
+        public virtual String Name
         {
             get { return name; }
             set { name = value; }

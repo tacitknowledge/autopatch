@@ -62,8 +62,8 @@ namespace com.tacitknowledge.util.migration.ado
 			try
 			{
 				//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-				System.Data.OleDb.OleDbConnection conn = context.Connection;
-				System.Data.OleDb.OleDbCommand stmt = SupportClass.TransactionManager.manager.PrepareStatement(conn, StatmentSql);
+				System.Data.Common.DbConnection conn = context.Connection;
+                System.Data.Common.DbCommand stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, StatmentSql);
 				System.Collections.IList rows = getData(ResourceAsStream);
 				int rowCount = rows.Count;
 				for (int i = 0; i < rowCount; i++)
@@ -73,16 +73,16 @@ namespace com.tacitknowledge.util.migration.ado
 					if (loadRowFlag)
 					{
 						//UPGRADE_ISSUE: Method 'java.sql.PreparedStatement.addBatch' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlPreparedStatementaddBatch'"
-						stmt.addBatch();
+						//stmt.addBatch();
 						if (i % 50 == 0)
 						{
 							//UPGRADE_TODO: Method 'java.sql.Statement.executeBatch' was converted to 'SupportClass.BatchManager.manager.ExecuteUpdate' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlStatementexecuteBatch'"
-							SupportClass.BatchManager.manager.ExecuteUpdate(stmt);
+							//SupportClass.BatchManager.manager.ExecuteUpdate(stmt);
 						}
 					}
 				}
 				//UPGRADE_TODO: Method 'java.sql.Statement.executeBatch' was converted to 'SupportClass.BatchManager.manager.ExecuteUpdate' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlStatementexecuteBatch'"
-				SupportClass.BatchManager.manager.ExecuteUpdate(stmt);
+				//SupportClass.BatchManager.manager.ExecuteUpdate(stmt);
 			}
 			catch (System.Exception e)
 			{
@@ -91,11 +91,11 @@ namespace com.tacitknowledge.util.migration.ado
 				if (e is System.Data.OleDb.OleDbException)
 				{
 					//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-					if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
-					{
-						//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-						log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
-					}
+                    //if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
+                    //{
+                    //    //UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
+                    //    log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
+                    //}
 				}
 				
 				throw new MigrationException(message, e);
@@ -115,7 +115,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> false if you do not want this row loaded, true otherwise
 		/// </returns>
 		/// <throws>  Exception if an unexpected error occurs </throws>
-		protected internal abstract bool insert(System.String data, System.Data.OleDb.OleDbCommand stmt);
+		protected internal abstract bool insert(System.String data, System.Data.Common.DbCommand stmt);
 		
 		/// <seealso cref="java.lang.Object.toString()">
 		/// </seealso>

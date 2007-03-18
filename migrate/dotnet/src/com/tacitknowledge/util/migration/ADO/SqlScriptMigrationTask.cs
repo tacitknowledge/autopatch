@@ -93,8 +93,8 @@ namespace com.tacitknowledge.util.migration.ado
 			ADOMigrationContext context = (ADOMigrationContext) ctx;
 			
 			//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-			System.Data.OleDb.OleDbConnection conn = null;
-			System.Data.OleDb.OleDbCommand stmt = null;
+			System.Data.Common.DbConnection conn = null;
+            System.Data.Common.DbCommand stmt = null;
 			System.String sqlStatement = "";
 			try
 			{
@@ -105,18 +105,18 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
 					sqlStatement = ((System.String) i.Current);
-					if (log.IsDebugEnabled())
+					if (log.IsDebugEnabled)
 					{
 						log.Debug(Name + ": Attempting to execute: " + sqlStatement);
 					}
 					//UPGRADE_TODO: Method 'java.sql.Connection.createStatement' was converted to 'SupportClass.TransactionManager.manager.CreateStatement' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlConnectioncreateStatement'"
-					stmt = SupportClass.TransactionManager.manager.CreateStatement(conn);
+                    stmt = null;// SupportClass.TransactionManager.manager.CreateStatement(conn);
 					//UPGRADE_TODO: Method 'java.sql.Statement.execute' was converted to 'System.Data.OleDb.OleDbCommand.ExecuteNonQuery' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlStatementexecute_javalangString'"
-					System.Data.OleDb.OleDbCommand temp_OleDbCommand;
+					System.Data.Common.DbCommand temp_OleDbCommand;
 					temp_OleDbCommand = stmt;
 					temp_OleDbCommand.CommandText = sqlStatement;
 					temp_OleDbCommand.ExecuteNonQuery();
-					SqlUtil.close(null, stmt, null);
+					//SqlUtil.close(null, stmt, null);
 					stmt = null;
 				}
 			}
@@ -128,18 +128,18 @@ namespace com.tacitknowledge.util.migration.ado
 				if (e is System.Data.OleDb.OleDbException)
 				{
 					//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-					if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
-					{
-						//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-						log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
-					}
+                    //if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
+                    //{
+                    //    //UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
+                    //    log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
+                    //}
 				}
 				
 				throw new MigrationException(message, e);
 			}
 			finally
 			{
-				SqlUtil.close(null, stmt, null);
+				//SqlUtil.close(null, stmt, null);
 			}
 		}
 		
@@ -237,12 +237,8 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			return Name;
 		}
-		//UPGRADE_TODO: The following method was automatically generated and it must be implemented in order to preserve the class logic. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1232'"
-		override public System.Int32 CompareTo(System.Object obj)
-		{
-			return 0;
-		}
-		static SqlScriptMigrationTask()
+
+        static SqlScriptMigrationTask()
 		{
 			log = LogManager.GetLogger(typeof(SqlScriptMigrationTask));
 		}

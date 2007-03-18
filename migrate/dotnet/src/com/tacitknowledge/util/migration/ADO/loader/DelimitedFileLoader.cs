@@ -72,7 +72,7 @@ namespace com.tacitknowledge.util.migration.ado.loader
 		{
 			get
 			{
-				System.String name = getName();
+				System.String name = Name;
 				int startTable = name.LastIndexOf(PATH_SEPARATOR);
 				//UPGRADE_WARNING: Method 'java.lang.String.indexOf' was converted to 'System.String.IndexOf' which may throw an exception. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1101'"
 				int endTable = name.IndexOf("_db", startTable);
@@ -95,12 +95,12 @@ namespace com.tacitknowledge.util.migration.ado.loader
 				{
 					System.String columnHeader = getHeader(ResourceAsStream);
 					System.String delimiter = Delimiter;
-					SupportClass.Tokenizer st = new SupportClass.Tokenizer(columnHeader, delimiter);
+                    //SupportClass.Tokenizer st = new SupportClass.Tokenizer(columnHeader, delimiter);
 					System.Collections.ArrayList columnNames = new System.Collections.ArrayList();
-					while (st.HasMoreTokens())
-					{
-						columnNames.Add((st.NextToken().Trim()));
-					}
+                    //while (st.HasMoreTokens())
+                    //{
+                    //    columnNames.Add((st.NextToken().Trim()));
+                    //}
 					System.Text.StringBuilder query = new System.Text.StringBuilder("INSERT INTO ");
 					query.Append(TableFromName);
 					query.Append(" (");
@@ -134,7 +134,7 @@ namespace com.tacitknowledge.util.migration.ado.loader
 				}
 				catch (System.IO.IOException e)
 				{
-					log.error("No header was found for file: " + getName(), e);
+					log.Error("No header was found for file: " + Name, e);
 				}
 				return null;
 			}
@@ -152,7 +152,7 @@ namespace com.tacitknowledge.util.migration.ado.loader
 		{
 			get
 			{
-				FileLoadingUtility utility = new FileLoadingUtility(getName());
+				FileLoadingUtility utility = new FileLoadingUtility(Name);
 				return utility.ResourceAsStream;
 			}
 			
@@ -166,7 +166,10 @@ namespace com.tacitknowledge.util.migration.ado.loader
 		/// </summary>
 		/// <returns> the absolute path name of the table to load
 		/// </returns>
-		public abstract override System.String getName();
+        public abstract override String Name
+        {
+            get;
+        }
 		
 		/// <summary> Parses a line of data, and sets the prepared statement with the 
 		/// values.  If a token contains "&lt;null&gt;" then a null value is passed 
@@ -180,30 +183,30 @@ namespace com.tacitknowledge.util.migration.ado.loader
 		/// <returns> false if the header is returned, true otherwise
 		/// </returns>
 		/// <throws>  SQLException if an error occurs while inserting data into the database </throws>
-		protected internal override bool insert(System.String data, System.Data.OleDb.OleDbCommand stmt)
+		protected internal bool insert(System.String data, System.Data.OleDb.OleDbCommand stmt)
 		{
 			if (!parsedHeader)
 			{
 				parsedHeader = true;
-				log.info("Header returned: " + data);
+				log.Info("Header returned: " + data);
 				return false;
 			}
-			SupportClass.Tokenizer st = new SupportClass.Tokenizer(data, Delimiter);
-			int counter = 1;
-			log.info("Row being parsed: " + data);
-			while (st.HasMoreTokens())
-			{
-				System.String colVal = st.NextToken();
-				if (colVal.ToUpper().Equals("<null>".ToUpper()))
-				{
-					SupportClass.TransactionManager.manager.SetValue(stmt, counter, null);
-				}
-				else
-				{
-					SupportClass.TransactionManager.manager.SetValue(stmt, counter, colVal);
-				}
-				counter++;
-			}
+            //SupportClass.Tokenizer st = new SupportClass.Tokenizer(data, Delimiter);
+			//int counter = 1;
+			log.Info("Row being parsed: " + data);
+            //while (st.HasMoreTokens())
+            //{
+            //    System.String colVal = st.NextToken();
+            //    if (colVal.ToUpper().Equals("<null>".ToUpper()))
+            //    {
+            //        SupportClass.TransactionManager.manager.SetValue(stmt, counter, null);
+            //    }
+            //    else
+            //    {
+            //        SupportClass.TransactionManager.manager.SetValue(stmt, counter, colVal);
+            //    }
+            //    counter++;
+            //}
 			return true;
 		}
 		

@@ -78,7 +78,7 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
 
 
 
-        private void getDBConfiguration()
+        internal DBConfiguration getDBConfiguration()
         {
             if (dbConfig != null)
             {
@@ -87,7 +87,7 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
                 {
 
                     // Retrieve DB configuration settings from app.config file
-                    dbConfig = ConfigurationManager.GetSection("MigrationDatabaseSettings") as DBConfiguration;
+                    dbConfig = null;// ConfigurationManager.GetSection("MigrationDatabaseSettings") as DBConfiguration;
 
                 }
                 catch (Exception e)
@@ -98,17 +98,18 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
                 }
 
             }
+            return dbConfig;
             
         }
 
 
-        private void getMigrationConfiguration()
+        internal MigrationConfiguration getMigrationConfiguration()
         {
             if (migrationConfig != null)
             {
                 try
                 {
-                    migrationConfig = ConfigurationManager.GetSection("MigrationSettings") as MigrationConfiguration;
+                    migrationConfig = null; // ConfigurationManager.GetSection("MigrationSettings") as MigrationConfiguration;
                 }
                 catch (Exception e)
                 {
@@ -117,6 +118,7 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf
                     throw new ApplicationException("ConfigurationFactory::getMigrationConfiguration - error retrieving Migration settings:" + e.StackTrace);
                 }
             }
+            return migrationConfig;
         }
 
         static ConfigurationFactory()

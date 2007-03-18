@@ -104,12 +104,10 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\ControlledSystem.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\data\DBConnectionFactory.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\DelimitedFileLoader.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\ExcelFileLoader.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\loader\FileLoadingUtility.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\ControlledSystemsList.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\Hashlist.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ADO\util\MigrationTaskList.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ADO\WebAppJNDIMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />

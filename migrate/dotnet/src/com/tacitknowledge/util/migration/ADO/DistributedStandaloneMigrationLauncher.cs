@@ -69,7 +69,7 @@ namespace com.tacitknowledge.util.migration.ado
 		public static void  Main(System.String[] arguments)
 		{
 			//UPGRADE_TODO: Method 'java.lang.System.getProperties' was converted to 'SupportClass.GetProperties' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javalangSystemgetProperties'"
-			System.String systemName = getRequiredParam("migration.systemname", SupportClass.GetProperties(), arguments);
+            System.String systemName = null;//getRequiredParam("migration.systemname", SupportClass.GetProperties(), arguments);
 			
 			// The MigrationLauncher is responsible for handling the interaction
 			// between the PatchTable and the underlying MigrationTasks; as each

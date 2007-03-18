@@ -8,15 +8,9 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration
     {
 
 
-        public abstract void initialize()
-        {
+        public abstract void initialize();
 
-        }
-
-        public abstract void dispose()
-        {
-
-        }
+        public abstract void dispose();
 
 
 
