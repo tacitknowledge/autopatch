@@ -142,7 +142,6 @@
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationTaskSupport.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\IPatchInfoStore.cs" />
     <Content Include="App_Config.xml" />
-    <Content Include="sqlserver.txt" />
     <None Include="app.log4net" />
   </ItemGroup>
   <ItemGroup>

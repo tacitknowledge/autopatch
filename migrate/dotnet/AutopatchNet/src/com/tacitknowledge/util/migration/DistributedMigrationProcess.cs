@@ -1,25 +1,25 @@
-/* Copyright 2006 Tacit Knowledge LLC
-* 
-* Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License. You may
-* obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
-* 
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
+ * 
+ * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #region Imports
 using System;
 using System.Collections.Generic;
 using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration.ado;
-using AutopatchNET.src.com.tacitknowledge.util.migration.ADO;
-using AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util;
-
+using com.tacitknowledge.util.migration.ado.util;
 #endregion
+
 namespace com.tacitknowledge.util.migration
 {
 	
@@ -29,9 +29,8 @@ namespace com.tacitknowledge.util.migration
 	/// </summary>
 	/// <author>  Mike Hardy (mike@tacitknowledge.com)
 	/// </author>
-	/// <seealso cref="com.tacitknowledge.util.migration.MigrationProcess">
-	/// </seealso>
-	public class DistributedMigrationProcess:MigrationProcess
+    /// <version>$Id$</version>
+    public class DistributedMigrationProcess : MigrationProcess
     {
 
         #region Members
@@ -41,7 +40,7 @@ namespace com.tacitknowledge.util.migration
 
         /// <summary>The ADOMigrationLaunchers we are controlling, keyed by system name </summary>
 
-        private AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util.ControlledSystemsList controlledSystems = new AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util.ControlledSystemsList();
+        private ControlledSystemsList controlledSystems = new ControlledSystemsList();
 
 
         #endregion
@@ -146,7 +145,7 @@ namespace com.tacitknowledge.util.migration
         /// <returns>A list of systems to control and the ADOMigrationlauncher for controlling them</returns>
 		/// <param name="controlledSystems">HashList of ADOMigrationLauncher objects keyed by String system names
 		/// </param>
-        public AutopatchNET.src.com.tacitknowledge.util.migration.ADO.util.ControlledSystemsList ControlledSystems
+        public ControlledSystemsList ControlledSystems
 		{
 			get
 			{

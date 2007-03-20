@@ -1,24 +1,31 @@
-
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
+ * 
+ * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License. You may
+ * obtain a copy of the License at http://www.tacitknowledge.com/licenses-1.0.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #region Imports
 using System;
-
 using log4net;
 using log4net.Config;
-
-using AutopatchNET.dotnet.com.tacitknowledge.util.migration.ADO.conf;
-
+using com.tacitknowledge.util.migration.ado.conf;
 #endregion
 
-namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration
+namespace com.tacitknowledge.util.migration
 {
-
-    /*
-     * The purpose of this class is to be called from the Global.asax file and initiate Migration tasks.
-     */
-
+    /// <summary>
+    /// The purpose of this class is to be called from the Global.asax file and initiate Migration tasks.
+    /// </summary>
+    /// <version>$Id$</version>
     class AutoPatchEventListener
     {
-
         #region Members
 
         /*
@@ -37,7 +44,6 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration
         private MigrationConfiguration migrationConfig;
 
         #endregion
-
 
         #region Methods
       
@@ -91,9 +97,5 @@ namespace AutopatchNET.dotnet.com.tacitknowledge.util.migration
         }
 
         #endregion
-
-
     }
-      
-     
 }
