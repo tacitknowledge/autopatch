@@ -50,7 +50,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </author>
 	/// <seealso cref="MigrationProcess">
 	/// </seealso>
-	/// <seealso cref="ADOMigrationLauncherFactory">
+	/// <seealso cref="AdoMigrationLauncherFactory">
 	/// </seealso>
 	public class MigrationInformation
 	{
@@ -104,8 +104,8 @@ namespace com.tacitknowledge.util.migration.ado
 			// task is executed, the patch level is incremented, etc.
 			try
 			{
-				ADOMigrationLauncherFactory launcherFactory = ADOMigrationLauncherFactoryLoader.createFactory();
-				ADOMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName);
+				AdoMigrationLauncherFactory launcherFactory = AdoMigrationLauncherFactoryLoader.createFactory();
+				AdoMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName);
 				log.Info("Current Database patch level is        : " + launcher.DatabasePatchLevel);
 				int unappliedPatches = launcher.NextPatchLevel - launcher.DatabasePatchLevel - 1;
 				log.Info("Current number of unapplied patches is : " + unappliedPatches);

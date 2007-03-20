@@ -29,7 +29,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>  Mike Hardy (mike@tacitknowledge.com)
 	/// </author>
-	public class DistributedADOMigrationLauncher:ADOMigrationLauncher
+	public class DistributedAdoMigrationLauncher:AdoMigrationLauncher
 	{
 		/// <summary> Override the sub-class so we get a DistributedMigrationProcess instead of the
 		/// normal one
@@ -46,17 +46,17 @@ namespace com.tacitknowledge.util.migration.ado
 			
 		}
 		/// <summary> Create a new MigrationProcess and add a SqlScriptMigrationTaskSource</summary>
-		public DistributedADOMigrationLauncher():base()
+		public DistributedAdoMigrationLauncher():base()
 		{
 		}
 		
 		/// <summary> Create a new <code>MigrationLancher</code>.
 		/// 
 		/// </summary>
-		/// <param name="context">the <code>ADOMigrationContext</code> to use.
+		/// <param name="context">the <code>AdoMigrationContext</code> to use.
 		/// </param>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public DistributedADOMigrationLauncher(ADOMigrationContext context):base(context)
+		public DistributedAdoMigrationLauncher(AdoMigrationContext context):base(context)
 		{
 		}
 		

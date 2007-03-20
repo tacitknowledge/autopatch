@@ -88,8 +88,8 @@ namespace com.tacitknowledge.util.migration.ado
 				// task is executed, the patch level is incremented, etc.
 				try
 				{
-					ADOMigrationLauncherFactory launcherFactory = ADOMigrationLauncherFactoryLoader.createFactory();
-					ADOMigrationLauncher launcher = launcherFactory.createMigrationLauncher(migrationConfig.SystemName);
+					AdoMigrationLauncherFactory launcherFactory = AdoMigrationLauncherFactoryLoader.createFactory();
+					AdoMigrationLauncher launcher = launcherFactory.createMigrationLauncher(migrationConfig.SystemName);
 					launcher.doMigrations();
                     firstRun = false;
 				}

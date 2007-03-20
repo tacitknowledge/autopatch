@@ -26,7 +26,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class DataSourceMigrationContext : ADOMigrationContext
+	public class DataSourceMigrationContext : AdoMigrationContext
     {
 
         #region Members
@@ -76,7 +76,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		
-		/// <seealso cref="ADOMigrationContext.Commit()">
+		/// <seealso cref="AdoMigrationContext.Commit()">
 		/// </seealso>
 		public virtual void  Commit()
 		{
@@ -90,7 +90,7 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 		}
 		
-		/// <seealso cref="ADOMigrationContext.Rollback()">
+		/// <seealso cref="AdoMigrationContext.Rollback()">
 		/// </seealso>
 		public virtual void  Rollback()
 		{

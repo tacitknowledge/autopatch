@@ -32,12 +32,12 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>   Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class ADOMigrationLauncher
+	public class AdoMigrationLauncher
     {
 
         #region Members
         /// <summary> Class logger</summary>
-        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'ADOMigrationLauncher'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
+        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'AdoMigrationLauncher'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
         private static ILog log;
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace com.tacitknowledge.util.migration.ado
         private System.String postPatchPath = null;
 
         /// <summary> The <code>IMigrationContext</code> to use for all migrations.</summary>
-        private ADOMigrationContext context = null;
+        private AdoMigrationContext context = null;
 		
         #endregion 
 
@@ -209,18 +209,18 @@ namespace com.tacitknowledge.util.migration.ado
 			
 		}
 		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Returns the <code>ADOMigrationContext</code> used for the migrations.
+		/// <summary> Returns the <code>AdoMigrationContext</code> used for the migrations.
 		/// 
 		/// </summary>
-		/// <returns> the <code>ADOMigrationContext</code> used for the migrations
+		/// <returns> the <code>AdoMigrationContext</code> used for the migrations
 		/// </returns>
-		/// <summary> Sets the <code>ADOMigrationContext</code> used for the migrations.
+		/// <summary> Sets the <code>AdoMigrationContext</code> used for the migrations.
 		/// 
 		/// </summary>
-		/// <param name="ADOMigrationContext">the <code>ADOMigrationContext</code> used for the migrations
+		/// <param name="AdoMigrationContext">the <code>AdoMigrationContext</code> used for the migrations
 		/// </param>
 		/// <throws>  MigrationException if a database connection cannot be obtained </throws>
-		virtual public ADOMigrationContext Context
+		virtual public AdoMigrationContext Context
 		{
 			get
 			{
@@ -315,7 +315,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		/// <summary> Create a new MigrationProcess and add a SqlScriptMigrationTaskSource</summary>
-		public ADOMigrationLauncher()
+		public AdoMigrationLauncher()
 		{
 			MigrationProcess = NewMigrationProcess;
 			
@@ -331,10 +331,10 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary> Create a new <code>MigrationLancher</code>.
 		/// 
 		/// </summary>
-		/// <param name="context">the <code>ADOMigrationContext</code> to use.
+		/// <param name="context">the <code>AdoMigrationContext</code> to use.
 		/// </param>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public ADOMigrationLauncher(ADOMigrationContext context):this()
+		public AdoMigrationLauncher(AdoMigrationContext context):this()
 		{
 			Context = context;
 		}
@@ -552,9 +552,9 @@ namespace com.tacitknowledge.util.migration.ado
 				}
 			}
 		}
-		static ADOMigrationLauncher()
+		static AdoMigrationLauncher()
 		{
-			log = LogManager.GetLogger(typeof(ADOMigrationLauncher));
+			log = LogManager.GetLogger(typeof(AdoMigrationLauncher));
         }
         #endregion
     }

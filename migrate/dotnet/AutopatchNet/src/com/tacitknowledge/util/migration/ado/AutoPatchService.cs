@@ -27,7 +27,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>  Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class AutoPatchService:ADOMigrationLauncherFactory
+	public class AutoPatchService:AdoMigrationLauncherFactory
     {
 
         #region Member Variables
@@ -47,18 +47,18 @@ namespace com.tacitknowledge.util.migration.ado
         private System.String postPatchPath = null;
         #endregion
 
-        /// <summary> Configure and return a ADOMigrationLauncher to use for patching
+        /// <summary> Configure and return a AdoMigrationLauncher to use for patching
 		/// 
 		/// </summary>
-		/// <returns> ADOMigrationLauncher configured from injected properties
+		/// <returns> AdoMigrationLauncher configured from injected properties
 		/// </returns>
 		/// <exception cref="MigrationException">if there is a problem setting the context
 		/// </exception>
-		virtual public ADOMigrationLauncher Launcher
+		virtual public AdoMigrationLauncher Launcher
 		{
 			get
 			{
-				ADOMigrationLauncher launcher = ADOMigrationLauncher;
+				AdoMigrationLauncher launcher = ADOMigrationLauncher;
 				launcher.Context = Context;
 				launcher.PatchPath = PatchPath;
 				launcher.PostPatchPath = PostPatchPath;
@@ -164,7 +164,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
 		public virtual void  patch()
 		{
-			ADOMigrationLauncher launcher = Launcher;
+			AdoMigrationLauncher launcher = Launcher;
 			
 			try
 			{

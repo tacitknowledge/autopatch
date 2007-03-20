@@ -36,9 +36,9 @@ namespace com.tacitknowledge.util.migration.ado
         private System.String controlledSystemName;
 
         /// <summary>
-        /// The ADOMigrationLauncher object for the system we're controlling
+        /// The AdoMigrationLauncher object for the system we're controlling
         /// </summary>
-        private ADOMigrationLauncher adoMigrationLauncher;
+        private AdoMigrationLauncher adoMigrationLauncher;
         #endregion
 
         #region Methods
@@ -52,9 +52,9 @@ namespace com.tacitknowledge.util.migration.ado
         }
        
         /// <summary>
-        /// Returns/sets the ADOMigrationLauncher for this ControlledSystem
+        /// Returns/sets the AdoMigrationLauncher for this ControlledSystem
         /// </summary>
-        public ADOMigrationLauncher AdoMigrationLauncher
+        public AdoMigrationLauncher AdoMigrationLauncher
         {
             get { return adoMigrationLauncher; }
             set { adoMigrationLauncher = value; }

@@ -28,20 +28,20 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </summary>
 	/// <author>  Mike Hardy (mike@tacitknowledge.com)
 	/// </author>
-	public class DistributedAutoPatchService:DistributedADOMigrationLauncherFactory
+	public class DistributedAutoPatchService:DistributedAdoMigrationLauncherFactory
 	{
-		/// <summary> Configure and return a DistributedADOMigrationLauncher to use for patching
+		/// <summary> Configure and return a DistributedAdoMigrationLauncher to use for patching
 		/// 
 		/// </summary>
-		/// <returns> DistributedADOMigrationLauncher configured from injected properties
+		/// <returns> DistributedAdoMigrationLauncher configured from injected properties
 		/// </returns>
 		/// <exception cref="MigrationException">if there is a problem setting the database context
 		/// </exception>
-		virtual public DistributedADOMigrationLauncher Launcher
+		virtual public DistributedAdoMigrationLauncher Launcher
 		{
 			get
 			{
-				DistributedADOMigrationLauncher launcher = DistributedADOMigrationLauncher;
+				DistributedAdoMigrationLauncher launcher = DistributedADOMigrationLauncher;
 				launcher.Context = Context;
 				
 				// Grab the controlled systems and subjugate them
@@ -50,8 +50,8 @@ namespace com.tacitknowledge.util.migration.ado
 				for (int i = 0; i < controlledSystems.Length; i++)
 				{
 					AutoPatchService controlledSystem = controlledSystems[i];
-					ADOMigrationLauncher subLauncher = controlledSystem.Launcher;
-					ADOMigrationContext subContext = subLauncher.Context;
+					AdoMigrationLauncher subLauncher = controlledSystem.Launcher;
+					AdoMigrationContext subContext = subLauncher.Context;
 					controlledLaunchers[subContext.getSystemName()] = subLauncher;
 					
 					// Make sure the controlled migration process gets migration events
@@ -182,7 +182,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
 		public virtual void  patch()
 		{
-			DistributedADOMigrationLauncher launcher = Launcher;
+			DistributedAdoMigrationLauncher launcher = Launcher;
 			
 			try
 			{

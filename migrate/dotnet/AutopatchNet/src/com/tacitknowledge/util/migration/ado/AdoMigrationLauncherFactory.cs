@@ -22,19 +22,19 @@ using com.tacitknowledge.util.migration;
 namespace com.tacitknowledge.util.migration.ado
 {
 	
-	/// <summary> Creates and configures a new <code>ADOMigrationContext</code> based on the values
+	/// <summary> Creates and configures a new <code>AdoMigrationContext</code> based on the values
 	/// in the <em>migration.properties</em> file for the given system.  This is a convenience
 	/// class for systems that need to initialize the autopatch framework but do not to or can not
 	/// configure the framework themselves.
 	/// </summary>
 	/// <author>  Scott Askew (scott@tacitknowledge.com)
 	/// </author>
-	public class ADOMigrationLauncherFactory
+	public class AdoMigrationLauncherFactory
     {
 
         #region Members
         /// <summary>Class logger </summary>
-        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'ADOMigrationLauncherFactory'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
+        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'AdoMigrationLauncherFactory'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
         private static ILog log;
         #endregion
 
@@ -52,33 +52,33 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			
 		}
-		/// <summary> Get a ADOMigrationLauncher
+		/// <summary> Get a AdoMigrationLauncher
 		/// 
 		/// </summary>
-		/// <returns> ADOMigrationLauncher
+		/// <returns> AdoMigrationLauncher
 		/// </returns>
-		 public ADOMigrationLauncher ADOMigrationLauncher
+		 public AdoMigrationLauncher ADOMigrationLauncher
 		{
 			get
 			{
-				return new ADOMigrationLauncher();
+				return new AdoMigrationLauncher();
 			}
 			
 		}
 		
-		/// <summary> Creates and configures a new <code>ADOMigrationLauncher</code> based on the
+		/// <summary> Creates and configures a new <code>AdoMigrationLauncher</code> based on the
 		/// values in the <em>MigrationConfiguration object</em> file for the given system.
 		/// 
 		/// </summary>
 		/// <param name="systemName">the system to patch
 		/// </param>
-		/// <returns> a fully configured <code>ADOMigrationLauncher</code>.
+		/// <returns> a fully configured <code>AdoMigrationLauncher</code>.
 		/// </returns>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public ADOMigrationLauncher createMigrationLauncher(System.String systemName)
+		public AdoMigrationLauncher createMigrationLauncher(System.String systemName)
 		{
-			log.Info("Creating ADOMigrationLauncher for system " + systemName);
-			ADOMigrationLauncher launcher = ADOMigrationLauncher;
+			log.Info("Creating AdoMigrationLauncher for system " + systemName);
+			AdoMigrationLauncher launcher = ADOMigrationLauncher;
 			configureFromMigrationProperties(launcher, systemName);
 			return launcher;
 		}
@@ -93,7 +93,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="systemName">the name of the system
 		/// </param>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		private void  configureFromMigrationProperties(ADOMigrationLauncher launcher, System.String systemName)
+		private void  configureFromMigrationProperties(AdoMigrationLauncher launcher, System.String systemName)
 		{
 			//TODO: alter this to use MigrationConfigurationManager
 		}
@@ -110,7 +110,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  IllegalArgumentException if a required parameter is missing </throws>
 		/// <throws>  MigrationException if there is problem setting the context into the launcher </throws>
 		
-		private void  configureFromMigrationProperties(ADOMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
+		private void  configureFromMigrationProperties(AdoMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
 		{
             //TODO: change to use MigrationConfigurationManager
             launcher.PatchPath = null;//getRequiredParam(props, systemName + ".patch.path");
@@ -225,9 +225,9 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			return value_Renamed;
 		}*/
-		static ADOMigrationLauncherFactory()
+		static AdoMigrationLauncherFactory()
 		{
-			log = LogManager.GetLogger(typeof(ADOMigrationLauncherFactory));
+			log = LogManager.GetLogger(typeof(AdoMigrationLauncherFactory));
 		}
     }
         #endregion

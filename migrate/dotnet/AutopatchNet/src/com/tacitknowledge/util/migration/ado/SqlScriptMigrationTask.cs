@@ -91,7 +91,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </seealso>
 		public override void  Migrate(IMigrationContext ctx)
 		{
-			ADOMigrationContext context = (ADOMigrationContext) ctx;
+			AdoMigrationContext context = (AdoMigrationContext) ctx;
 			
 			//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
 			System.Data.Common.DbConnection conn = null;
@@ -155,7 +155,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		/// <returns> a list of SQL and DDL statements to execute
 		/// </returns>
-		public virtual System.Collections.IList getSqlStatements(ADOMigrationContext context)
+		public virtual System.Collections.IList getSqlStatements(AdoMigrationContext context)
 		{
 			System.Collections.IList statements = new System.Collections.ArrayList();
 			if (context.getDatabaseType().MultipleStatementsSupported)

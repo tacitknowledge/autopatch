@@ -81,7 +81,7 @@ namespace com.tacitknowledge.util.migration.ado
 		private static readonly ILog log;
 		
 		/// <summary>The launcher we'll use </summary>
-		private ADOMigrationLauncher launcher;
+		private AdoMigrationLauncher launcher;
 		
 		/// <summary> Create a new support component for the given system name. 
 		/// This will use create a factory for you.
@@ -90,9 +90,9 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="systemName">the name of the system to be patched
 		/// </param>
 		/// <throws>  MigrationException if there is a problem </throws>
-		/// <seealso cref="ADOMigrationLauncherFactoryLoader">
+		/// <seealso cref="AdoMigrationLauncherFactoryLoader">
 		/// </seealso>
-		public AutoPatchSupport(System.String systemName):this(ADOMigrationLauncherFactoryLoader.createFactory(), systemName)
+		public AutoPatchSupport(System.String systemName):this(AdoMigrationLauncherFactoryLoader.createFactory(), systemName)
 		{
 		}
 		
@@ -104,7 +104,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="systemName">the system to patch
 		/// </param>
 		/// <throws>  MigrationException if there is any problem </throws>
-		public AutoPatchSupport(ADOMigrationLauncherFactory launcherFactory, System.String systemName):this(launcherFactory.createMigrationLauncher(systemName))
+		public AutoPatchSupport(AdoMigrationLauncherFactory launcherFactory, System.String systemName):this(launcherFactory.createMigrationLauncher(systemName))
 		{
 		}
 		
@@ -113,7 +113,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </summary>
 		/// <param name="launcher">the launcher to use for the migrations
 		/// </param>
-		public AutoPatchSupport(ADOMigrationLauncher launcher)
+		public AutoPatchSupport(AdoMigrationLauncher launcher)
 		{
 			this.launcher = launcher;
 		}
@@ -126,7 +126,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  SQLException if there is a problem </throws>
 		public virtual PatchTable makePatchTable()
 		{
-			ADOMigrationContext ADOMigrationContext = launcher.Context;
+			AdoMigrationContext ADOMigrationContext = launcher.Context;
 			return new PatchTable(ADOMigrationContext, ADOMigrationContext.Connection);
 		}
 		static AutoPatchSupport()

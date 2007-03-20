@@ -36,45 +36,45 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </table>
 	/// <p>
 	/// For each system in the controlled systems list, the properties file should contain
-	/// information as directed in the documenation for ADOMigrationLauncher.
+	/// information as directed in the documenation for AdoMigrationLauncher.
 	/// 
 	/// </summary>
-	/// <seealso cref="ADOMigrationLauncher">
+	/// <seealso cref="AdoMigrationLauncher">
 	/// </seealso>
 	/// <author>  Mike Hardy (mike@tacitknowledge.com)
 	/// </author>
-	public class DistributedADOMigrationLauncherFactory:ADOMigrationLauncherFactory
+	public class DistributedAdoMigrationLauncherFactory:AdoMigrationLauncherFactory
 	{
-		/// <summary> Get a new DistributedADOMigrationLauncher
+		/// <summary> Get a new DistributedAdoMigrationLauncher
 		/// 
 		/// </summary>
-		/// <returns> DistributedADOMigrationLauncher
+		/// <returns> DistributedAdoMigrationLauncher
 		/// </returns>
-		virtual public DistributedADOMigrationLauncher DistributedADOMigrationLauncher
+		virtual public DistributedAdoMigrationLauncher DistributedADOMigrationLauncher
 		{
 			get
 			{
-				return new DistributedADOMigrationLauncher();
+				return new DistributedAdoMigrationLauncher();
 			}
 			
 		}
 		/// <summary>Class logger </summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.DistributedADOMigrationLauncherFactory'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
+		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.DistributedAdoMigrationLauncherFactory'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
 		private static ILog log;
 		
-		/// <summary> Creates and configures a new <code>ADOMigrationLauncher</code> based on the
+		/// <summary> Creates and configures a new <code>AdoMigrationLauncher</code> based on the
 		/// values in the <em>migration.properties</em> file for the given system.
 		/// 
 		/// </summary>
 		/// <param name="systemName">the system to patch
 		/// </param>
-		/// <returns> a fully configured <code>DistributedADOMigrationLauncher</code>.
+		/// <returns> a fully configured <code>DistributedAdoMigrationLauncher</code>.
 		/// </returns>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public new ADOMigrationLauncher createMigrationLauncher(System.String systemName)
+		public new AdoMigrationLauncher createMigrationLauncher(System.String systemName)
 		{
-			log.Info("Creating DistributedADOMigrationLauncher for system " + systemName);
-			DistributedADOMigrationLauncher launcher = DistributedADOMigrationLauncher;
+			log.Info("Creating DistributedAdoMigrationLauncher for system " + systemName);
+			DistributedAdoMigrationLauncher launcher = DistributedADOMigrationLauncher;
 			configureFromMigrationProperties(launcher, systemName);
 			return launcher;
 		}
@@ -87,7 +87,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="systemName">the name of the system
 		/// </param>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		private void  configureFromMigrationProperties(DistributedADOMigrationLauncher launcher, System.String systemName)
+		private void  configureFromMigrationProperties(DistributedAdoMigrationLauncher launcher, System.String systemName)
 		{
 			//UPGRADE_ISSUE: Class 'java.lang.ClassLoader' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassLoader'"
 			//UPGRADE_ISSUE: Method 'java.lang.Thread.getContextClassLoader' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangThreadgetContextClassLoader'"
@@ -140,7 +140,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  IllegalArgumentException if a required parameter is missing </throws>
 		/// <throws>  MigrationException if there is problem setting the context into the launcher </throws>
 		//UPGRADE_ISSUE: Class hierarchy differences between 'java.util.Properties' and 'System.Collections.Specialized.NameValueCollection' may cause compilation errors. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1186'"
-		private void  configureFromMigrationProperties(DistributedADOMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
+		private void  configureFromMigrationProperties(DistributedAdoMigrationLauncher launcher, System.String systemName, System.Collections.Specialized.NameValueCollection props)
 		{
 			// Get the name of the context to use for our patch information
             System.String patchStoreContextName = null;//getRequiredParam(props, systemName + ".context");
@@ -174,8 +174,8 @@ namespace com.tacitknowledge.util.migration.ado
 			for (int i = 0; i < controlledSystemNames.Length; i++)
 			{
 				log.Info("Creating controlled migration launcher for system " + controlledSystemNames[i]);
-				ADOMigrationLauncherFactory factory = ADOMigrationLauncherFactoryLoader.createFactory();
-				ADOMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i]);
+				AdoMigrationLauncherFactory factory = AdoMigrationLauncherFactoryLoader.createFactory();
+				AdoMigrationLauncher subLauncher = factory.createMigrationLauncher(controlledSystemNames[i]);
 				controlledSystems[controlledSystemNames[i]] = subLauncher;
 				
 				// Make sure the controlled migration process gets migration events
@@ -188,9 +188,9 @@ namespace com.tacitknowledge.util.migration.ado
 			// communicate our new-found controlled systems to the migration process
             ((DistributedMigrationProcess)launcher.MigrationProcess).ControlledSystems = null;// controlledSystems;
 		}
-		static DistributedADOMigrationLauncherFactory()
+		static DistributedAdoMigrationLauncherFactory()
 		{
-			log = LogManager.GetLogger(typeof(DistributedADOMigrationLauncherFactory));
+			log = LogManager.GetLogger(typeof(DistributedAdoMigrationLauncherFactory));
 		}
 	}
 }

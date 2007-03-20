@@ -50,7 +50,7 @@ namespace com.tacitknowledge.util.migration.ado
 	/// </author>
 	/// <seealso cref="com.tacitknowledge.util.migration.DistributedMigrationProcess">
 	/// </seealso>
-	/// <seealso cref="com.tacitknowledge.util.migration.ado.DistributedADOMigrationLauncherFactory">
+	/// <seealso cref="com.tacitknowledge.util.migration.ado.DistributedAdoMigrationLauncherFactory">
 	/// </seealso>
 	public class DistributedMigrationInformation
 	{
@@ -104,8 +104,8 @@ namespace com.tacitknowledge.util.migration.ado
 			// task is executed, the patch level is incremented, etc.
 			try
 			{
-				DistributedADOMigrationLauncherFactory launcherFactory = new DistributedADOMigrationLauncherFactory();
-				DistributedADOMigrationLauncher launcher = (DistributedADOMigrationLauncher) launcherFactory.createMigrationLauncher(systemName);
+				DistributedAdoMigrationLauncherFactory launcherFactory = new DistributedAdoMigrationLauncherFactory();
+				DistributedAdoMigrationLauncher launcher = (DistributedAdoMigrationLauncher) launcherFactory.createMigrationLauncher(systemName);
 				log.Info("Current Database patch level is        : " + launcher.DatabasePatchLevel);
 				int unappliedPatches = launcher.NextPatchLevel - launcher.DatabasePatchLevel - 1;
 				log.Info("Current number of unapplied patches is : " + unappliedPatches);

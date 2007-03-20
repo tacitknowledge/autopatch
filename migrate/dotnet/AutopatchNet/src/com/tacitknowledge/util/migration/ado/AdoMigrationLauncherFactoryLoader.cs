@@ -21,30 +21,30 @@ namespace com.tacitknowledge.util.migration.ado
 {
 	
 	/// <summary> Load a MigrationLauncherFactory. This will default to loading the
-	/// ADOMigrationLauncherFactory, but will examine the system properties
+	/// AdoMigrationLauncherFactory, but will examine the system properties
 	/// for a property called "migration.factory" and load that one if specified
 	/// 
 	/// </summary>
 	/// <author>  Jacques Morel
 	/// </author>
-	public class ADOMigrationLauncherFactoryLoader
+	public class AdoMigrationLauncherFactoryLoader
 	{
 		/// <summary>Class logger </summary>
 		private static ILog log;
 		
-		/// <summary> Create the ADOMigrationLauncherFactory
+		/// <summary> Create the AdoMigrationLauncherFactory
 		/// 
 		/// </summary>
-		/// <returns> ADOMigrationLauncherFactory (or subclass)
+		/// <returns> AdoMigrationLauncherFactory (or subclass)
 		/// </returns>
-		public static ADOMigrationLauncherFactory createFactory()
+		public static AdoMigrationLauncherFactory createFactory()
 		{
 
             System.String factoryName = null;// SupportClass.GetProperties().Get("migration.factory");
-			log.Debug("Creating ADOMigrationLauncher using " + factoryName);
+			log.Debug("Creating AdoMigrationLauncher using " + factoryName);
 			if (factoryName == null)
 			{
-				factoryName = typeof(ADOMigrationLauncherFactory).FullName;
+				factoryName = typeof(AdoMigrationLauncherFactory).FullName;
 			}
 			
 			// Load the factory
@@ -61,16 +61,16 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			try
 			{
-				return (ADOMigrationLauncherFactory) System.Activator.CreateInstance(factoryClass);
+				return (AdoMigrationLauncherFactory) System.Activator.CreateInstance(factoryClass);
 			}
 			catch (System.Exception e)
 			{
 				throw new ApplicationException("Problem while instantiating factory class '" + factoryName + "'.  Aborting.", e);
 			}
 		}
-		static ADOMigrationLauncherFactoryLoader()
+		static AdoMigrationLauncherFactoryLoader()
 		{
-			log = LogManager.GetLogger(typeof(ADOMigrationLauncherFactoryLoader));
+			log = LogManager.GetLogger(typeof(AdoMigrationLauncherFactoryLoader));
 		}
 	}
 }

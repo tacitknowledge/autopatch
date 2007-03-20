@@ -50,22 +50,22 @@ namespace com.tacitknowledge.util.migration
         /// Returns a dictionary of task/launcher pairings, regardless of patch level.
 		/// </summary>
 		/// <returns>
-        /// Dictionary containing <code>IMigrationTask</code>s / <code>ADOMigrationLauncher</code> pairings
+        /// Dictionary containing <code>IMigrationTask</code>s / <code>AdoMigrationLauncher</code> pairings
 		/// </returns>
         /// <exception cref="MigrationException">
         /// if one or more migration tasks could not be created
         /// </exception>
-	    public IDictionary<IMigrationTask, ADOMigrationLauncher> MigrationTasksWithLaunchers
+	    public IDictionary<IMigrationTask, AdoMigrationLauncher> MigrationTasksWithLaunchers
 		{
 			get
 			{
-                IDictionary<IMigrationTask, ADOMigrationLauncher> tasks = new Dictionary<IMigrationTask, ADOMigrationLauncher>();
+                IDictionary<IMigrationTask, AdoMigrationLauncher> tasks = new Dictionary<IMigrationTask, AdoMigrationLauncher>();
 				
 				// Roll through all our controlled system names
                 foreach (ControlledSystem cs in ControlledSystems)
                 {
                     //Get the sublauncher that runs patches for the current name
-                    ADOMigrationLauncher subLauncher = cs.AdoMigrationLauncher;
+                    AdoMigrationLauncher subLauncher = cs.AdoMigrationLauncher;
 					
 					// Get all the tasks for that sub launcher
 					IList<IMigrationTask> subTasks = subLauncher.MigrationProcess.MigrationTasks;
@@ -105,7 +105,7 @@ namespace com.tacitknowledge.util.migration
                 foreach (ControlledSystem cs in controlledSystems)
                 {
 
-                    ADOMigrationLauncher launcher = cs.AdoMigrationLauncher;
+                    AdoMigrationLauncher launcher = cs.AdoMigrationLauncher;
 					IList<IMigrationTask> subTasks = launcher.MigrationProcess.MigrationTasks;
 					log.Info("Found " + subTasks.Count + " for system " + cs.ControlledSystemName);
 					if (log.IsDebugEnabled)
@@ -135,7 +135,7 @@ namespace com.tacitknowledge.util.migration
 		/// <summary> Get the list of systems we are controlling
 		/// 
 		/// </summary>
-		/// <returns> Hashlist of ADOMigrationLauncher objects keyed by String system names
+		/// <returns> Hashlist of AdoMigrationLauncher objects keyed by String system names
 		/// </returns>
 		
 		/// <summary> 
@@ -143,7 +143,7 @@ namespace com.tacitknowledge.util.migration
 		/// 
 		/// </summary>
         /// <returns>A list of systems to control and the ADOMigrationlauncher for controlling them</returns>
-		/// <param name="controlledSystems">HashList of ADOMigrationLauncher objects keyed by String system names
+		/// <param name="controlledSystems">HashList of AdoMigrationLauncher objects keyed by String system names
 		/// </param>
         public ControlledSystemsList ControlledSystems
 		{
@@ -180,7 +180,7 @@ namespace com.tacitknowledge.util.migration
 			log.Debug("Starting DoMigrations");
 			
 			// Get all the migrations, with their launchers, then get the list of just the migrations
-			IDictionary<IMigrationTask, ADOMigrationLauncher> migrationsWithLaunchers = MigrationTasksWithLaunchers;
+			IDictionary<IMigrationTask, AdoMigrationLauncher> migrationsWithLaunchers = MigrationTasksWithLaunchers;
             List<IMigrationTask> migrations = new List<IMigrationTask>();
             foreach (IMigrationTask mt in migrationsWithLaunchers.Keys)
             {
@@ -201,7 +201,7 @@ namespace com.tacitknowledge.util.migration
 				if (mts.Level > currentLevel)
 				{
 					// Execute the task in the context it was loaded from
-                    ADOMigrationLauncher launcher = (ADOMigrationLauncher)migrationsWithLaunchers[mts];
+                    AdoMigrationLauncher launcher = (AdoMigrationLauncher)migrationsWithLaunchers[mts];
 					ApplyPatch(launcher.Context, mts, true);
 					taskCount++;
 				}
