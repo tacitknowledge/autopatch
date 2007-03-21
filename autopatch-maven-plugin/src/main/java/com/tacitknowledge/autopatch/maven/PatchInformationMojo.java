@@ -1,6 +1,5 @@
-package com.tacitknowledge.autopatch.maven;
-
-/* Copyright 2006 Tacit Knowledge LLC
+/* 
+ * Copyright 2007 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -12,6 +11,7 @@ package com.tacitknowledge.autopatch.maven;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tacitknowledge.autopatch.maven;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
