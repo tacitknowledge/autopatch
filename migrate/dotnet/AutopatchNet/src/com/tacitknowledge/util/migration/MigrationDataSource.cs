@@ -28,17 +28,7 @@ namespace com.tacitknowledge.util.migration
     public class MigrationDataSource
     {
         #region Member variables
-        private static ILog log;
-        #endregion
-
-        #region Costructors
-        /// <summary>
-        /// Static constructor.
-        /// </summary>
-        static MigrationDataSource()
-        {
-            log = LogManager.GetLogger(typeof(MigrationDataSource));
-        }
+        private static readonly ILog log = LogManager.GetLogger(typeof(MigrationDataSource));
         #endregion
 
         #region Public methods
