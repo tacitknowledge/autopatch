@@ -55,7 +55,7 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource
         String path = packageName.replace('.', '/');
         String[] xmlFiles = ClassDiscoveryUtil.getResources(path, XML_PATCH_REGEX);
 
-        log.debug("Found " + xmlFiles.length + " xml patche(s) in path: " + path);
+        log.debug("Found " + xmlFiles.length + " xml patch(es) in path: " + path);
         for (int i = 0; i < xmlFiles.length; i++)
         {
             log.debug(" -- \"" + xmlFiles[i] + "\"");

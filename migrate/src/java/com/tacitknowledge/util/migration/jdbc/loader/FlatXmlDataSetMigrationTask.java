@@ -58,7 +58,7 @@ public class FlatXmlDataSetMigrationTask extends MigrationTaskSupport
      */
     public void migrate(MigrationContext context) throws MigrationException 
     {
-        log.debug("Migrating patch " + getLevel());
+        log.debug("Executing patch " + getLevel());
         // down casting, technically not safe, but everyone else is doing it.
         JdbcMigrationContext jdbcContext = (JdbcMigrationContext) context;
         // used to close connection in finally block
@@ -81,9 +81,9 @@ public class FlatXmlDataSetMigrationTask extends MigrationTaskSupport
         } 
         catch (Exception e) 
         {
-            log.debug("Unable to migrate due to " + e.getMessage());
+            log.debug("Unable to patch due to " + e.getMessage());
             context.rollback();
-            throw new MigrationException("Unable to migrate", e);
+            throw new MigrationException("Unable to patch", e);
         } 
         finally 
         {
