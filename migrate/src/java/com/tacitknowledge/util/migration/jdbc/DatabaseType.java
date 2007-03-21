@@ -121,4 +121,14 @@ public class DatabaseType
         String multiStatement = properties.getProperty("supportsMultipleStatements", "false");
         return Boolean.valueOf(multiStatement).booleanValue();
     }
+    
+    /**
+     * Useful for debugging
+     * 
+     * @return String containing state information
+     */
+    public String toString()
+    {
+        return "DatabaseType " + getDatabaseType();
+    }
 }

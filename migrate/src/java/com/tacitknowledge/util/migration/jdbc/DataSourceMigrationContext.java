@@ -161,7 +161,7 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
     {
         return 
             "DataSourceMigrationContext[" 
-            + getDatabaseType().getDatabaseType() + "/"
+            + getDatabaseType() + "/"
             + getSystemName() + "/"
             + getDataSource() + "]";
     }
