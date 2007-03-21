@@ -14,6 +14,7 @@
 #region Imports
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting;
 using log4net;
@@ -44,7 +45,7 @@ namespace com.tacitknowledge.util.migration
     /// <code>
     /// IList &lt;IMigrationTask&gt; tasks = null;
     /// ClassMigrationTaskSource source = new ClassMigrationTaskSource();
-    /// tasks = source.GetMigrationTasks(typeof(TestLibrary.Class1).Assembly.CodeBase);
+    /// tasks = source.GetMigrationTasks(typeof(TestLibrary.Class1).Assembly.Location);
     /// </code>
     /// </example>
     /// </para>
@@ -55,17 +56,7 @@ namespace com.tacitknowledge.util.migration
     public class ClassMigrationTaskSource : IMigrationTaskSource
     {
         #region Member variables
-        private static ILog log;
-        #endregion
-
-        #region Costructors
-        /// <summary>
-        /// Static constructor.
-        /// </summary>
-        static ClassMigrationTaskSource()
-        {
-            log = LogManager.GetLogger(typeof(ClassMigrationTaskSource));
-        }
+        private static readonly ILog log = LogManager.GetLogger(typeof(ClassMigrationTaskSource));
         #endregion
 
         #region Public methods
@@ -144,6 +135,16 @@ namespace com.tacitknowledge.util.migration
             IList<Type> types = new List<Type>();
             Assembly assembly = null;
 
+            log.Debug("Trying to process assembly with path: " + assemblyPath);
+            //Console.WriteLine("Trying to process assembly with path: " + assemblyPath);
+
+            if (!File.Exists(assemblyPath))
+            {
+                log.Debug("The path " + assemblyPath + " does not point to a file on the filesystem. Skipping");
+                //Console.WriteLine("The path " + assemblyPath + " does not point to a file on the filesystem. Skipping");
+                return types;
+            }
+            
             try
             {
                 assembly = Assembly.LoadFrom(assemblyPath);
