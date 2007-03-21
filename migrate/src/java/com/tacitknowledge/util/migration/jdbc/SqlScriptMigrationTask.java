@@ -109,6 +109,13 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         try
         {
             conn = context.getConnection();
+            
+            // cleaning the slate before we execute the patch.
+            // This was inspired by a Sybase ASE server that did not allow
+            // ALTER TABLE statements in multi-statement transactions.  Instead of putting
+            // a if(sybase) conditional, we decided to clean the slate for everyone.
+            context.commit();
+            
             List sqlStatements = getSqlStatements(context);
             for (Iterator i = sqlStatements.iterator(); i.hasNext();)
             {
