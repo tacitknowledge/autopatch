@@ -16,9 +16,8 @@ package com.tacitknowledge.autopatch.maven;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
-import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory;
-import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactoryLoader;
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
 
 /**
  * Goal which provides patch information.
@@ -27,8 +26,7 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactoryLoader
  * @execute phase=compile
  * @requiresDependencyResolution compile
  */
-public class PatchExecutionMojo extends AbstractAutoPatchMojo 
-{
+public class DistributedPatchExecutionMojo extends AbstractAutoPatchMojo {
 
     public void execute() throws MojoExecutionException, MojoFailureException 
     {
@@ -36,10 +34,10 @@ public class PatchExecutionMojo extends AbstractAutoPatchMojo
         {           
             addClasspathElementsClassLoader();
             
-            JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher
-                = launcherFactory.createMigrationLauncher(systemName);
+            DistributedJdbcMigrationLauncherFactory launcherFactory =
+                new DistributedJdbcMigrationLauncherFactory();
+            DistributedJdbcMigrationLauncher launcher
+                = (DistributedJdbcMigrationLauncher)launcherFactory.createMigrationLauncher(systemName);
             launcher.doMigrations();
         }
         catch (Exception e) 

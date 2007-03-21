@@ -23,18 +23,19 @@ import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 
 /**
- * @author asoto
  * Abstract base class that provides some common functionality for autopatch plugins.
+ * 
+ * @author asoto
  */
 public abstract class AbstractAutoPatchMojo extends AbstractMojo 
 {
-
     /**
      * @parameter expression="${project.compileClasspathElements}"
      * @required
      * @readonly
      */
     protected List classpathElements;
+    
     /**
      * The system to get patch information about
      * @parameter expression="${autopatch.system.name}"
@@ -60,9 +61,8 @@ public abstract class AbstractAutoPatchMojo extends AbstractMojo
             urls[i++] = new File((String)iter.next()).toURL(); 
         }
         
-        URLClassLoader urlClassLoader = new URLClassLoader(urls, 
-                Thread.currentThread().getContextClassLoader());
+        URLClassLoader urlClassLoader = 
+            new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
         Thread.currentThread().setContextClassLoader(urlClassLoader);
     }
-
 }
