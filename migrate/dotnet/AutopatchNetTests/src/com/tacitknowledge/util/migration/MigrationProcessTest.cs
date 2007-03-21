@@ -14,9 +14,11 @@
 #region Imports
 using System;
 using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
 using com.tacitknowledge.testhelpers;
 using com.tacitknowledge.util.migration;
+using com.tacitknowledge.util.migration.ado;
 #endregion
 
 namespace com.tacitknowledge.util.migration
@@ -57,7 +59,8 @@ namespace com.tacitknowledge.util.migration
         {
             TestMigrationContext context = new TestMigrationContext();
             MigrationProcess process = new MigrationProcess();
-            process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.CodeBase);
+            //process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.CodeBase);
+            process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.Location);
             process.DoMigrations(0, context);
             
             Assert.IsTrue(context.HasExecuted(new MigrationTask1().Name), "MigrationTask1 was supposed to be run");
@@ -72,8 +75,9 @@ namespace com.tacitknowledge.util.migration
         {
             TestMigrationContext context = new TestMigrationContext();
             MigrationProcess process = new MigrationProcess();
-            process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.CodeBase);
-            int tasksRun = process.DoMigrations(1, context);
+            //process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.CodeBase);
+            process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.Location);
+            process.DoMigrations(1, context);
 
             Assert.IsFalse(context.HasExecuted(new MigrationTask1().Name), "MigrationTask1 was not supposed to be run");
             Assert.IsTrue(context.HasExecuted(new MigrationTask2().Name), "MigrationTask2 was supposed to be run");
@@ -157,6 +161,43 @@ namespace com.tacitknowledge.util.migration
             {
                 Assert.Fail("We should not have gotten an exception");
             }
+        }
+
+        /// <summary>
+        /// Make sure that SQL script migrations work.
+        /// </summary>
+        [Test]
+        public void DoMigrationsFromSqlFile()
+        {
+            TestMigrationContext context = new TestMigrationContext();
+            FakeSqlMigrationProcess process = new FakeSqlMigrationProcess();
+            SqlScriptMigrationTaskSource taskSource = new SqlScriptMigrationTaskSource();
+            process.AddPatchResourceDirectory(Directory.GetCurrentDirectory() + "\\..\\..");
+            process.AddMigrationTaskSource(taskSource);
+            process.DoMigrations(2, context);
+
+            //Assert.Greater(tasksExecuted, 0);
+            Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"), "patch0003_dummy_SQL_file was supposed to be run");
+        }
+
+        /// <summary>
+        /// Make sure that SQL script migrations work in conjunction with .NET code migrations.
+        /// </summary>
+        [Test]
+        public void DoMigrationsFromSqlFileAndClasses()
+        {
+            TestMigrationContext context = new TestMigrationContext();
+            FakeSqlMigrationProcess process = new FakeSqlMigrationProcess();
+            SqlScriptMigrationTaskSource taskSource = new SqlScriptMigrationTaskSource();
+            process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.Location);
+            process.AddPatchResourceDirectory(Directory.GetCurrentDirectory() + "\\..\\..");
+            process.AddMigrationTaskSource(taskSource);
+            process.DoMigrations(0, context);
+
+            // There currently are 2 .NET code and 1 SQL patch for tests
+            Assert.IsTrue(context.HasExecuted(new MigrationTask1().Name), "MigrationTask1 was supposed to be run");
+            Assert.IsTrue(context.HasExecuted(new MigrationTask2().Name), "MigrationTask2 was supposed to be run");
+            Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"), "patch0003_dummy_SQL_file was supposed to be run");
         }
     }
 }
