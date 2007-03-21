@@ -16,10 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-//UPGRADE_TODO: The type 'java.util.regex.Matcher' could not be found. If it was not included in the conversion, there may be compiler issues. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1262'"
-//using Matcher = java.util.regex.Matcher;
-//UPGRADE_TODO: The type 'java.util.regex.Pattern' could not be found. If it was not included in the conversion, there may be compiler issues. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1262'"
-//using Pattern = java.util.regex.Pattern;
 using log4net;
 using com.tacitknowledge.util.migration;
 #endregion
@@ -37,47 +33,48 @@ namespace com.tacitknowledge.util.migration.ado
     public class SqlScriptMigrationTaskSource : IMigrationTaskSource
     {
         #region Member variables
-        private static ILog log;
+        private static readonly ILog log = LogManager.GetLogger(typeof(SqlScriptMigrationTaskSource));
 
         /// <summary>
         /// The regular expression used to match SQL patch files.
         /// </summary>
-        private const String SQL_PATCH_REGEX = "patch(\\d+)(_.+)?\\.sql";
+        private static readonly String SQL_PATCH_REGEX = "patch(\\d+)(_.+)?\\.sql";
         #endregion
 
-        #region Constructors
-        /// <summary>
-        /// Static constructor.
-        /// </summary>
-        static SqlScriptMigrationTaskSource()
-        {
-            log = LogManager.GetLogger(typeof(SqlScriptMigrationTaskSource));
-        }
-        #endregion
-        
         #region Public methods
         /// <seealso cref="IMigrationTaskSource.GetMigrationTasks(String)"/>
-        public IList<IMigrationTask> GetMigrationTasks(String packageName)
+        public IList<IMigrationTask> GetMigrationTasks(String dir)
 		{
-            String path = packageName;//packageName.Replace('.', '/');
-            IList<String> scripts = getResources(path, SQL_PATCH_REGEX);
+            String path = dir;
+
+            log.Debug("Trying to process directory with path: " + path);
+            //Console.WriteLine("Trying to process directory with path: " + path);
+
+            if (!Directory.Exists(path))
+            {
+                log.Debug("The path " + path + " does not point to a directory on the filesystem. Skipping");
+                //Console.WriteLine("The path " + path + " does not point to a directory on the filesystem. Skipping");
+                return new List<IMigrationTask>();
+            }
+
+            IList<String> scripts = GetResources(path, SQL_PATCH_REGEX);
 			
             if (log.IsDebugEnabled)
 			{
-				log.Debug("Found " + scripts.Count + " patches in path: " + path);
+				log.Debug("Found " + scripts.Count + " SQL patches in path: " + path);
 				for (int i = 0; i < scripts.Count; i++)
 				{
 					log.Debug(" -- \"" + scripts[i] + "\"");
 				}
 			}
 
-            //Console.WriteLine("Found " + scripts.Count + " patches in path: " + path);
+            //Console.WriteLine("Found " + scripts.Count + " SQL patches in path: " + path);
             //for (int i = 0; i < scripts.Count; i++)
             //{
             //    Console.WriteLine(" -- \"" + scripts[i] + "\"");
             //}
 			
-            return createMigrationScripts(scripts);
+            return CreateMigrationScripts(scripts);
 		}
         #endregion
 
@@ -95,7 +92,7 @@ namespace com.tacitknowledge.util.migration.ado
         /// the names of the resources in the given directory that match the given
         /// regular expression
         /// </returns>
-        private IList<String> getResources(String path, String regex)
+        private IList<String> GetResources(String path, String regex)
         {
             IList<String> resourceNames = new List<String>();
             String[] allFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
@@ -103,11 +100,13 @@ namespace com.tacitknowledge.util.migration.ado
 
             foreach (String fileName in allFiles)
             {
-                Match match = regExpression.Match(fileName.ToLower());
+                Match matcher = regExpression.Match(fileName.ToLower());
 
-                if (match.Success)
+                if (matcher.Success)
                 {
                     resourceNames.Add(fileName);
+                    log.Debug("Adding resource with path: " + fileName);
+                    //Console.WriteLine("Adding resource with path: " + fileName);
                 }
             }
 
@@ -127,52 +126,65 @@ namespace com.tacitknowledge.util.migration.ado
         /// <exception cref="MigrationException">
         /// if a <code>SqlScriptMigrationTask</code> could no be created
         /// </exception>
-        private IList<IMigrationTask> createMigrationScripts(IList<String> scripts)
+        private IList<IMigrationTask> CreateMigrationScripts(IList<String> scripts)
 		{
             IList<IMigrationTask> tasks = new List<IMigrationTask>();
             //Pattern p = Pattern.compile(SQL_PATCH_REGEX);
-            
-            //for (int i = 0; i < scripts.Length; i++)
-            //{
-            //    System.String script = scripts[i];
-            //    script = script.Replace('\\', '/');
-            //    log.Debug("Examining possible SQL patch file \"" + script + "\"");
-            //    //UPGRADE_ISSUE: Method 'java.lang.Class.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetResourceAsStream_javalangString'"
-            //    System.IO.Stream is_Renamed = GetType().getResourceAsStream("/" + script);
-				
-            //    if (is_Renamed == null)
-            //    {
-            //        log.warn("Could not open input stream for file \"/" + script + "\"");
-            //    }
-            //    else
-            //    {
-            //        System.IO.FileInfo scriptFile = new System.IO.FileInfo(script);
-            //        System.String scriptFileName = scriptFile.Name;
-            //        try
-            //        {
-            //            // Get the version out of the script name
-            //            Matcher matcher = p.matcher(scriptFileName);
-            //            if (!matcher.matches() || matcher.groupCount() != 2)
-            //            {
-            //                throw new MigrationException("Invalid SQL script name: " + script);
-            //            }
-            //            int order = Integer.parseInt(matcher.group(1));
-						
-            //            // We should send in the script file location so
-            //            // it doesn't have to buffer the whole thing into RAM
-            //            SqlScriptMigrationTask task = new SqlScriptMigrationTask(scriptFileName, order, is_Renamed);
-						
-            //            // Free the resource
-            //            is_Renamed.Close();
-            //            task.Name = scriptFileName;
-            //            tasks.Add(task);
-            //        }
-            //        catch (System.IO.IOException e)
-            //        {
-            //            throw new MigrationException("Error reading script " + script, e);
-            //        }
-            //    }
-            //}
+            Regex p = new Regex(SQL_PATCH_REGEX, RegexOptions.Compiled);
+
+            foreach (String script in scripts)
+            {
+                //script = script.Replace('\\', '/');
+                log.Debug("Examining possible SQL patch file \"" + script + "\"");
+                //Console.WriteLine("Examining possible SQL patch file \"" + script + "\"");
+
+                FileInfo fileInfo = new FileInfo(script);
+
+                if (!fileInfo.Exists)
+                {
+                    log.Warn("File \"" + script + "\" does not exist. Skipping");
+                    //Console.WriteLine("File \"" + script + "\" does not exist. Skipping");
+                    continue;
+                }
+
+                String fileName = fileInfo.Name;
+                Match matcher = p.Match(fileName.ToLower());
+
+                // Get the version out of the script name
+                if (!matcher.Success || matcher.Groups.Count != 3)
+                {
+                    throw new MigrationException("Invalid SQL script name: " + fileName);
+                }
+
+                int level = 0;
+
+                if (!Int32.TryParse(matcher.Groups[1].Value, out level))
+                {
+                    log.Warn("Could not parse patch level. Skipping");
+                    //Console.WriteLine("Could not parse patch level. Skipping");
+                    continue;
+                }
+
+                using (StreamReader sr = File.OpenText(script))
+                {
+                    try
+                    {
+                        // We should send in the script file location so
+                        // it doesn't have to buffer the whole thing into RAM
+                        SqlScriptMigrationTask task = new SqlScriptMigrationTask(fileName.Replace(".sql", ""), level, sr);
+
+                        tasks.Add(task);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new MigrationException("Error reading script " + script, e);
+                    }
+                    finally
+                    {
+                        sr.Close();
+                    }
+                }
+            }
 			
             return tasks;
 		}
