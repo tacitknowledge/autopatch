@@ -59,7 +59,7 @@ public abstract class AbstractAutoPatchMojo extends AbstractMojo
             urls[i++] = new File((String)iter.next()).toURL(); 
         }
         
-        URLClassLoader urlClassLoader = new URLClassLoader((URL[]) urls, 
+        URLClassLoader urlClassLoader = new URLClassLoader(urls, 
                 Thread.currentThread().getContextClassLoader());
         Thread.currentThread().setContextClassLoader(urlClassLoader);
     }
