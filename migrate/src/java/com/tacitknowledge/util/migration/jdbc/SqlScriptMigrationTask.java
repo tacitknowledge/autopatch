@@ -208,7 +208,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                                            .toLowerCase().startsWith("create or replace function") 
                                        || currentStatement.toString().trim()
                                            .toLowerCase().startsWith("create or replace procedure") 
-                                       || currentStatement.toString().toString()
+                                       || currentStatement.toString().trim()
                                            .toLowerCase().startsWith("create or replace package"))) 
                             {
                                 currentStatement.append(sqlChars[i]);
