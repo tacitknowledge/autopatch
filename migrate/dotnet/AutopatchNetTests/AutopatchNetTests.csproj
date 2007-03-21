@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\com\tacitknowledge\testhelpers\FakeSqlMigrationProcess.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSourceTest.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationProcessEventsTest.cs" />
     <Compile Include="src\com\tacitknowledge\testhelpers\MigrationTask2.cs" />
