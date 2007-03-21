@@ -20,7 +20,7 @@ import com.tacitknowledge.util.migration.jdbc.DistributedMigrationInformation;
 /**
  * Goal which provides patch information.
  *
- * @goal info
+ * @goal distributed-info
  * @execute phase=compile
  * @requiresDependencyResolution compile
  */

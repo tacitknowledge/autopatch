@@ -22,7 +22,7 @@ import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFa
 /**
  * Goal which provides patch information.
  *
- * @goal patch
+ * @goal distributed-patch
  * @execute phase=compile
  * @requiresDependencyResolution compile
  */

@@ -20,7 +20,7 @@ import com.tacitknowledge.util.migration.jdbc.DistributedMigrationTableUnlock;
 /**
  * Goal which forcibly unlocks a patch table that has an orphan lock.
  *
- * @goal unlock
+ * @goal distributed-unlock
  * @execute phase=compile
  * @requiresDependencyResolution compile
  */
