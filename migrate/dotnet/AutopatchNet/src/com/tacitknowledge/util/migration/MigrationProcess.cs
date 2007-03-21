@@ -66,7 +66,7 @@ namespace com.tacitknowledge.util.migration
     public class MigrationProcess
     {
         #region Member variables
-        private static ILog log;
+        private static readonly ILog log = LogManager.GetLogger(typeof(MigrationProcess));
 
         /// <summary>
         /// The list of assembly names containing <code>IMigrationTask</code>s
@@ -114,14 +114,6 @@ namespace com.tacitknowledge.util.migration
         #endregion
 
         #region Costructors
-        /// <summary>
-        /// Static constructor.
-        /// </summary>
-        static MigrationProcess()
-        {
-            log = LogManager.GetLogger(typeof(MigrationProcess));
-        }
-
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -206,8 +198,9 @@ namespace com.tacitknowledge.util.migration
             // TODO Clarify what to do with .SQL patch resources
 			// Make the path package-name-like so that ClassLoader.getResourceAsStream
 			// will work correctly
-            String packageName = dir.Replace('/', '.').Replace('\\', '.');
-			AddPatchResourceAssembly(packageName);
+            //String packageName = dir.Replace('/', '.').Replace('\\', '.');
+			//AddPatchResourceAssembly(packageName);
+            AddPatchResourceAssembly(dir);
 		}
 		
 		/// <summary>
@@ -378,7 +371,7 @@ namespace com.tacitknowledge.util.migration
             try
 			{
 				long startTime = DateTime.Now.Ticks;
-                task.Migrate(context);
+                MigrateTask(context, task);
                 long duration = (DateTime.Now.Ticks - startTime) / TimeSpan.TicksPerMillisecond;
                 log.Info("Finished migration task \"" + label + "\" (" + duration + " millis.)");
                 //Console.WriteLine("Finished migration task \"" + label + "\" (" + duration + " millis.)");
@@ -420,6 +413,16 @@ namespace com.tacitknowledge.util.migration
                 throw e;
 			}
 		}
+
+        /// <summary>
+        /// Performs the operation of task migration.
+        /// </summary>
+        /// <param name="context">the migration context</param>
+        /// <param name="task">the task to migrate</param>
+        public virtual void MigrateTask(IMigrationContext context, IMigrationTask task)
+        {
+            task.Migrate(context);
+        }
 		
 		/// <summary>
         /// Ensures that no two <code>IMigrationTask</code>s have the same ordering.
