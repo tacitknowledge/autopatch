@@ -287,7 +287,7 @@ public class JdbcMigrationLauncher implements MigrationListener
         PatchTable patchTable = new PatchTable(context);
         log.debug("Adding context " + context 
                   + " with patch table " + patchTable 
-                  + " in launcher" + this);
+                  + " in launcher " + this);
         contexts.put(context, patchTable);
     }
 

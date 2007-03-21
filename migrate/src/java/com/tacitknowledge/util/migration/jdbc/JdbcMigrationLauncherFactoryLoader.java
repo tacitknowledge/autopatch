@@ -44,12 +44,12 @@ public class JdbcMigrationLauncherFactoryLoader
     {
         // Get the factory name from the system properties if possible
         String factoryName = System.getProperties().getProperty("migration.factory");
-        log.debug("Creating JdbcMigrationLauncher using " + factoryName);
         if (factoryName == null) 
         {
             factoryName = JdbcMigrationLauncherFactory.class.getName();   
         }
-      
+        log.debug("Creating JdbcMigrationLauncher using " + factoryName);
+        
         // Load the factory
         Class factoryClass = null;
         try 

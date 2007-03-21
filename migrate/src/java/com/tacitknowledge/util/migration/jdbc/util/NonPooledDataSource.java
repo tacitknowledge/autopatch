@@ -172,4 +172,19 @@ public class NonPooledDataSource implements DataSource
     {
         this.username = username;
     }
+    
+    /**
+     * Useful for debugging
+     * 
+     * @return String with state
+     */
+    public String toString()
+    {
+        return
+            "NonPooledDataSource["
+            + getDriverClass() + "/"
+            + getDatabaseUrl() + "/"
+            + getUsername() + "/"
+            + "(password omitted)" + "]";
+    }
 }

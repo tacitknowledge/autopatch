@@ -148,12 +148,15 @@ public class PatchTable implements PatchInfoStore
             {
                 return rs.getInt(1);
             }
-            else
-            {
-                // We don't yet have a patch record for this system; create one
-                createSystemPatchRecord();
-                return 0;
-            }
+
+            SqlUtil.close(conn, stmt, rs);
+            conn = null;
+            stmt = null;
+            rs = null;
+            
+            // We don't yet have a patch record for this system; create one
+            createSystemPatchRecord();
+            return 0;
         }
         catch (SQLException e)
         {

@@ -53,7 +53,7 @@ public final class SqlUtil
         {
             try 
             {
-                log.debug("Closing resultset: " + rs.toString());
+                log.debug("Closing ResultSet: " + rs.toString());
                 rs.close();
             }
             catch (SQLException e)
@@ -66,12 +66,12 @@ public final class SqlUtil
         {
             try 
             {
-                log.debug("Closing statement: " + stmt.toString());
+                log.debug("Closing Statement: " + stmt.toString());
                 stmt.close();
             }
             catch (SQLException e)
             {
-                log.error("Error closing Statment", e);
+                log.error("Error closing Statement", e);
             }
         }
 
@@ -81,7 +81,7 @@ public final class SqlUtil
             {
                 if (!conn.isClosed())
                 {
-                    log.debug("Closing connection " + conn.toString());
+                    log.debug("Closing Connection " + conn.toString());
                     conn.close();
                 }
                 else
@@ -114,7 +114,7 @@ public final class SqlUtil
         try
         {
             Class.forName(driver);
-            log.debug("Getting connection to " + url);
+            log.debug("Getting Connection to " + url);
             conn = DriverManager.getConnection(url, user, pass);
         }
         catch (Exception e)
