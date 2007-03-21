@@ -80,7 +80,8 @@ namespace com.tacitknowledge.util.migration
             try
             {
                 IList<IMigrationTask> tasks =
-                    source.GetMigrationTasks(typeof(MigrationTask1).Assembly.CodeBase);
+                    //source.GetMigrationTasks(typeof(MigrationTask1).Assembly.CodeBase);
+                    source.GetMigrationTasks(typeof(MigrationTask1).Assembly.Location);
 
                 Assert.Less(0, tasks.Count);
             }
