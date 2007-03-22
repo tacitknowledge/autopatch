@@ -14,36 +14,40 @@
 #region Imports
 using System;
 using System.Data.Common;
-using log4net;
-using com.tacitknowledge.util.migration.ado.data;
 #endregion
 
-namespace com.tacitknowledge.util.migration
+namespace com.tacitknowledge.util.migration.ado
 {
     /// <summary>
-    /// Contains the connection object necessary to reach the data store
+    /// Contains the configuration and resources for a database patch run.
     /// </summary>
-    /// <author>Ian Mortimer (imorti@tacitknowledge.com)</author>
+    /// <author>Scott Askew (scott@tacitknowledge.com)</author>
     /// <version>$Id$</version>
-    public class MigrationDataSource
+    public interface IAdoMigrationContext : IMigrationContext
     {
-        #region Member variables
-        private static readonly ILog log = LogManager.GetLogger(typeof(MigrationDataSource));
-        #endregion
-
         #region Public properties
+		/// <summary>
+        /// The database connection to use.
+		/// </summary>
+		DbConnection Connection
+		{
+			get;
+		}
+		
         /// <summary>
-        /// Returns the connection object for the data store.
+        /// The name of the system to patch.
         /// </summary>
-        public DbConnection Connection
+        String SystemName
         {
-            get
-            {
-                log.Debug("Getting Connection from DBConnectionFactory");
-                DBConnectionFactory dbConnFactory = new DBConnectionFactory();
-
-                return dbConnFactory.getConnection();
-            }
+            get;
+        }
+		
+		/// <summary>
+        /// The database type.
+		/// </summary>
+        DatabaseType DatabaseType
+        {
+            get;
         }
         #endregion
     }

@@ -75,7 +75,7 @@ namespace com.tacitknowledge.util.migration
 					{
 						if (log.IsDebugEnabled)
 						{
-							log.Debug("\tMigration+Launcher binder found subtask " + task.Name + " for launcher context " + subLauncher.Context.getSystemName());
+							log.Debug("\tMigration+Launcher binder found subtask " + task.Name + " for launcher context " + subLauncher.Context.SystemName);
 						}
 						
 						// store the task, related to its launcher

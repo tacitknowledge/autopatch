@@ -158,10 +158,10 @@ namespace com.tacitknowledge.util.migration.ado
 			// Set up the ADO migration context; accepts one of two property names
 			DataSourceMigrationContext context = DataSourceMigrationContext;
             System.String databaseType = null;// getRequiredParam(props, patchStoreContextName + ".ado.database.type", patchStoreContextName + ".ado.dialect");
-			context.setDatabaseType(new DatabaseType(databaseType));
+			context.DatabaseType = new DatabaseType(databaseType);
 			
 			// Finish setting up the context
-			context.setSystemName(systemName);
+			context.SystemName = systemName;
 			//context.DataSource = dataSource;
 			
 			// done reading in config, set launcher's context

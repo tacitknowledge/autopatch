@@ -195,11 +195,6 @@ namespace com.tacitknowledge.util.migration
 		/// </param>
 		public virtual void AddPatchResourceDirectory(String dir)
 		{
-            // TODO Clarify what to do with .SQL patch resources
-			// Make the path package-name-like so that ClassLoader.getResourceAsStream
-			// will work correctly
-            //String packageName = dir.Replace('/', '.').Replace('\\', '.');
-			//AddPatchResourceAssembly(packageName);
             AddPatchResourceAssembly(dir);
 		}
 		
@@ -223,11 +218,7 @@ namespace com.tacitknowledge.util.migration
 		/// </param>
 		public virtual void AddPostPatchResourceDirectory(String dir)
 		{
-            // TODO Clarify what to do with .SQL patch resources
-			// Make the path package-name-like so that ClassLoader.getResourceAsStream
-			// will work correctly
-			String packageName = dir.Replace('/', '.').Replace('\\', '.');
-			AddPostPatchResourceAssembly(packageName);
+            AddPostPatchResourceAssembly(dir);
 		}
 		
 		/// <summary>

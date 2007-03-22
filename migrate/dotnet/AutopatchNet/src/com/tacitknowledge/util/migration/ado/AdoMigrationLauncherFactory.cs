@@ -22,7 +22,7 @@ using com.tacitknowledge.util.migration;
 namespace com.tacitknowledge.util.migration.ado
 {
 	
-	/// <summary> Creates and configures a new <code>AdoMigrationContext</code> based on the values
+	/// <summary> Creates and configures a new <code>IAdoMigrationContext</code> based on the values
 	/// in the <em>migration.properties</em> file for the given system.  This is a convenience
 	/// class for systems that need to initialize the autopatch framework but do not to or can not
 	/// configure the framework themselves.
@@ -127,10 +127,10 @@ namespace com.tacitknowledge.util.migration.ado
 			DataSourceMigrationContext context = DataSourceMigrationContext;
             //TODO: change to use MigrationConfigurationManager
             System.String databaseType = null;// getRequiredParam(props, systemName + ".ado.database.type", systemName + ".ado.dialect");
-			context.setDatabaseType(new DatabaseType(databaseType));
+			context.DatabaseType = new DatabaseType(databaseType);
 			
 			// Finish setting up the context
-			context.setSystemName(systemName);
+			context.SystemName = systemName;
 			
 			//context.DataSource = dataSource;
 			

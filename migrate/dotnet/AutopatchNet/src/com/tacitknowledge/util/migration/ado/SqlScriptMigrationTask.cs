@@ -13,6 +13,7 @@
  */
 #region Imports
 using System;
+using System.Data.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -99,58 +100,61 @@ namespace com.tacitknowledge.util.migration.ado
         /// <seealso cref="MigrationTaskSupport.Migrate(IMigrationContext)" />
 		public override void Migrate(IMigrationContext ctx)
 		{
-            // TODO Migrate the code below ASAP otherwise SQL patches will not be executed
-            //AdoMigrationContext context = (AdoMigrationContext) ctx;
-			
-            ////UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-            //System.Data.Common.DbConnection conn = null;
-            //System.Data.Common.DbCommand stmt = null;
-            //System.String sqlStatement = "";
-            //try
-            //{
-            //    conn = context.Connection;
-            //    System.Collections.IList sqlStatements = getSqlStatements(context);
-            //    //UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
-            //    for (System.Collections.IEnumerator i = sqlStatements.GetEnumerator(); i.MoveNext(); )
-            //    {
-            //        //UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-            //        sqlStatement = ((System.String) i.Current);
-            //        if (log.IsDebugEnabled)
-            //        {
-            //            log.Debug(Name + ": Attempting to execute: " + sqlStatement);
-            //        }
-            //        //UPGRADE_TODO: Method 'java.sql.Connection.createStatement' was converted to 'SupportClass.TransactionManager.manager.CreateStatement' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlConnectioncreateStatement'"
-            //        stmt = null;// SupportClass.TransactionManager.manager.CreateStatement(conn);
-            //        //UPGRADE_TODO: Method 'java.sql.Statement.execute' was converted to 'System.Data.OleDb.OleDbCommand.ExecuteNonQuery' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlStatementexecute_javalangString'"
-            //        System.Data.Common.DbCommand temp_OleDbCommand;
-            //        temp_OleDbCommand = stmt;
-            //        temp_OleDbCommand.CommandText = sqlStatement;
-            //        temp_OleDbCommand.ExecuteNonQuery();
-            //        //SqlUtil.close(null, stmt, null);
-            //        stmt = null;
-            //    }
-            //}
-            //catch (System.Exception e)
-            //{
-            //    System.String message = Name + ": Error running SQL \"" + sqlStatement + "\"";
-            //    log.Error(message, e);
-				
-            //    if (e is System.Data.OleDb.OleDbException)
-            //    {
-            //        //UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-            //        //if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
-            //        //{
-            //        //    //UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-            //        //    log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
-            //        //}
-            //    }
-				
-            //    throw new MigrationException(message, e);
-            //}
-            //finally
-            //{
-            //    //SqlUtil.close(null, stmt, null);
-            //}
+            IAdoMigrationContext context = (IAdoMigrationContext)ctx;
+            String sqlStatement = null;
+
+            try
+            {
+                IList<String> sqlStatements = GetSqlStatements(context);
+                DbConnection dbConn = context.Connection;
+                DbCommand dbCmd = null;
+
+                // Cleaning the slate before we execute the patch.
+                // This was inspired by a Sybase ASE server that did not allow
+                // ALTER TABLE statements in multi-statement transactions. Instead of putting
+                // an if (sybase) conditional, we decided to clean the slate for everyone.
+                context.Commit();
+
+                foreach (String tempSqlStatement in sqlStatements)
+                {
+                    sqlStatement = tempSqlStatement;
+
+                    if (log.IsDebugEnabled)
+                    {
+                        log.Debug(Name + ": Attempting to execute: " + sqlStatement);
+                    }
+
+                    try
+                    {
+                        dbCmd = dbConn.CreateCommand();
+                        dbCmd.CommandText = sqlStatement;
+                        dbCmd.ExecuteNonQuery();
+                    }
+                    finally
+                    {
+                        if (dbCmd != null)
+                        {
+                            dbCmd.Dispose();
+                        }
+
+                        dbCmd = null;
+                    }
+                }
+
+                context.Commit();
+            }
+            catch (Exception e)
+            {
+                String message = Name + ": Error running SQL \"" + sqlStatement + "\"";
+                log.Error(message, e);
+
+                if (e is DbException && e.InnerException != null)
+                {
+                    log.Error("Chained SQL Exception", e.InnerException);
+                }
+
+                throw new MigrationException(message, e);
+            }
 		}
 		
 		/// <summary>
@@ -166,11 +170,11 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns>
         /// a list of SQL (DML/DDL) statements to execute
 		/// </returns>
-        public virtual IList<String> getSqlStatements(AdoMigrationContext context)
+        public virtual IList<String> GetSqlStatements(IAdoMigrationContext context)
 		{
 			IList<String> statements = new List<String>();
 
-			if (context.getDatabaseType().MultipleStatementsSupported)
+			if (context.DatabaseType.MultipleStatementsSupported)
 			{
 				statements.Add(sql);
 				return statements;
@@ -214,7 +218,7 @@ namespace com.tacitknowledge.util.migration.ado
 							if (!inQuotedString)
 							{
 								// If we're in a stored procedure, just keep rolling
-								if (context.getDatabaseType().getDatabaseType().Equals("oracle")
+								if (context.DatabaseType.getDatabaseType().Equals("oracle")
                                     && (currentStatement.ToString().Trim().ToLower().StartsWith("begin")
                                         || currentStatement.ToString().Trim().ToLower().StartsWith("create or replace method")
                                         || currentStatement.ToString().Trim().ToLower().StartsWith("create or replace function")
@@ -252,7 +256,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 		
 		/// <seealso cref="Object.ToString()" />
-		public override System.String ToString()
+		public override String ToString()
 		{
 			return Name;
 		}

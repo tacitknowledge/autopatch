@@ -45,6 +45,11 @@ namespace com.tacitknowledge.util.migration.ado
         /// <seealso cref="IMigrationTaskSource.GetMigrationTasks(String)"/>
         public IList<IMigrationTask> GetMigrationTasks(String dir)
 		{
+            if (dir == null)
+            {
+                throw new MigrationException("Supplied directory cannot be null");
+            }
+
             String path = dir;
 
             log.Debug("Trying to process directory with path: " + path);
@@ -78,7 +83,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
         #endregion
 
-        #region Public methods
+        #region Private methods
         /// <summary>
         /// Returns the names of the resources in the given directory (and its subdirectories)
         /// that match the given regular expression.

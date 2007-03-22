@@ -63,7 +63,7 @@ namespace com.tacitknowledge.util.migration.ado
         private System.String postPatchPath = null;
 
         /// <summary> The <code>IMigrationContext</code> to use for all migrations.</summary>
-        private AdoMigrationContext context = null;
+        private IAdoMigrationContext context = null;
 		
         #endregion 
 
@@ -209,18 +209,18 @@ namespace com.tacitknowledge.util.migration.ado
 			
 		}
 		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Returns the <code>AdoMigrationContext</code> used for the migrations.
+		/// <summary> Returns the <code>IAdoMigrationContext</code> used for the migrations.
 		/// 
 		/// </summary>
-		/// <returns> the <code>AdoMigrationContext</code> used for the migrations
+		/// <returns> the <code>IAdoMigrationContext</code> used for the migrations
 		/// </returns>
-		/// <summary> Sets the <code>AdoMigrationContext</code> used for the migrations.
+		/// <summary> Sets the <code>IAdoMigrationContext</code> used for the migrations.
 		/// 
 		/// </summary>
-		/// <param name="AdoMigrationContext">the <code>AdoMigrationContext</code> used for the migrations
+		/// <param name="IAdoMigrationContext">the <code>IAdoMigrationContext</code> used for the migrations
 		/// </param>
 		/// <throws>  MigrationException if a database connection cannot be obtained </throws>
-		virtual public AdoMigrationContext Context
+		virtual public IAdoMigrationContext Context
 		{
 			get
 			{
@@ -331,10 +331,10 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary> Create a new <code>MigrationLancher</code>.
 		/// 
 		/// </summary>
-		/// <param name="context">the <code>AdoMigrationContext</code> to use.
+		/// <param name="context">the <code>IAdoMigrationContext</code> to use.
 		/// </param>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public AdoMigrationLauncher(AdoMigrationContext context):this()
+		public AdoMigrationLauncher(IAdoMigrationContext context):this()
 		{
 			Context = context;
 		}
@@ -540,7 +540,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			while (patchTable.PatchStoreLocked)
 			{
-				log.Info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");
+				log.Info("Waiting for migration lock for system \"" + context.SystemName + "\"");
 				try
 				{
 					//UPGRADE_TODO: Method 'java.lang.Thread.sleep' was converted to 'System.Threading.Thread.Sleep' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javalangThreadsleep_long'"

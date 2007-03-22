@@ -118,7 +118,7 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ado\DistributedAdoMigrationLauncherFactory.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\DistributedMigrationInformation.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\DistributedStandaloneMigrationLauncher.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationContext.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ado\IAdoMigrationContext.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationLauncherFactory.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationLauncherFactoryLoader.cs" />

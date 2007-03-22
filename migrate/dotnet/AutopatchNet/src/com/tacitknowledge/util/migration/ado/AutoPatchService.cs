@@ -77,8 +77,8 @@ namespace com.tacitknowledge.util.migration.ado
 			get
 			{
 				DataSourceMigrationContext context = DataSourceMigrationContext;
-				context.setSystemName(SystemName);
-				context.setDatabaseType(new DatabaseType(DatabaseType));
+				context.SystemName = SystemName;
+				context.DatabaseType = new DatabaseType(DatabaseType);
 				
 				return context;
 			}

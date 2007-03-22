@@ -122,7 +122,7 @@ namespace com.tacitknowledge.util.migration.ado
 		private static ILog log;
 		
 		/// <summary> The migration configuration </summary>
-		private AdoMigrationContext context = null;
+		private IAdoMigrationContext context = null;
 		
 		/// <summary> The database connection </summary>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
@@ -139,12 +139,12 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="connection">the database connection to use; this will NOT be closed
 		/// </param>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-        public PatchTable(AdoMigrationContext migrationContext, System.Data.Common.DbConnection connection)
+        public PatchTable(IAdoMigrationContext migrationContext, System.Data.Common.DbConnection connection)
 		{
 			this.context = migrationContext;
 			this.conn = connection;
 			
-			if (context.getDatabaseType() == null)
+			if (context.DatabaseType == null)
 			{
 				throw new System.ArgumentException("The ADO database type is required");
 			}
@@ -247,7 +247,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		protected internal virtual System.String getSql(System.String key)
 		{
-			return context.getDatabaseType().getProperty(key);
+			return context.DatabaseType.getProperty(key);
 		}
 		
 		/// <summary> Creates an initial record in the patches table for this system. 
@@ -256,7 +256,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  SQLException if an unrecoverable database error occurs </throws>
 		private void  createSystemPatchRecord()
 		{
-			System.String systemName = context.getSystemName();
+			System.String systemName = context.SystemName;
 			System.Data.OleDb.OleDbCommand stmt = null;
 			try
 			{

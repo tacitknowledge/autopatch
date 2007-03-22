@@ -13,141 +13,120 @@
  */
 #region Imports
 using System;
+using System.Data;
+using System.Data.Common;
 using com.tacitknowledge.util.migration;
-using com.tacitknowledge.util.migration;
-using MigrationException = com.tacitknowledge.util.migration.MigrationException;
 #endregion
 
 namespace com.tacitknowledge.util.migration.ado
 {
-	
-	/// <summary> Provides ADO resources to migration tasks.
-	/// 
+	/// <summary>
+    /// Provides ADO.NET resources to migration tasks.
 	/// </summary>
-	/// <author>   Scott Askew (scott@tacitknowledge.com)
-	/// </author>
-	public class DataSourceMigrationContext : AdoMigrationContext
+    /// <author>Scott Askew (scott@tacitknowledge.com)</author>
+    /// <version>$Id$</version>
+    public class DataSourceMigrationContext : IAdoMigrationContext
     {
+        #region Member variables
+        private static readonly int MAX_SYSTEMNAME_LENGTH = 30;
 
-        #region Members
-        /// <summary> The database connection to use</summary>
-        //UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-        private System.Data.Common.DbConnection connection = null;
-
-        /// <summary>Will provide the DBConnection required to talk to the data store</summary>
-        
+        /// <summary>
+        /// Will provide the <code>DbConnection</code> required to talk to the data store.
+        /// </summary>
         private MigrationDataSource dataSource = null;
 
-        /// <summary> The name of the system being patched</summary>
+        /// <summary>
+        /// The database connection to use.
+        /// </summary>
+        private DbConnection connection = null;
+
+        /// <summary>
+        /// The name of the system to patch.
+        /// </summary>
         private String systemName = null;
 
-        /// <summary> The name of the system being patched</summary>
+        /// <summary>
+        /// The database type.
+        /// </summary>
         private DatabaseType databaseType = null;
-
-        private static Int32 MAX_SYSTEMNAME_LENGTH = 30;
-
         #endregion
 
-        #region Methods
-        /// <summary> Returns the database connection to use
-		/// 
-		/// </summary>
-		/// <returns> the database connection to use
-		/// </returns>
-		/// <throws>  SQLException if an unexpected error occurs </throws>
-		
-		public System.Data.Common.DbConnection Connection
+        #region Public properties
+        /// <seealso cref="IAdoMigrationContext.Connection"/>
+		public DbConnection Connection
 		{
 			get
 			{
-				if ((connection == null) || (connection.State == System.Data.ConnectionState.Closed))
+				if ((connection == null) || (connection.State == ConnectionState.Closed))
 				{
-					
-					/*
-                     * Obtain a connection object for talking to the Data store
-                     */
+					// Obtain a connection object for talking to the Data store
                     dataSource = new MigrationDataSource();
-                    connection = dataSource.getConnection();
+                    connection = dataSource.Connection;
+
                     return connection;
 				}
+
 				return connection;
 			}
-			
 		}
-		
-		
-		/// <seealso cref="AdoMigrationContext.Commit()">
-		/// </seealso>
-		public virtual void  Commit()
+
+        /// <seealso cref="IAdoMigrationContext.DatabaseType"/>
+        public virtual DatabaseType DatabaseType
+        {
+            get { return databaseType;}
+            set { databaseType = value; }
+        }
+
+        /// <seealso cref="IAdoMigrationContext.SystemName"/>
+        public virtual String SystemName
+        {
+            get
+            {
+                return systemName;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("systemName cannot be null");
+                }
+
+                if (value.Length > MAX_SYSTEMNAME_LENGTH)
+                {
+                    throw new ArgumentException("systemName cannot be longer than " + MAX_SYSTEMNAME_LENGTH + " characters");
+                }
+
+                systemName = value;
+            }
+        }
+        #endregion
+
+        #region Public methods
+        /// <seealso cref="IMigrationContext.Commit()"/>
+		public virtual void Commit()
 		{
 			try
 			{
-                //SupportClass.TransactionManager.manager.Commit(Connection);
+                // TODO SupportClass.TransactionManager.manager.Commit(Connection);
 			}
-			catch (System.Data.OleDb.OleDbException e)
+			catch (DbException e)
 			{
 				throw new MigrationException("Error committing SQL transaction", e);
 			}
 		}
-		
-		/// <seealso cref="AdoMigrationContext.Rollback()">
-		/// </seealso>
-		public virtual void  Rollback()
+
+        /// <seealso cref="IMigrationContext.Rollback()"/>
+		public virtual void Rollback()
 		{
 			try
 			{
-                //SupportClass.TransactionManager.manager.RollBack(Connection);
+                // TODO SupportClass.TransactionManager.manager.RollBack(Connection);
 			}
-			catch (System.Data.OleDb.OleDbException e)
+			catch (DbException e)
 			{
 				throw new MigrationException("Could not rollback SQL transaction", e);
 			}
 		}
-		
-		/// <summary> Returns the type of database being patched.
-		/// 
-		/// </summary>
-		/// <returns> the type of database being patched
-		/// </returns>
-		public virtual DatabaseType getDatabaseType()
-		{
-			return databaseType;
-		}
-		
-		/// <summary> Returns the type of database being patched.
-		/// 
-		/// </summary>
-		/// <param name="type">the type of database being patched
-		/// </param>
-		public virtual void  setDatabaseType(DatabaseType type)
-		{
-			this.databaseType = type;
-		}
-		
-		/// <returns> Returns the systemName.
-		/// </returns>
-		public virtual System.String getSystemName()
-		{
-			return systemName;
-		}
-		
-		/// <summary> Sets the system name.
-		/// 
-		/// </summary>
-		/// <param name="name">the name of the system to patch
-		/// </param>
-		public virtual void  setSystemName(System.String name)
-		{
-			if (name == null)
-			{
-				throw new System.ArgumentException("systemName cannot be null");
-			}
-            if (name.Length > MAX_SYSTEMNAME_LENGTH)
-			{
-                throw new System.ArgumentException("systemName cannot be longer than " + MAX_SYSTEMNAME_LENGTH + " characters");
-			}
-			this.systemName = name;
-        }
         #endregion
     }
 }

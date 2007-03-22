@@ -51,8 +51,8 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					AutoPatchService controlledSystem = controlledSystems[i];
 					AdoMigrationLauncher subLauncher = controlledSystem.Launcher;
-					AdoMigrationContext subContext = subLauncher.Context;
-					controlledLaunchers[subContext.getSystemName()] = subLauncher;
+					IAdoMigrationContext subContext = subLauncher.Context;
+					controlledLaunchers[subContext.SystemName] = subLauncher;
 					
 					// Make sure the controlled migration process gets migration events
 					//launcher.MigrationProcess.addListener(subLauncher);
@@ -79,8 +79,8 @@ namespace com.tacitknowledge.util.migration.ado
 			get
 			{
 				DataSourceMigrationContext context = DataSourceMigrationContext;
-				context.setSystemName(SystemName);
-				context.setDatabaseType(new DatabaseType(DatabaseType));
+				context.SystemName = SystemName;
+				context.DatabaseType = new DatabaseType(DatabaseType);
 				
 				return context;
 			}

@@ -53,10 +53,10 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary> Create a new <code>MigrationLancher</code>.
 		/// 
 		/// </summary>
-		/// <param name="context">the <code>AdoMigrationContext</code> to use.
+		/// <param name="context">the <code>IAdoMigrationContext</code> to use.
 		/// </param>
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public DistributedAdoMigrationLauncher(AdoMigrationContext context):base(context)
+		public DistributedAdoMigrationLauncher(IAdoMigrationContext context):base(context)
 		{
 		}
 		
