@@ -62,7 +62,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <returns> if the database supports multiple SQL and DDL statements in a single
 		/// <code>Statement.execute</code> call.
 		/// </returns>
-		 public bool MultipleStatementsSupported
+		public bool MultipleStatementsSupported
 		{
 			get
 			{
@@ -81,6 +81,8 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		public DatabaseType(System.String databaseType)
 		{
+            // TODO Convert this constructor
+            return;
              /*
               * Should be using .resx files for properties
               */ 
