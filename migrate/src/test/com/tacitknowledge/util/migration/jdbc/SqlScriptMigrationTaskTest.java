@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.easymock.MockControl;
-
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.tacitknowledge.util.migration.MigrationException;
