@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.easymock.MockControl;
+
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.tacitknowledge.util.migration.MigrationException;
@@ -146,4 +148,59 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
         is.close();
         assertEquals("patch0003_third_patch", task.toString());
     }
+    
+    /**
+     * Tests that sybase tsql statements are parsed correctly
+     * @throws IOException if an unexpected error occurs.
+     */
+    public void testParsesSybaseTSql() throws IOException
+    {
+        InputStream is = getClass().getResourceAsStream("test/sybase_tsql.sql");
+        assertNotNull(is);
+        task = new SqlScriptMigrationTask("sybase_tsql.sql", 1, is);
+    
+        MockDatabaseType dbType = new MockDatabaseType("sybase");
+        dbType.setMultipleStatementsSupported(false);
+        context.setDatabaseType(dbType);
+        List statements = task.getSqlStatements(context);
+        assertEquals(7, statements.size());
+    }
+    
+    /**
+     * MockDatabaseType since DatabaseType is not interface based and
+     * can't mock it via easymock (without upgrading version to use the 
+     * class extension lib)
+     * @author Alex Soto <apsoto@gmail.com>
+     */
+    class MockDatabaseType extends DatabaseType
+    {
+        /** does database type support multipe sql statements per stmt.execute() */
+        private boolean multipleStatementsSupported;
+        
+        /**
+         * constructor
+         * @param databaseType set the type
+         */
+        public MockDatabaseType(String databaseType) 
+        {
+            super(databaseType);
+        }
+
+        /** {@inheritDoc} */
+        public boolean isMultipleStatementsSupported() 
+        {
+            return multipleStatementsSupported;
+        }
+
+        /**
+         * simple setter
+         * @param multipleStatementsSupported the value to set
+         */
+        public void setMultipleStatementsSupported(boolean multipleStatementsSupported) 
+        {
+            this.multipleStatementsSupported = multipleStatementsSupported;
+        }
+        
+    }
+    
 }

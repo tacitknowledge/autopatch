@@ -24,6 +24,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -231,6 +232,69 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                             currentStatement.append(sqlChars[i]);
                         }
                         break;
+                    /* sybase uses 'GO' as it's statement delimiter */
+                    case 'g':
+                    case 'G':
+                        /*
+                         * Build up a string, reading backwards from the current index to
+                         * the previous newline (or beginning of sequence) and from the
+                         * current index up to the next newline.  If it matches the regex
+                         * for the GO delimiter, then add the statement otherwise
+                         * just append the current index's character to currentStatement
+                         */
+                        if (context.getDatabaseType().getDatabaseType().equals("sybase"))
+                        {
+                            // read from current index to previous line terminator 
+                            // or start of sequence
+                            StringBuffer previous = new StringBuffer();
+                            for (int j = i - 1; j >= 0; j--) 
+                            {
+                                char c = sqlChars[j];
+                                previous.append(c);
+                                if (isLineTerminator(c))
+                                {
+                                    break;
+                                }
+                            }
+                            
+                            // read from current index to upcoming line terminator 
+                            // or end of sequence.  If it is the GO delimiter, 
+                            // we skip up to line terminator
+                            StringBuffer after = new StringBuffer();
+                            int newIndex = 0; 
+                            for (int k = i + 1; k < sqlChars.length; k++) 
+                            {
+                                char c = sqlChars[k];
+                                after.append(c);
+                                newIndex = k;
+                                if (isLineTerminator(c))
+                                {
+                                    break;
+                                }
+                            }
+                            
+                            // check against the pattern if its a GO delimiter
+                            String possibleDelimiter = previous
+                                .append(sqlChars[i]).append(after).toString();
+                            final String delimiterPattern = "^\\s*[Gg][Oo]\\s*$";
+                            
+                            if (Pattern.matches(delimiterPattern, possibleDelimiter))
+                            {
+                                statements.add(currentStatement.toString().trim());
+                                currentStatement = new StringBuffer();
+                                // skip up to next line terminator
+                                i = newIndex;
+                            }
+                            else // not a delimiter, so just append
+                            {
+                                currentStatement.append(sqlChars[i]);
+                            }
+                        }
+                        else // not a sybase db, so just append
+                        {
+                            currentStatement.append(sqlChars[i]);
+                        }
+                        break;
                     default :
                         currentStatement.append(sqlChars[i]);
                         break;
@@ -243,6 +307,21 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
         
         return statements;
+    }
+    
+    /**
+     * return true if c is a line terminator as detailed in
+     * http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html
+     * @param c the char to test
+     * @return true if it is a line terminator
+     */
+    protected boolean isLineTerminator(char c)
+    {
+        return (c == '\n') // newline
+            || (c == '\r') // carriage return
+            || (c == '\u0085') // next-line
+            || (c == '\u2028') // line-separator
+            || (c == '\u2029'); // paragraph separator
     }
 
     /** {@inheritDoc} */
