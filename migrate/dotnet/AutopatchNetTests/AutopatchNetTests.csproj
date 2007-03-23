@@ -34,12 +34,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks, Version=3.0.498.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\com\tacitknowledge\testhelpers\FakeSqlMigrationProcess.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ado\SqlScriptMigrationTaskTest.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSourceTest.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\SqlScriptMigrationTaskSourceTest.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationProcessEventsTest.cs" />
