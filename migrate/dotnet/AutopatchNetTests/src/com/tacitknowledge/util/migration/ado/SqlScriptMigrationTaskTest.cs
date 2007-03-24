@@ -122,7 +122,8 @@ namespace com.tacitknowledge.util.migration.ado
             {
                 try
                 {
-                    SqlScriptMigrationTask task = new SqlScriptMigrationTask("patch0003_dummy_SQL_file", 3, sr);
+                    SqlScriptMigrationTask task =
+                        new SqlScriptMigrationTask("patch0003_dummy_SQL_file", 3, sr);
                     task.Migrate(context);
                 }
                 catch (MigrationException me)
@@ -161,16 +162,20 @@ namespace com.tacitknowledge.util.migration.ado
             {
                 try
                 {
-                    SqlScriptMigrationTask task = new SqlScriptMigrationTask("patch0004_fourth_patch", 4, sr);
+                    SqlScriptMigrationTask task =
+                        new SqlScriptMigrationTask("patch0004_fourth_patch", 4, sr);
                     IList<String> list = task.GetSqlStatements(context);
 
                     Assert.AreEqual(3, list.Count);
                     Assert.AreEqual("insert into user_role_assoc (user_role_id, application_user_id, "
-                        + "role_code, project_id) " + Environment.NewLine +"\t\t\tvalues (nextval('role_id_seq'),2, 'SYSA', 3)", list[0]);
+                        + "role_code, project_id) " + Environment.NewLine
+                        + "\t\t\tvalues (nextval('role_id_seq'),2, 'SYSA', 3)", list[0]);
                     Assert.AreEqual("insert into user_role_assoc (user_role_id, application_user_id, "
-                        + "role_code, project_id) " + Environment.NewLine + "\t\t\tvalues (nextval('role_id_seq'),3, 'SYSA', 3)", list[1]);
+                        + "role_code, project_id) " + Environment.NewLine
+                        + "\t\t\tvalues (nextval('role_id_seq'),3, 'SYSA', 3)", list[1]);
                     Assert.AreEqual("insert into user_role_assoc (user_role_id, application_user_id, "
-                        + "role_code, project_id) " + Environment.NewLine + "\t\t\tvalues (nextval('role_--id_seq;'),4, 'SYSA', 3)", list[2]);
+                        + "role_code, project_id) " + Environment.NewLine
+                        + "\t\t\tvalues (nextval('role_--id_seq;'),4, 'SYSA', 3)", list[2]);
                 }
                 catch (MigrationException me)
                 {
@@ -207,12 +212,14 @@ namespace com.tacitknowledge.util.migration.ado
             {
                 try
                 {
-                    SqlScriptMigrationTask task = new SqlScriptMigrationTask("patch0005_fifth_patch", 4, sr);
+                    SqlScriptMigrationTask task =
+                        new SqlScriptMigrationTask("patch0005_fifth_patch", 4, sr);
                     IList<String> list = task.GetSqlStatements(context);
 
                     Assert.AreEqual(1, list.Count);
                     Assert.AreEqual("insert into user_role_assoc (user_role_id, application_user_id, "
-                        + "role_code, project_id) " + Environment.NewLine + "\t\t\tvalues (nextval('role_id_seq'),2, 'SYSA', 3)", list[0]);
+                        + "role_code, project_id) " + Environment.NewLine
+                        + "\t\t\tvalues (nextval('role_id_seq'),2, 'SYSA', 3)", list[0]);
                 }
                 catch (MigrationException me)
                 {

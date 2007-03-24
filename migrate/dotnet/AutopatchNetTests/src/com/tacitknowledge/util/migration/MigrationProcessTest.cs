@@ -35,20 +35,11 @@ namespace com.tacitknowledge.util.migration
         /// Make sure adding null task sources fails.
         /// </summary>
         [Test]
+        [ExpectedException(typeof(ArgumentException))]
         public void AddNullMigrationTaskSource()
         {
             MigrationProcess process = new MigrationProcess();
-
-            try
-            {
-                process.AddMigrationTaskSource(null);
-
-                Assert.Fail("We should have gotten an exception for the null assembly path");
-            }
-            catch (ArgumentException)
-            {
-                // we expect this
-            }
+            process.AddMigrationTaskSource(null);
         }
 
         /// <summary>
@@ -87,6 +78,7 @@ namespace com.tacitknowledge.util.migration
         /// Make sure that we validate the fact that a task's level might not be set.
         /// </summary>
         [Test]
+        [ExpectedException(typeof(MigrationException))]
         public void ValidateTasksNoLevelSet()
         {
             IList<IMigrationTask> migrations = new List<IMigrationTask>();
@@ -98,13 +90,12 @@ namespace com.tacitknowledge.util.migration
             {
                 MigrationProcess process = new MigrationProcess();
                 process.ValidateTasks(migrations);
-
-                Assert.Fail("We should have gotten an exception for the null migration task level");
             }
             catch (MigrationException me)
             {
                 Assert.AreEqual(me.Message, "Migration task '" + task.Name + " ["
                     + typeof(MigrationTask1).FullName + "]' does not have a patch level defined.");
+                throw me;
             }
         }
 
@@ -112,6 +103,7 @@ namespace com.tacitknowledge.util.migration
         /// Make sure that we validate the fact that no two tasks can have the same level.
         /// </summary>
         [Test]
+        [ExpectedException(typeof(MigrationException))]
         public void ValidateTasksTwoSameLevels()
         {
             IList<IMigrationTask> migrations = new List<IMigrationTask>();
@@ -127,8 +119,6 @@ namespace com.tacitknowledge.util.migration
             {
                 MigrationProcess process = new MigrationProcess();
                 process.ValidateTasks(migrations);
-
-                Assert.Fail("We should have gotten an exception for miltiple migration tasks with same level");
             }
             catch (MigrationException me)
             {
@@ -136,6 +126,7 @@ namespace com.tacitknowledge.util.migration
                     + typeof(MigrationTask2).FullName + "]' has a conflicting patch level with '"
                     + task1.Name + " [" + typeof(MigrationTask1).FullName
                     + "]'; both are configured for patch level 1");
+                throw me;
             }
         }
 
@@ -177,7 +168,8 @@ namespace com.tacitknowledge.util.migration
             process.DoMigrations(2, context);
 
             //Assert.Greater(tasksExecuted, 0);
-            Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"), "patch0003_dummy_SQL_file was supposed to be run");
+            Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"),
+                "patch0003_dummy_SQL_file was supposed to be run");
         }
 
         /// <summary>
@@ -195,9 +187,12 @@ namespace com.tacitknowledge.util.migration
             process.DoMigrations(0, context);
 
             // There currently are 2 .NET code and 1 SQL patch for tests
-            Assert.IsTrue(context.HasExecuted(new MigrationTask1().Name), "MigrationTask1 was supposed to be run");
-            Assert.IsTrue(context.HasExecuted(new MigrationTask2().Name), "MigrationTask2 was supposed to be run");
-            Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"), "patch0003_dummy_SQL_file was supposed to be run");
+            Assert.IsTrue(context.HasExecuted(new MigrationTask1().Name),
+                "MigrationTask1 was supposed to be run");
+            Assert.IsTrue(context.HasExecuted(new MigrationTask2().Name),
+                "MigrationTask2 was supposed to be run");
+            Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"),
+                "patch0003_dummy_SQL_file was supposed to be run");
         }
     }
 }
