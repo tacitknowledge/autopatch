@@ -167,7 +167,7 @@ namespace com.tacitknowledge.util.migration
             }
             catch (MigrationException)
             {
-                Assert.Fail("We should not have gotten an exception");
+                Assert.Fail("We should not have got an exception");
             }
         }
 

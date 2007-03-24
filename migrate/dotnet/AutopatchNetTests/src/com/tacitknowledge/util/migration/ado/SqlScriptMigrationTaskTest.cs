@@ -70,7 +70,7 @@ namespace com.tacitknowledge.util.migration.ado
             }
             catch (MigrationException)
             {
-                Assert.Fail("We should not have gotten an exception");
+                Assert.Fail("We should not have got an exception");
             }
 
             mocks.VerifyAll();
@@ -128,7 +128,7 @@ namespace com.tacitknowledge.util.migration.ado
                 }
                 catch (MigrationException)
                 {
-                    Assert.Fail("We should not have gotten an exception");
+                    Assert.Fail("We should not have got an exception");
                 }
                 finally
                 {
@@ -179,7 +179,7 @@ namespace com.tacitknowledge.util.migration.ado
                 }
                 catch (MigrationException)
                 {
-                    Assert.Fail("We should not have gotten an exception");
+                    Assert.Fail("We should not have got an exception");
                 }
                 finally
                 {
@@ -223,7 +223,7 @@ namespace com.tacitknowledge.util.migration.ado
                 }
                 catch (MigrationException)
                 {
-                    Assert.Fail("We should not have gotten an exception");
+                    Assert.Fail("We should not have got an exception");
                 }
                 finally
                 {
