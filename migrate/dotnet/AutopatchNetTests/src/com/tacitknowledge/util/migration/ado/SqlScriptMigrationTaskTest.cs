@@ -33,7 +33,7 @@ namespace com.tacitknowledge.util.migration.ado
     public class SqlScriptMigrationTaskTest
     {
         /// <summary>
-        /// Make sure that a string-initializaed task succeeds.
+        /// Make sure that a string-initialized task succeeds.
         /// </summary>
         [Test]
         public void MigrateSqlString()
@@ -230,6 +230,43 @@ namespace com.tacitknowledge.util.migration.ado
                     sr.Close();
                 }
             }
+
+            mocks.VerifyAll();
+        }
+
+        /// <summary>
+        /// Make sure that the code wraps <code>DbException</code>s into <code>MigrationException</code>s.
+        /// </summary>
+        [Test]
+        [ExpectedException(typeof(MigrationException))]
+        public void MigrateSqlStringWithDbException()
+        {
+            String sql = "select * from authors";
+            MockRepository mocks = new MockRepository();
+            IAdoMigrationContext context = mocks.CreateMock<IAdoMigrationContext>();
+            DbConnection conn = mocks.CreateMock<DbConnection>();
+            DbCommand cmd = mocks.CreateMock<DbCommand>();
+            DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
+
+            using (mocks.Ordered())
+            {
+                Expect.Call(context.DatabaseType).Return(dbType);
+                Expect.Call(context.Connection).Return(conn);
+                context.Commit();
+                LastCall.On(context).Repeat.Once();
+                Expect.Call(conn.CreateCommand()).Return(cmd);
+                cmd.CommandText = sql;
+                Expect.Call(cmd.ExecuteNonQuery()).Throw(new MigrationException("Something bad happened"));
+                cmd.Dispose();
+                LastCall.On(cmd).Repeat.Once();
+                //context.Commit();
+                //LastCall.On(context).Repeat.Once();
+            }
+
+            mocks.ReplayAll();
+
+            SqlScriptMigrationTask task = new SqlScriptMigrationTask("test", 1, sql);
+            task.Migrate(context);
 
             mocks.VerifyAll();
         }

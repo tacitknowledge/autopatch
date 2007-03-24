@@ -303,7 +303,8 @@ namespace com.tacitknowledge.util.migration
 
             if (postMigrationTasks.Count == 0)
             {
-                // No post migration tasks to perform
+                log.Info("No post-patch tasks have been run.");
+                //Console.WriteLine("No post-patch tasks have been run.");
                 return 0;
             }
 
@@ -315,16 +316,8 @@ namespace com.tacitknowledge.util.migration
                 taskCount++;
 			}
 			
-			if (taskCount > 0)
-			{
-				log.Info("Post-patch tasks complete (" + taskCount + " tasks executed)");
-                //Console.WriteLine("Post-patch tasks complete (" + taskCount + " tasks executed)");
-			}
-			else
-			{
-				log.Info("No post-patch tasks have been run.");
-                //Console.WriteLine("No post-patch tasks have been run.");
-			}
+    		log.Info("Post-patch tasks complete (" + taskCount + " tasks executed)");
+            //Console.WriteLine("Post-patch tasks complete (" + taskCount + " tasks executed)");
 			
 			return taskCount;
 		}
