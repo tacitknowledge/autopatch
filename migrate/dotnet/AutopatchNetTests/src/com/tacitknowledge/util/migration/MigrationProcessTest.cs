@@ -75,6 +75,23 @@ namespace com.tacitknowledge.util.migration
         }
 
         /// <summary>
+        /// Make sure that no assembly migrations are run on an up-to-date system.
+        /// </summary>
+        [Test]
+        public void DoMigrationsFromLevelOneHundred()
+        {
+            TestMigrationContext context = new TestMigrationContext();
+            MigrationProcess process = new MigrationProcess();
+            //process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.CodeBase);
+            process.AddPatchResourceAssembly(typeof(MigrationTask1).Assembly.Location);
+            int count = process.DoMigrations(100, context);
+
+            Assert.IsTrue(0 == count, "No migration tasks were supposed to be run on an up-to-date system");
+            Assert.IsFalse(context.HasExecuted(new MigrationTask1().Name), "MigrationTask1 was not supposed to be run");
+            Assert.IsFalse(context.HasExecuted(new MigrationTask2().Name), "MigrationTask2 was not supposed to be run");
+        }
+
+        /// <summary>
         /// Make sure that we validate the fact that a task's level might not be set.
         /// </summary>
         [Test]
@@ -148,10 +165,42 @@ namespace com.tacitknowledge.util.migration
                 MigrationProcess process = new MigrationProcess();
                 process.ValidateTasks(migrations);
             }
-            catch (MigrationException me)
+            catch (MigrationException)
             {
                 Assert.Fail("We should not have gotten an exception");
             }
+        }
+
+        /// <summary>
+        /// Make sure that patch level calculation is working correctly when no tasks are found.
+        /// </summary>
+        [Test]
+        public void GetNextPatchLevelNoTasks()
+        {
+            TestMigrationContext context = new TestMigrationContext();
+            FakeSqlMigrationProcess process = new FakeSqlMigrationProcess();
+            SqlScriptMigrationTaskSource taskSource = new SqlScriptMigrationTaskSource();
+            process.AddPatchResourceDirectory(Directory.GetCurrentDirectory() + "\\..\\..\\sql\\empty-directory");
+            process.AddMigrationTaskSource(taskSource);
+            int nextLevel = process.NextPatchLevel;
+
+            Assert.AreEqual(nextLevel, 1);
+        }
+
+        /// <summary>
+        /// Make sure that patch level calculation is working correctly.
+        /// </summary>
+        [Test]
+        public void GetNextPatchLevel()
+        {
+            TestMigrationContext context = new TestMigrationContext();
+            FakeSqlMigrationProcess process = new FakeSqlMigrationProcess();
+            SqlScriptMigrationTaskSource taskSource = new SqlScriptMigrationTaskSource();
+            process.AddPatchResourceDirectory(Directory.GetCurrentDirectory() + "\\..\\..\\sql");
+            process.AddMigrationTaskSource(taskSource);
+            int nextLevel = process.NextPatchLevel;
+
+            Assert.AreEqual(nextLevel, 6);
         }
 
         /// <summary>
@@ -167,9 +216,12 @@ namespace com.tacitknowledge.util.migration
             process.AddMigrationTaskSource(taskSource);
             process.DoMigrations(2, context);
 
-            //Assert.Greater(tasksExecuted, 0);
             Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"),
                 "patch0003_dummy_SQL_file was supposed to be run");
+            Assert.IsTrue(context.HasExecuted("patch0004_fourth_patch"),
+                "patch0004_fourth_patch was supposed to be run");
+            Assert.IsTrue(context.HasExecuted("patch0005_fifth_patch"),
+                "patch0005_fifth_patch was supposed to be run");
         }
 
         /// <summary>
@@ -186,13 +238,17 @@ namespace com.tacitknowledge.util.migration
             process.AddMigrationTaskSource(taskSource);
             process.DoMigrations(0, context);
 
-            // There currently are 2 .NET code and 1 SQL patch for tests
+            // There currently are 2 .NET code and 3 SQL patches for tests
             Assert.IsTrue(context.HasExecuted(new MigrationTask1().Name),
                 "MigrationTask1 was supposed to be run");
             Assert.IsTrue(context.HasExecuted(new MigrationTask2().Name),
                 "MigrationTask2 was supposed to be run");
             Assert.IsTrue(context.HasExecuted("patch0003_dummy_SQL_file"),
                 "patch0003_dummy_SQL_file was supposed to be run");
+            Assert.IsTrue(context.HasExecuted("patch0004_fourth_patch"),
+                "patch0004_fourth_patch was supposed to be run");
+            Assert.IsTrue(context.HasExecuted("patch0005_fifth_patch"),
+                "patch0005_fifth_patch was supposed to be run");
         }
     }
 }
