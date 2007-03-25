@@ -16,10 +16,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Data.Common;
+using System.Data.SqlClient;
+using System.Transactions;
+using Microsoft.Practices.EnterpriseLibrary.Data;
 using NUnit.Framework;
 using Rhino.Mocks;
+using com.tacitknowledge.testhelpers;
 using com.tacitknowledge.util.migration;
-using com.tacitknowledge.util.migration.ado;
 #endregion
 
 namespace com.tacitknowledge.util.migration.ado
@@ -38,27 +41,21 @@ namespace com.tacitknowledge.util.migration.ado
         [Test]
         public void MigrateSqlString()
         {
-            String sql = "select * from authors";
+            String sql = "INSERT INTO order_table_1 (id, value) VALUES (1, 'order_table_1')";
             MockRepository mocks = new MockRepository();
             IAdoMigrationContext context = mocks.CreateMock<IAdoMigrationContext>();
-            DbConnection conn = mocks.CreateMock<DbConnection>();
+            FakeDatabase db =
+                mocks.CreateMock<FakeDatabase>(new object[] {"connString", SqlClientFactory.Instance});
+            DbTransaction trans = mocks.CreateMock<DbTransaction>();
             DbCommand cmd = mocks.CreateMock<DbCommand>();
             DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
 
-            using (mocks.Ordered())
-            {
-                Expect.Call(context.DatabaseType).Return(dbType);
-                Expect.Call(context.Connection).Return(conn);
-                context.Commit();
-                LastCall.On(context).Repeat.Once();
-                Expect.Call(conn.CreateCommand()).Return(cmd);
-                cmd.CommandText = sql;
-                Expect.Call(cmd.ExecuteNonQuery()).Return(1);
-                cmd.Dispose();
-                LastCall.On(cmd).Repeat.Once();
-                context.Commit();
-                LastCall.On(context).Repeat.Once();
-            }
+            Expect.Call(context.DatabaseType).Return(dbType);
+            Expect.Call(context.Database).Return(db);
+            context.Commit();
+            LastCall.On(context).Repeat.Once();
+            Expect.Call(context.Transaction).Return(trans);
+            Expect.Call(db.ExecuteNonQuery(cmd, trans)).IgnoreArguments().Return(1);
 
             mocks.ReplayAll();
 
@@ -84,37 +81,23 @@ namespace com.tacitknowledge.util.migration.ado
         {
             MockRepository mocks = new MockRepository();
             IAdoMigrationContext context = mocks.CreateMock<IAdoMigrationContext>();
-            DbConnection conn = mocks.CreateMock<DbConnection>();
+            FakeDatabase db =
+                mocks.CreateMock<FakeDatabase>(new object[] { "connString", SqlClientFactory.Instance });
+            DbTransaction trans = mocks.CreateMock<DbTransaction>();
             DbCommand cmd = mocks.CreateMock<DbCommand>();
             DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
 
-            using (mocks.Ordered())
-            {
-                // We have 3 DatabaseType property access on the execution path
-                Expect.Call(context.DatabaseType).Return(dbType).Repeat.Times(3);
-                Expect.Call(context.Connection).Return(conn);
-                context.Commit();
-                LastCall.On(context).Repeat.Once();
-                
-                // CREATE TABLE statement
-                Expect.Call(conn.CreateCommand()).Return(cmd);
-                cmd.CommandText = "";
-                LastCall.IgnoreArguments();
-                Expect.Call(cmd.ExecuteNonQuery()).Return(1);
-                cmd.Dispose();
-                LastCall.On(cmd).Repeat.Once();
-                
-                // INSERT statement
-                Expect.Call(conn.CreateCommand()).Return(cmd);
-                cmd.CommandText = "";
-                LastCall.IgnoreArguments();
-                Expect.Call(cmd.ExecuteNonQuery()).Return(1);
-                cmd.Dispose();
-                LastCall.On(cmd).Repeat.Once();
-                
-                context.Commit();
-                LastCall.On(context).Repeat.Once();
-            }
+            // We have 3 DatabaseType property access on the execution path
+            Expect.Call(context.DatabaseType).Return(dbType).Repeat.Times(3);
+            Expect.Call(context.Database).Return(db);
+            context.Commit();
+            LastCall.On(context).Repeat.Once();
+            // CREATE TABLE statement
+            Expect.Call(context.Transaction).Return(trans);
+            Expect.Call(db.ExecuteNonQuery(cmd, trans)).IgnoreArguments().Return(1);
+            // INSERT statement
+            Expect.Call(context.Transaction).Return(trans);
+            Expect.Call(db.ExecuteNonQuery(cmd, trans)).IgnoreArguments().Return(1);
 
             mocks.ReplayAll();
 
@@ -126,7 +109,7 @@ namespace com.tacitknowledge.util.migration.ado
                         new SqlScriptMigrationTask("patch0003_dummy_SQL_file", 3, sr);
                     task.Migrate(context);
                 }
-                catch (MigrationException)
+                catch (MigrationException me)
                 {
                     Assert.Fail("We should not have got an exception");
                 }
@@ -241,34 +224,36 @@ namespace com.tacitknowledge.util.migration.ado
         [ExpectedException(typeof(MigrationException))]
         public void MigrateSqlStringWithDbException()
         {
-            String sql = "select * from authors";
+            String sql = "INSERT INTO order_table_1 (id, value) VALUES (1, 'order_table_1')";
             MockRepository mocks = new MockRepository();
             IAdoMigrationContext context = mocks.CreateMock<IAdoMigrationContext>();
-            DbConnection conn = mocks.CreateMock<DbConnection>();
+            FakeDatabase db =
+                mocks.CreateMock<FakeDatabase>(new object[] { "connString", SqlClientFactory.Instance });
+            DbTransaction trans = mocks.CreateMock<DbTransaction>();
             DbCommand cmd = mocks.CreateMock<DbCommand>();
             DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
 
-            using (mocks.Ordered())
-            {
-                Expect.Call(context.DatabaseType).Return(dbType);
-                Expect.Call(context.Connection).Return(conn);
-                context.Commit();
-                LastCall.On(context).Repeat.Once();
-                Expect.Call(conn.CreateCommand()).Return(cmd);
-                cmd.CommandText = sql;
-                Expect.Call(cmd.ExecuteNonQuery()).Throw(new MigrationException("Something bad happened"));
-                cmd.Dispose();
-                LastCall.On(cmd).Repeat.Once();
-                //context.Commit();
-                //LastCall.On(context).Repeat.Once();
-            }
+            Expect.Call(context.DatabaseType).Return(dbType);
+            Expect.Call(context.Database).Return(db);
+            context.Commit();
+            LastCall.On(context).Repeat.Once();
+            Expect.Call(context.Transaction).Return(trans);
+            Expect.Call(db.ExecuteNonQuery(cmd, trans)).IgnoreArguments()
+                .Throw(new MigrationException("Something bad happened"));
 
             mocks.ReplayAll();
 
-            SqlScriptMigrationTask task = new SqlScriptMigrationTask("test", 1, sql);
-            task.Migrate(context);
-
-            mocks.VerifyAll();
+            try
+            {
+                SqlScriptMigrationTask task = new SqlScriptMigrationTask("test", 1, sql);
+                task.Migrate(context);
+            }
+            catch (MigrationException me)
+            {
+                Assert.AreEqual("Something bad happened", me.InnerException.Message);
+                mocks.VerifyAll();
+                throw me;
+            }
         }
     }
 }

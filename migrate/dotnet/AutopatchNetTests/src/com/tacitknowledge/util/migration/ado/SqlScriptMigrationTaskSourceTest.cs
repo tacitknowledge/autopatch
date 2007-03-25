@@ -16,7 +16,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using NUnit.Framework;
-using com.tacitknowledge.util.migration.ado;
 #endregion
 
 namespace com.tacitknowledge.util.migration.ado

@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using com.tacitknowledge.testhelpers;
-using com.tacitknowledge.util.migration;
 using com.tacitknowledge.util.migration.ado;
 #endregion
 

@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using com.tacitknowledge.testhelpers;
-using com.tacitknowledge.util.migration;
 #endregion
 
 namespace com.tacitknowledge.util.migration
