@@ -13,313 +13,189 @@
  */
 #region Imports
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
 using log4net;
-using log4net.Config;
 using com.tacitknowledge.util.migration;
 #endregion
 
 namespace com.tacitknowledge.util.migration.ado
 {
-	
-	/// <summary> Core starting point for a database migration run.  This class obtains a connection
+	/// <summary>
+    /// Core starting point for a database migration run.  This class obtains a connection
 	/// to the database, checks its patch level, delegates the actual execution of the migration
 	/// tasks to a <code>MigrationProcess</code> instance, and then commits and cleans everything
 	/// up at the end.
-	/// <p>
-	/// This class is <b>NOT</b> threadsafe.
-	/// 
 	/// </summary>
-	/// <author>   Scott Askew (scott@tacitknowledge.com)
-	/// </author>
-	public class AdoMigrationLauncher
-    {
-
-        #region Members
-        /// <summary> Class logger</summary>
-        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'AdoMigrationLauncher'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
-        private static ILog log;
-
-        /// <summary>
-        /// The name of the system we're updating (Multi-node)
-        /// </summary>
-        private String systemName = null;
-
-        /// <summary> The patch level store in use</summary>
-        private IPatchInfoStore patchTable = null;
-
-        /// <summary> The <code>MigrationProcess</code> responsible for applying the patches</summary>
-        private MigrationProcess migrationProcess = null;
-
-        /// <summary> The amount time, in milliseconds, between attempts to obtain a lock on the
-        /// patches table.  Defaults to 15 seconds.
-        /// </summary>
-        private long lockPollMillis = 15000;
-
-        /// <summary> The path containing directories and packages to search through to locate patches.</summary>
-        private System.String patchPath = null;
-
-        /// <summary> The path containing directories and packages to search through to locate post-patch tasks.</summary>
-        private System.String postPatchPath = null;
-
-        /// <summary> The <code>IMigrationContext</code> to use for all migrations.</summary>
-        private IAdoMigrationContext context = null;
+	/// <author>Scott Askew (scott@tacitknowledge.com)</author>
+    /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
+    /// <version>$Id$</version>
+    public class AdoMigrationLauncher
+	{
+        #region Member variables
+        private static readonly ILog log = LogManager.GetLogger(typeof(AdoMigrationLauncher));
 		
-        #endregion 
-
-        # region Methods
-
         /// <summary>
-        /// The name of the system we're updating
+        /// The <code>MigrationProcess</code> responsible for applying the patches.
         /// </summary>
-        public String SystemName
-        {
-            get { return systemName; }
-            set { systemName = value; }
-        }
+		private MigrationProcess migrationProcess = null;
+		
+        /// <summary>
+        /// The amount of time, in milliseconds, between attempts to obtain a lock on the patches
+        /// table. Defaults to 15 seconds.
+        /// </summary>
+		private long lockPollMillis = 15000;
+		
+        /// <summary>
+        /// The path containing directories and packages to search through to locate patches.
+        /// </summary>
+		private String patchPath = null;
+		
+        /// <summary>
+        /// The path containing directories and packages to search through to locate post-patch tasks.
+        /// </summary>
+		private String postPatchPath = null;
+		
+		/// <summary>
+        /// A dictionary of <code>IAdoMigrationContext</code>/<code>IPatchInfoStore</code> pairings
+        /// used for the migrations.
+		/// </summary>
+		private IDictionary<IAdoMigrationContext, IPatchInfoStore> contexts =
+            new Dictionary<IAdoMigrationContext, IPatchInfoStore>();
+		
+        /// <summary>
+        /// Indicates whether we actually want to apply patches, or just look.
+        /// </summary>
+		private bool readOnly = false;
+        #endregion
 
-        /// <summary> Get the MigrationProcess we'll use to Migrate things
-		/// 
+        #region Public properties
+		/// <summary>
+        /// The <code>MigrationProcess</code> we'll use to migrate things.
 		/// </summary>
-		/// <returns> MigrationProcess for migration control
-		/// </returns>
-		virtual public MigrationProcess NewMigrationProcess
+		public virtual MigrationProcess NewMigrationProcess
 		{
-			get
-			{
-				return new MigrationProcess();
-			}
-			
+			get { return new MigrationProcess(); }
 		}
-		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Returns the colon-separated path of packages and directories within the
-		/// class path that are sources of patches.
-		/// 
-		/// </summary>
-		/// <returns> a colon-separated path of packages and directories within the
-		/// class path that are sources of patches
-		/// </returns>
-		/// <summary> Sets the colon-separated path of packages and directories within the
-		/// class path that are sources of patches.
-		/// 
-		/// </summary>
-		/// <param name="searchPath">a colon-separated path of packages and directories within the
-		/// class path that are sources of patches
-		/// </param>
-		virtual public System.String PatchPath
+		
+        /// <summary>
+        /// The path containing directories and packages to search through to locate patches.
+        /// </summary>
+		public virtual String PatchPath
 		{
-			get
-			{
-				return patchPath;
-			}
-			
+			get { return patchPath; }
+
 			set
 			{
 				this.patchPath = value;
-                //SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
-                //while (st.HasMoreTokens())
-                //{
-                //    System.String path = st.NextToken();
-                //    if (path.IndexOf('/') > - 1)
-                //    {
-                //        migrationProcess.AddPatchResourceDirectory(path);
-                //    }
-                //    else
-                //    {
-                //        migrationProcess.AddPatchResourceAssembly(path);
-                //    }
-                //}
+                // TODO Convert this tokenizing thing
+				/*
+                SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
+				while (st.HasMoreTokens())
+				{
+					System.String path = st.NextToken();
+					if (path.IndexOf('/') > - 1)
+					{
+						migrationProcess.addPatchResourceDirectory(path);
+					}
+					else
+					{
+						migrationProcess.addPatchResourcePackage(path);
+					}
+				}
+                */
 			}
-			
 		}
-		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Returns the colon-separated path of packages and directories within the
-		/// class path that are sources of post-patch tasks
-		/// 
-		/// </summary>
-		/// <returns> a colon-separated path of packages and directories within the
-		/// class path that are sources of post-patch tasks
-		/// </returns>
-		/// <summary> Sets the colon-separated path of packages and directories within the
-		/// class path that are sources of post-patch tasks
-		/// 
-		/// </summary>
-		/// <param name="searchPath">a colon-separated path of packages and directories within the
-		/// class path that are sources of post-patch tasks
-		/// </param>
-		virtual public System.String PostPatchPath
+
+        /// <summary>
+        /// The path containing directories and packages to search through to locate post-patch tasks.
+        /// </summary>
+		public virtual String PostPatchPath
 		{
-			get
-			{
-				return postPatchPath;
-			}
+			get { return postPatchPath; }
 			
 			set
 			{
 				this.postPatchPath = value;
+                // TODO Convert this tokenizing thing
+				/*
 				if (value == null)
 				{
 					return ;
 				}
-                //SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
-                //while (st.HasMoreTokens())
-                //{
-                //    System.String path = st.NextToken();
-                //    if (path.IndexOf('/') > - 1)
-                //    {
-                //        migrationProcess.AddPostPatchResourceDirectory(path);
-                //    }
-                //    else
-                //    {
-                //        migrationProcess.AddPostPatchResourceAssembly(path);
-                //    }
-                //}
-			}
-			
-		}
-		/// <summary> Get the patch level from the database
-		/// 
-		/// </summary>
-		/// <returns> int representing the current database patch level
-		/// </returns>
-		/// <exception cref="MigrationException">if there is a database connection error,
-		/// or the patch level can't be determined
-		/// </exception>
-		virtual public int DatabasePatchLevel
-		{
-			get
-			{
-				return patchTable.PatchLevel;
-			}
-			
-		}
-		/// <summary> Get the next patch level, for use when creating a new patch
-		/// 
-		/// </summary>
-		/// <returns> int representing the first unused patch number
-		/// </returns>
-		/// <exception cref="MigrationException">if the next patch level can't be determined
-		/// </exception>
-		virtual public int NextPatchLevel
-		{
-			get
-			{
-				return migrationProcess.NextPatchLevel;
-			}
-			
-		}
-		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Returns the <code>IAdoMigrationContext</code> used for the migrations.
-		/// 
-		/// </summary>
-		/// <returns> the <code>IAdoMigrationContext</code> used for the migrations
-		/// </returns>
-		/// <summary> Sets the <code>IAdoMigrationContext</code> used for the migrations.
-		/// 
-		/// </summary>
-		/// <param name="IAdoMigrationContext">the <code>IAdoMigrationContext</code> used for the migrations
-		/// </param>
-		/// <throws>  MigrationException if a database connection cannot be obtained </throws>
-		virtual public IAdoMigrationContext Context
-		{
-			get
-			{
-				return context;
-			}
-			
-			set
-			{
-				this.context = value;
-				try
+				SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
+				while (st.HasMoreTokens())
 				{
-					patchTable = new PatchTable(context, context.Connection);
+					System.String path = st.NextToken();
+					if (path.IndexOf('/') > - 1)
+					{
+						migrationProcess.addPostPatchResourceDirectory(path);
+					}
+					else
+					{
+						migrationProcess.addPostPatchResourcePackage(path);
+					}
 				}
-				catch (System.Data.OleDb.OleDbException e)
-				{
-					throw new MigrationException("Could not obtain ADO Connection", e);
-				}
+                */
 			}
-			
 		}
-		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Get how long to wait for the patch store lock
-		/// 
+
+		/// <summary>
+        /// The next patch level, for use when creating a new patch.
 		/// </summary>
-		/// <returns> the wait time for the patch store, in milliseconds
-		/// </returns>
-		/// <summary> Set how long to wait for the patch store lock
-		/// 
-		/// </summary>
-		/// <param name="lockPollMillis">the wait time for the patch store, in milliseconds
-		/// </param>
-		virtual public long LockPollMillis
+		public virtual int NextPatchLevel
 		{
-			get
-			{
-				return lockPollMillis;
-			}
-			
-			set
-			{
-				this.lockPollMillis = value;
-			}
-			
+			get { return migrationProcess.NextPatchLevel; }
 		}
-		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Get the migration process to use for migrations
-		/// 
+
+		/// <summary>
+        /// A dictionary of <code>IAdoMigrationContext</code>/<code>IPatchInfoStore</code> pairings
+        /// used for the migrations.
 		/// </summary>
-		/// <returns> MigrationProcess to use for migrations
-		/// </returns>
-		/// <summary> Set the migration process to use for migrations
-		/// 
-		/// </summary>
-		/// <param name="migrationProcess">the MigrationProcess to use for migrations
-		/// </param>
-		virtual public MigrationProcess MigrationProcess
+		public virtual IDictionary<IAdoMigrationContext, IPatchInfoStore> Contexts
 		{
-			get
-			{
-				return migrationProcess;
-			}
-			
-			set
-			{
-				this.migrationProcess = value;
-			}
-			
-		}
-		//UPGRADE_NOTE: Respective javadoc comments were merged.  It should be changed in order to comply with .NET documentation conventions. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1199'"
-		/// <summary> Get the patch table we use to store migration information
-		/// 
-		/// </summary>
-		/// <returns> PatchStore with information about our migration state
-		/// </returns>
-		/// <summary> Set the patch table where we should put information about the migrationo
-		/// 
-		/// </summary>
-		/// <param name="patchTable">where we should put information about the migration
-		/// </param>
-		virtual public IPatchInfoStore PatchTable
-		{
-			get
-			{
-				return patchTable;
-			}
-			
-			set
-			{
-				this.patchTable = value;
-			}
-			
+			get { return contexts; }
 		}
 		
-		/// <summary> Create a new MigrationProcess and add a SqlScriptMigrationTaskSource</summary>
+        /// <summary>
+        /// The amount of time, in milliseconds, between attempts to obtain a lock on the patches
+        /// table. Defaults to 15 seconds.
+        /// </summary>
+		public virtual long LockPollMillis
+		{
+			get { return lockPollMillis; }
+			set { this.lockPollMillis = value; }
+		}
+
+        /// <summary>
+        /// The <code>MigrationProcess</code> responsible for applying the patches.
+        /// </summary>
+		public virtual MigrationProcess MigrationProcess
+		{
+			get { return migrationProcess; }
+			set { this.migrationProcess = value; }
+		}
+		
+        /// <summary>
+        /// Indicates whether we actually want to apply patches, or just look.
+        /// </summary>
+		public virtual bool ReadOnly
+		{
+			get { return readOnly; }
+			set { this.readOnly = value; }
+		}
+        #endregion
+		
+        #region Constructors
+		/// <summary>
+        /// Create a new <code>MigrationProcess</code> and add a <code>SqlScriptMigrationTaskSource</code>.
+        /// </summary>
 		public AdoMigrationLauncher()
 		{
 			MigrationProcess = NewMigrationProcess;
 			
-			// Make sure this class is notified when a patch is applied so that
+   			// Make sure this class is notified when a patch is applied so that
 			// the patch level can be updated (see #MigrationSuccessful).
             migrationProcess.MigrationStarted += new MigrationProcess.MigrationStatusEventHandler(MigrationStarted);
             migrationProcess.MigrationSuccessful += new MigrationProcess.MigrationStatusEventHandler(MigrationSuccessful);
@@ -328,38 +204,54 @@ namespace com.tacitknowledge.util.migration.ado
 			MigrationProcess.AddMigrationTaskSource(new SqlScriptMigrationTaskSource());
 		}
 		
-		/// <summary> Create a new <code>MigrationLancher</code>.
-		/// 
+		/// <summary>
+        /// Create a new <code>AdoMigrationLauncher</code>.
 		/// </summary>
-		/// <param name="context">the <code>IAdoMigrationContext</code> to use.
+		/// <param name="context">
+        /// the <code>IAdoMigrationContext</code> to use
 		/// </param>
-		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public AdoMigrationLauncher(IAdoMigrationContext context):this()
+		public AdoMigrationLauncher(IAdoMigrationContext context)
+            : this()
 		{
-			Context = context;
+			AddContext(context);
 		}
+        #endregion
 		
-		/// <summary> Starts the application migration process.
-		/// 
+        #region Public methods
+		/// <summary>
+        /// Starts the application migration process.
 		/// </summary>
-		/// <returns> the number of patches applied
+		/// <returns>
+        /// the number of patches applied
 		/// </returns>
-		/// <throws>  MigrationException if an unrecoverable error occurs during </throws>
-		/// <summary>         the migration
-		/// </summary>
-		public virtual int doMigrations()
+		/// <exception cref="MigrationException">
+        /// if an unrecoverable error occurs during
+        /// </exception>
+		public virtual int DoMigrations()
 		{
-			if (context == null)
+            // TODO Convert the function
+            return 0;
+            /*
+			if (contexts.size() == 0)
 			{
 				throw new MigrationException("You must configure a migration context");
 			}
 			
 			//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-			System.Data.Common.DbConnection conn = null;
+			System.Data.OleDb.OleDbConnection conn = null;
 			try
 			{
-				conn = context.Connection;
-				return doMigrations(conn);
+				System.Collections.IEnumerator contextIter = contexts.keySet().iterator();
+				int migrationCount = 0;
+				//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
+				while (contextIter.MoveNext())
+				{
+					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
+					JdbcMigrationContext context = (JdbcMigrationContext) contextIter.Current;
+					migrationCount = doMigrations(context);
+					log.info("Executed " + migrationCount + " patches for context " + context);
+				}
+				return migrationCount;
 			}
 			catch (System.Data.OleDb.OleDbException e)
 			{
@@ -367,134 +259,178 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				//SqlUtil.close(conn, null, null);
+				SqlUtil.close(conn, null, null);
 			}
+            */
 		}
-
+		
         /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext, MigrationException)"/>
         public void MigrationStarted(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
-			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Started task " + task.Name + " for context " + ctx);
 		}
 
         /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext, MigrationException)"/>
         public void MigrationSuccessful(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
-			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
-			log.Debug("Task " + task.Name + " was successful for context " + ctx);
+			log.Debug("Task " + task.Name + " was successful for context " + ctx + " in launcher " + this);
 			int patchLevel = task.Level.Value;
-			patchTable.UpdatePatchLevel(patchLevel);
+			
+			// update all of our controlled patch tables
+            foreach (IPatchInfoStore patchInfoStore in contexts.Keys)
+			{
+                patchInfoStore.UpdatePatchLevel(patchLevel);
+			}
 		}
 
         /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext, MigrationException)"/>
         public void MigrationFailed(IMigrationTask task, IMigrationContext ctx, MigrationException e)
 		{
-			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Object.toString' may return a different value. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1043'"
 			log.Debug("Task " + task.Name + " failed for context " + ctx, e);
 		}
-		
-		/// <summary> Performs the application migration process in one go
-		/// 
+
+		/// <summary>
+        /// Get the patch level from the database.
 		/// </summary>
-		/// <param name="conn">the connection to use
+		/// <param name="ctx">
+        /// the migration context to get the patch level for
 		/// </param>
-		/// <returns> the number of patches applied
+		/// <returns>
+        /// the current database patch level
 		/// </returns>
-		/// <throws>  SQLException if an unrecoverable database error occurs while </throws>
-		/// <summary>         working with the patches table.
-		/// </summary>
-		/// <throws>  MigrationException if an unrecoverable error occurs during </throws>
-		/// <summary>         the migration
-		/// </summary>
-		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		protected internal virtual int doMigrations(DbConnection conn)
+		/// <exception cref="MigrationException">
+        /// if there is a database connection error, or the patch level can't be determined
+		/// </exception>
+		public virtual int GetDatabasePatchLevel(IAdoMigrationContext ctx)
 		{
-			patchTable = createPatchStore(conn);
+            return contexts[ctx].PatchLevel;
+		}
+		
+		/// <summary>
+        /// Adds an <code>IAdoMigrationContext</code> used for the migrations.
+		/// </summary>
+		/// <param name="context">
+        /// the <code>IAdoMigrationContext</code> used for the migrations
+		/// </param>
+		public virtual void AddContext(IAdoMigrationContext context)
+		{
+			IPatchInfoStore patchTable = new PatchTable(context);
+			log.Debug("Adding context " + context + " with patch table " + patchTable + " in launcher " + this);
+			contexts.Add(context, patchTable);
+		}
+        #endregion
+
+        #region Protected methods
+		/// <summary>
+        /// Performs the application migration process in one go.
+		/// </summary>
+		/// <param name="context">
+        /// the context to run the patches in
+		/// </param>
+		/// <returns>
+        /// the number of patches applied
+		/// </returns>
+		/// <exception cref="DbException">
+        /// if an unrecoverable database error occurs while working with the patches table
+		/// </exception>
+		/// <exception cref="MigrationException">
+        /// if an unrecoverable error occurs during the migration
+		/// </exception>
+		protected internal virtual int DoMigrations(IAdoMigrationContext context)
+		{
+			IPatchInfoStore patchTable = CreatePatchStore(context);
 			
-			// Save auto-commit state
-			//bool b = true;
+			LockPatchStore(context);
+			
+			// Now apply the patches
+			int executedPatchCount = 0;
 			try
 			{
-				lockPatchStore();
+				int patchLevel = patchTable.PatchLevel;
 				
-				// make sure we can at least attempt to roll back patches
-				// DDL usually can't rollback - we'd need compensating transactions
-                //b = SupportClass.TransactionManager.manager.GetAutoCommit(conn);
-				//SupportClass.TransactionManager.manager.SetAutoCommit(conn, false);
-				
-				// Now apply the patches
-				int executedPatchCount = 0;
-				try
-				{
-					int patchLevel = patchTable.PatchLevel;
-					executedPatchCount = migrationProcess.DoMigrations(patchLevel, context);
-				}
-				catch (MigrationException me)
-				{
-					// If there was any kind of error, we don't want to eat it, but we do
-					// want to unlock the patch store. So do that, then re-throw.
-					patchTable.UnlockPatchStore();
-					throw me;
-				}
-				finally
-				{
-					try
-					{
-						//SupportClass.TransactionManager.manager.Commit(conn);
-					}
-					catch (System.Data.OleDb.OleDbException e)
-					{
-						log.Error("Error unlocking patch table: ", e);
-					}
-				}
-				
-				// Do any post-patch tasks
-				try
-				{
-					migrationProcess.DoPostPatchMigrations(context);
-					return executedPatchCount;
-				}
-				finally
-				{
-					try
-					{
-						patchTable.UnlockPatchStore();
-						//SupportClass.TransactionManager.manager.Commit(conn);
-					}
-					catch (System.Data.OleDb.OleDbException e)
-					{
-						log.Error("Error unlocking patch table: ", e);
-					}
-				}
+    			executedPatchCount = migrationProcess.DoMigrations(patchLevel, context);
+			}
+			catch (MigrationException me)
+			{
+				// If there was any kind of error, we don't want to eat it, but we do
+				// want to unlock the patch store. So do that, then re-throw.
+				patchTable.UnlockPatchStore();
+				throw me;
+			}
+			
+			// Do any post-patch tasks
+			try
+			{
+				migrationProcess.DoPostPatchMigrations(context);
+				return executedPatchCount;
 			}
 			finally
 			{
-				// restore auto-commit setting
-				//SupportClass.TransactionManager.manager.SetAutoCommit(conn, b);
+				try
+				{
+					patchTable.UnlockPatchStore();
+				}
+				catch (MigrationException e)
+				{
+					log.Error("Error unlocking patch table: ", e);
+				}
 			}
 		}
-		
-		/// <summary> Lock the patch store. This is done safely, such that we safely handle the case where 
-		/// other migration launchers are patching at the same time.
-		/// 
+
+        /// <summary>
+        /// Create a patch table object for use in migrations.
 		/// </summary>
-		/// <throws>  MigrationException if the reading or setting lock state fails </throws>
-		private void  lockPatchStore()
+		/// <param name="context">
+        /// the context to create the store in
+		/// </param>
+		/// <returns>
+        /// a <code>PatchInfoStore</code> object for use in accessing patch state information
+		/// </returns>
+		/// <exception cref="MigrationException">
+        /// if unable to create the store
+        /// </exception>
+		protected internal virtual IPatchInfoStore CreatePatchStore(IAdoMigrationContext context)
+		{
+			IPatchInfoStore piStore = new PatchTable(context);
+			
+			// Make sure the table is created before claiming it exists by returning
+			piStore = contexts[context];
+			int patchLevel = piStore.PatchLevel;
+			
+			return piStore;
+		}
+        #endregion
+		
+        #region Private methods
+		/// <summary>
+        /// Lock the patch store. This is done safely, such that we safely handle the case where
+		/// other migration launchers are patching at the same time.
+		/// </summary>
+		/// <param name="context">
+        /// the context to lock the store in
+		/// </param>
+		/// <exception cref="MigrationException">
+        /// if the reading or setting lock state fails
+        /// </exception>
+		private void LockPatchStore(IAdoMigrationContext context)
 		{
 			// Patch locks ensure that only one system sharing a patch store will patch
 			// it at the same time.
 			bool lockObtained = false;
+
 			while (!lockObtained)
 			{
-				waitForFreeLock();
+				WaitForFreeLock(context);
 				
+                IPatchInfoStore piStore = contexts[context];
+                int patchLevel = piStore.PatchLevel;
+
 				try
 				{
-					patchTable.LockPatchStore();
+					piStore.LockPatchStore();
 					lockObtained = true;
 				}
-				catch (System.SystemException)
+				catch (Exception e)
 				{
 					// this happens when someone woke up at the same time,
 					// raced us to the lock and won. We re-sleep and try again.
@@ -502,59 +438,32 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 		}
 		
-		/// <summary> create a patch table object for use in migrations
-		/// 
+		/// <summary>
+        /// Pauses until the patch lock become available.
 		/// </summary>
-		/// <param name="conn">the database connection to use for table access
+		/// <param name="context">
+        /// the context related to the store
 		/// </param>
-		/// <returns> PatchTable object for use in accessing patch state information
-		/// </returns>
-		/// <throws>  MigrationException if unable to create the store </throws>
-		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-		protected internal virtual IPatchInfoStore createPatchStore(System.Data.Common.DbConnection conn)
+		/// <exception cref="MigrationException">
+        /// if an unrecoverable error occurs
+        /// </exception>
+		private void WaitForFreeLock(IAdoMigrationContext context)
 		{
-			IPatchInfoStore piStore = new PatchTable(context, conn);
-			
-			// Make sure the table is created before claiming it exists by returning
-			int generatedAux = patchTable.PatchLevel;
-			try
-			{
-                //if (!SupportClass.TransactionManager.manager.GetAutoCommit(conn))
-                //{
-                //    SupportClass.TransactionManager.manager.Commit(conn);
-                //}
-			}
-			catch (System.Data.OleDb.OleDbException sqle)
-			{
-				throw new MigrationException("Unable to commit connection after creating patch store", sqle);
-			}
-			
-			return piStore;
-		}
-		
-		/// <summary> Pauses until the patch lock become available.
-		/// 
-		/// </summary>
-		/// <throws>  MigrationException if an unrecoverable error occurs </throws>
-		private void  waitForFreeLock()
-		{
-			while (patchTable.PatchStoreLocked)
+			IPatchInfoStore piStore = contexts[context];
+
+			while (piStore.PatchStoreLocked)
 			{
 				log.Info("Waiting for migration lock for system \"" + context.SystemName + "\"");
+
 				try
 				{
-					//UPGRADE_TODO: Method 'java.lang.Thread.sleep' was converted to 'System.Threading.Thread.Sleep' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javalangThreadsleep_long'"
-					System.Threading.Thread.Sleep(new System.TimeSpan((System.Int64) 10000 * LockPollMillis));
+					Thread.Sleep(new TimeSpan(TimeSpan.TicksPerMillisecond * LockPollMillis));
 				}
-				catch (System.Threading.ThreadInterruptedException e)
+				catch (ThreadInterruptedException e)
 				{
-					log.Error("Received InterruptedException while waiting for patch lock", e);
+					log.Error("Received ThreadInterruptedException while waiting for patch lock", e);
 				}
 			}
-		}
-		static AdoMigrationLauncher()
-		{
-			log = LogManager.GetLogger(typeof(AdoMigrationLauncher));
         }
         #endregion
     }

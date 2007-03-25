@@ -15,43 +15,35 @@
 using System;
 using System.Collections.Generic;
 using log4net;
-using log4net.Config;
 using com.tacitknowledge.util.migration.ado;
-using com.tacitknowledge.util.migration.ado.util;
 #endregion
 
 namespace com.tacitknowledge.util.migration
 {
-	
-	/// <summary> Discovers and executes a sequence of system patches from multiple controlled
-	/// systems, each of which has its own MigrationProcess.
-	/// 
+	/// <summary>
+    /// Discovers and executes a sequence of system patches from multiple controlled systems,
+    /// each of which has its own <code>MigrationProcess</code>.
 	/// </summary>
-	/// <author>  Mike Hardy (mike@tacitknowledge.com)
-	/// </author>
+	/// <author>Mike Hardy (mike@tacitknowledge.com)</author>
+    /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
     /// <version>$Id$</version>
     public class DistributedMigrationProcess : MigrationProcess
     {
-
-        #region Members
-        /// <summary>Class logger </summary>
-       
-        private static ILog log;
-
-        /// <summary>The ADOMigrationLaunchers we are controlling, keyed by system name </summary>
-
-        private ControlledSystemsList controlledSystems = new ControlledSystemsList();
-
-
+        #region Member variables
+        private static readonly ILog log = LogManager.GetLogger(typeof(DistributedMigrationProcess));
+        
+        /// <summary>
+        /// <code>AdoMigrationLauncher</code>s we are controlling (keyed by system name)
+        /// </summary>
+        private IDictionary<String, AdoMigrationLauncher> controlledSystems =
+            new Dictionary<String, AdoMigrationLauncher>();
         #endregion
 
-        #region Methods
+        #region Public properties
         /// <summary>
-        /// Returns a dictionary of task/launcher pairings, regardless of patch level.
+        /// A dictionary of <code>IMigrationTask</code>/<code>AdoMigrationLauncher</code> pairings,
+        /// regardless of patch level.
 		/// </summary>
-		/// <returns>
-        /// Dictionary containing <code>IMigrationTask</code>s / <code>AdoMigrationLauncher</code> pairings
-		/// </returns>
         /// <exception cref="MigrationException">
         /// if one or more migration tasks could not be created
         /// </exception>
@@ -59,65 +51,72 @@ namespace com.tacitknowledge.util.migration
 		{
 			get
 			{
-                IDictionary<IMigrationTask, AdoMigrationLauncher> tasks = new Dictionary<IMigrationTask, AdoMigrationLauncher>();
+                IDictionary<IMigrationTask, AdoMigrationLauncher> tasks =
+                    new Dictionary<IMigrationTask, AdoMigrationLauncher>();
 				
 				// Roll through all our controlled system names
-                foreach (ControlledSystem cs in ControlledSystems)
+                foreach (String controlledSystemName in ControlledSystems.Keys)
                 {
                     //Get the sublauncher that runs patches for the current name
-                    AdoMigrationLauncher subLauncher = cs.AdoMigrationLauncher;
+                    AdoMigrationLauncher subLauncher = ControlledSystems[controlledSystemName];
 					
 					// Get all the tasks for that sub launcher
 					IList<IMigrationTask> subTasks = subLauncher.MigrationProcess.MigrationTasks;
-					log.Info("Found " + subTasks.Count + " for system " + cs.ControlledSystemName);
+					log.Info("Found " + subTasks.Count + " for system " + controlledSystemName);
 					
                     foreach (IMigrationTask task in subTasks)
 					{
 						if (log.IsDebugEnabled)
 						{
-							log.Debug("\tMigration+Launcher binder found subtask " + task.Name + " for launcher context " + subLauncher.Context.SystemName);
+                            IEnumerator<IAdoMigrationContext> contexts =
+                                ((IEnumerable<IAdoMigrationContext>)subLauncher.Contexts.Keys).GetEnumerator();
+
+                            if (contexts.MoveNext())
+                            {
+                                String systemName = contexts.Current.SystemName;
+
+                                log.Debug("\tMigration+Launcher binder found subtask " + task.Name
+                                    + " for launcher context " + systemName);
+                            }
 						}
 						
-						// store the task, related to its launcher
+						// Store the task, related to its launcher
 						tasks.Add(task, subLauncher);
 					}
 				}
 				
 				return tasks;
 			}
-			
 		}
-		/// <summary> Returns a List of MigrationTasks, regardless of patch level.
-		/// 
+
+		/// <summary>
+        /// A list of <code>IMigrationTask</code>s, regardless of patch level.
 		/// </summary>
-		/// <returns> List containing IMigrationTask objects
-		/// </returns>
-		/// <throws>  MigrationException if one or more migration tasks could not be </throws>
+        /// <exception cref="MigrationException">
+        /// if one or more migration tasks could not be created
+        /// </exception>
         public override IList<IMigrationTask> MigrationTasks
 		{
 			get
 			{
                 IList<IMigrationTask> tasks = new List<IMigrationTask>();
-				
-				
-				//for (System.Collections.IEnumerator controlledSystemIter = new SupportClass.HashSetSupport(ControlledSystems.Keys).GetEnumerator(); controlledSystemIter.MoveNext(); )
-				
-                foreach (ControlledSystem cs in controlledSystems)
-                {
 
-                    AdoMigrationLauncher launcher = cs.AdoMigrationLauncher;
-					IList<IMigrationTask> subTasks = launcher.MigrationProcess.MigrationTasks;
-					log.Info("Found " + subTasks.Count + " for system " + cs.ControlledSystemName);
-					if (log.IsDebugEnabled)
-					{
-                        foreach (IMigrationTask task in subTasks)
-						{
-							//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-							log.Debug("\tFound subtask " + task.Name);
-                            tasks.Add(task);
-						}
-					}
+                foreach (String controlledSystemName in ControlledSystems.Keys)
+                {
+                    AdoMigrationLauncher launcher = ControlledSystems[controlledSystemName];
+                    IList<IMigrationTask> subTasks = launcher.MigrationProcess.MigrationTasks;
+
+                    log.Info("Found " + subTasks.Count + " for system " + controlledSystemName);
 					
+                    foreach (IMigrationTask task in subTasks)
+					{
+                        if (log.IsDebugEnabled)
+                        {
+                            log.Debug("\tFound subtask " + task.Name);
+                        }
+                        
+                        tasks.Add(task);
+					}
 				}
 				
 				// Its difficult to tell what's going on when you don't see any patches.
@@ -125,85 +124,102 @@ namespace com.tacitknowledge.util.migration
 				// help them discover why.
 				if (tasks.Count == 0)
 				{
-					log.Info("No patches were discovered in your classpath. " + "Run with DEBUG logging enabled for patch search details.");
-				}
+                    log.Info("No migration tasks were discovered in your classpath. "
+                        + "Run with DEBUG logging enabled for migration task search details.");
+                }
 				
 				return tasks;
 			}
-			
 		}
-		/// <summary> Get the list of systems we are controlling
-		/// 
-		/// </summary>
-		/// <returns> Hashlist of AdoMigrationLauncher objects keyed by String system names
-		/// </returns>
-		
-		/// <summary> 
-        /// Set the list of systems to control
-		/// 
-		/// </summary>
-        /// <returns>A list of systems to control and the ADOMigrationlauncher for controlling them</returns>
-		/// <param name="controlledSystems">HashList of AdoMigrationLauncher objects keyed by String system names
-		/// </param>
-        public ControlledSystemsList ControlledSystems
+
+        /// <summary>
+        /// <code>AdoMigrationLauncher</code>s we are controlling (keyed by system name).
+        /// </summary>
+        public IDictionary<String, AdoMigrationLauncher> ControlledSystems
 		{
-			get
-			{
-				return controlledSystems;
-			}
-			
-			set
-			{
-				this.controlledSystems = value;
-			}
-			
+			get { return controlledSystems; }
+			set { this.controlledSystems = value; }
 		}
-		
-		
-		/// <summary> Creates a new <code>Migration</code> instance.</summary>
-		public DistributedMigrationProcess():base()
-		{
-		}
-		
-		/// <summary> Applies necessary patches to the system.
-		/// 
-		/// </summary>
-		/// <param name="currentLevel">the current system patch level
-		/// </param>
-		/// <param name="context">information and resources that are available to the migration tasks
-		/// </param>
-		/// <throws>  MigrationException if a migration fails </throws>
-		/// <returns> the number of <code>IMigrationTask</code>s that have executed
-		/// </returns>
+        #endregion
+
+        #region Public methods
+        /// <seealso cref="MigrationProcess.DoMigrations(int, IMigrationContext)"/>
 		public override int DoMigrations(int currentLevel, IMigrationContext context)
 		{
 			log.Debug("Starting DoMigrations");
 			
-			// Get all the migrations, with their launchers, then get the list of just the migrations
+			// Get all migrations, with their launchers, then get the list of just the migrations
 			IDictionary<IMigrationTask, AdoMigrationLauncher> migrationsWithLaunchers = MigrationTasksWithLaunchers;
             List<IMigrationTask> migrations = new List<IMigrationTask>();
+
             foreach (IMigrationTask mt in migrationsWithLaunchers.Keys)
             {
                 migrations.Add(mt);
-
-                // make sure the migrations are okay, then sort them
-               
             }
+
+            // make sure the migrations are okay, then sort them
             ValidateTasks(migrations);
             migrations.Sort();
-			
+
+            int taskCount = 0;
+            // Roll through once, just printing out what we'll do
+            foreach (IMigrationTask task in migrations)
+            {
+                if (task.Level.Value > currentLevel)
+                {
+                    log.Info("Will execute patch task '" + GetTaskLabel(task) + "'");
+
+                    if (log.IsDebugEnabled)
+                    {
+                        AdoMigrationLauncher launcher = migrationsWithLaunchers[task];
+
+                        // Get all the contexts the task will execute in
+                        foreach (IMigrationContext launcherContext in launcher.Contexts.Keys)
+                        {
+                            log.Debug("Task will execute in context '" + launcherContext + "'");
+                        }
+                    }
+
+                    taskCount++;
+                }
+            }
+
+            if (taskCount > 0)
+            {
+                log.Info("A total of " + taskCount + " patch tasks will execute.");
+            }
+            else
+            {
+                log.Info("System up-to-date. No patch tasks will execute.");
+            }
+
+            // See if we should execute
+            if (ReadOnly)
+            {
+                if (taskCount > 0)
+                {
+                    throw new MigrationException("Unapplied patches exist, but read-only flag is set");
+                }
+
+                log.Info("In read-only mode - skipping patch application");
+                return 0;
+            }
+
 			// Roll through each migration, applying it if necessary
-			int taskCount = 0;
-			//we can use foreach here as we have an ArrayList of MigrationTasks or migrations
-			foreach (IMigrationTask mts in migrations)
+			taskCount = 0;
+			foreach (IMigrationTask task in migrations)
 			{
-				
-				if (mts.Level > currentLevel)
+				if (task.Level.Value > currentLevel)
 				{
 					// Execute the task in the context it was loaded from
-                    AdoMigrationLauncher launcher = (AdoMigrationLauncher)migrationsWithLaunchers[mts];
-					ApplyPatch(launcher.Context, mts, true);
-					taskCount++;
+                    AdoMigrationLauncher launcher = migrationsWithLaunchers[task];
+
+                    foreach (IMigrationContext launcherContext in launcher.Contexts.Keys)
+                    {
+                        ApplyPatch(launcherContext, task, true);
+                    }
+					
+                    taskCount++;
 				}
 			}
 			
@@ -214,15 +230,11 @@ namespace com.tacitknowledge.util.migration
 			}
 			else
 			{
-				log.Info("System up-to-date.  No migration tasks have been run.");
+				log.Info("System up-to-date. No migration tasks have been run.");
 			}
 			
 			return taskCount;
 		}
-		static DistributedMigrationProcess()
-		{
-			log = LogManager.GetLogger(typeof(DistributedMigrationProcess));
-		}
-    }
         #endregion
+    }
 }
