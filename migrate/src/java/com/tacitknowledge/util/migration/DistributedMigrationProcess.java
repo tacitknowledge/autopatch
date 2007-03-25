@@ -42,9 +42,6 @@ public class DistributedMigrationProcess extends MigrationProcess
     /** The JdbcMigrationLaunchers we are controlling, keyed by system name */
     private HashMap controlledSystems = new HashMap();
     
-    /** Whether we actually want to apply patches, or just look */
-    private boolean readOnly = false;
-    
     /**
      * Creates a new <code>Migration</code> instance.
      */
@@ -82,9 +79,7 @@ public class DistributedMigrationProcess extends MigrationProcess
             MigrationTask task = (MigrationTask) i.next();
             if (task.getLevel().intValue() > currentLevel)
             {
-                log.info("Will execute patch task '" 
-                         + task.getName() + " [" + task.getClass().getName() + "]" 
-                         + "'");
+                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 if (log.isDebugEnabled())
                 {
                     JdbcMigrationLauncher launcher = 
@@ -254,25 +249,5 @@ public class DistributedMigrationProcess extends MigrationProcess
     public void setControlledSystems(HashMap controlledSystems)
     {
         this.controlledSystems = controlledSystems;
-    }
-
-    /**
-     * See if we are actually applying patches, or if it is just readonly
-     * 
-     * @return boolean true if we skip application
-     */
-    public boolean isReadOnly()
-    {
-        return readOnly;
-    }
-
-    /**
-     * Set whether or not to actually apply patches
-     * 
-     * @param readOnly boolean true if we should skip application
-     */
-    public void setReadOnly(boolean readOnly)
-    {
-        this.readOnly = readOnly;
     }
 }

@@ -190,9 +190,7 @@ public class MigrationProcess
             MigrationTask task = (MigrationTask) i.next();
             if (task.getLevel().intValue() > currentLevel)
             {
-                log.info("Will execute patch task '" 
-                         + task.getName() + " [" + task.getClass().getName() + "]" 
-                         + "'");
+                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 log.debug("Task will execute in context '" + context + "'");
                 taskCount++;
             }
@@ -268,8 +266,7 @@ public class MigrationProcess
         for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
         {
             MigrationTask task = (MigrationTask) i.next();
-            log.info("Will execute post-patch task '" 
-                     +  task.getName() + " [" + task.getClass().getName() + "]" + "'");
+            log.info("Will execute post-patch task '" +  getTaskLabel(task) + "'");
         }
         log.info("A total of " + taskCount + " post-patch tasks will execute.");
         
@@ -474,7 +471,7 @@ public class MigrationProcess
      * @param  task the task to create a label for
      * @return a user-friendly label for the specified task
      */
-    private String getTaskLabel(MigrationTask task)
+    protected String getTaskLabel(MigrationTask task)
     {
         return task.getName() + " [" + task.getClass().getName() + "]";
     }
