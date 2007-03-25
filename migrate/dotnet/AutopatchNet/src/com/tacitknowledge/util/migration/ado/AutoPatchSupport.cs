@@ -126,8 +126,12 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  SQLException if there is a problem </throws>
 		public virtual PatchTable makePatchTable()
 		{
-			IAdoMigrationContext ADOMigrationContext = launcher.Context;
+            // TODO This method is gone in the newest AutoPatch
+            return null;
+			/*
+            IAdoMigrationContext ADOMigrationContext = launcher.Context;
 			return new PatchTable(ADOMigrationContext, ADOMigrationContext.Connection);
+            */
 		}
 		static AutoPatchSupport()
 		{

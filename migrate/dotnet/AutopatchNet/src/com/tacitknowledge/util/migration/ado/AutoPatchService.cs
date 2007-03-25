@@ -59,9 +59,27 @@ namespace com.tacitknowledge.util.migration.ado
 			get
 			{
 				AdoMigrationLauncher launcher = ADOMigrationLauncher;
-				launcher.Context = Context;
-				launcher.PatchPath = PatchPath;
+
+                // TODO Migrate this class to use multiple contexts
+                /*
+                // If no one has added a collection of contexts to the service,
+                // then take the single-context property configuration and set it in
+                if (contexts.size() == 0)
+                {
+                    launcher.addContext(getContext());
+                }
+                // otherwise, add the collection of contexts in there
+                else
+                {
+                    for (Iterator i = contexts.iterator(); i.hasNext(); )
+                    {
+                        launcher.addContext((JdbcMigrationContext)i.next());
+                    }
+                }
+                */
+                launcher.PatchPath = PatchPath;
 				launcher.PostPatchPath = PostPatchPath;
+                // TODO launcher.setReadOnly(isReadOnly());
 				return launcher;
 			}
 			
@@ -169,7 +187,7 @@ namespace com.tacitknowledge.util.migration.ado
 			try
 			{
 				log.Info("Applying patches....");
-				int patchesApplied = launcher.doMigrations();
+				int patchesApplied = launcher.DoMigrations();
 				log.Info("Applied " + patchesApplied + " " + (patchesApplied == 1?"patch":"patches") + ".");
 			}
 			catch (MigrationException e)

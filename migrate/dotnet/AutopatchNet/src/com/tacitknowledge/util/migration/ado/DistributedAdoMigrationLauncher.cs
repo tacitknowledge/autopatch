@@ -68,8 +68,11 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  MigrationException if an unrecoverable error occurs during </throws>
 		/// <summary>         the migration
 		/// </summary>
-		public override int doMigrations()
+		public override int DoMigrations()
 		{
+            // TODO Convert the function
+            return 0;
+            /*
 			if (Context == null)
 			{
 				throw new MigrationException("You must configure a migration context");
@@ -90,6 +93,7 @@ namespace com.tacitknowledge.util.migration.ado
 			{
                 //SqlUtil.close(conn, null, null);
 			}
+            */
 		}
 	}
 }

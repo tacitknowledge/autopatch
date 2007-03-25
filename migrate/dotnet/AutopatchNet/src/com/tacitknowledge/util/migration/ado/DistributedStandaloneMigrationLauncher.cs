@@ -80,7 +80,7 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				DistributedAdoMigrationLauncherFactory factory = new DistributedAdoMigrationLauncherFactory();
 				AdoMigrationLauncher launcher = factory.createMigrationLauncher(systemName);
-				launcher.doMigrations();
+				launcher.DoMigrations();
 			}
 			catch (System.Exception e)
 			{

@@ -140,6 +140,12 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			return properties.Get(propertyName);
 		}
-    }
+
+        /// <seealso cref="Object.ToString()"/>
+        public String ToString()
+        {
+            return "DatabaseType " + getDatabaseType();
+        }
         #endregion
+    }
 }

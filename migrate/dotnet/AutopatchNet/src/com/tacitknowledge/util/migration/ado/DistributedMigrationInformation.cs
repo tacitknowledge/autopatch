@@ -97,7 +97,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="systemName">the name of the system
 		/// </param>
 		/// <throws>  Exception if anything goes wrong </throws>
-		public virtual void  getMigrationInformation(System.String systemName)
+		public virtual int  getMigrationInformation(System.String systemName)
 		{
 			// The MigrationLauncher is responsible for handling the interaction
 			// between the PatchTable and the underlying MigrationTasks; as each
@@ -106,10 +106,24 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				DistributedAdoMigrationLauncherFactory launcherFactory = new DistributedAdoMigrationLauncherFactory();
 				DistributedAdoMigrationLauncher launcher = (DistributedAdoMigrationLauncher) launcherFactory.createMigrationLauncher(systemName);
-				log.Info("Current Database patch level is        : " + launcher.DatabasePatchLevel);
-				int unappliedPatches = launcher.NextPatchLevel - launcher.DatabasePatchLevel - 1;
-				log.Info("Current number of unapplied patches is : " + unappliedPatches);
-				log.Info("The next patch to author should be     : " + launcher.NextPatchLevel);
+
+                foreach (IAdoMigrationContext context in launcher.Contexts.Keys)
+                {
+                    int currentLevel = launcher.GetDatabasePatchLevel(context);
+                    int nextPatchLevel = launcher.NextPatchLevel;
+                    
+                    log.Info("Current Database patch level is        : " + currentLevel);
+                    
+                    int unappliedPatches = nextPatchLevel - launcher.GetDatabasePatchLevel(context) - 1;
+                    
+                    log.Info("Current number of unapplied patches is : " + unappliedPatches);
+                    log.Info("The next patch to author should be     : " + nextPatchLevel);
+                    
+                    // We are only interested in info about the first one
+                    return (nextPatchLevel - 1);
+                }
+
+                return 0;
 			}
 			catch (System.Exception e)
 			{

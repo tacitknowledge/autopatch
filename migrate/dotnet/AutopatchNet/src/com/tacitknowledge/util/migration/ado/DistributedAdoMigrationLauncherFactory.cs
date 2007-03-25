@@ -165,7 +165,7 @@ namespace com.tacitknowledge.util.migration.ado
 			//context.DataSource = dataSource;
 			
 			// done reading in config, set launcher's context
-			launcher.Context = context;
+			launcher.AddContext(context);
 			
 			// Get our controlled systems, and instantiate their launchers
 			//UPGRADE_TODO: Class 'java.util.HashMap' was converted to 'System.Collections.Hashtable' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMap'"
@@ -186,7 +186,7 @@ namespace com.tacitknowledge.util.migration.ado
             }
 			
 			// communicate our new-found controlled systems to the migration process
-            ((DistributedMigrationProcess)launcher.MigrationProcess).ControlledSystems = null;// controlledSystems;
+            // TODO ((DistributedMigrationProcess)launcher.MigrationProcess).ControlledSystems = null;// controlledSystems;
 		}
 		static DistributedAdoMigrationLauncherFactory()
 		{

@@ -97,19 +97,38 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="systemName">the name of the system
 		/// </param>
 		/// <throws>  Exception if anything goes wrong </throws>
-		public virtual void  getMigrationInformation(System.String systemName)
+        public virtual int getMigrationInformation(System.String systemName)
 		{
 			// The MigrationLauncher is responsible for handling the interaction
 			// between the PatchTable and the underlying MigrationTasks; as each
 			// task is executed, the patch level is incremented, etc.
+            int highestPatch = 0;
+
 			try
 			{
 				AdoMigrationLauncherFactory launcherFactory = AdoMigrationLauncherFactoryLoader.createFactory();
 				AdoMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName);
-				log.Info("Current Database patch level is        : " + launcher.DatabasePatchLevel);
-				int unappliedPatches = launcher.NextPatchLevel - launcher.DatabasePatchLevel - 1;
-				log.Info("Current number of unapplied patches is : " + unappliedPatches);
-				log.Info("The next patch to author should be     : " + launcher.NextPatchLevel);
+
+                // Print out information for all contexts
+                foreach (IAdoMigrationContext context in launcher.Contexts.Keys)
+                {
+                    int currentLevel = launcher.GetDatabasePatchLevel(context);
+                    int nextPatchLevel = launcher.NextPatchLevel;
+                    
+                    log.Info("Current Database patch level is        : " + currentLevel);
+                    
+                    int unappliedPatches = nextPatchLevel - launcher.GetDatabasePatchLevel(context) - 1;
+                    
+                    log.Info("Current number of unapplied patches is : " + unappliedPatches);
+                    log.Info("The next patch to author should be     : " + nextPatchLevel);
+                    
+                    if ((nextPatchLevel - 1) > highestPatch)
+                    {
+                        highestPatch = nextPatchLevel - 1;
+                    }
+                }
+
+                return highestPatch;
 			}
 			catch (System.Exception e)
 			{

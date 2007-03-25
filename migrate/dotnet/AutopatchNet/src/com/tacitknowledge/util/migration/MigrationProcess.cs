@@ -84,6 +84,11 @@ namespace com.tacitknowledge.util.migration
         /// The list of <code>IMigrationTaskSource</code>s.
         /// </summary>
         private IList<IMigrationTaskSource> migrationTaskSources = new List<IMigrationTaskSource>();
+
+        /// <summary>
+        /// Indicates whether we actually want to apply patches, or just look.
+        /// </summary>
+        private bool readOnly = false;
         #endregion
 
         #region Public delegates
@@ -173,6 +178,15 @@ namespace com.tacitknowledge.util.migration
 				return lastTask.Level.Value + 1;
 			}
 		}
+
+        /// <summary>
+        /// Indicates whether we actually want to apply patches, or just look.
+        /// </summary>
+        public bool ReadOnly
+        {
+            get { return readOnly; }
+            set { readOnly = value; }
+        }
         #endregion
         
         #region Public methods
@@ -253,15 +267,46 @@ namespace com.tacitknowledge.util.migration
 		{
 			log.Info("Starting DoMigrations");
             //Console.WriteLine("Starting DoMigrations");
-
             List<IMigrationTask> migrations = (List<IMigrationTask>) MigrationTasks;
-            
+
+            ValidateTasks(migrations);
             migrations.Sort();
-			ValidateTasks(migrations);
 			
             int taskCount = 0;
+            // Roll through once, just printing out what we'll do
+            foreach (IMigrationTask task in migrations)
+            {
+                if (task.Level.Value > currentLevel)
+                {
+                    log.Info("Will execute patch task '" + GetTaskLabel(task) + "'");
+                    log.Debug("Task will execute in context '" + context + "'");
+                    taskCount++;
+                }
+            }
 
-            // Loop through migration tasks and see if we should apply them
+            if (taskCount > 0)
+            {
+                log.Info("A total of " + taskCount + " patch tasks will execute.");
+            }
+            else
+            {
+                log.Info("System up-to-date. No patch tasks will execute.");
+            }
+
+            // See if we should execute
+            if (ReadOnly)
+            {
+                if (taskCount > 0)
+                {
+                    throw new MigrationException("Unapplied patches exist, but read-only flag is set");
+                }
+
+                log.Info("In read-only mode - skipping patch application");
+                return 0;
+            }
+
+            taskCount = 0;
+            // Now apply them
             foreach (IMigrationTask task in migrations)
             {
                 if (task.Level.Value > currentLevel)
@@ -298,8 +343,8 @@ namespace com.tacitknowledge.util.migration
             //Console.WriteLine("Running post-patch tasks...");
             List<IMigrationTask> postMigrationTasks = (List<IMigrationTask>) PostPatchMigrationTasks;
 
+            ValidateTasks(postMigrationTasks);
             postMigrationTasks.Sort();
-			ValidateTasks(postMigrationTasks);
 
             if (postMigrationTasks.Count == 0)
             {
@@ -309,7 +354,25 @@ namespace com.tacitknowledge.util.migration
             }
 
 			int taskCount = 0;
+            // Roll through once, just printing out what we'll do
+            foreach (IMigrationTask task in postMigrationTasks)
+            {
+                log.Info("Will execute post-patch task '" + GetTaskLabel(task) + "'");
+                log.Debug("Task will execute in context '" + context + "'");
+                taskCount++;
+            }
 
+            log.Info("A total of " + taskCount + " post-patch tasks will execute.");
+
+            // See if we should execute
+            if (ReadOnly)
+            {
+                log.Info("In read-only mode - skipping post-patch task execution");
+                return 0;
+            }
+
+            taskCount = 0;
+            // Now execute them
             foreach (IMigrationTask task in postMigrationTasks)
 			{
 				ApplyPatch(context, task, false);
@@ -440,17 +503,19 @@ namespace com.tacitknowledge.util.migration
 		}
         #endregion
 
-        #region Private members
+        #region Protected members
         /// <summary>
         /// Returns a user-friendly label for the specified task.
         /// </summary>
         /// <param name="task">the task to create a label for</param>
         /// <returns>a user-friendly label for the specified task</returns>
-        private String GetTaskLabel(IMigrationTask task)
+        protected String GetTaskLabel(IMigrationTask task)
         {
             return task.Name + " [" + task.GetType().FullName + "]";
         }
+        #endregion
 
+        #region Private members
         /// <summary>
         /// Instantiate all the <code>IMigrationTask</code> objects in the given resource assemblies.
         /// </summary>

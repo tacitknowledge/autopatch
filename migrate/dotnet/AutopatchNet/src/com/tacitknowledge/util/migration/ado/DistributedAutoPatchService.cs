@@ -13,6 +13,7 @@
  */
 #region Imports
 using System;
+using System.Collections.Generic;
 using log4net;
 using log4net.Config;
 using DistributedMigrationProcess = com.tacitknowledge.util.migration.DistributedMigrationProcess;
@@ -42,7 +43,7 @@ namespace com.tacitknowledge.util.migration.ado
 			get
 			{
 				DistributedAdoMigrationLauncher launcher = DistributedADOMigrationLauncher;
-				launcher.Context = Context;
+				launcher.AddContext(Context);
 				
 				// Grab the controlled systems and subjugate them
 				//UPGRADE_TODO: Class 'java.util.HashMap' was converted to 'System.Collections.Hashtable' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilHashMap'"
@@ -51,8 +52,14 @@ namespace com.tacitknowledge.util.migration.ado
 				{
 					AutoPatchService controlledSystem = controlledSystems[i];
 					AdoMigrationLauncher subLauncher = controlledSystem.Launcher;
-					IAdoMigrationContext subContext = subLauncher.Context;
-					controlledLaunchers[subContext.SystemName] = subLauncher;
+					
+                    IEnumerator<IAdoMigrationContext> contexts =
+                        ((IEnumerable<IAdoMigrationContext>)subLauncher.Contexts.Keys).GetEnumerator();
+
+                    if (contexts.MoveNext())
+                    {
+                        controlledLaunchers.Add(contexts.Current.SystemName, subLauncher);
+                    }
 					
 					// Make sure the controlled migration process gets migration events
 					//launcher.MigrationProcess.addListener(subLauncher);
@@ -187,7 +194,7 @@ namespace com.tacitknowledge.util.migration.ado
 			try
 			{
 				log.Info("Applying patches....");
-				int patchesApplied = launcher.doMigrations();
+				int patchesApplied = launcher.DoMigrations();
 				log.Info("Applied " + patchesApplied + " " + (patchesApplied == 1?"patch":"patches") + ".");
 			}
 			catch (MigrationException e)

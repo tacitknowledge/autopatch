@@ -86,7 +86,7 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				AdoMigrationLauncherFactory launcherFactory = AdoMigrationLauncherFactoryLoader.createFactory();
 				AdoMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName);
-				launcher.doMigrations();
+				launcher.DoMigrations();
 			}
 			catch (System.Exception e)
 			{

@@ -236,6 +236,13 @@ namespace com.tacitknowledge.util.migration.ado
                 }
             }
         }
+
+        /// <seealso cref="Object.ToString()"/>
+        public String ToString()
+        {
+            return "DataSourceMigrationContext[" + DatabaseType + "/" + SystemName + "/"
+                + Database + "]";
+        }
         #endregion
 
         #region IDisposable members

@@ -135,7 +135,7 @@ namespace com.tacitknowledge.util.migration.ado
 			//context.DataSource = dataSource;
 			
 			// done reading in config, set launcher's context
-			launcher.Context = context;
+			launcher.AddContext(context);
 		}
 		
 		/// <summary> Returns the value of the specified configuration parameter.

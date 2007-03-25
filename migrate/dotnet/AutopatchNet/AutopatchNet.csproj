@@ -109,15 +109,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\conf\ConfigurationManager.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ado\ControlledSystem.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\data\DBConnectionFactory.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\loader\DelimitedFileLoader.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\loader\ExcelFileLoader.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\loader\FileLoadingUtility.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ado\util\ControlledSystemsList.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ado\util\Hashlist.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ado\util\MigrationTaskList.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
@@ -132,7 +129,6 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ado\DistributedMigrationInformation.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\DistributedStandaloneMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\IAdoMigrationContext.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationLauncherFactory.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\AdoMigrationLauncherFactoryLoader.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\MigrationInformation.cs" />
