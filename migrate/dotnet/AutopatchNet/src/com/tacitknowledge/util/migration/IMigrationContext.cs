@@ -28,13 +28,17 @@ namespace com.tacitknowledge.util.migration
         /// <summary>
         /// Commits the current migration transaction.
         /// </summary>
-        /// <exception cref="MigrationException">if there was an unrecoverable error committing the transaction</exception>
+        /// <exception cref="MigrationException">
+        /// if there was an unrecoverable error committing the transaction
+        /// </exception>
         void Commit();
 
         /// <summary>
         /// Rolls back the current migration transaction.
         /// </summary>
-        /// <exception cref="MigrationException">if there was an unrecoverable error rolling the transaction back</exception>
+        /// <exception cref="MigrationException">
+        /// if there was an unrecoverable error rolling the transaction back
+        /// </exception>
         void Rollback();
         #endregion
     }
