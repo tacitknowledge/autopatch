@@ -229,39 +229,27 @@ namespace com.tacitknowledge.util.migration.ado
         /// </exception>
 		public virtual int DoMigrations()
 		{
-            // TODO Convert the function
-            return 0;
-            /*
-			if (contexts.size() == 0)
+			if (contexts.Count == 0)
 			{
 				throw new MigrationException("You must configure a migration context");
 			}
 			
-			//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-			System.Data.OleDb.OleDbConnection conn = null;
 			try
 			{
-				System.Collections.IEnumerator contextIter = contexts.keySet().iterator();
-				int migrationCount = 0;
-				//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
-				while (contextIter.MoveNext())
-				{
-					//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-					JdbcMigrationContext context = (JdbcMigrationContext) contextIter.Current;
-					migrationCount = doMigrations(context);
-					log.info("Executed " + migrationCount + " patches for context " + context);
-				}
-				return migrationCount;
+                int migrationCount = 0;
+
+                foreach (IAdoMigrationContext context in contexts.Keys)
+                {
+                    migrationCount = DoMigrations(context);
+                    log.Info("Executed " + migrationCount + " patches for context " + context);
+                }
+				
+                return migrationCount;
 			}
-			catch (System.Data.OleDb.OleDbException e)
+			catch (DbException e)
 			{
-				throw new MigrationException("SqlException during migration", e);
+				throw new MigrationException("DbException during migration", e);
 			}
-			finally
-			{
-				SqlUtil.close(conn, null, null);
-			}
-            */
 		}
 		
         /// <seealso cref="MigrationProcess.MigrationStatusEventHandler(IMigrationTask, IMigrationContext, MigrationException)"/>
@@ -336,7 +324,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <exception cref="MigrationException">
         /// if an unrecoverable error occurs during the migration
 		/// </exception>
-		protected internal virtual int DoMigrations(IAdoMigrationContext context)
+		protected virtual int DoMigrations(IAdoMigrationContext context)
 		{
 			IPatchInfoStore patchTable = CreatePatchStore(context);
 			
@@ -389,7 +377,7 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <exception cref="MigrationException">
         /// if unable to create the store
         /// </exception>
-		protected internal virtual IPatchInfoStore CreatePatchStore(IAdoMigrationContext context)
+		protected virtual IPatchInfoStore CreatePatchStore(IAdoMigrationContext context)
 		{
 			IPatchInfoStore piStore = new PatchTable(context);
 			

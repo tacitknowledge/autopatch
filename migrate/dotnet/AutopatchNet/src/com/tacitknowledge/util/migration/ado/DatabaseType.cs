@@ -142,7 +142,7 @@ namespace com.tacitknowledge.util.migration.ado
 		}
 
         /// <seealso cref="Object.ToString()"/>
-        public String ToString()
+        public override String ToString()
         {
             return "DatabaseType " + getDatabaseType();
         }

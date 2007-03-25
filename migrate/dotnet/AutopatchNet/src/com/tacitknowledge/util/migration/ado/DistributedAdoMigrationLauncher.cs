@@ -19,81 +19,53 @@ using com.tacitknowledge.util.migration;
 namespace com.tacitknowledge.util.migration.ado
 {
 	
-	/// <summary> Core starting point for a distributed database migration run.  This class obtains a connection
-	/// to the orchestration database, checks its patch level, delegates the actual execution of the migration
-	/// tasks to a <code>MigrationProcess</code> instance, and then commits and cleans everything
-	/// up at the end.
-	/// <p>
-	/// This class is <b>NOT</b> threadsafe.
-	/// 
+	/// <summary>
+    /// Core starting point for a distributed database migration run. This class obtains a connection
+	/// to the orchestration database, checks its patch level, delegates the actual execution of the
+    /// migration tasks to a <code>MigrationProcess</code> instance, and then commits and cleans
+    /// everything up at the end.
 	/// </summary>
-	/// <author>  Mike Hardy (mike@tacitknowledge.com)
-	/// </author>
-	public class DistributedAdoMigrationLauncher:AdoMigrationLauncher
-	{
-		/// <summary> Override the sub-class so we get a DistributedMigrationProcess instead of the
-		/// normal one
-		/// 
+	/// <author>Mike Hardy (mike@tacitknowledge.com)</author>
+    /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
+    /// <version>$Id$</version>
+    public class DistributedAdoMigrationLauncher : AdoMigrationLauncher
+    {
+        #region Constructors
+        /// <seealso cref="AdoMigrationLauncher.AdoMigrationLauncher()"/>
+        public DistributedAdoMigrationLauncher()
+            : base()
+        {
+        }
+
+        /// <seealso cref="AdoMigrationLauncher.AdoMigrationLauncher(IAdoMigrationContext)"/>
+        public DistributedAdoMigrationLauncher(IAdoMigrationContext context)
+            : base(context)
+        {
+        }
+        #endregion
+
+        #region Public properties
+        /// <summary>
+        /// Overrides the base class' property so we get a <code>DistributedMigrationProcess</code>
+        /// instead of the normal one.
 		/// </summary>
-		/// <returns> DistributedMigrationProcess
-		/// </returns>
-		override public MigrationProcess NewMigrationProcess
+        public override MigrationProcess NewMigrationProcess
 		{
-			get
-			{
-				return new DistributedMigrationProcess();
-			}
-			
-		}
-		/// <summary> Create a new MigrationProcess and add a SqlScriptMigrationTaskSource</summary>
-		public DistributedAdoMigrationLauncher():base()
-		{
-		}
-		
-		/// <summary> Create a new <code>MigrationLancher</code>.
-		/// 
-		/// </summary>
-		/// <param name="context">the <code>IAdoMigrationContext</code> to use.
-		/// </param>
-		/// <throws>  MigrationException if an unexpected error occurs </throws>
-		public DistributedAdoMigrationLauncher(IAdoMigrationContext context):base(context)
-		{
-		}
-		
-		/// <summary> Starts the application migration process across all configured contexts
-		/// 
-		/// </summary>
-		/// <returns> the number of patches applied
-		/// </returns>
-		/// <throws>  MigrationException if an unrecoverable error occurs during </throws>
-		/// <summary>         the migration
-		/// </summary>
+			get { return new DistributedMigrationProcess(); }
+        }
+        #endregion
+
+        #region Public methods
+        /// <seealso cref="AdoMigrationLauncher.DoMigrations()"/>
 		public override int DoMigrations()
 		{
-            // TODO Convert the function
-            return 0;
-            /*
-			if (Context == null)
-			{
-				throw new MigrationException("You must configure a migration context");
-			}
-			
-			//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-			System.Data.Common.DbConnection conn = null;
-			try
-			{
-				conn = Context.Connection;
-				return base.doMigrations(conn);
-			}
-			catch (System.Data.OleDb.OleDbException e)
-			{
-				throw new MigrationException("SqlException during migration", e);
-			}
-			finally
-			{
-                //SqlUtil.close(conn, null, null);
-			}
-            */
-		}
-	}
+            if (Contexts.Count == 0)
+            {
+                throw new MigrationException("You must configure a migration context");
+            }
+
+            return base.DoMigrations();
+        }
+        #endregion
+    }
 }
