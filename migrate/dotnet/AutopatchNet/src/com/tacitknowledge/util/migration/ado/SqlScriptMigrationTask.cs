@@ -17,6 +17,8 @@ using System.Data.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Transactions;
+using Microsoft.Practices.EnterpriseLibrary.Data;
 using log4net;
 using com.tacitknowledge.util.migration;
 #endregion
@@ -105,9 +107,8 @@ namespace com.tacitknowledge.util.migration.ado
 
             try
             {
+                Database db = context.Database;
                 IList<String> sqlStatements = GetSqlStatements(context);
-                DbConnection dbConn = context.Connection;
-                DbCommand dbCmd = null;
 
                 // Cleaning the slate before we execute the patch.
                 // This was inspired by a Sybase ASE server that did not allow
@@ -124,24 +125,13 @@ namespace com.tacitknowledge.util.migration.ado
                         log.Debug(Name + ": Attempting to execute: " + sqlStatement);
                     }
 
-                    try
+                    using (DbCommand dbCmd = db.GetSqlStringCommand(sqlStatement))
                     {
-                        dbCmd = dbConn.CreateCommand();
-                        dbCmd.CommandText = sqlStatement;
-                        dbCmd.ExecuteNonQuery();
-                    }
-                    finally
-                    {
-                        if (dbCmd != null)
-                        {
-                            dbCmd.Dispose();
-                        }
-
-                        dbCmd = null;
+                        db.ExecuteNonQuery(dbCmd, context.Transaction);
                     }
                 }
-
-                context.Commit();
+                // The caller aka the migration process is supposed to be in control of commit/rollback of the operation
+                //context.Commit();
             }
             catch (Exception e)
             {
