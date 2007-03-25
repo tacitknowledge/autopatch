@@ -24,23 +24,25 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <summary>
     /// <para>
     /// Provides ADO.NET resources to migration tasks. The interaction with the data source happens
-    /// through <code>Database</code> object which has associated open <code>DbConnection</code>
-    /// and <code>DbTransaction</code>. It is important not to manage <code>Connection</code> and
-    /// <code>Transaction</code> properties by hand (e.g. in callers) since they are completely
-    /// managed by this class. Failure to do so might result in unpredictable states of these objects
-    /// and resource lockup.
+    /// through <code>Database</code> object which has associated <code>DbConnection</code>
+    /// and <code>DbTransaction</code> objects. Both of these objects are created/opened pon first use.
+    /// The connection must be closed either explicitly or through the <code>Dispose()</code> method.
     /// </para>
     /// <para>
     /// Because of the reason that ADO.NET transactions are not reusable we need to manage open connections
     /// and their transactions inside this class. An object of this class always has an open connection with
-    /// an active transaction available. When current transaction either commits or rolls back, the open
-    /// connection initiates another transactions to keep servicing requests. The connection automatically
-    /// closes and rolls back any pending transaction when the class' Dispose() method is called.
-    /// <remarks>It is extremely important to call the this class' Dispose() method when you are done working
-    /// with an instance of it.</remarks>
-    /// Because of this switching nature of transactions the developer is advised to never the reference to
-    /// it in his code, but rather access the property directly when there's a need to get the current
-    /// transaction object.
+    /// an active transaction available (or they will be created on demand on first access). When current
+    /// transaction either commits or rolls back, the open connection initiates another transactions to
+    /// keep servicing requests. The connection automatically closes and rolls back any pending transaction
+    /// when the class' <code>Dispose()</code> method is called.
+    /// <remarks>
+    /// It is extremely important to call this class' <code>Dispose()</code> method when you are done
+    /// working with an instance of it, or close the resources explicitly by calling
+    /// <code>CloseConnection()</code>.
+    /// </remarks>
+    /// Because of this non-reusability nature of transaction objects the developer is advised to never
+    /// the reference to one in his code, but rather access the property directly when there's a need to
+    /// get the currently active transaction object.
     /// </para>
     /// <para>
     /// Example:
@@ -92,7 +94,7 @@ namespace com.tacitknowledge.util.migration.ado
 		{
 			get
 			{
-				if ((connection == null) || (connection.State == ConnectionState.Closed))
+				if (connection == null || connection.State == ConnectionState.Closed)
 				{
                     // Get the connection
                     connection = database.CreateConnection();
@@ -151,6 +153,10 @@ namespace com.tacitknowledge.util.migration.ado
         #endregion
 
         #region Public methods
+        /// <summary>
+        /// Additionally to base functionality of committing a pending transaction immediately opens
+        /// a new one for use.
+        /// </summary>
         /// <seealso cref="IAdoMigrationContext.Commit()"/>
 		public virtual void Commit()
 		{
@@ -167,6 +173,10 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 		}
 
+        /// <summary>
+        /// Additionally to base functionality of rolling back a pending transaction immediately opens
+        /// a new one for use.
+        /// </summary>
         /// <seealso cref="IAdoMigrationContext.Rollback()"/>
 		public virtual void Rollback()
 		{
@@ -182,6 +192,50 @@ namespace com.tacitknowledge.util.migration.ado
 				throw new MigrationException("Could not rollback SQL transaction", e);
 			}
 		}
+
+        /// <seealso cref="IAdoMigrationContext.Rollback()"/>
+        public virtual void CloseConnection(bool commitTransaction)
+        {
+            if (transaction != null)
+            {
+                try
+                {
+                    if (commitTransaction)
+                    {
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        transaction.Rollback();
+                    }
+                }
+                catch (Exception)
+                {}
+                finally
+                {
+                    transaction.Dispose();
+                    transaction = null;
+                }
+            }
+
+            if (connection != null)
+            {
+                try
+                {
+                    if (connection.State != ConnectionState.Closed)
+                    {
+                        connection.Close();
+                    }
+                }
+                catch (Exception)
+                {}
+                finally
+                {
+                    connection.Dispose();
+                    connection = null;
+                }
+            }
+        }
         #endregion
 
         #region IDisposable members
@@ -211,38 +265,7 @@ namespace com.tacitknowledge.util.migration.ado
             if (disposing)
             {
                 // Free managed resources
-                if (transaction != null)
-                {
-                    try
-                    {
-                        transaction.Rollback();
-                    }
-                    catch (Exception)
-                    {}
-                    finally
-                    {
-                        transaction.Dispose();
-                        transaction = null;
-                    }
-                }
-
-                if (connection != null)
-                {
-                    try
-                    {
-                        if (connection.State != ConnectionState.Closed)
-                        {
-                            connection.Close();
-                        }
-                    }
-                    catch (Exception)
-                    { }
-                    finally
-                    {
-                        connection.Dispose();
-                        connection = null;
-                    }
-                }
+                CloseConnection(false);
             }
             // Free unmanaged resources
         }

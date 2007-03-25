@@ -67,5 +67,16 @@ namespace com.tacitknowledge.util.migration.ado
             get;
         }
         #endregion
+
+        #region Public methods
+        /// <summary>
+        /// Closes the open connection and either commits or rolls back the associated pending
+        /// transaction.
+        /// </summary>
+        /// <param name="commitTransaction">
+        /// indicates whether any pending transactions on the open connection should be committed
+        /// </param>
+        void CloseConnection(bool commitTransaction);
+        #endregion
     }
 }
