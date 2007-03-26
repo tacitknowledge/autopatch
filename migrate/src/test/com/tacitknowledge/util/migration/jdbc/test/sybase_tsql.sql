@@ -16,6 +16,9 @@ go
 create clustered index c_ownerid_status_date on 
 photos(ownerid,status,date_created) 
 go
+
+alter table photo add version default 0
+go
  
 create unique nonclustered index unc_id on 
 photo(id) 

@@ -33,6 +33,7 @@ import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSupport;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
+import com.tacitknowledge.util.migration.jdbc.util.SybaseUtil;
 
 /**
  * Adaptss a SQL or DDL database patch for use with the AutoPatch framework.  
@@ -116,19 +117,36 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
             // ALTER TABLE statements in multi-statement transactions.  Instead of putting
             // a if(sybase) conditional, we decided to clean the slate for everyone.
             context.commit();
-            
+
             List sqlStatements = getSqlStatements(context);
             for (Iterator i = sqlStatements.iterator(); i.hasNext();)
             {
                 sqlStatement = (String) i.next();
-                if (log.isDebugEnabled())
-                {
-                    log.debug(getName() + ": Attempting to execute: " + sqlStatement);
-                }
+                log.debug(getName() + ": Attempting to execute: " + sqlStatement);
+
                 stmt = conn.createStatement();
-                stmt.execute(sqlStatement);
+                
+                // handle sybase special case with illegal commands in multi
+                // command transactions
+                if (isSybase(context) 
+                      && SybaseUtil.containsIllegalMultiStatementTransactionCommand(sqlStatement))
+                {
+                    log.warn("Committing current transaction since patch " + getName()
+                            + " contains commands that are not allowed in multi statement"
+                            + " transactions.  If the patch contains errors, this patch may"
+                            + " not be rolled back cleanly.");
+                    context.commit();
+                    stmt.execute(sqlStatement);
+                    context.commit();
+                }
+                else // regular case
+                {
+                    stmt.execute(sqlStatement);
+                }
+
                 SqlUtil.close(null, stmt, null);
             }
+            
             context.commit();
         }
         catch (Exception e)
@@ -322,6 +340,16 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
             || (c == '\u0085') // next-line
             || (c == '\u2028') // line-separator
             || (c == '\u2029'); // paragraph separator
+    }
+    
+    /**
+     * Check if the current migration context is against a sybase database.
+     * @param context the context to check.
+     * @return true if context is in a sybase database.
+     */
+    protected boolean isSybase(JdbcMigrationContext context)
+    {
+        return context.getDatabaseType().getDatabaseType().equalsIgnoreCase("sybase");
     }
 
     /** {@inheritDoc} */

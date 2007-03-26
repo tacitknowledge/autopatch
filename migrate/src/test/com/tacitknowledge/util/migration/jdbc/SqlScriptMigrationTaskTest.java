@@ -15,7 +15,14 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.easymock.MockControl;
 
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.mock.jdbc.MockConnection;
@@ -45,7 +52,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
     private DataSourceMigrationContext context = new DataSourceMigrationContext(); 
     
     /**
-     * @see com.mockrunner.jdbc.JDBCTestCaseAdapter#setUp()
+     * {@inheritDoc}
      */
     protected void setUp() throws Exception
     {
@@ -161,44 +168,76 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
         dbType.setMultipleStatementsSupported(false);
         context.setDatabaseType(dbType);
         List statements = task.getSqlStatements(context);
-        assertEquals(7, statements.size());
+        assertEquals(8, statements.size());
     }
-    
+
     /**
-     * MockDatabaseType since DatabaseType is not interface based and
-     * can't mock it via easymock (without upgrading version to use the 
-     * class extension lib)
-     * @author Alex Soto <apsoto@gmail.com>
+     * Test that sybase database patches are committed when illegal
+     * multi statement transaction commands are used.
+     * @throws IOException if an unexpected error occurs
+     * @throws MigrationException if an unexpected error occurs
+     * @throws SQLException if an unexpected error occurs
      */
-    class MockDatabaseType extends DatabaseType
+    public void testSybasePatchesCommitsOnEveryStatement() 
+        throws IOException, MigrationException, SQLException
     {
-        /** does database type support multipe sql statements per stmt.execute() */
-        private boolean multipleStatementsSupported;
+        InputStream is = getClass().getResourceAsStream("test/sybase_tsql.sql");
+        assertNotNull(is);
+        task = new SqlScriptMigrationTask("sybase_tsql.sql", 1, is);
         
-        /**
-         * constructor
-         * @param databaseType set the type
-         */
-        public MockDatabaseType(String databaseType) 
-        {
-            super(databaseType);
-        }
-
-        /** {@inheritDoc} */
-        public boolean isMultipleStatementsSupported() 
-        {
-            return multipleStatementsSupported;
-        }
-
-        /**
-         * simple setter
-         * @param multipleStatementsSupported the value to set
-         */
-        public void setMultipleStatementsSupported(boolean multipleStatementsSupported) 
-        {
-            this.multipleStatementsSupported = multipleStatementsSupported;
-        }
+        MockDatabaseType dbType = new MockDatabaseType("sybase");
+        dbType.setMultipleStatementsSupported(false);
+        context.setDatabaseType(dbType);
+        int numStatements = task.getSqlStatements(context).size();
         
+        
+        // setup mocks to verify commits are called
+        MockControl dataSourceControl = MockControl.createControl(DataSource.class);
+        DataSource dataSource = (DataSource) dataSourceControl.getMock();
+        context.setDataSource(dataSource);
+        
+        MockControl connectionControl = MockControl.createControl(Connection.class);
+        Connection connection = (Connection) connectionControl.getMock();
+        
+        dataSourceControl.expectAndReturn(dataSource.getConnection(), connection);
+        
+        MockControl statementControl = MockControl.createControl(Statement.class);
+        Statement statement = (Statement) statementControl.getMock();
+        statement.execute("");
+        statementControl.setMatcher(MockControl.ALWAYS_MATCHER);
+        statementControl.setReturnValue(true, MockControl.ONE_OR_MORE);
+        statement.close();
+        statementControl.setVoidCallable(MockControl.ONE_OR_MORE);
+        
+        connectionControl.expectAndReturn(connection.isClosed(), false, MockControl.ONE_OR_MORE);
+        connectionControl.expectAndReturn(
+                connection.createStatement(), statement, numStatements);
+        connection.commit();
+        /*
+         * Magic Number 4 derived from the assumption that the fixture sql
+         * contains only one statement that is not allowed in a 
+         * multi statement transaction:
+         * commit at beginning of migrate method
+         * commit prior to running the command not allowed in multi statement transaction
+         *   to clear the transaction state.
+         * commit after running the multi statement transaction to clear transaction state
+         *   for upcoming statements.
+         * commit at end of migrate method once all statements executed.
+         * 
+         * Therefore, if you add more illegal statements to the fixture, add 2 more
+         * commit call's for each illegal statement.
+         */
+        connectionControl.setVoidCallable(4);
+        
+        dataSourceControl.replay();
+        connectionControl.replay();
+        statementControl.replay();
+        
+        // run tests
+        task.migrate(context);
+        dataSourceControl.verify();
+        connectionControl.verify();
     }
     
+
 }
