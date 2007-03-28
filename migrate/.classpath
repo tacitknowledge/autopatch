@@ -14,7 +14,6 @@
 	<classpathentry kind="lib" path="lib/test/commons-beanutils-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/test/commons-collections-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/test/commons-digester-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/test/commons-lang-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/test/j2ee13.jar"/>
 	<classpathentry kind="lib" path="lib/test/jspapi-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/test/mockejb.jar"/>
@@ -29,5 +28,6 @@
 	<classpathentry kind="lib" path="lib/build/checkstyle-all-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/dbunit-2.2.jar" sourcepath="/opt/software/dbunit-2.2/src/java"/>
 	<classpathentry kind="lib" path="lib/core/tk-util-1.1.2.jar" sourcepath="lib/core/tk-util-1.1.2-src.jar"/>
+	<classpathentry kind="lib" path="lib/core/commons-lang-2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

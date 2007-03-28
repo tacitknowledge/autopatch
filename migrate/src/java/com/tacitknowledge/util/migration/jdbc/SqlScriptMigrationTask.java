@@ -24,8 +24,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -108,6 +110,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         Connection conn = null;
         Statement stmt = null;
         String sqlStatement = "";
+        ListIterator listIterator = null;
         try
         {
             conn = context.getConnection();
@@ -119,9 +122,9 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
             context.commit();
 
             List sqlStatements = getSqlStatements(context);
-            for (Iterator i = sqlStatements.iterator(); i.hasNext();)
+            for (listIterator = sqlStatements.listIterator(); listIterator.hasNext();)
             {
-                sqlStatement = (String) i.next();
+                sqlStatement = (String) listIterator.next();
                 log.debug(getName() + ": Attempting to execute: " + sqlStatement);
 
                 stmt = conn.createStatement();
@@ -151,7 +154,8 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
         catch (Exception e)
         {
-            String message = getName() + ": Error running SQL \"" + sqlStatement + "\"";
+            String message = getName() + ": Error running SQL at statement number "
+                + listIterator.previousIndex() + " \"" + sqlStatement + "\"";
             log.error(message, e);
             
             if (e instanceof SQLException)
@@ -275,6 +279,9 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                                 }
                             }
                             
+                            // reverse previous, since we've been walking backwards, but appending
+                            previous = previous.reverse();
+                            
                             // read from current index to upcoming line terminator 
                             // or end of sequence.  If it is the GO delimiter, 
                             // we skip up to line terminator
@@ -298,7 +305,14 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                             
                             if (Pattern.matches(delimiterPattern, possibleDelimiter))
                             {
-                                statements.add(currentStatement.toString().trim());
+                                // if it's blank, don't bother adding it since Sybase
+                                // will complain about empty queries.
+                                // This happens if there are two GO's with no
+                                // actual SQL to run between them.
+                                if (!StringUtils.isBlank(currentStatement.toString().trim()))
+                                {
+                                    statements.add(currentStatement.toString().trim());
+                                }
                                 currentStatement = new StringBuffer();
                                 // skip up to next line terminator
                                 i = newIndex;
