@@ -26,10 +26,15 @@ namespace com.tacitknowledge.testhelpers
     /// <version>$Id$</version>
     public class TestMigrationContext : IMigrationContext
     {
+        private readonly IDictionary<string, bool> executionLog = new Dictionary<string, bool>();
+
         /// <summary>
         /// A record of task executions.
         /// </summary>
-        private IDictionary<string, bool> executionLog = new Dictionary<string, bool>();
+        public IDictionary<string, bool> ExecutionLog
+        {
+            get { return executionLog; }
+        }
 
         public void Commit()
         {
