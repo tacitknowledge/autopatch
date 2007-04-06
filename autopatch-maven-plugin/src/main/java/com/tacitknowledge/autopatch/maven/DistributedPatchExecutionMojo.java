@@ -43,6 +43,7 @@ public class DistributedPatchExecutionMojo extends AbstractAutoPatchMojo {
         catch (Exception e) 
         {
             getLog().error(e);
+            throw new MojoFailureException(e.getMessage());
         }
     }
 
