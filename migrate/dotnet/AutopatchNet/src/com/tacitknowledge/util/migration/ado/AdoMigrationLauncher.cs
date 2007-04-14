@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Threading;
 using log4net;
 using com.tacitknowledge.util.migration;
@@ -23,7 +24,7 @@ using com.tacitknowledge.util.migration;
 namespace com.tacitknowledge.util.migration.ado
 {
 	/// <summary>
-    /// Core starting point for a database migration run.  This class obtains a connection
+    /// Core starting point for a database migration run. This class obtains a connection
 	/// to the database, checks its patch level, delegates the actual execution of the migration
 	/// tasks to a <code>MigrationProcess</code> instance, and then commits and cleans everything
 	/// up at the end.
@@ -34,6 +35,10 @@ namespace com.tacitknowledge.util.migration.ado
     public class AdoMigrationLauncher
 	{
         #region Member variables
+        /// <summary>
+        /// The token separator char for separating entries in paths.
+        /// </summary>
+        private static readonly char[] PATH_TOKEN_DELIMITER = new char[] { ';' };
         private static readonly ILog log = LogManager.GetLogger(typeof(AdoMigrationLauncher));
 		
         /// <summary>
@@ -70,17 +75,30 @@ namespace com.tacitknowledge.util.migration.ado
 		private bool readOnly = false;
         #endregion
 
+        #region Private delegates
+        /// <summary>
+        /// The delegate to invoke when adding a patch directory.
+        /// </summary>
+        /// <param name="directoryPath">The directory path to process</param>
+        private delegate void AddDirectoryDelegate(String directoryPath);
+        /// <summary>
+        /// The delegate to invoke when adding a patch assembly.
+        /// </summary>
+        /// <param name="assemblyPath">The assembly path to process</param>
+        private delegate void AddAssemblyDelegate(String assemblyPath);
+        #endregion
+        
         #region Public properties
-		/// <summary>
+        /// <summary>
         /// The <code>MigrationProcess</code> we'll use to migrate things.
 		/// </summary>
 		public virtual MigrationProcess NewMigrationProcess
 		{
 			get { return new MigrationProcess(); }
 		}
-		
+
         /// <summary>
-        /// The path containing directories and packages to search through to locate patches.
+        /// The path containing directories (separated by ";") to search through to locate patches.
         /// </summary>
 		public virtual String PatchPath
 		{
@@ -89,27 +107,13 @@ namespace com.tacitknowledge.util.migration.ado
 			set
 			{
 				this.patchPath = value;
-                // TODO Convert this tokenizing thing
-				/*
-                SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
-				while (st.HasMoreTokens())
-				{
-					System.String path = st.NextToken();
-					if (path.IndexOf('/') > - 1)
-					{
-						migrationProcess.addPatchResourceDirectory(path);
-					}
-					else
-					{
-						migrationProcess.addPatchResourcePackage(path);
-					}
-				}
-                */
+                ProcessPath(value, migrationProcess.AddPatchResourceAssembly, migrationProcess.AddPatchResourceDirectory);
 			}
 		}
 
         /// <summary>
-        /// The path containing directories and packages to search through to locate post-patch tasks.
+        /// The path containing directories (separated by ";") to search through to locate post-patch
+        /// tasks.
         /// </summary>
 		public virtual String PostPatchPath
 		{
@@ -118,26 +122,7 @@ namespace com.tacitknowledge.util.migration.ado
 			set
 			{
 				this.postPatchPath = value;
-                // TODO Convert this tokenizing thing
-				/*
-				if (value == null)
-				{
-					return ;
-				}
-				SupportClass.Tokenizer st = new SupportClass.Tokenizer(value, ":");
-				while (st.HasMoreTokens())
-				{
-					System.String path = st.NextToken();
-					if (path.IndexOf('/') > - 1)
-					{
-						migrationProcess.addPostPatchResourceDirectory(path);
-					}
-					else
-					{
-						migrationProcess.addPostPatchResourcePackage(path);
-					}
-				}
-                */
+                ProcessPath(value, migrationProcess.AddPostPatchResourceAssembly, migrationProcess.AddPostPatchResourceDirectory);
 			}
 		}
 
@@ -265,7 +250,7 @@ namespace com.tacitknowledge.util.migration.ado
 			int patchLevel = task.Level.Value;
 			
 			// update all of our controlled patch tables
-            foreach (IPatchInfoStore patchInfoStore in contexts.Keys)
+            foreach (IPatchInfoStore patchInfoStore in contexts.Values)
 			{
                 patchInfoStore.UpdatePatchLevel(patchLevel);
 			}
@@ -379,10 +364,10 @@ namespace com.tacitknowledge.util.migration.ado
         /// </exception>
 		protected virtual IPatchInfoStore CreatePatchStore(IAdoMigrationContext context)
 		{
-			IPatchInfoStore piStore = new PatchTable(context);
+			//IPatchInfoStore piStore = new PatchTable(context);
 			
 			// Make sure the table is created before claiming it exists by returning
-			piStore = contexts[context];
+            IPatchInfoStore piStore = contexts[context];
 			int patchLevel = piStore.PatchLevel;
 			
 			return piStore;
@@ -390,7 +375,41 @@ namespace com.tacitknowledge.util.migration.ado
         #endregion
 		
         #region Private methods
-		/// <summary>
+        /// <summary>
+        /// The path to examine which will populate patch directories and assemblies. This method will
+        /// also process all subdirectories of the supplied path.
+        /// </summary>
+        /// <param name="path">the path to examine</param>
+        /// <param name="addAssemblyDelegate">the delegate to invoke for addition of patch directory</param>
+        /// <param name="addDirectoryDelegate">the delegate to invoke for addiotion of patch assembly</param>
+        private void ProcessPath(String path, AddAssemblyDelegate addAssemblyDelegate, AddDirectoryDelegate addDirectoryDelegate)
+        {
+            String[] entries = path.Split(PATH_TOKEN_DELIMITER, StringSplitOptions.RemoveEmptyEntries);
+            foreach (String entry in entries)
+            {
+                if (Directory.Exists(entry))
+                {
+                    // Add the directory itself (since its children might be SQL patches)
+                    addDirectoryDelegate(entry);
+
+                    // Find and add all .NET code assemblies residing in DLL files
+                    String[] allFiles = Directory.GetFiles(entry, "*.dll", SearchOption.AllDirectories);
+                    foreach (String fileName in allFiles)
+                    {
+                        addAssemblyDelegate(fileName);
+                        log.Debug("Adding .NET code assembly with path: " + fileName);
+                    }
+
+                }
+                else
+                {
+                    log.Debug("The supplied path '" + entry + "' does not point to a directory. Skipping");
+                }
+            }
+
+        }
+
+        /// <summary>
         /// Lock the patch store. This is done safely, such that we safely handle the case where
 		/// other migration launchers are patching at the same time.
 		/// </summary>
