@@ -14,46 +14,29 @@
 #region Imports
 using System;
 using System.Collections.Generic;
+using System.Text;
 using com.tacitknowledge.util.migration;
+using com.tacitknowledge.util.migration.ado;
 #endregion
 
 namespace com.tacitknowledge.testhelpers
 {
     /// <summary>
-    /// A sample migration context to be used in unit tests.
+    /// A sample ADO.NET migration launcher to be used in unit tests.
     /// </summary>
     /// <author>Vladislav Gangan (vgangan@tacitknowledge.com)</author>
     /// <version>$Id$</version>
-    public class TestMigrationContext : IMigrationContext
+    public class TestAdoMigrationLauncher : AdoMigrationLauncher
     {
-        protected readonly IDictionary<string, bool> executionLog = new Dictionary<string, bool>();
-
-        /// <summary>
-        /// A record of task executions.
-        /// </summary>
-        public IDictionary<string, bool> ExecutionLog
-        {
-            get { return executionLog; }
-        }
-
-        public void Commit()
+        public TestAdoMigrationLauncher(IAdoMigrationContext context)
+            : base(context)
         {
             // does nothing
         }
         
-        public void Rollback()
+        public override MigrationProcess NewMigrationProcess
         {
-            // does nothing
-        }
-
-        public void RecordExecution(String taskName)
-        {
-            executionLog.Add(taskName, true);
-        }
-
-        public bool HasExecuted(String taskName)
-        {
-            return executionLog.ContainsKey(taskName);
+            get { return new FakeSqlMigrationProcess(); }
         }
     }
 }
