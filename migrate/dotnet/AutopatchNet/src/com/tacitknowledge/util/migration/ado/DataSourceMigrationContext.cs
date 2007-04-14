@@ -124,7 +124,7 @@ namespace com.tacitknowledge.util.migration.ado
         /// <seealso cref="IAdoMigrationContext.DatabaseType"/>
         public virtual DatabaseType DatabaseType
         {
-            get { return databaseType;}
+            get { return databaseType; }
             set { databaseType = value; }
         }
 
