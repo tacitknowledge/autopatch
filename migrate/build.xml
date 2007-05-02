@@ -36,6 +36,7 @@
 
   <!-- The current version number of this application -->
   <property name="component.version"       value="1.1.0-cvs"/>
+  <property name="component.version.maven" value="1.1.0-SNAPSHOT"/>
 
   <!-- The base directory for compilation targets -->
   <property name="build.home"              value="build"/>
@@ -199,6 +200,8 @@
          basedir="${build.home}/classes">
     </jar>
 
+    <!-- create a snapshot for deployment to a maven repo until we port to maven -->
+    <copy file="${build.home}/tk-${component.name}-${component.version}.jar" tofile="${build.home}/tk-${component.name}-${component.version.maven}.jar" />
   </target>
 
   <target name="compile.tests" depends="compile" description="Compile unit test cases">
