@@ -19,6 +19,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.tacitknowledge.util.migration.MigrationException;
 
 /**
@@ -28,6 +31,9 @@ import com.tacitknowledge.util.migration.MigrationException;
  */
 public class DataSourceMigrationContext implements JdbcMigrationContext
 {
+    /** Class logger */
+    private static Log log = LogFactory.getLog(JdbcMigrationContext.class);
+
     /** The database connection to use */
     private Connection connection = null;
 
@@ -68,6 +74,11 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
     {
         try
         {
+            if (getConnection().getAutoCommit())
+            {
+                log.warn("Attempt to call commit on connection with autoCommit engaged - breaks in JBoss");
+                return;
+            }
             getConnection().commit();
         }
         catch (SQLException e)
@@ -81,6 +92,11 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
     {
         try
         {
+            if (getConnection().getAutoCommit())
+            {
+                log.warn("Attempt to call rollback on connection with autoCommit engaged - breaks in JBoss");
+                return;
+            }
             getConnection().rollback();
         }
         catch (SQLException e)

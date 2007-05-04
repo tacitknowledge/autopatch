@@ -64,6 +64,10 @@ Version 1.0.1
   and unpacks into a sub-directory instead of the current directory
   Mike Hardy
   
+- Don't allow commit or rollback statements through to the connection
+  if autocommit is true, JBoss will throw an exception otherwise
+  Reported by Kendall Jackman @ ATG (thanks Kendall)
+  
 
 Version 1.0.0
 -------------
