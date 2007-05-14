@@ -212,7 +212,8 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
         connectionControl.expectAndReturn(connection.isClosed(), false, MockControl.ONE_OR_MORE);
         connectionControl.expectAndReturn(
                 connection.createStatement(), statement, numStatements);
-        connectionControl.expectAndReturn(connection.getAutoCommit(), false, MockControl.ONE_OR_MORE);
+        connectionControl.expectAndReturn(
+                connection.getAutoCommit(), false, MockControl.ONE_OR_MORE);
         connection.commit();
         /*
          * Magic Number 4 derived from the assumption that the fixture sql

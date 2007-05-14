@@ -76,7 +76,7 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
         {
             if (getConnection().getAutoCommit())
             {
-                log.warn("Attempt to call commit on connection with autoCommit engaged - breaks in JBoss");
+                log.warn("Commit called on connection with autoCommit==true - breaks in JBoss");
                 return;
             }
             getConnection().commit();
@@ -94,7 +94,7 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
         {
             if (getConnection().getAutoCommit())
             {
-                log.warn("Attempt to call rollback on connection with autoCommit engaged - breaks in JBoss");
+                log.warn("Rollback called on connection with autoCommit==true - breaks in JBoss");
                 return;
             }
             getConnection().rollback();
