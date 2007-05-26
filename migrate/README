@@ -373,6 +373,24 @@ If you combine this rule with the patch.information ant target given
 above, it should be relatively easy to point at a database, determine
 its current patch level in a non-destructive way, and then execute patches.
 
+Some development environments require individual developers to have their own set of
+settings so the default 'migration.properties' settings file might not work in this case.
+To overcome this issue it is possible to specify an optional 'migration.settings' parameter
+(either system property or command line argument) like this:
+
+  <target name="patch.database" depends="compile" description="Runs the patch system">
+    <java
+        fork="true"
+        failonerror="true" 
+        classname="com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher">
+      <classpath refid="inttest.classpath"/>
+      <sysproperty key="migration.systemname" value="${application.name}"/>
+      <sysproperty key="migration.settings" value="${username}.properties"/>
+    </java>
+  </target>
+
+If you happen to rely on command line arguments, please take a note that 'migration.systemname'
+must come first (e.g. index 0) followed by 'migration.settings' (e.g. index 1).
 
 --------------------------------------------------------------------------
 
