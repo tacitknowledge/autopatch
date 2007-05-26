@@ -48,22 +48,45 @@ public class ConfigurationUtil
     public static String getRequiredParam(String param, Properties properties, 
             String[] arguments) throws IllegalArgumentException
     {
-        String value = properties.getProperty(param);
-        if (value == null)
-        {
-            if ((arguments != null) && (arguments.length > 0))
-            {
-                value = arguments[0].trim();
-            }
-            else
-            {
-                throw new IllegalArgumentException("'" + param + "' is a required "
-                        + "initialization parameter.  Aborting.");
-            }
-        }
-        return value;
+    	return getRequiredParam(param, properties, arguments, 0);
     }
 
+    /**
+     * Returns the value of the specified servlet context initialization parameter identifed by the
+     * supplied index in the supplied array.
+     * 
+     * @param  param the parameter to return
+     * @param  properties the <code>Properties</code> for the Java system
+     * @param  arguments optionally takes the arguments passed into the main to use as the
+     * migration system name
+     * @param  index the index to use in the supplied array
+     * @return the value of the specified system initialization parameter
+     * @throws IllegalArgumentException if the parameter does not exist
+     */
+    public static String getRequiredParam(String param, Properties properties, 
+            String[] arguments, int index) throws IllegalArgumentException
+    {
+    	return getPropertyValue(param, properties, arguments, index, true);
+    }
+    
+    /**
+     * Returns the value of the specified servlet context initialization parameter identifed by the
+     * supplied index in the supplied array. Since it is an optional parameter then
+     * <code>null</code> is returned instead of an exception if an error occurs.
+     * 
+     * @param  param the parameter to return
+     * @param  properties the <code>Properties</code> for the Java system
+     * @param  arguments optionally takes the arguments passed into the main to use as the
+     * migration system name
+     * @param  index the index to use in the supplied array
+     * @return the value of the specified system initialization parameter
+     */
+    public static String getOptionalParam(String param, Properties properties, String[] arguments,
+    		int index)
+    {
+    	return getPropertyValue(param, properties, arguments, index, false);
+    }
+    
     /**
      * Returns the value of the specified configuration parameter.
      *
@@ -143,5 +166,42 @@ public class ConfigurationUtil
                 + caller.getClass().getName() + "\" class.  Aborting.");
         }
         return value;
+    }
+    
+    /**
+     * Gets the value of the supplied property name. First it searches in system properties. If
+     * not found then it examines the supplied array of command line arguments.
+     * 
+     * @param propertyName the property naem to get
+     * @param properties the <code>Properties</code> for the Java system
+     * @param arguments the array of command line arguments
+     * @param index the index of the property in the command line arguments
+     * @param throwException if <code>true</code> then the method will throw an exception; if
+     * <code>false</code> is supplied then it will return <code>null</code>
+     * @return the property value if found; <code>null</code> otherwise
+     */
+    private static String getPropertyValue(String propertyName, Properties properties,
+    		String[] arguments, int index, boolean throwException)
+    {
+    	String value = properties.getProperty(propertyName);
+    	
+    	if (value == null)
+        {
+            if ((arguments != null) && (arguments.length > 0) && (index < arguments.length))
+            {
+                value = arguments[index].trim();
+            }
+            else if (throwException)
+            {
+                throw new IllegalArgumentException("The " + propertyName +
+                		" system property is required");
+            }
+            else
+            {
+            	value = null;
+            }
+        }
+    	
+    	return value;
     }
 }

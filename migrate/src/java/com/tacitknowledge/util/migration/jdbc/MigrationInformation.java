@@ -20,12 +20,15 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
+
 /**
  * Launches the migration process as a standalone application.  
  * <p>
  * This class expects the following Java environment parameters:
  * <ul>
  *    <li>migration.systemname - the name of the logical system being migrated</li>
+ *    <li>migration.settings (optional) - the name of the settings file to use for migration</li>
  * </ul>
  * <p>
  * Alternatively, you can pass the migration system name on the command line as the 
@@ -64,41 +67,48 @@ public class MigrationInformation
     public static void main(String[] arguments) throws Exception
     {
         MigrationInformation info = new MigrationInformation();
-        String migrationName = System.getProperty("migration.systemname");
-        if (migrationName == null)
-        {
-            if ((arguments != null) && (arguments.length > 0))
-            {
-                migrationName = arguments[0].trim();
-            }
-            else
-            {
-                throw new IllegalArgumentException("The migration.systemname "
-                                                   + "system property is required");
-            }
-        }
-        info.getMigrationInformation(migrationName);
+        String migrationSystemName = ConfigurationUtil.getRequiredParam("migration.systemname",
+        		System.getProperties(), arguments, 0);
+        String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
+        		System.getProperties(), arguments, 1);
+        
+        info.getMigrationInformation(migrationSystemName, migrationSettings);
     }
     
     /**
      * Get the migration level information for the given system name
      * 
-     * @param systemName the name of the system
+     * @param migrationSystemName the name of the system
+     * @param migrationSettings the name of the settings file to use for migration; if
+     * <code>null</code> is passed then the default name for migration settings will be used
      * @return returns the current highest source code patch number
      * @throws Exception if anything goes wrong
      */
-    public int getMigrationInformation(String systemName) throws Exception
+    public int getMigrationInformation(String migrationSystemName, String migrationSettings)
+    	throws Exception
     {
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
         int highestPatch = 0;
+        
         try
         {
             JdbcMigrationLauncherFactory launcherFactory = 
                 JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher
-                = launcherFactory.createMigrationLauncher(systemName);
+            JdbcMigrationLauncher launcher = null;
+            
+            if (migrationSettings == null)
+            {
+            	log.info("Using migration.properties (default)");
+            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
+            }
+            else
+            {
+            	log.info("Using " + migrationSettings);
+            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
+            			migrationSettings);
+            }
             
             // Print out information for all contexts
             Map contextMap = launcher.getContexts();

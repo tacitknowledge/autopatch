@@ -19,13 +19,13 @@ import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 
-
 /**
  * Launches the migration process as a standalone application.  
  * <p>
  * This class expects the following Java environment parameters:
  * <ul>
  *    <li>migration.systemname - the name of the logical system being migrated</li>
+ *    <li>migration.settings (optional) - the name of the settings file to use for migration</li>
  * </ul>
  * <p>
  * Below is an example of how this class can be configured in build.xml:
@@ -69,8 +69,10 @@ public class StandaloneMigrationLauncher
      */
     public static void main(String[] arguments) throws Exception
     {
-        String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", 
-                System.getProperties(), arguments);
+        String migrationSystemName = ConfigurationUtil.getRequiredParam("migration.systemname",
+        		System.getProperties(), arguments, 0);
+        String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
+        		System.getProperties(), arguments, 1);
         
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
@@ -79,8 +81,20 @@ public class StandaloneMigrationLauncher
         {
             JdbcMigrationLauncherFactory launcherFactory = 
                 JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher
-                = launcherFactory.createMigrationLauncher(systemName);
+            JdbcMigrationLauncher launcher = null;
+            
+            if (migrationSettings == null)
+            {
+            	log.info("Using migration.properties (default)");
+            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
+            }
+            else
+            {
+            	log.info("Using " + migrationSettings);
+            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
+            			migrationSettings);
+            }
+                
             launcher.doMigrations();
         }
         catch (Exception e)
