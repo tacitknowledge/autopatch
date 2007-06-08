@@ -1,6 +1,14 @@
 Changelog for AutoPatch
 =======================
 
+Version 1.0.2
+-------------
+- For standalone migration information and launcher added a possibility
+  to supply a migration.settings system property (or command line argument)
+  that will specify the name of the file to use for migration settings. If
+  not supplied then the default 'migration.properties' will be used.  
+  Thanks to Vladislav Gangan @ Tacit Knowledge
+
 Version 1.0.1
 -------------
 - All development (bug tracking, feature requests, CVS, mailing lists)
@@ -68,12 +76,6 @@ Version 1.0.1
   if autocommit is true, JBoss will throw an exception otherwise
   Reported by Kendall Jackman @ ATG (thanks Kendall)
   
-- For standalone migration information and launcher added a possibility
-  to supply a migration.settings system property (or command line argument)
-  that will specify the name of the file to use for migration settings. If
-  not supplied then the default 'migration.properties' will be used
-  Vladislav Gangan
-
 Version 1.0.0
 -------------
 Versions prior to 1.0.0 did not maintain a changelog.
