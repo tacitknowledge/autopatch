@@ -447,9 +447,16 @@ public class JdbcMigrationLauncher implements MigrationListener
             {
                 log.info("Waiting for migration lock for system \"" 
                          + context.getSystemName() + "\"");
+                log.info("  If this isn't from a long-running patch, but a stale lock, either:");
+                log.info("    1) run MigrationTableUnlock (probably 'ant patch.unlock')");
+                log.info("    2) set the lockPollRetries property so the lock times out");
+                log.info("       (this is dangerous in combination with long-running patches)");
+                log.info("    3) set the 'patch_in_progress' in the patches table to 'F'");
+                
                 if (getLockPollRetries() != -1)
                 {
-                    log.info("Will poll lock " + (getLockPollRetries() - i) 
+                    log.info("'lockPollRetries' is set, will poll lock " 
+                             + (getLockPollRetries() - i) 
                              + " more times before overriding lock.");
                 }
                 try
