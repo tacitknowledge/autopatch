@@ -116,13 +116,10 @@ public class SybaseUtil
         ILLEGAL_MULTISTATEMENT_TRANSACTION_COMMANDS = Collections.unmodifiableList(list);
     }
 
-    /**
-     * Singleton
-     *
-     */
+    /** Singleton */
     protected SybaseUtil()
     {
-        
+        // does nothing
     }
     
     /**
@@ -130,8 +127,7 @@ public class SybaseUtil
      * sql commands that are not allowed in a multi-statement transaction.
      * @param statement the text to check
      * @return true if one of the illegal commands is found in the statement.
-     * @see <a href="http://manuals.sybase.com/onlinebooks/group-as/asg1250e/svrtsg/
-     * @Generic__BookTextView/13155;pt=13085">Sybase Documentation</a> for details.
+     * @see http://manuals.sybase.com/onlinebooks/group-as/asg1250e/svrtsg/Generic__BookTextView/13155;pt=13085
      */
     public static boolean containsIllegalMultiStatementTransactionCommand(String statement)
     {

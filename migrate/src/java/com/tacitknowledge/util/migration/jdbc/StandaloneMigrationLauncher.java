@@ -70,9 +70,9 @@ public class StandaloneMigrationLauncher
     public static void main(String[] arguments) throws Exception
     {
         String migrationSystemName = ConfigurationUtil.getRequiredParam("migration.systemname",
-        		System.getProperties(), arguments, 0);
+            System.getProperties(), arguments, 0);
         String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
-        		System.getProperties(), arguments, 1);
+            System.getProperties(), arguments, 1);
         
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
@@ -85,14 +85,14 @@ public class StandaloneMigrationLauncher
             
             if (migrationSettings == null)
             {
-            	log.info("Using migration.properties (default)");
-            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
+                log.info("Using migration.properties (default)");
+                launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
             }
             else
             {
-            	log.info("Using " + migrationSettings);
-            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
-            			migrationSettings);
+                log.info("Using " + migrationSettings);
+                launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
+                    migrationSettings);
             }
                 
             launcher.doMigrations();

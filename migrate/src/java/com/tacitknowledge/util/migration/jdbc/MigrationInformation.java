@@ -68,9 +68,9 @@ public class MigrationInformation
     {
         MigrationInformation info = new MigrationInformation();
         String migrationSystemName = ConfigurationUtil.getRequiredParam("migration.systemname",
-        		System.getProperties(), arguments, 0);
+            System.getProperties(), arguments, 0);
         String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
-        		System.getProperties(), arguments, 1);
+            System.getProperties(), arguments, 1);
         
         info.getMigrationInformation(migrationSystemName, migrationSettings);
     }
@@ -85,7 +85,7 @@ public class MigrationInformation
      * @throws Exception if anything goes wrong
      */
     public int getMigrationInformation(String migrationSystemName, String migrationSettings)
-    	throws Exception
+        throws Exception
     {
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each

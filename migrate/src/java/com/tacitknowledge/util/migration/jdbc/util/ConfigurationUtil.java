@@ -46,9 +46,9 @@ public class ConfigurationUtil
      * @throws IllegalArgumentException if the parameter does not exist
      */
     public static String getRequiredParam(String param, Properties properties, 
-            String[] arguments) throws IllegalArgumentException
+        String[] arguments) throws IllegalArgumentException
     {
-    	return getRequiredParam(param, properties, arguments, 0);
+        return getRequiredParam(param, properties, arguments, 0);
     }
 
     /**
@@ -66,7 +66,7 @@ public class ConfigurationUtil
     public static String getRequiredParam(String param, Properties properties, 
             String[] arguments, int index) throws IllegalArgumentException
     {
-    	return getPropertyValue(param, properties, arguments, index, true);
+        return getPropertyValue(param, properties, arguments, index, true);
     }
     
     /**
@@ -82,9 +82,9 @@ public class ConfigurationUtil
      * @return the value of the specified system initialization parameter
      */
     public static String getOptionalParam(String param, Properties properties, String[] arguments,
-    		int index)
+        int index)
     {
-    	return getPropertyValue(param, properties, arguments, index, false);
+        return getPropertyValue(param, properties, arguments, index, false);
     }
     
     /**
@@ -181,11 +181,11 @@ public class ConfigurationUtil
      * @return the property value if found; <code>null</code> otherwise
      */
     private static String getPropertyValue(String propertyName, Properties properties,
-    		String[] arguments, int index, boolean throwException)
+        String[] arguments, int index, boolean throwException)
     {
-    	String value = properties.getProperty(propertyName);
-    	
-    	if (value == null)
+        String value = properties.getProperty(propertyName);
+    
+        if (value == null)
         {
             if ((arguments != null) && (arguments.length > 0) && (index < arguments.length))
             {
@@ -193,15 +193,15 @@ public class ConfigurationUtil
             }
             else if (throwException)
             {
-                throw new IllegalArgumentException("The " + propertyName +
-                		" system property is required");
+                throw new IllegalArgumentException("The " + propertyName 
+                                                   + " system property is required");
             }
             else
             {
-            	value = null;
+                value = null;
             }
         }
-    	
-    	return value;
+        
+        return value;
     }
 }
