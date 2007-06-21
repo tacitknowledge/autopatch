@@ -34,6 +34,9 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     /** The PatchInfoStore to use for migrations FIXME need to store a map of them */
     private PatchInfoStore patchStore = null;
     
+    /** whether we should ignore migration success events or not */
+    private boolean ignoreMigrationSuccessfulEvents = true;
+    
     /**
      * Delegates to the superclass
      */
@@ -64,6 +67,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     {
         if (patchStore != null)
         {
+            getContexts().put(context, patchStore);
             return patchStore;
         }
         
@@ -86,6 +90,33 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     public void migrationSuccessful(MigrationTask task, MigrationContext ctx)
         throws MigrationException
     {
-        log.debug(this + " silently ignoring a migrationSuccessful call");
+        if (isIgnoreMigrationSuccessfulEvents())
+        {
+            log.debug(this + " silently ignoring a migrationSuccessful call");
+        }
+        else
+        {
+            super.migrationSuccessful(task, ctx);
+        }
+    }
+
+    /**
+     * Whether to return migration successful events or not
+     * 
+     * @return boolean true if you want to ignore migration success events
+     */
+    public boolean isIgnoreMigrationSuccessfulEvents()
+    {
+        return ignoreMigrationSuccessfulEvents;
+    }
+
+    /**
+     * Whether to return migration successful events or not
+     * 
+     * @param ignoreMigrationSuccessfulEvents boolean true to ignore success events
+     */
+    public void setIgnoreMigrationSuccessfulEvents(boolean ignoreMigrationSuccessfulEvents)
+    {
+        this.ignoreMigrationSuccessfulEvents = ignoreMigrationSuccessfulEvents;
     }
 }

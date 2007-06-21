@@ -113,7 +113,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         h.prepareGlobalResultSet(rs);
         
         
-        MockControl mockControl = MockControl.createControl(PatchInfoStore.class);
+        MockControl mockControl = MockControl.createStrictControl(PatchInfoStore.class);
         PatchInfoStore patchStore = (PatchInfoStore) mockControl.getMock();
         
         // First they see if it is locked, and it is, so they spin
@@ -123,6 +123,8 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         // Second they see if it is locked again, and it isn't, so they try and fail and spin
         patchStore.isPatchStoreLocked();
         mockControl.setReturnValue(false);
+        patchStore.getPatchLevel();
+        mockControl.setReturnValue(0);
         patchStore.lockPatchStore();
         mockControl.setThrowable(new IllegalStateException("The table is already locked"));
         
@@ -141,12 +143,14 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         patchStore.unlockPatchStore();
         mockControl.replay();
         
-        
         TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
         testLauncher.setLockPollMillis(0);
+        testLauncher.setLockPollRetries(4);
+        testLauncher.setIgnoreMigrationSuccessfulEvents(false);
         testLauncher.setPatchStore(patchStore);
         testLauncher.setPatchPath("com.tacitknowledge.util.migration.tasks.normal");
         testLauncher.doMigrations();
+        mockControl.verify();
     }
 
     /**
