@@ -140,6 +140,14 @@ public class JdbcMigrationLauncherFactory
             launcher.setReadOnly(true);
         }
         
+        // See if they want to override the lock after a certain amount of time
+        String lockPollRetries = 
+            sce.getServletContext().getInitParameter("migration.lockPollRetries");
+        if (lockPollRetries != null)
+        {
+            launcher.setLockPollRetries(Integer.parseInt(lockPollRetries));
+        }
+        
         String patchPath = ConfigurationUtil.getRequiredParam("migration.patchpath", sce, this);
         launcher.setPatchPath(patchPath);
         
@@ -285,6 +293,13 @@ public class JdbcMigrationLauncherFactory
             launcher.setReadOnly(true);
         }
 
+        // See if they want to override the lock after a certain amount of time
+        String lockPollRetries = props.getProperty(system + ".lockPollRetries");
+        if (lockPollRetries != null)
+        {
+            launcher.setLockPollRetries(Integer.parseInt(lockPollRetries));
+        }
+        
         // TODO refactor the database name extraction from this and the servlet example
         String databases = props.getProperty(system + ".jdbc.systems");
         String[] databaseNames;

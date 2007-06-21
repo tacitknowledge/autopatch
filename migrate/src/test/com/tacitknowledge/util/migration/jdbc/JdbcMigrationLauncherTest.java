@@ -100,7 +100,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
     }
     
     /**
-     * Test doing migrations
+     * Test doing migrations with a lock race from a quick cluster
      * 
      * @exception Exception if there is a problem
      */
@@ -146,6 +146,63 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
         testLauncher.setLockPollMillis(0);
         testLauncher.setLockPollRetries(4);
+        testLauncher.setIgnoreMigrationSuccessfulEvents(false);
+        testLauncher.setPatchStore(patchStore);
+        testLauncher.setPatchPath("com.tacitknowledge.util.migration.tasks.normal");
+        testLauncher.doMigrations();
+        mockControl.verify();
+    }
+    
+    /**
+     * Test doing migrations with a lock override
+     * 
+     * @exception Exception if there is a problem
+     */
+    public void testLockOverride() throws Exception
+    {
+        // Setup enough for the first
+        PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
+        MockResultSet rs = h.createResultSet();
+        rs.addRow(new Integer[] {new Integer(0)});
+        h.prepareGlobalResultSet(rs);
+        
+        
+        MockControl mockControl = MockControl.createStrictControl(PatchInfoStore.class);
+        PatchInfoStore patchStore = (PatchInfoStore) mockControl.getMock();
+        
+        // First they see if it is locked three times, and it is, so they spin
+        patchStore.isPatchStoreLocked();
+        mockControl.setReturnValue(true);
+        patchStore.isPatchStoreLocked();
+        mockControl.setReturnValue(true);
+        patchStore.isPatchStoreLocked();
+        mockControl.setReturnValue(true);
+        patchStore.isPatchStoreLocked();
+        mockControl.setReturnValue(true);
+
+        // after the third time, they unlock it
+        patchStore.unlockPatchStore();
+        
+        // now the lock succeeds
+        patchStore.isPatchStoreLocked();
+        mockControl.setReturnValue(false);
+        patchStore.getPatchLevel();
+        mockControl.setReturnValue(2);
+        patchStore.lockPatchStore();
+        
+        // now the migrations proceed
+        patchStore.getPatchLevel();
+        mockControl.setReturnValue(2);
+        patchStore.updatePatchLevel(4);
+        patchStore.updatePatchLevel(5);
+        patchStore.updatePatchLevel(6);
+        patchStore.updatePatchLevel(7);
+        patchStore.unlockPatchStore();
+        mockControl.replay();
+        
+        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
+        testLauncher.setLockPollMillis(0);
+        testLauncher.setLockPollRetries(3);
         testLauncher.setIgnoreMigrationSuccessfulEvents(false);
         testLauncher.setPatchStore(patchStore);
         testLauncher.setPatchPath("com.tacitknowledge.util.migration.tasks.normal");

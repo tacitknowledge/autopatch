@@ -53,6 +53,9 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     /** Whether we really want to apply the patches, or just look */
     private boolean readOnly = false;
     
+    /** The number of times to wait for the lock before overriding it. -1 is infinite */
+    private int lockPollRetries = -1;
+    
     /** A set of contexts, in case you want multi-node patches */
     private List contexts = new ArrayList();
 
@@ -104,6 +107,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
         launcher.setPatchPath(getPatchPath());
         launcher.setPostPatchPath(getPostPatchPath());
         launcher.setReadOnly(isReadOnly());
+        launcher.setLockPollRetries(getLockPollRetries());
         return launcher;
     }
 
@@ -220,6 +224,26 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     public void setReadOnly(boolean readOnly)
     {
         this.readOnly = readOnly;
+    }
+
+    /**
+     * Return the number of times to poll the lock before overriding it. -1 is infinite
+     * 
+     * @return int either -1 for infinite or number of times to poll before override
+     */
+    public int getLockPollRetries()
+    {
+        return lockPollRetries;
+    }
+
+    /**
+     * Set the number of times to poll the lock before overriding it. -1 is infinite
+     * 
+     * @param lockPollRetries either -1 for infinite or number of times to poll before override
+     */
+    public void setLockPollRetries(int lockPollRetries)
+    {
+        this.lockPollRetries = lockPollRetries;
     }
 
     /**

@@ -174,10 +174,19 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         
         // Get any post-patch task paths
         launcher.setPostPatchPath(props.getProperty(patchContext + ".postpatch.path"));
+        
+        // See if they want to run in read-only mode
         launcher.setReadOnly(false);
         if ("true".equals(props.getProperty(systemName + ".readonly"))) 
         {
             launcher.setReadOnly(true);
+        }
+        
+        // See if they want to override the lock after a certain amount of time
+        String lockPollRetries = props.getProperty(systemName + ".lockPollRetries");
+        if (lockPollRetries != null)
+        {
+            launcher.setLockPollRetries(Integer.parseInt(lockPollRetries));
         }
         
         // Set up the JDBC migration context; accepts one of two property names

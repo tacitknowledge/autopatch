@@ -56,6 +56,9 @@ public class JdbcMigrationLauncher implements MigrationListener
      * patches table.  Defaults to 15 seconds.
      */
     private long lockPollMillis = 15000;
+    
+    /** The number of times to wait for the lock before overriding it. -1 is infinite */
+    private int lockPollRetries = -1;
 
     /** The path containing directories and packages to search through to locate patches. */
     private String patchPath = null;
@@ -240,8 +243,8 @@ public class JdbcMigrationLauncher implements MigrationListener
         // update all of our controlled patch tables
         for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
         {
-            PatchTable patchTable = (PatchTable) ((Map.Entry) patchTableIter.next()).getValue();
-            patchTable.updatePatchLevel(patchLevel);
+            PatchInfoStore store = (PatchInfoStore) ((Map.Entry) patchTableIter.next()).getValue();
+            store.updatePatchLevel(patchLevel);
         }
     }
 
@@ -430,18 +433,36 @@ public class JdbcMigrationLauncher implements MigrationListener
     private void waitForFreeLock(JdbcMigrationContext context) throws MigrationException
     {
         PatchInfoStore piStore = (PatchInfoStore) contexts.get(context);
-        while (piStore.isPatchStoreLocked())
+        log.debug("about to wait for free lock");
+        for (int i = 0; piStore.isPatchStoreLocked(); i++)
         {
-            log.info("Waiting for migration lock for system \"" + context.getSystemName() + "\"");
-            try
+            // Have we exceeded our threshold of time to wait?
+            if ((getLockPollRetries() != -1) && (i >= getLockPollRetries()))
             {
-                Thread.sleep(getLockPollMillis());
+                log.info("Reached maximum lock poll retries (" + getLockPollRetries()
+                         + "), overriding patch lock");
+                piStore.unlockPatchStore();
             }
-            catch (InterruptedException e)
+            else
             {
-                log.error("Received InterruptedException while waiting for patch lock", e);
+                log.info("Waiting for migration lock for system \"" 
+                         + context.getSystemName() + "\"");
+                if (getLockPollRetries() != -1)
+                {
+                    log.info("Will poll lock " + (getLockPollRetries() - i) 
+                             + " more times before overriding lock.");
+                }
+                try
+                {
+                    Thread.sleep(getLockPollMillis());
+                }
+                catch (InterruptedException e)
+                {
+                    log.error("Received InterruptedException while waiting for patch lock", e);
+                }
             }
         }
+        log.debug("done waiting for free lock");
     }
     
     /**
@@ -502,5 +523,25 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void setReadOnly(boolean readOnly)
     {
         this.readOnly = readOnly;
+    }
+
+    /**
+     * Return the number of times to poll the lock before overriding it. -1 is infinite
+     * 
+     * @return int either -1 for infinite or number of times to poll before override
+     */
+    public int getLockPollRetries()
+    {
+        return lockPollRetries;
+    }
+
+    /**
+     * Set the number of times to poll the lock before overriding it. -1 is infinite
+     * 
+     * @param lockPollRetries either -1 for infinite or number of times to poll before override
+     */
+    public void setLockPollRetries(int lockPollRetries)
+    {
+        this.lockPollRetries = lockPollRetries;
     }
 }
