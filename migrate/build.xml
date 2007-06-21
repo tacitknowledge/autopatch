@@ -35,7 +35,7 @@
   <property name="component.title"         value="Tacit Knowledge AutoPatch"/>
 
   <!-- The current version number of this application -->
-  <property name="component.version"       value="1.0.2-cvs"/>
+  <property name="component.version"       value="1.0.3-cvs"/>
   <property name="component.version.maven" value="1.0.2-SNAPSHOT"/>
 
   <!-- The base directory for compilation targets -->

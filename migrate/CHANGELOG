@@ -1,6 +1,13 @@
 Changelog for AutoPatch
 =======================
 
+Version 1.0.3
+-------------
+- Added "lockPollRetries" property, allows a configuration where AutoPatch
+  will wait a maximum amount of time then override a lock. Also shored up
+  testing / coverage in this area
+  Thanks to Mike Hardy @ Tacit Knowledge
+
 Version 1.0.2
 -------------
 - For standalone migration information and launcher added a possibility
