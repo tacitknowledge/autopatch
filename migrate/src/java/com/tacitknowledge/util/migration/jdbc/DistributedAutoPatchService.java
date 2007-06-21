@@ -52,6 +52,9 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     /** Whether we actually want to apply patches, or just look */
     private boolean readOnly = false;
     
+    /** The number of times to wait for the lock before overriding it. -1 is infinite */
+    private int lockPollRetries = -1;
+
     /**
      * Patches all of the databases in your distributed system, if necessary.
      * 
@@ -105,6 +108,8 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
         ((DistributedMigrationProcess) launcher.getMigrationProcess())
             .setControlledSystems(controlledLaunchers);
         launcher.setPostPatchPath(getPostPatchPath());
+        launcher.setReadOnly(isReadOnly());
+        launcher.setLockPollRetries(getLockPollRetries());
         
         return launcher;
     }
@@ -223,5 +228,25 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     public void setReadOnly(boolean readOnly)
     {
         this.readOnly = readOnly;
+    }
+
+    /**
+     * Return the number of times to poll the lock before overriding it. -1 is infinite
+     * 
+     * @return int either -1 for infinite or number of times to poll before override
+     */
+    public int getLockPollRetries()
+    {
+        return lockPollRetries;
+    }
+
+    /**
+     * Set the number of times to poll the lock before overriding it. -1 is infinite
+     * 
+     * @param lockPollRetries either -1 for infinite or number of times to poll before override
+     */
+    public void setLockPollRetries(int lockPollRetries)
+    {
+        this.lockPollRetries = lockPollRetries;
     }
 }
