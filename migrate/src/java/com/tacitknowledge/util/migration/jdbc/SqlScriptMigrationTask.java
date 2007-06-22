@@ -228,17 +228,8 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                         if (!inQuotedString)
                         {
                             // If we're in a stored procedure, just keep rolling
-                            if (context.getDatabaseType().getDatabaseType().equals("oracle") 
-                                    && (currentStatement.toString().trim()
-                                           .toLowerCase().startsWith("begin") 
-                                       || currentStatement.toString().trim()
-                                           .toLowerCase().startsWith("create or replace method") 
-                                       || currentStatement.toString().trim()
-                                           .toLowerCase().startsWith("create or replace function") 
-                                       || currentStatement.toString().trim()
-                                           .toLowerCase().startsWith("create or replace procedure") 
-                                       || currentStatement.toString().trim()
-                                           .toLowerCase().startsWith("create or replace package"))) 
+                            if (isStoredProcedure(context.getDatabaseType().getDatabaseType(),
+                                                  currentStatement.toString())) 
                             {
                                 currentStatement.append(sqlChars[i]);
                             }
@@ -338,6 +329,29 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
         
         return statements;
+    }
+    
+    /**
+     * Return true if the string represents a stored procedure
+     * 
+     * @param databaseType the type of the database
+     * @param statement the statement that may be a stored procedure
+     * @return true if the statement is a stored procedure for the given db type
+     */
+    protected boolean isStoredProcedure(String databaseType, String statement)
+    {
+        String currentStatement = statement.trim().toLowerCase();
+        if ("oracle".equals(databaseType) 
+                && (currentStatement.startsWith("begin") 
+                        || currentStatement.startsWith("create or replace method") 
+                        || currentStatement.startsWith("create or replace function") 
+                        || currentStatement.startsWith("create or replace procedure") 
+                        || currentStatement.startsWith("create or replace package")))
+        {
+            return true;
+        }
+        
+        return false;
     }
     
     /**
