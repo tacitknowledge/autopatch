@@ -45,6 +45,7 @@ public class PatchExecutionMojo extends AbstractAutoPatchMojo
         catch (Exception e) 
         {
             getLog().error(e);
+            throw new MojoFailureException(e.getMessage());
         }
     }
 
