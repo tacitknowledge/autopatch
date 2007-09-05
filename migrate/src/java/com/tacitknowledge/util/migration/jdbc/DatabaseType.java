@@ -38,13 +38,23 @@ import java.util.Properties;
  * 
  * Use <i>postgres.properties</i> or <i>oracle.properties</i> as a baseline for adding
  * additional database types.
+ * 
+ * You can override the values in the the database.properties file by placing properties in
+ * your migration.properties.  The property names should remain the same and they should be 
+ * prepended with the database type and a period.
+ * 
+ *  For example, the property, <code>supportsMultipleStatements</code> would be overridden
+ *  for mysql using the property name <code>mysql.supportsMultipleStatements</code>.
  *
  * @author Scott Askew (scott@tacitknowledge.com)
  */
 public class DatabaseType
 {
     /** The SQL statements and properties that are unique to this database flavor. */
-    private Properties properties = new Properties();
+    private Properties databaseProperties;
+    
+    /** The migration.properties that may override databaseProperties */
+    private Properties migrationProperties;
     
     /** The database type */
     private String databaseType = "";
@@ -56,13 +66,30 @@ public class DatabaseType
      */
     public DatabaseType(String databaseType)
     {
-        InputStream is = getClass().getResourceAsStream(databaseType + ".properties");
+        // required to keep old behaviour where it expects the properties file in the same package
+        // dir as the DatabaseType class because it was loaded via Class.getResourceAsStream()
+        String className = this.getClass().getName();
+        int index = className.lastIndexOf(".");
+        String databasePropertiesFilename = className.substring(0,index).replace(".", "/") + "/" + databaseType + ".properties";
+        databaseProperties = loadProperties(databasePropertiesFilename, this.getClass().getClassLoader());
+        migrationProperties = loadProperties("migration.properties", Thread.currentThread().getContextClassLoader());
+        this.databaseType = databaseType;
+    }
+    
+    protected Properties loadProperties(String propertiesFilename, ClassLoader loader)
+    {
+        Properties properties = new Properties();
+        
+        InputStream is = loader.getResourceAsStream(propertiesFilename);
         if (is == null)
         {
-            throw new IllegalArgumentException("Could not find SQL properties "
-                + " file for database '" + databaseType + "'; make sure that there "
-                + " is a '" + databaseType + ".properties' file in package '"
-                + getClass().getPackage().getName() + "'.");
+            is = this.getClass().getResourceAsStream(propertiesFilename);
+        }
+        
+        if (is == null)
+        {
+            throw new IllegalArgumentException("Could not find properties "
+                + " file " + propertiesFilename + ".");
         }
         try
         {
@@ -70,8 +97,7 @@ public class DatabaseType
         }
         catch (IOException e)
         {
-            throw new IllegalArgumentException("Could not read SQL properties "
-                + " file for database '" + databaseType + "'.");
+            throw new IllegalArgumentException("Could not read " + propertiesFilename);
         }
         finally
         {
@@ -84,8 +110,8 @@ public class DatabaseType
                 // not important
             }
         }
-        
-        this.databaseType = databaseType;
+    
+        return properties;
     }
     
     /**
@@ -106,7 +132,18 @@ public class DatabaseType
      */
     public String getProperty(String propertyName)
     {
-        return properties.getProperty(propertyName);
+        String value = null;
+        
+        if(migrationProperties.containsKey(databaseType + "." + propertyName))
+        {
+            value = migrationProperties.getProperty(databaseType + propertyName);
+        }
+        else
+        {
+            value = databaseProperties.getProperty(propertyName);
+        }
+        
+        return value;
     }
     
     /**
@@ -118,7 +155,8 @@ public class DatabaseType
      */
     public boolean isMultipleStatementsSupported()
     {
-        String multiStatement = properties.getProperty("supportsMultipleStatements", "false");
+        String value = this.getProperty("supportsMultipleStatements");
+        String multiStatement = (value != null) ? value : "false";
         return Boolean.valueOf(multiStatement).booleanValue();
     }
     
