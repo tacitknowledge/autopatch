@@ -1,6 +1,17 @@
 Changelog for AutoPatch
 =======================
 
+Version HEAD <CHANGE UPON RELEASE>
+----------------------------------
+- Added the ability to override the properties specified in the
+  databasetype.properties (mysql.properties, hsqldb.properties, ...).
+  Although technically possible to override any property in those files,
+  the feature was added to tweak the *supportsMultipleStatements* property,
+  and is probably the most common one to override.
+  See the javadoc on com.tacitknowledge.util.migration.jdbc.DatabaseType
+  for details on how to specify the override.
+  Thanks to Alex Soto <Alex @ Tacit Knowledge || apsoto @ gmail>
+
 Version 1.0.3
 -------------
 - Added "lockPollRetries" property, allows a configuration where AutoPatch
