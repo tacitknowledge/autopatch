@@ -29,7 +29,7 @@ foreach ($patches as $patch) {
 	    include_once($patch);
     } else if (preg_match("/.*\.sql/", $patch)) {
     	$result = mysql_query(file_get_contents($patch));
-    	if (!result) {
+    	if (!$result) {
     		die("Unable to run patch " . $patch . ". Aborting.");
     	}
     } else {
