@@ -12,6 +12,9 @@ Version HEAD <CHANGE UPON RELEASE>
   for details on how to specify the override.
   Thanks to Alex Soto <Alex @ Tacit Knowledge || apsoto @ gmail>
 
+- Added support for raw .sql patches in the PHP AutoPatch
+  Thanks to Mike Hardy @ Tacit Knowledge
+
 Version 1.0.3
 -------------
 - Added "lockPollRetries" property, allows a configuration where AutoPatch

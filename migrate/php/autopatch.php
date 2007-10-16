@@ -12,7 +12,7 @@ foreach ($patches as $patch) {
     echo "Examining patch " . $patch . "...<BR>";
 
     // Get the patch number for this patch
-    preg_match("/patch(\d+)_.*\.php/", $patch, $matches);
+    preg_match("/^patches\/patch(\d+)_.*$/", $patch, $matches);
     $patch_number = $matches[1];
     echo "&nbsp;&nbsp;Patch number is " . $patch_number . "...<BR>";
 
@@ -24,23 +24,31 @@ foreach ($patches as $patch) {
 
     // Apply the patch by including it so it will execute
     echo "&nbsp;&nbsp;This patch has not been applied. Executing patch...<BR>";
-    include_once($patch);
-
+    
+    if (preg_match("/.*\.php/", $patch)) {
+	    include_once($patch);
+    } else if (preg_match("/.*\.sql/", $patch)) {
+    	$result = mysql_query(file_get_contents($patch));
+    	if (!result) {
+    		die("Unable to run patch " . $patch . ". Aborting.");
+    	}
+    } else {
+    	echo "Unknown patch type for patch " . $patch . " skipping.<BR>";
+    }
     // Now set the new patch level
     set_patch_level($patch_number);
 }
 
 /**
  * Get the list of filenames to run as patches
- *
- * FIXME - should use scandir and regex match for patch(\d+)_.*\.php
  */
 function get_patches()
 {
     $patches = Array();
     $dir = opendir("patches");
     while (false !== ($file = readdir($dir))) {
-       if (strstr($file, "patch")) {
+    	echo "Considering " . $file . "<P>\n";
+       if (preg_match("/^patch\d+_.*/", $file)) {
            array_push($patches, "patches/$file");
        }
     }
@@ -69,6 +77,9 @@ function get_patch_level()
         if (!$result) {
             die("Unable to create patch table either. There must be a bigger problem. Aborting.");
         }
+        
+        // Initialize the database patch level
+        set_patch_level(0);
     }
     else {
         $patch_level = mysql_result($result, 0, 0);
