@@ -48,7 +48,7 @@ import com.tacitknowledge.util.migration.MigrationException;
  *   ...
  *   &lt;listener&gt;
  *       &lt;listener-class&gt;
- *           com.tacitknowledge.util.migration.patchtable.WebAppMigrationLauncher
+ *           com.tacitknowledge.util.migration.jdbc.WebAppMigrationLauncher
  *       &lt;/listener-class&gt;
  *   &lt;/listener&gt;
  *   ...
