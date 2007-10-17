@@ -29,8 +29,8 @@ foreach ($patches as $patch) {
 	    include_once($patch);
     } else if (preg_match("/.*\.sql/", $patch)) {
     	$result = mysql_query(file_get_contents($patch));
-    	if (!$result) {
-    		die("Unable to run patch " . $patch . ". Aborting.");
+    	if (!$result) {    		
+    		die("Unable to run patch " . $patch . ". Aborting.<BR>" . mysql_error());
     	}
     } else {
     	echo "Unknown patch type for patch " . $patch . " skipping.<BR>";
