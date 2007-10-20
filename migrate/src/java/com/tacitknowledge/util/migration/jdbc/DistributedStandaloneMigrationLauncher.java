@@ -73,6 +73,9 @@ public class DistributedStandaloneMigrationLauncher
         String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", 
                 System.getProperties(), arguments);
         
+        String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
+                System.getProperties(), arguments, 1);        
+        
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
@@ -80,8 +83,24 @@ public class DistributedStandaloneMigrationLauncher
         {
             DistributedJdbcMigrationLauncherFactory factory = 
                 new DistributedJdbcMigrationLauncherFactory();
-            JdbcMigrationLauncher launcher = factory.createMigrationLauncher(systemName);
+            JdbcMigrationLauncher launcher = null;
+
+            if (migrationSettings == null)
+            {
+                log.info("Using migration.properties (default)");
+                launcher = factory.createMigrationLauncher(systemName);
+            }
+            else
+            {
+                log.info("Using " + migrationSettings);
+                launcher = factory.createMigrationLauncher(systemName,
+                    migrationSettings);
+            }            	
             launcher.doMigrations();
+            
+            
+            
+  
         }
         catch (Exception e)
         {

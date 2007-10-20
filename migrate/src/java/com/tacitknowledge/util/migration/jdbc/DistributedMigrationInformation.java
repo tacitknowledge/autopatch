@@ -19,6 +19,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
+
 /**
  * Launches the migration process as a standalone application.  
  * <p>
@@ -64,6 +66,9 @@ public class DistributedMigrationInformation
     {
         DistributedMigrationInformation info = new DistributedMigrationInformation();
         String migrationName = System.getProperty("migration.systemname");
+        String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
+                System.getProperties(), arguments, 1);
+        
         if (migrationName == null)
         {
             if ((arguments != null) && (arguments.length > 0))
@@ -76,7 +81,8 @@ public class DistributedMigrationInformation
                                                    + "system property is required");
             }
         }
-        info.getMigrationInformation(migrationName);
+       // info.getMigrationInformation(migrationName);
+        info.getMigrationInformation(migrationName, migrationSettings);    
     }
     
     /**
@@ -88,6 +94,19 @@ public class DistributedMigrationInformation
      */
     public int getMigrationInformation(String systemName) throws Exception
     {
+        return getMigrationInformation(systemName, null);
+    }
+    
+    /**
+     * Get the migration level information for the given system name
+     * 
+     * @param systemName the name of the system
+     * @param migrationSettings name of alternate migration.properties file to use
+     * @return returns the current highest source code patch number
+     * @throws Exception if anything goes wrong
+     */
+    public int getMigrationInformation(String systemName, String migrationSettings) throws Exception
+    {
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
@@ -95,11 +114,22 @@ public class DistributedMigrationInformation
         {
             DistributedJdbcMigrationLauncherFactory factory = 
                 new DistributedJdbcMigrationLauncherFactory();
-            DistributedJdbcMigrationLauncher launcher
-                = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
-            
+            DistributedJdbcMigrationLauncher launcher = null;
+          //      = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
+            if (migrationSettings == null)
+            {
+            	log.info("Using migration.properties (default)");
+            	launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
+            }
+            else
+            {
+            	log.info("Using " + migrationSettings);
+            	launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName,
+            			migrationSettings);
+            }
             // FIXME test that the migration information is correct
             Map contextMap = launcher.getContexts();
+           
             JdbcMigrationContext context = 
                 (JdbcMigrationContext) contextMap.keySet().iterator().next();
             
