@@ -343,7 +343,6 @@ public class JdbcMigrationLauncherFactory
             
             // Finish setting up the context
             context.setSystemName(system);
-            
             context.setDataSource(dataSource);
 
             // done reading in config, set launcher's context

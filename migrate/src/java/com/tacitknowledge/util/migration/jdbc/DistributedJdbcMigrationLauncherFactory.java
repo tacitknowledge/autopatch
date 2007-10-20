@@ -189,6 +189,13 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
             launcher.setLockPollRetries(Integer.parseInt(lockPollRetries));
         }
         
+        // see if forcesync specified.  Value doesn't matter, just presence of system property enables syncing
+        String forceSync = ConfigurationUtil.getOptionalParam("forcesync", System.getProperties(), null, 0);
+        if(forceSync != null)
+        {
+            ((DistributedMigrationProcess)launcher.getMigrationProcess()).setForceSync(true);
+        }
+        
         // Set up the JDBC migration context; accepts one of two property names
         DataSourceMigrationContext context = getDataSourceMigrationContext();
         String databaseType = ConfigurationUtil.getRequiredParam(props,

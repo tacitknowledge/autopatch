@@ -287,7 +287,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public void addContext(JdbcMigrationContext context)
     {
-        PatchTable patchTable = new PatchTable(context);
+        PatchInfoStore patchTable = new PatchTable(context);
         log.debug("Adding context " + context 
                   + " with patch table " + patchTable 
                   + " in launcher " + this);
@@ -550,5 +550,14 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void setLockPollRetries(int lockPollRetries)
     {
         this.lockPollRetries = lockPollRetries;
+    }
+
+    /**
+     * Explicitly set the contexts.
+     * @param contexts the collection of contexts that is a map of JDBCMigrationContext -> PatchInfoStore.
+     */
+    public void setContexts(LinkedHashMap contexts)
+    {
+        this.contexts = contexts;
     }
 }

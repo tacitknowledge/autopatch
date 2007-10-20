@@ -79,6 +79,18 @@ public class MigrationInformation
      * Get the migration level information for the given system name
      * 
      * @param migrationSystemName the name of the system
+     * @return returns the current highest source code patch number
+     * @throws Exception if anything goes wrong
+     */
+    public int getMigrationInformation(String migrationSystemName) throws Exception
+    {
+        return getMigrationInformation(migrationSystemName, null);
+    }
+    
+    /**
+     * Get the migration level information for the given system name
+     * 
+     * @param migrationSystemName the name of the system
      * @param migrationSettings the name of the settings file to use for migration; if
      * <code>null</code> is passed then the default name for migration settings will be used
      * @return returns the current highest source code patch number

@@ -22,6 +22,8 @@ import java.sql.Statement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 /**
@@ -86,6 +88,80 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        SqlUtil.close(orders, null, null);
        SqlUtil.close(catalog1, null, null);
        SqlUtil.close(catalog2, null, null);
+    }
+   
+    /**
+     * Tests that a when there is a node that is out of sync with the patch level, autopatch
+     * detects the node and fails with an error reporting the problem.
+     * @throws Exception
+     */
+    public void testMultiNodePatchDetectsOutOfSyncNode() throws Exception
+    {
+        // run the base multinode patch to bring the databases up to date
+        testMultiNodePatch();
+        
+        // create a new migration launcher with a migration.properties that
+        // specifies a new node
+        DistributedJdbcMigrationLauncherFactory dlFactory = new DistributedJdbcMigrationLauncherFactory();
+        DistributedJdbcMigrationLauncher nodeAddedDistributedLauncher = 
+            (DistributedJdbcMigrationLauncher) 
+              dlFactory.createMigrationLauncher("integration_test", 
+                                                "node-added-inttest-migration.properties");
+        
+        // run the migrations and expect a MigrationException to be raised.
+        try
+        {
+            nodeAddedDistributedLauncher.doMigrations();
+            
+            fail("should have thrown an exception");
+        }
+        catch (MigrationException e)
+        {
+            assertNotNull(e);
+        }
+    }
+    
+    /**
+     * Tests that when there is a node that is out of sync with the system's patch level,
+     * autopatch will detect and patch the node if the flag to force syncing of nodes is set.
+     */
+    public void testMultiNodePatchesOutOfSyncNode() throws Exception
+    {
+        System.setProperty("forcesync", "true");
+        
+        // run the base multinode patch to bring the databases up to date
+        testMultiNodePatch();
+        
+        // create a new migration launcher with a migration.properties that
+        // specifies a new node
+        DistributedJdbcMigrationLauncherFactory dlFactory = new DistributedJdbcMigrationLauncherFactory();
+        DistributedJdbcMigrationLauncher nodeAddedDistributedLauncher = 
+            (DistributedJdbcMigrationLauncher) 
+              dlFactory.createMigrationLauncher("integration_test", 
+                                                "node-added-inttest-migration.properties");
+        
+        // run the migrations and no MigrationException should be raised.
+        try
+        {
+            nodeAddedDistributedLauncher.doMigrations();
+        }
+        catch (MigrationException e)
+        {
+            fail("should not have thrown a MigrationException");
+        }
+        
+        // Make sure everything worked out okay
+        Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
+        
+        // 4 patches should have executed
+        assertEquals(4, getPatchLevel(catalog3));
+        
+        
+        // we should have test values in each table
+        verifyTestTable(catalog3, "catalog_table_1");
+        
+        SqlUtil.close(catalog3, null, null);
+
     }
     
     /**

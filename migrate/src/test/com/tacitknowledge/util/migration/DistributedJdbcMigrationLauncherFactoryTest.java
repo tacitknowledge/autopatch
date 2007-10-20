@@ -14,11 +14,14 @@
 package com.tacitknowledge.util.migration;
 
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.easymock.MockControl;
 
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
@@ -88,6 +91,32 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     }
     
     /**
+     * For the given launchers, set all it's context's patch info stores as mocks
+     * that report the given patch level.  This method is a helper to get this
+     * test to pass the DisitributedMigrationProcess::validateControlledSystems() test.
+     * @param launchers Collection of JDBCMigrationLaunchers
+     * @param levelToReport the patch level the mock should report
+     * @throws MigrationException 
+     */
+    protected void setReportedPatchLevel(Collection launchers, int levelToReport) throws MigrationException
+    {
+        for(Iterator launchersIterator = launchers.iterator(); launchersIterator.hasNext(); )
+        {
+            JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) launchersIterator.next();
+            for(Iterator it = launcher.getContexts().keySet().iterator(); it.hasNext(); )
+            {
+                MigrationContext ctx = (MigrationContext) it.next();
+                MockControl patchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
+                PatchInfoStore patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
+                patchInfoStore.getPatchLevel();
+                patchInfoStoreControl.setReturnValue(levelToReport);
+                patchInfoStoreControl.replay();
+                launcher.getContexts().put(ctx, patchInfoStore);
+            }
+        }
+    }
+    
+    /**
      * Test the configuration of the launchers versus a known property file
      */
     public void testDistributedLauncherConfiguration()
@@ -146,16 +175,22 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
      */    
     public void testDistributedReadOnlyMode() throws Exception
     {
-        MigrationProcess process = launcher.getMigrationProcess();
+        int currentPatchLevel = 3;
+        
+        DistributedMigrationProcess process = (DistributedMigrationProcess) launcher.getMigrationProcess();
         process.validateTasks(process.getMigrationTasks());
         
+        // need to mock the patch info stores to return the expected patch levels
+        HashMap controlledSystems = process.getControlledSystems();
+        setReportedPatchLevel(controlledSystems.values(), currentPatchLevel);
+                
         // Make it readonly
         process.setReadOnly(true);
 
         // Now do the migrations, and make sure we get the right number of events
         try
         {
-            process.doMigrations(3, context);
+            process.doMigrations(currentPatchLevel, context);
             fail("There should have been an exception - unapplied patches + read-only don't work");
         }
         catch (MigrationException me)
@@ -164,7 +199,11 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
             log.debug("got exception: " + me.getMessage());
         }
         
-        int patches = process.doMigrations(7, context);
+        currentPatchLevel = 7;
+        // need to mock the patch info stores to return the expected patch levels        
+        setReportedPatchLevel(controlledSystems.values(), currentPatchLevel);
+
+        int patches = process.doMigrations(currentPatchLevel, context);
         assertEquals(0, patches);
         assertEquals(0, getMigrationStartedCount());
         assertEquals(0, getMigrationSuccessCount());
@@ -198,8 +237,10 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         }
         
         // Now do the migrations, and make sure we get the right number of events
-        MigrationProcess process = launcher.getMigrationProcess();
-        int patches = process.doMigrations(3, context);
+        DistributedMigrationProcess process = (DistributedMigrationProcess) launcher.getMigrationProcess();
+        int currentPatchlevel = 3;
+        setReportedPatchLevel(process.getControlledSystems().values(), currentPatchlevel);
+        int patches = process.doMigrations(currentPatchlevel, context);
         assertEquals(4, patches);
         assertEquals(4, getMigrationStartedCount());
         assertEquals(4, getMigrationSuccessCount());
@@ -212,12 +253,15 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
      */    
     public void testDistributedMigrationContextTargetting() throws Exception
     {
+        int currentPatchLevel = 3;
         HashMap controlledSystems = 
             ((DistributedMigrationProcess) launcher.getMigrationProcess()).getControlledSystems();
         
+        // set the patch info store to report the current patch level
+        setReportedPatchLevel(controlledSystems.values(), currentPatchLevel);
         // Now do the migrations, and make sure we get the right number of events
         MigrationProcess process = launcher.getMigrationProcess();
-        process.doMigrations(3, context);
+        process.doMigrations(currentPatchLevel, context);
         
         // The orders schema has four tasks that should go, make sure they did
         JdbcMigrationLauncher ordersLauncher = 

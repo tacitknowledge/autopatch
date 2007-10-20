@@ -84,6 +84,7 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
         destroyDatabase("orders");
         destroyDatabase("catalog1");
         destroyDatabase("catalog2");
+        destroyDatabase("catalog3");
     }
     
     /**
@@ -92,7 +93,7 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
      * @param database the name of the database to destroy
      * @exception Exception if anything goes wrong
      */
-    private void destroyDatabase(String database) throws Exception
+    protected void destroyDatabase(String database) throws Exception
     {
         Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:" + database, "sa", "");
         Statement stmt = conn.createStatement();

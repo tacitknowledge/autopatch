@@ -124,6 +124,10 @@ public class PatchTable implements PatchInfoStore
             tableExistenceValidated = true;
             log.info("Created 'patches' table.");
         }
+        catch (Exception ex)
+        {
+            throw new MigrationException("Unexpected exception while creating patch store.", ex);
+        }
         finally
         {
             SqlUtil.close(conn, stmt, rs);

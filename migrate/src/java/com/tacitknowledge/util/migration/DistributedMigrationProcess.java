@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 
 /**
  * Discovers and executes a sequence of system patches from multiple controlled
@@ -42,6 +43,37 @@ public class DistributedMigrationProcess extends MigrationProcess
     /** The JdbcMigrationLaunchers we are controlling, keyed by system name */
     private HashMap controlledSystems = new HashMap();
     
+    /** 
+     * If true, any nodes of the controlled systems that are not at the system's
+     * current patch level are patched to bring them in sync with the other nodes.
+     * This is not enabled by default because in a distributed system, if there
+     * are cross schema dependencies, then the patching of the node may fail since
+     * it is being patched 'out of order'.
+     * 
+     * For example:
+     * 
+     * system 1 has one node
+     * system 2 has one node
+     * 
+     * patch1 applies to system1 and creates a table
+     * patch2 applies to system2 and creates a table that references the table in system1
+     * patch3 applies to system2, dropping the reference to the table in system1
+     * patch4 applies to system1, dropping the table.
+     * 
+     * Later, to add capacity, system2 has a node added.  When the second node is forcibly
+     * 'synced' patches 2 and 3 are applied to it.  The patching fails when patch2 is applied 
+     * because the table no longer exists in system1.
+     * 
+     * Therefore, forcing a sync is usually safe for systems that don't contain external 
+     * references, but should not be used for interdependent systems.
+     * 
+     * Instead, it would be better to import the schema from a node already at the current
+     * patch level using database tools, then the new node can participate in the regular
+     * patching process.
+     * 
+     */ 
+    private boolean forceSync = false;
+    
     /**
      * Creates a new <code>Migration</code> instance.
      */
@@ -49,6 +81,24 @@ public class DistributedMigrationProcess extends MigrationProcess
     {
         super();
     }
+    
+    protected int determineTaskCount(int currentPatchLevel, List migrationTasks)
+    {
+        int taskCount = 0;
+        
+        for (Iterator i = migrationTasks.iterator(); i.hasNext();)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            if (task.getLevel().intValue() > currentPatchLevel)
+            {
+                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
+                taskCount++;
+            }
+        }
+
+        return taskCount;
+    }
+    
     
     /**
      * Applies necessary patches to the system.
@@ -72,28 +122,11 @@ public class DistributedMigrationProcess extends MigrationProcess
         validateTasks(migrations);
         Collections.sort(migrations);
         
-        // Roll through once, just printing out what we'll do
-        int taskCount = 0;
-        for (Iterator i = migrations.iterator(); i.hasNext();)
-        {
-            MigrationTask task = (MigrationTask) i.next();
-            if (task.getLevel().intValue() > currentLevel)
-            {
-                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
-                if (log.isDebugEnabled())
-                {
-                    JdbcMigrationLauncher launcher = 
-                        (JdbcMigrationLauncher) migrationsWithLaunchers.get(task);
-                    // Get all the contexts the task will execute in
-                    for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
-                    {
-                        MigrationContext launcherContext = (MigrationContext) j.next();
-                        log.debug("Task will execute in context '" + launcherContext + "'");
-                    }
-                }
-                taskCount++;
-            }
-        }
+        validateControlledSystems(currentLevel);
+        
+        // determine how many tasks we're going to execute
+        int taskCount = determineTaskCount(currentLevel, migrations); 
+
         if (taskCount > 0)
         {
             log.info("A total of " + taskCount + " patch tasks will execute.");
@@ -120,7 +153,7 @@ public class DistributedMigrationProcess extends MigrationProcess
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
-            if (task.getLevel().intValue() > currentLevel)
+            if ((task.getLevel().intValue() > currentLevel) && !forceSync)
             {
                 // Execute the task in the context it was loaded from
                 JdbcMigrationLauncher launcher = 
@@ -132,6 +165,20 @@ public class DistributedMigrationProcess extends MigrationProcess
                     applyPatch(launcherContext, task, true);
                 }
                 taskCount++;
+            }
+            else // if a sync is forced, need to check all the contexts to identify the ones out of sync
+            {
+                JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) migrationsWithLaunchers.get(task);
+                for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
+                {
+                    MigrationContext launcherContext = (MigrationContext) j.next();
+                    PatchInfoStore patchInfoStore = (PatchInfoStore) launcher.getContexts().get(launcherContext);
+                    
+                    if(task.getLevel().intValue() > patchInfoStore.getPatchLevel())
+                    {
+                        applyPatch(launcherContext, task, true);
+                    }
+                }
             }
         }
         
@@ -145,6 +192,38 @@ public class DistributedMigrationProcess extends MigrationProcess
         }
         
         return taskCount;
+    }
+
+    /** 
+     * Validates that the controlled systems are all at the current patch level. 
+     * @throws MigrationException if all the controlled systems are not at the current patch level.
+     */
+    protected void validateControlledSystems(int currentLevel) throws MigrationException
+    {        
+        for(Iterator it = getControlledSystems().keySet().iterator(); it.hasNext(); )
+        {
+            String systemName = (String) it.next();
+            JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) getControlledSystems().get(systemName);
+            for(Iterator contextIt = launcher.getContexts().keySet().iterator(); contextIt.hasNext() ; )
+            {
+                MigrationContext ctx = (MigrationContext) contextIt.next();
+                PatchInfoStore patchInfoStore = (PatchInfoStore) launcher.getContexts().get(ctx);
+                int patchLevel = patchInfoStore.getPatchLevel(); 
+                if (patchLevel != currentLevel) {
+                    String message = "Node is out of sync with system: " + systemName +
+                    ".  Node is at patch level " + Integer.toString(patchLevel) +
+                    " and the System is at patch level " + Integer.toString(currentLevel) + ".";
+                    if(getForceSync())
+                    {
+                        log.warn(message + "  Continuing since 'forcesync' was specified.");
+                    }
+                    else
+                    {
+                        throw new MigrationException(message);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -249,5 +328,15 @@ public class DistributedMigrationProcess extends MigrationProcess
     public void setControlledSystems(HashMap controlledSystems)
     {
         this.controlledSystems = controlledSystems;
+    }
+
+    public boolean getForceSync()
+    {
+        return forceSync;
+    }
+
+    public void setForceSync(boolean forceSync)
+    {
+        this.forceSync = forceSync;
     }
 }
