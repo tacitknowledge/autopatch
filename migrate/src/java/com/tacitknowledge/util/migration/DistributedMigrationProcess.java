@@ -166,9 +166,10 @@ public class DistributedMigrationProcess extends MigrationProcess
                 }
                 taskCount++;
             }
-            else // if a sync is forced, need to check all the contexts to identify the ones out of sync
+            else if(forceSync)// if a sync is forced, need to check all the contexts to identify the ones out of sync
             {
                 JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) migrationsWithLaunchers.get(task);
+                boolean patchesApplied = false;
                 for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
                 {
                     MigrationContext launcherContext = (MigrationContext) j.next();
@@ -177,7 +178,13 @@ public class DistributedMigrationProcess extends MigrationProcess
                     if(task.getLevel().intValue() > patchInfoStore.getPatchLevel())
                     {
                         applyPatch(launcherContext, task, true);
+                        patchesApplied = true;
                     }
+                }
+                
+                if(patchesApplied) 
+                {
+                    taskCount++;
                 }
             }
         }
