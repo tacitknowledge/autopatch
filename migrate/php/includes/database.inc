@@ -18,9 +18,14 @@ else {
 
 define( 'DB_PORT',     '3306' );
 
-$db = mysql_pconnect(DB_HOST, DB_USER, DB_PASSWORD) or die ( "<H3>DB Server Unreachable</H3><BR>" . mysql_error());
-	mysql_select_db($DB_NAME, $db) or die ( "<H3>DB Non-Existent</H3><BR>" . mysql_error());
-	return $db;
+function get_db_connection()
+{
+	$db = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, $DB_NAME);
+	if (mysqli_connect_errno()) {
+	   die ( "<H3>DB Server Unreachable</H3><BR>" . mysqli_connect_error());
+	}
+    return $db;
+}
 
 // Get a "database safe" version of the post variable at the given index
 function getDBSafe($string)
