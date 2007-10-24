@@ -3,6 +3,19 @@ Changelog for AutoPatch
 
 Version HEAD <CHANGE UPON RELEASE>
 ----------------------------------
+- Added the detection of new database nodes in a DistributedMigration.
+  Default behaviour is to exit the patch process if a new node is detected.
+  The node can be forcibly synced to the current patch level by defining a
+  system property named 'forcesync'. See javadoc on DistributedMigrationProcess
+  for more details.
+  Thanks to Alex Soto <Alex @ Tacit Knowledge || apsoto @ gmail>
+  
+- Added support to DistributedStandaloneMigrationLauncher for specifying an 
+  alternate migration.properties filename via the system property 
+  'migration.settings'.  This brings the distributed migration feature
+  in line with StandaloneMigrationLauncher which already supported this.
+  Thanks to Natalia Usmanova @ KodakGallery dot Com  
+  
 - Added the ability to override the properties specified in the
   databasetype.properties (mysql.properties, hsqldb.properties, ...).
   Although technically possible to override any property in those files,
