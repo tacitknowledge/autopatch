@@ -99,6 +99,9 @@ public class DistributedMigrationProcessTest extends TestCase
         MockControl node1PatchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
         PatchInfoStore node1PatchInfoStore = (PatchInfoStore) node1PatchInfoStoreControl.getMock();
         // setup mock patch info store to return the patch level we want
+        node1Context.getDatabaseName();
+        node1ContextControl.setReturnValue("node1", MockControl.ONE_OR_MORE);
+        node1ContextControl.replay();
         node1PatchInfoStore.getPatchLevel();
         node1PatchInfoStoreControl.setReturnValue(currentPatchLevel);
         node1PatchInfoStoreControl.replay();
@@ -109,6 +112,9 @@ public class DistributedMigrationProcessTest extends TestCase
         MockControl node2PatchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
         PatchInfoStore node2PatchInfoStore = (PatchInfoStore) node2PatchInfoStoreControl.getMock();
         // setup mock patch info store to return the patch level we want
+        node2Context.getDatabaseName();
+        node2ContextControl.setReturnValue("node2", MockControl.ONE_OR_MORE);
+        node2ContextControl.replay();
         node2PatchInfoStore.getPatchLevel();
         node2PatchInfoStoreControl.setReturnValue(0);
         node2PatchInfoStoreControl.replay();
