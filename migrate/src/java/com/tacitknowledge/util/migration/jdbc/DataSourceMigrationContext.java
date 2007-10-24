@@ -46,6 +46,9 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
     /** The name of the system being patched */
     private DatabaseType databaseType = null;
 
+    /** The databasename */
+    private String databaseName = "";
+
     /**
      * Returns the database connection to use
      *
@@ -180,5 +183,22 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
             + getDatabaseType() + "/"
             + getSystemName() + "/"
             + getDataSource() + "]";
+    }
+
+    /**
+     * @override {@link JdbcMigrationContext#getDatabaseName()}
+     */
+    public String getDatabaseName()
+    {
+        return this.databaseName ;
+    }
+    
+    /**
+     * Set the database name.
+     * @param databaseName the name
+     */
+    public void setDatabaseName(String databaseName) 
+    {
+        this.databaseName = databaseName;
     }
 }

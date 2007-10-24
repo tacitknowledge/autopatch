@@ -51,6 +51,14 @@ public interface JdbcMigrationContext extends MigrationContext
      * @return the name of the system to patch
      */
     public String getSystemName();
+    
+    /**
+     * @return In a federated distributed configuration this should be some
+     *          unique name to identify each node in the system.  In other 
+     *          configurations where is typically only one node per system,
+     *          the system name should suffice.  
+     */
+    public String getDatabaseName();
 
     /**
      * @return Returns the database type.

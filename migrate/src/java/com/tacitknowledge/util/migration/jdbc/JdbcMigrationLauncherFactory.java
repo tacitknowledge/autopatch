@@ -340,6 +340,8 @@ public class JdbcMigrationLauncherFactory
                                                    system + db + ".dialect");
             log.debug("setting type to " + databaseType);
             context.setDatabaseType(new DatabaseType(databaseType));
+
+            context.setDatabaseName(databaseNames[i]);
             
             // Finish setting up the context
             context.setSystemName(system);

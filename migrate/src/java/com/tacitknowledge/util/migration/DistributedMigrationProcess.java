@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
-import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 
 /**
  * Discovers and executes a sequence of system patches from multiple controlled
@@ -125,7 +124,7 @@ public class DistributedMigrationProcess extends MigrationProcess
         validateControlledSystems(currentLevel);
         
         // determine how many tasks we're going to execute
-        int taskCount = determineTaskCount(currentLevel, migrations); 
+        int taskCount = determineTaskCount(currentLevel, migrations);
 
         if (taskCount > 0)
         {
@@ -213,16 +212,16 @@ public class DistributedMigrationProcess extends MigrationProcess
             JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) getControlledSystems().get(systemName);
             for(Iterator contextIt = launcher.getContexts().keySet().iterator(); contextIt.hasNext() ; )
             {
-                MigrationContext ctx = (MigrationContext) contextIt.next();
+                JdbcMigrationContext ctx = (JdbcMigrationContext) contextIt.next();
                 PatchInfoStore patchInfoStore = (PatchInfoStore) launcher.getContexts().get(ctx);
                 int patchLevel = patchInfoStore.getPatchLevel(); 
                 if (patchLevel != currentLevel) {
-                    String message = "Node is out of sync with system: " + systemName +
-                    ".  Node is at patch level " + Integer.toString(patchLevel) +
+                    String message = "Database " + ctx.getDatabaseName() + " is out of sync with system: " + systemName +
+                    ".  " + ctx.getDatabaseName() + " is at patch level " + Integer.toString(patchLevel) +
                     " and the System is at patch level " + Integer.toString(currentLevel) + ".";
                     if(getForceSync())
                     {
-                        log.warn(message + "  Continuing since 'forcesync' was specified.");
+                        log.info(message + "  Continuing since 'forcesync' was specified.");
                     }
                     else
                     {

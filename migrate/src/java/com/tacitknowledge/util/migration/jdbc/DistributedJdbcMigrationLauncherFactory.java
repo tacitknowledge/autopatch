@@ -45,8 +45,14 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * For each system in the controlled systems list, the properties file should contain
  * information as directed in the documenation for JdbcMigrationLauncher.
  * 
+ * If a new database node is detected in the migration.properties, the default behaviour is to
+ * stop the patch process.  To force the new node to be 'brought up to date' with the other
+ * nodes, then set a system property named 'forcesync'.  The value is not important, merely the
+ * existance is sufficient.
+ * 
  * @see com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher
  * @author Mike Hardy (mike@tacitknowledge.com)
+ * @author Alex Soto <alex@tacitknowledge.com> <apsoto@gmail.com>
  */
 public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLauncherFactory
 {
