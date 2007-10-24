@@ -98,8 +98,29 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
     public void testMultiNodePatchDetectsOutOfSyncNode() throws Exception
     {
         // run the base multinode patch to bring the databases up to date
-        testMultiNodePatch();
-        
+        getDistributedLauncher().doMigrations();
+
+        Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
+        Connection orders = DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
+        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
+        Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
+        Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
+
+        // make sure databases are in the state we expect
+        assertEquals(4, getPatchLevel(core));
+        assertEquals(4, getPatchLevel(orders));
+        assertEquals(4, getPatchLevel(catalog1));
+        assertEquals(4, getPatchLevel(catalog2));
+        try
+        {
+            getPatchLevel(catalog3);
+            fail("patches table should not exist at this point");
+        } 
+        catch (Exception e)
+        {
+            // expected
+        }
+
         // create a new migration launcher with a migration.properties that
         // specifies a new node
         DistributedJdbcMigrationLauncherFactory dlFactory = new DistributedJdbcMigrationLauncherFactory();
@@ -117,8 +138,22 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         }
         catch (MigrationException e)
         {
-            assertNotNull(e);
+            // expected
         }
+        
+        // no new patches should have executed
+        assertEquals(4, getPatchLevel(core));
+        assertEquals(4, getPatchLevel(orders));
+        assertEquals(4, getPatchLevel(catalog1));
+        assertEquals(4, getPatchLevel(catalog2));
+        assertEquals(0, getPatchLevel(catalog3));
+        
+        SqlUtil.close(core, null, null);
+        SqlUtil.close(orders, null, null);
+        SqlUtil.close(catalog1, null, null);
+        SqlUtil.close(catalog2, null, null);
+        SqlUtil.close(catalog3, null, null);
+
     }
     
     /**
