@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,21 +81,41 @@ public class DistributedMigrationProcess extends MigrationProcess
     {
         super();
     }
-    
-    protected int determineTaskCount(int currentPatchLevel, List migrationTasks)
+
+    /**
+     * Execute a dry run of the patch process and return a count of the number of patches 
+     * we would have executed.
+     * @param currentPatchLevel The current patch level of the database
+     * @param migrationsWithLaunchers a map of migration task to launcher
+     * @return
+     */
+    protected int patchDryRun(int currentPatchLevel, LinkedHashMap migrationsWithLaunchers)
     {
         int taskCount = 0;
-        
-        for (Iterator i = migrationTasks.iterator(); i.hasNext();)
+
+        for(Iterator i = migrationsWithLaunchers.entrySet().iterator(); i.hasNext(); )
         {
-            MigrationTask task = (MigrationTask) i.next();
+            Entry entry = (Entry) i.next();
+            MigrationTask task = (MigrationTask) entry.getKey();
+            JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) entry.getValue();
+
             if (task.getLevel().intValue() > currentPatchLevel)
             {
                 log.info("Will execute patch task '" + getTaskLabel(task) + "'");
+                if (log.isDebugEnabled())
+                {
+                    // Get all the contexts the task will execute in
+                    for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
+                    {
+                        MigrationContext launcherContext = (MigrationContext) j.next();
+                        log.debug("Task will execute in context '" + launcherContext + "'");
+                    }
+                }
                 taskCount++;
             }
+            
         }
-
+                
         return taskCount;
     }
     
@@ -124,8 +145,8 @@ public class DistributedMigrationProcess extends MigrationProcess
         validateControlledSystems(currentLevel);
         
         // determine how many tasks we're going to execute
-        int taskCount = determineTaskCount(currentLevel, migrations);
-
+        int taskCount = patchDryRun(currentLevel, migrationsWithLaunchers);
+        
         if (taskCount > 0)
         {
             log.info("A total of " + taskCount + " patch tasks will execute.");
