@@ -35,6 +35,9 @@ public class TestListener1 implements MigrationListener
     /** Class logger */
     private static Log log = LogFactory.getLog(TestListener1.class);
     
+    /** system name I was configured with */
+    protected String systemName = null;
+    
     public void migrationFailed(MigrationTask task, MigrationContext context, MigrationException e) throws MigrationException
     {
         log.debug("migration failed");
@@ -56,5 +59,11 @@ public class TestListener1 implements MigrationListener
     public void initialize(String systemName, Properties properties) throws MigrationException
     {
         log.debug("initialized");
+        this.systemName = systemName;
+    }
+
+    public String getSystemName()
+    {
+        return this.systemName;
     }
 }

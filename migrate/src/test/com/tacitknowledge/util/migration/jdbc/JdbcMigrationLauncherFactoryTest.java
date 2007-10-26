@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationListener;
+import com.tacitknowledge.util.migration.test.listeners.TestListener1;
 
 import junit.framework.TestCase;
 
@@ -34,7 +35,9 @@ public class JdbcMigrationLauncherFactoryTest extends TestCase
             listeners = factory.loadMigrationListeners(systemName, properties);
             assertNotNull(listeners);
             assertEquals(1, listeners.size());
-            assertTrue(listeners.get(0) instanceof MigrationListener);
+            TestListener1 listener = (TestListener1) listeners.get(0);
+            assertTrue(listener.getSystemName().equals(systemName));
+            
         } catch (MigrationException e)
         {
             fail("Unexpected exception while loading Migration Listeners for " + systemName);
