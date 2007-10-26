@@ -14,6 +14,8 @@
  */
 package com.tacitknowledge.util.migration;
 
+import java.util.Properties;
+
 import junit.framework.TestCase;
 
 /**
@@ -133,5 +135,12 @@ public class MigrationBroadcasterTest extends TestCase implements MigrationListe
                                 MigrationException e)
     {
         failed = true;
+    }
+
+    /**
+     * @see com.tacitknowledge.util.migration.MigrationListener#initialize(Properties)
+     */
+    public void initialize(String systemName, Properties properties) throws MigrationException
+    {
     }
 }

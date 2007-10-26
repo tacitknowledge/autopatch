@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -559,5 +560,12 @@ public class JdbcMigrationLauncher implements MigrationListener
     public void setContexts(LinkedHashMap contexts)
     {
         this.contexts = contexts;
+    }
+
+    /**
+     * @see com.tacitknowledge.util.migration.MigrationListener#initialize(Properties)
+     */
+    public void initialize(String systemName, Properties properties) throws MigrationException
+    {
     }
 }

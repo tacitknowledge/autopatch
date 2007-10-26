@@ -15,6 +15,10 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -23,11 +27,13 @@ import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
 
@@ -62,9 +68,12 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  *           <i>systemName.jdbcname</i>.database.type, where
  *           all of the jdbc entries above should be present</td>
  * </tr>
+ * <tr><td><i>systemName</i>.listeners</td><td>Comma separated list of fully qualified java class names that implement {@link MigrationListener}</td></tr>
  * </table>
  *
  * @author Scott Askew (scott@tacitknowledge.com)
+ * @author Alex Soto <alex@tacitknowledge.com>
+ * @author Alex Soto <apsoto@gmail.com>
  */
 public class JdbcMigrationLauncherFactory
 {
@@ -280,10 +289,11 @@ public class JdbcMigrationLauncherFactory
      * @param system The name of the system we're configuring
      * @param props The Properties object with our configuration information
      * @throws IllegalArgumentException if a required parameter is missing
+     * @throws MigrationException 
      */
     private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String system, 
                                                   Properties props) 
-        throws IllegalArgumentException
+        throws IllegalArgumentException, MigrationException
     {
         launcher.setPatchPath(ConfigurationUtil.getRequiredParam(props, system + ".patch.path"));
         launcher.setPostPatchPath(props.getProperty(system + ".postpatch.path"));
@@ -346,7 +356,11 @@ public class JdbcMigrationLauncherFactory
             // Finish setting up the context
             context.setSystemName(system);
             context.setDataSource(dataSource);
-
+            
+            // setup the user-defined listeners
+            List userDefinedListeners = loadMigrationListeners(system, props);
+            launcher.getMigrationProcess().addListeners(userDefinedListeners);
+            
             // done reading in config, set launcher's context
             launcher.addContext(context);
         }
@@ -370,6 +384,49 @@ public class JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher getJdbcMigrationLauncher()
     {
         return new JdbcMigrationLauncher();
+    }
+
+    /**
+     * Returns a list of MigrationListeners for the systemName specified in the properties.
+     * @param systemName The name of the system to load MigrationListeners for.
+     * @param properties The properties that has migration listeners specified.
+     * @return A List of zero or more MigrationListeners
+     * @throws MigrationException if unable to load listeners.
+     */
+    protected List loadMigrationListeners(String systemName, Properties properties) 
+        throws MigrationException
+    {
+        try
+        {
+            List listeners = new ArrayList();
+            String[] listenerClassNames = null;
+            
+            String commaSeparatedList = properties.getProperty(systemName + ".listeners");
+            // if it's blank, then no listeners configured
+            if(StringUtils.isNotBlank(commaSeparatedList))
+            {
+                listenerClassNames = commaSeparatedList.split(",");
+
+                for(Iterator it = Arrays.asList(listenerClassNames).iterator(); it.hasNext(); )
+                {
+                    String className = ((String) it.next()).trim();
+                    // if it's blank, then there is likely a leading or trailing comma
+                    if(StringUtils.isNotBlank(className))  
+                    {
+                        Class c = Class.forName(className);
+                        MigrationListener listener = (MigrationListener) c.newInstance();
+                        listener.initialize(systemName, properties);
+                        listeners.add(listener);
+                    }
+                }
+            }
+            
+            return listeners;
+        }
+        catch(Exception e)
+        {
+            throw new MigrationException("Exception while loading migration listeners", e);
+        }
     }
 }
 

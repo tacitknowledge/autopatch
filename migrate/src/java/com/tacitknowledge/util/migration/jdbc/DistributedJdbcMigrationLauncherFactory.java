@@ -16,6 +16,7 @@ package com.tacitknowledge.util.migration.jdbc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -45,6 +46,11 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * For each system in the controlled systems list, the properties file should contain
  * information as directed in the documenation for JdbcMigrationLauncher.
  * 
+ * <p>
+ * The <i>systemName</i>.listeners property only applies to the top level system name which manages
+ * all the sub-systems.
+ * </p>
+ *  
  * If a new database node is detected in the migration.properties, the default behaviour is to
  * stop the patch process.  To force the new node to be 'brought up to date' with the other
  * nodes, then set a system property named 'forcesync'.  The value is not important, merely the
@@ -52,7 +58,7 @@ import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
  * 
  * @see com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher
  * @author Mike Hardy (mike@tacitknowledge.com)
- * @author Alex Soto <alex@tacitknowledge.com> <apsoto@gmail.com>
+ * @author Alex Soto (alex AT tacitknowledge.com) (apsoto AT gmail.com)
  */
 public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLauncherFactory
 {
@@ -212,6 +218,10 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         context.setSystemName(systemName);
         context.setDataSource(ds);
 
+        // setup the user-defined listeners
+        List userDefinedListeners = loadMigrationListeners(systemName, props);
+        launcher.getMigrationProcess().addListeners(userDefinedListeners);
+
         // done reading in config, set launcher's context
         // FIXME only using one context here, would a distributed one ever go into multiple nodes?
         launcher.addContext(context);
@@ -228,6 +238,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
                 JdbcMigrationLauncherFactoryLoader.createFactory();
             JdbcMigrationLauncher subLauncher = 
                 factory.createMigrationLauncher(controlledSystemNames[i], propFileName);
+            
             controlledSystems.put(controlledSystemNames[i], subLauncher);
             
             // Make sure the controlled migration process gets migration events

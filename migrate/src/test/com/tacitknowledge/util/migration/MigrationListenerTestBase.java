@@ -14,6 +14,8 @@
 
 package com.tacitknowledge.util.migration;
 
+import java.util.Properties;
+
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 
 /**
@@ -142,5 +144,12 @@ public class MigrationListenerTestBase extends JDBCTestCaseAdapter implements Mi
     public void testNoOp()
     {
         // does nothing
+    }
+
+    /**
+     * @see com.tacitknowledge.util.migration.MigrationListener#initialize(Properties)
+     */
+    public void initialize(String systemName, Properties properties) throws MigrationException
+    {
     }
 }

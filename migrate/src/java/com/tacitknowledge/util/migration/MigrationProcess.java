@@ -527,4 +527,18 @@ public class MigrationProcess
     {
         this.readOnly = readOnly;
     }
+
+    /**
+     * Registers the given <code>MigrationListeners</code> as being interested
+     * in migration task events.
+     * 
+     * @param listeners the listeners to add;
+     */
+    public void addListeners(List listeners)
+    {
+        for(Iterator it = listeners.iterator(); it.hasNext(); )
+        {
+            broadcaster.addListener((MigrationListener) it.next());
+        }
+    }
 }

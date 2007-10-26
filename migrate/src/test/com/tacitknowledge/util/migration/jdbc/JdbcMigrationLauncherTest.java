@@ -54,6 +54,26 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
     }
     
     /**
+     * The Launcher to test
+     * 
+     * @return JdbcMigrationLauncher to test
+     */
+    public JdbcMigrationLauncher getLauncher()
+    {
+        return launcher;
+    }
+
+    /**
+     * Set the Launcher to test
+     * 
+     * @param launcher JdbcMigrationLauncher to use for testing
+     */
+    public void setLauncher(JdbcMigrationLauncher launcher)
+    {
+        this.launcher = launcher;
+    }
+
+    /**
      * @see com.mockrunner.jdbc.JDBCTestCaseAdapter#setUp()
      */
     protected void setUp() throws Exception
@@ -209,24 +229,5 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         testLauncher.doMigrations();
         mockControl.verify();
     }
-
-    /**
-     * The Launcher to test
-     * 
-     * @return JdbcMigrationLauncher to test
-     */
-    public JdbcMigrationLauncher getLauncher()
-    {
-        return launcher;
-    }
-
-    /**
-     * Set the Launcher to test
-     * 
-     * @param launcher JdbcMigrationLauncher to use for testing
-     */
-    public void setLauncher(JdbcMigrationLauncher launcher)
-    {
-        this.launcher = launcher;
-    }
+    
 }

@@ -13,6 +13,8 @@
 
 package com.tacitknowledge.util.migration;
 
+import java.util.Properties;
+
 /**
  * Receives notifications regarding migration task migrations.
  * 
@@ -20,6 +22,14 @@ package com.tacitknowledge.util.migration;
  */
 public interface MigrationListener
 {
+    /**
+     * Initialize the migration listener.  This provides an opportunity
+     * for the MigrationListener to initialize itself before patching
+     * begins.
+     * @param properties The properties loaded from migration.properties
+     */
+    public void initialize(String systemName, Properties properties) throws MigrationException;
+    
     /**
      * Notifies the listener that the given task is about to start execution.
      * 
