@@ -3,6 +3,12 @@ Changelog for AutoPatch
 
 Version HEAD <CHANGE UPON RELEASE>
 ----------------------------------
+- Exposed the MigrationListener framework to allow user defined 
+  MigrationListeners.  Define a property named <systemname>.listeners in your 
+  migration.properties.  It supports a comma separated list of fully qualified
+  java classnames that implement the MigrationListener interface.
+  Thanks to Alex Soto <Alex @ Tacit Knowledge || apsoto @ gmail>
+  
 - Added the detection of new database nodes in a DistributedMigration.
   Default behaviour is to exit the patch process if a new node is detected.
   The node can be forcibly synced to the current patch level by defining a
