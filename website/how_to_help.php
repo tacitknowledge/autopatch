@@ -19,8 +19,8 @@
 <p>After submitting a few patches, it might make sense to give you developer access to the autopatch project. To do that, follow these steps:
 <ol>
 <li>Make sure you have a sourceforge.net account, and that it is subscribed to the autopatch-cvs mailing list</li>
+<li>Send email to the autopatch-cvs mailing list requesting to be added as a developer to the project - if you have been a reliable developer in the past, and have some good development plans for the future, we'll add you and you will be able to use CVS directly to work on the project</li>
 <li>We use CVS, and sourceforge.net CVS is done using SSH with shared keys. Make sure you have an SSH key, and that you have uploaded it to sourceforge.net, following <a href="https://sourceforge.net/docs/F02/en/">these instructions</a> - especially the part about key generation and "SSH Key Posting"</li>
-<li>Once you have your SSH key uploaded, send email to the autopatch-cvs mailing list requesting to be added as a developer to the project - if you have been a reliable developer in the past, and have some good development plans for the future, we'll add you and you will be able to use CVS directly to work on the project</li>
 </ol>
 </p>
 
