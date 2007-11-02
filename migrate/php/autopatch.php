@@ -27,6 +27,8 @@ foreach ($patches as $patch) {
 
     // Apply the patch by including it so it will execute
     echo "&nbsp;&nbsp;This patch has not been applied. Executing patch...<BR>";
+    ob_flush();
+    flush();
     
     if (preg_match("/.*\.php/", $patch)) {
         include_once($patch);
