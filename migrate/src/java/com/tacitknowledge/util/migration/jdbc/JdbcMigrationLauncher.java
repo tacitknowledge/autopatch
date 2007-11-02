@@ -245,7 +245,11 @@ public class JdbcMigrationLauncher implements MigrationListener
         for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
         {
             PatchInfoStore store = (PatchInfoStore) ((Map.Entry) patchTableIter.next()).getValue();
-            store.updatePatchLevel(patchLevel);
+            int storePatchLevel = store.getPatchLevel();
+            if(patchLevel > storePatchLevel)
+            {
+                store.updatePatchLevel(patchLevel);
+            }
         }
     }
 
