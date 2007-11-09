@@ -69,12 +69,14 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        Connection orders = DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
        Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
+       Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
        
        // 4 patches should have executed
        assertEquals(4, getPatchLevel(core));
        assertEquals(4, getPatchLevel(orders));
        assertEquals(4, getPatchLevel(catalog1));
        assertEquals(4, getPatchLevel(catalog2));
+       assertEquals(4, getPatchLevel(catalog3));
        
        
        // we should have test values in each table
@@ -83,11 +85,13 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        verifyTestTable(orders, "order_table_2");
        verifyTestTable(catalog1, "catalog_table_1");
        verifyTestTable(catalog2, "catalog_table_1");
+       verifyTestTable(catalog3, "catalog_table_1");
        
        SqlUtil.close(core, null, null);
        SqlUtil.close(orders, null, null);
        SqlUtil.close(catalog1, null, null);
        SqlUtil.close(catalog2, null, null);
+       SqlUtil.close(catalog3, null, null);
     }
    
     /**
@@ -105,15 +109,17 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
         Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
         Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
+        Connection catalog4 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog4", "sa", "");
 
         // make sure databases are in the state we expect
         assertEquals(4, getPatchLevel(core));
         assertEquals(4, getPatchLevel(orders));
         assertEquals(4, getPatchLevel(catalog1));
         assertEquals(4, getPatchLevel(catalog2));
+        assertEquals(4, getPatchLevel(catalog3));
         try
         {
-            getPatchLevel(catalog3);
+            getPatchLevel(catalog4);
             fail("patches table should not exist at this point");
         } 
         catch (Exception e)
@@ -146,13 +152,15 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         assertEquals(4, getPatchLevel(orders));
         assertEquals(4, getPatchLevel(catalog1));
         assertEquals(4, getPatchLevel(catalog2));
-        assertEquals(0, getPatchLevel(catalog3));
+        assertEquals(4, getPatchLevel(catalog3));
+        assertEquals(0, getPatchLevel(catalog4));
         
         SqlUtil.close(core, null, null);
         SqlUtil.close(orders, null, null);
         SqlUtil.close(catalog1, null, null);
         SqlUtil.close(catalog2, null, null);
         SqlUtil.close(catalog3, null, null);
+        SqlUtil.close(catalog4, null, null);
 
     }
     
@@ -186,17 +194,20 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         }
         
         // Make sure everything worked out okay
-        Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
+        Connection catalog4 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog4", "sa", "");
+        Connection catalog5 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog5", "sa", "");
         
         // 4 patches should have executed
-        assertEquals(4, getPatchLevel(catalog3));
+        assertEquals(4, getPatchLevel(catalog4));
+        assertEquals(4, getPatchLevel(catalog5));
         
         
         // we should have test values in each table
-        verifyTestTable(catalog3, "catalog_table_1");
+        verifyTestTable(catalog4, "catalog_table_1");
+        verifyTestTable(catalog5, "catalog_table_1");
         
-        SqlUtil.close(catalog3, null, null);
-
+        SqlUtil.close(catalog4, null, null);
+        SqlUtil.close(catalog5, null, null);
     }
     
     /**

@@ -188,25 +188,38 @@ public class DistributedMigrationProcess extends MigrationProcess
             }
             else if(forceSync)// if a sync is forced, need to check all the contexts to identify the ones out of sync
             {
-                JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) migrationsWithLaunchers.get(task);
                 boolean patchesApplied = false;
+                ArrayList outOfSyncContexts = new ArrayList();
+                
+                // first need to iterate over all the contexts and determined which one's are out of sync.
+                // can't sync yet because if there are multiple contexts that are out of sync, after the
+                // first one is synced, the remaining one's have their patch level updated via the
+                // MigrationListener.migrationSuccessful event.
+                JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) migrationsWithLaunchers.get(task);
                 for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
                 {
                     MigrationContext launcherContext = (MigrationContext) j.next();
                     PatchInfoStore patchInfoStore = (PatchInfoStore) launcher.getContexts().get(launcherContext);
-                    
+                  
                     if(task.getLevel().intValue() > patchInfoStore.getPatchLevel())
                     {
-                        applyPatch(launcherContext, task, true);
-                        patchesApplied = true;
+                        outOfSyncContexts.add(launcherContext);
                     }
+                }
+                
+                // next patch the contexts that have been determined to be out of sync
+                for (Iterator iter = outOfSyncContexts.iterator(); iter.hasNext();)
+                {
+                    MigrationContext launcherContext = (MigrationContext) iter.next();
+                    applyPatch(launcherContext, task, true);
+                    patchesApplied = true;
                 }
                 
                 if(patchesApplied) 
                 {
                     taskCount++;
                 }
-            }
+            } // else if forceSync
         }
         
         if (taskCount > 0)
