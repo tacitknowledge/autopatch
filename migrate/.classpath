@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="var" path="CLOVER_RUNTIME"/>
-	<classpathentry kind="src" path="src/inttest"/>
-	<classpathentry kind="src" path="src/optional/atg"/>
-	<classpathentry kind="src" path="src/optional/spring"/>
 	<classpathentry kind="src" path="src/java"/>
-	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="src" path="src/test/inttest"/>
+	<classpathentry kind="src" path="src/test/unittest"/>
+	<classpathentry excluding="**" kind="src" path="contrib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/build/ant-optional-1.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/build/servletapi-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/core/commons-logging-1.0.3.jar"/>
@@ -27,7 +26,7 @@
 	<classpathentry kind="lib" path="lib/build/checkstyle-all-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/dbunit-2.2.jar" sourcepath="/opt/software/dbunit-2.2/src/java"/>
 	<classpathentry kind="lib" path="lib/core/tk-util-1.1.2.jar" sourcepath="/Users/asoto/projects/tacitknowledge/common/util/src/java"/>
-	<classpathentry kind="lib" path="lib/test/easymock-1.2_Java1.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/commons-lang-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/test/easymock1.2_Java1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

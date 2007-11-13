@@ -55,10 +55,10 @@
   <property name="optional.home"           value="src/optional"/>
 
   <!-- The base directory for unit test sources -->
-  <property name="test.home"               value="src/test"/>
+  <property name="test.home"               value="src/test/unittest"/>
 
   <!-- The base directory for integration test sources -->
-  <property name="inttest.home"            value="src/inttest"/>
+  <property name="inttest.home"            value="src/test/inttest"/>
 
   <!-- The base directory for all reports  -->
   <property name="reports.home"		       value="${build.home}/reports"/>
