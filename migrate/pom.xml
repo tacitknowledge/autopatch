@@ -14,6 +14,21 @@
 		<name>Tacit Knowledge</name>
 	</organization>
 
+	<repositories>
+		<repository>
+			<id>tk-public</id>
+			<name>TK Public Repository</name>
+			<url>http://repo1.tacitknowledge.com/repository/public</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
 	<build>
 		<sourceDirectory>${basedir}/src/java</sourceDirectory>
 		<testSourceDirectory>${basedir}/src/test</testSourceDirectory>
@@ -234,5 +249,13 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<distributionManagement>
+		<repository>
+			<id>tk-public</id>
+			<name>TK Public Repository</name>
+			<url>scp://repo1.tacitknowledge.com:/opt/maven-repo/public</url>
+		</repository>
+	</distributionManagement>
 </project>
 
