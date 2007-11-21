@@ -524,7 +524,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public boolean isReadOnly()
     {
-        return readOnly;
+        return getMigrationProcess().isReadOnly();
     }
 
     /**
@@ -534,7 +534,7 @@ public class JdbcMigrationLauncher implements MigrationListener
      */
     public void setReadOnly(boolean readOnly)
     {
-        this.readOnly = readOnly;
+        getMigrationProcess().setReadOnly(readOnly);
     }
 
     /**

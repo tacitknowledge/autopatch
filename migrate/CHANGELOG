@@ -33,6 +33,9 @@ Version HEAD <CHANGE UPON RELEASE>
 
 - Added support for raw .sql patches in the PHP AutoPatch
   Thanks to Mike Hardy @ Tacit Knowledge
+  
+- Fixed a bug in the handling of the readOnly flag that caused it not to work!
+  Bug found and correct patch proposed by Natalia Usmanova. Thanks Natalia!
 
 Version 1.0.3
 -------------
