@@ -3,6 +3,8 @@ Changelog for AutoPatch
 
 Version HEAD <CHANGE UPON RELEASE>
 ----------------------------------
+- Example configuration for mssql / ant from Simon Kingaby. Thanks Simon!
+
 - Exposed the MigrationListener framework to allow user defined 
   MigrationListeners.  Define a property named <systemname>.listeners in your 
   migration.properties.  It supports a comma separated list of fully qualified
