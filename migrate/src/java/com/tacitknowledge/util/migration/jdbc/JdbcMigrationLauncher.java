@@ -567,7 +567,7 @@ public class JdbcMigrationLauncher implements MigrationListener
     }
 
     /**
-     * @see com.tacitknowledge.util.migration.MigrationListener#initialize(Properties)
+     * @see com.tacitknowledge.util.migration.MigrationListener#initialize(String, Properties)
      */
     public void initialize(String systemName, Properties properties) throws MigrationException
     {

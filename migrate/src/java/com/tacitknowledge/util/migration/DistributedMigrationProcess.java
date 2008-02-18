@@ -87,7 +87,7 @@ public class DistributedMigrationProcess extends MigrationProcess
      * we would have executed.
      * @param currentPatchLevel The current patch level of the database
      * @param migrationsWithLaunchers a map of migration task to launcher
-     * @return
+     * @return count of the number of patches
      */
     protected int patchDryRun(int currentPatchLevel, LinkedHashMap migrationsWithLaunchers)
     {
@@ -249,7 +249,8 @@ public class DistributedMigrationProcess extends MigrationProcess
                 JdbcMigrationContext ctx = (JdbcMigrationContext) contextIt.next();
                 PatchInfoStore patchInfoStore = (PatchInfoStore) launcher.getContexts().get(ctx);
                 int patchLevel = patchInfoStore.getPatchLevel(); 
-                if (patchLevel != currentLevel) {
+                if (patchLevel != currentLevel) 
+                {
                     String message = "Database " + ctx.getDatabaseName() + " is out of sync with system: " + systemName +
                     ".  " + ctx.getDatabaseName() + " is at patch level " + Integer.toString(patchLevel) +
                     " and the System is at patch level " + Integer.toString(currentLevel) + ".";

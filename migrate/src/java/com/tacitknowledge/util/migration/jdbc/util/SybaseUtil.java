@@ -127,7 +127,8 @@ public class SybaseUtil
      * sql commands that are not allowed in a multi-statement transaction.
      * @param statement the text to check
      * @return true if one of the illegal commands is found in the statement.
-     * @see http://manuals.sybase.com/onlinebooks/group-as/asg1250e/svrtsg/Generic__BookTextView/13155;pt=13085
+     * @see <a href="http://manuals.sybase.com/onlinebooks/group-as/asg1250e/svrtsg/Generic__BookTextView/13155;pt=13085">
+     * 		Sybase Troubleshooting and Error Messages Guide</a>
      */
     public static boolean containsIllegalMultiStatementTransactionCommand(String statement)
     {
