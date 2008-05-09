@@ -49,4 +49,27 @@ public abstract class BaseTestMigrationTask extends MigrationTaskSupport
             ctx.recordExecution(getName());
         }
     }
+    
+    public void up(MigrationContext context) throws MigrationException 
+    {
+        if (context instanceof TestMigrationContext)
+        {
+            TestMigrationContext ctx = (TestMigrationContext) context;
+            ctx.recordExecution(getName());
+        }
+    }
+
+    public void down(MigrationContext context) throws MigrationException 
+    {
+        if (context instanceof TestMigrationContext)
+        {
+            TestMigrationContext ctx = (TestMigrationContext) context;
+            ctx.recordExecution(getName());
+        }
+    }
+
+	public boolean isRollbackSupported() {
+		return true;
+	}
+
 }
