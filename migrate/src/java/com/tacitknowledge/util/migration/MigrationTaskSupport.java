@@ -13,13 +13,18 @@
  */
 package com.tacitknowledge.util.migration;
 
+import javax.naming.OperationNotSupportedException;
+
 /**
  * Convenience base class for migration tasks.
  * 
- * @author  Scott Askew (scott@tacitknowledge.com)x
+ * @author  Scott Askew (scott@tacitknowledge.com)
+ * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
-public abstract class MigrationTaskSupport implements MigrationTask
+public abstract class MigrationTaskSupport implements RollbackableMigrationTask
 {
+	protected boolean isRollbackSupported = false;
+	
     /**
      * The name of this migration task
      */
@@ -72,4 +77,31 @@ public abstract class MigrationTaskSupport implements MigrationTask
         }
         return getLevel().compareTo(task.getLevel());
     }
+
+    /**
+     * By default, this method is not supported.
+     */
+	public void down(MigrationContext context) throws MigrationException {
+		throw new UnsupportedOperationException("This method is not supported by this task.");	
+	}
+
+	/**
+	 * @return a boolean indicating if rollback is supported
+	 */
+	public boolean isRollbackSupported() {
+		return isRollbackSupported;
+	}
+	
+	/**
+	 * Sets the isRollbackSupported attribute
+	 * @param isRollbackSupported
+	 */
+	public void setRollbackSupported(boolean isRollbackSupported)
+	{
+		this.isRollbackSupported = isRollbackSupported;
+	}
+	
+	public void up(MigrationContext context) throws MigrationException {
+		migrate(context);
+	}
 }
