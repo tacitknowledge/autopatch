@@ -133,8 +133,8 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     {
         DistributedMigrationProcess process = 
             (DistributedMigrationProcess) launcher.getMigrationProcess();
-        assertEquals(7, process.getMigrationTasks().size());
-        assertEquals(7, process.getMigrationTasksWithLaunchers().size());
+        assertEquals(8, process.getMigrationTasks().size());
+        assertEquals(8, process.getMigrationTasksWithLaunchers().size());
     }
     
     /**
@@ -197,7 +197,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
             log.debug("got exception: " + me.getMessage());
         }
         
-        currentPatchLevel = 7;
+        currentPatchLevel = 8;
         // need to mock the patch info stores to return the expected patch levels        
         setReportedPatchLevel(controlledSystems.values(), currentPatchLevel);
 
@@ -239,9 +239,9 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         int currentPatchlevel = 3;
         setReportedPatchLevel(process.getControlledSystems().values(), currentPatchlevel);
         int patches = process.doMigrations(currentPatchlevel, context);
-        assertEquals(4, patches);
-        assertEquals(4, getMigrationStartedCount());
-        assertEquals(4, getMigrationSuccessCount());
+        assertEquals(5, patches);
+        assertEquals(5, getMigrationStartedCount());
+        assertEquals(5, getMigrationSuccessCount());
     }
     
     /**
