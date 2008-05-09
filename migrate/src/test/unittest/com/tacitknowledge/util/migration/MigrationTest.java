@@ -49,6 +49,7 @@ public class MigrationTest extends MigrationListenerTestBase
         super.setUp();
         runner = new MigrationProcess();
         runner.addPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.normal");
+        runner.addPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.rollback");
         runner.addPostPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.post");
         runner.addListener(this);
         
@@ -74,20 +75,24 @@ public class MigrationTest extends MigrationListenerTestBase
     public void testRunAllMigrationTasks() throws MigrationException
     {
         List l = runner.getMigrationTasks();
-        assertEquals(5, l.size());
+        assertEquals(9, l.size());
         
         int level = runner.doMigrations(0, context);
         runner.doPostPatchMigrations(context);
-        assertEquals(5, level);
+        assertEquals(9, level);
         assertTrue(context.hasExecuted("TestTask1"));
         assertTrue(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
         assertTrue(context.hasExecuted("TestRollbackableTask1"));
+        assertTrue(context.hasExecuted("TestRollbackableTask2"));
+        assertTrue(context.hasExecuted("TestRollbackableTask3"));
+        assertTrue(context.hasExecuted("TestRollbackableTask4"));
+        assertTrue(context.hasExecuted("TestRollbackableTask5"));
         assertTrue(context.hasExecuted("TestPostTask1"));
         assertTrue(context.hasExecuted("TestPostTask2"));
-        assertEquals(5, getMigrationStartedCount());
-        assertEquals(5, getMigrationSuccessCount());
+        assertEquals(9, getMigrationStartedCount());
+        assertEquals(9, getMigrationSuccessCount());
     }
     
     /**
@@ -98,27 +103,31 @@ public class MigrationTest extends MigrationListenerTestBase
     public void testReRunAllMigrationTasks() throws MigrationException
     {
         List l = runner.getMigrationTasks();
-        assertEquals(5, l.size());
+        assertEquals(9, l.size());
         
         // run them all once
         int level = runner.doMigrations(0, context);
         runner.doPostPatchMigrations(context);
-        assertEquals(5, level);
+        assertEquals(9, level);
         assertTrue(context.hasExecuted("TestTask1"));
         assertTrue(context.hasExecuted("TestTask2"));
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
         assertTrue(context.hasExecuted("TestRollbackableTask1"));
+        assertTrue(context.hasExecuted("TestRollbackableTask2"));
+        assertTrue(context.hasExecuted("TestRollbackableTask3"));
+        assertTrue(context.hasExecuted("TestRollbackableTask4"));
+        assertTrue(context.hasExecuted("TestRollbackableTask5"));
         assertTrue(context.hasExecuted("TestPostTask1"));
         assertTrue(context.hasExecuted("TestPostTask2"));
-        assertEquals(5, getMigrationStartedCount());
-        assertEquals(5, getMigrationSuccessCount());
+        assertEquals(9, getMigrationStartedCount());
+        assertEquals(9, getMigrationSuccessCount());
         
         // now re-run them and see what happens
         setMigrationStartedCount(0);
         setMigrationFailedCount(0);
         setMigrationSuccessCount(0);
-        level = runner.doMigrations(8, context);
+        level = runner.doMigrations(15, context);
         runner.doPostPatchMigrations(context);
         assertEquals(0, level);
         assertTrue(context.hasExecuted("TestTask1"));
@@ -126,6 +135,10 @@ public class MigrationTest extends MigrationListenerTestBase
         assertTrue(context.hasExecuted("TestTask3"));
         assertTrue(context.hasExecuted("TestTask4"));
         assertTrue(context.hasExecuted("TestRollbackableTask1"));
+        assertTrue(context.hasExecuted("TestRollbackableTask2"));
+        assertTrue(context.hasExecuted("TestRollbackableTask3"));
+        assertTrue(context.hasExecuted("TestRollbackableTask4"));
+        assertTrue(context.hasExecuted("TestRollbackableTask5"));
         assertTrue(context.hasExecuted("TestPostTask1"));
         assertTrue(context.hasExecuted("TestPostTask2"));
         assertEquals(0, getMigrationStartedCount());
@@ -141,16 +154,20 @@ public class MigrationTest extends MigrationListenerTestBase
     public void testRunPartialMigrationTasks() throws MigrationException
     {
         List l = runner.getMigrationTasks();
-        assertEquals(5, l.size());
+        assertEquals(9, l.size());
         
-        int level = runner.doMigrations(5, context);
+        int level = runner.doMigrations(9, context);
         runner.doPostPatchMigrations(context);
         assertEquals(3, level);
         assertFalse(context.hasExecuted("TestTask1"));
         assertFalse(context.hasExecuted("TestTask2"));
-        assertTrue(context.hasExecuted("TestTask3"));
-        assertTrue(context.hasExecuted("TestTask4"));
-        assertTrue(context.hasExecuted("TestRollbackableTask1"));
+        assertFalse(context.hasExecuted("TestTask3"));
+        assertFalse(context.hasExecuted("TestTask4"));
+        assertFalse(context.hasExecuted("TestRollbackableTask1"));
+        assertFalse(context.hasExecuted("TestRollbackableTask2"));
+        assertTrue(context.hasExecuted("TestRollbackableTask3"));
+        assertTrue(context.hasExecuted("TestRollbackableTask4"));
+        assertTrue(context.hasExecuted("TestRollbackableTask5"));
         assertTrue(context.hasExecuted("TestPostTask1"));
         assertTrue(context.hasExecuted("TestPostTask2"));
         assertEquals(3, getMigrationStartedCount());
@@ -166,7 +183,7 @@ public class MigrationTest extends MigrationListenerTestBase
     {
         List l = runner.getMigrationTasks();
         TestMigrationTask3.setFail(true);
-        assertEquals(5, l.size());
+        assertEquals(9, l.size());
         
         int executedTasks = 0;
         try
@@ -185,6 +202,10 @@ public class MigrationTest extends MigrationListenerTestBase
         assertFalse(context.hasExecuted("TestTask3"));
         assertFalse(context.hasExecuted("TestTask4"));
         assertFalse(context.hasExecuted("TestRollbackableTask1"));
+        assertFalse(context.hasExecuted("TestRollbackableTask2"));
+        assertFalse(context.hasExecuted("TestRollbackableTask3"));
+        assertFalse(context.hasExecuted("TestRollbackableTask4"));
+        assertFalse(context.hasExecuted("TestRollbackableTask5"));
         assertFalse(context.hasExecuted("TestPostTask1"));
         assertFalse(context.hasExecuted("TestPostTask2"));
         assertEquals(1, getMigrationStartedCount());
@@ -239,6 +260,6 @@ public class MigrationTest extends MigrationListenerTestBase
     public void testGetNextPatchLevel() throws MigrationException
     {
         int level = runner.getNextPatchLevel();
-        assertEquals(9, level);
+        assertEquals(13, level);
     } 
 }

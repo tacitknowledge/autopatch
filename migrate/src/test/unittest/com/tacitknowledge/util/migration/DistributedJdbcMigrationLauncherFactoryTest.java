@@ -133,8 +133,8 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
     {
         DistributedMigrationProcess process = 
             (DistributedMigrationProcess) launcher.getMigrationProcess();
-        assertEquals(8, process.getMigrationTasks().size());
-        assertEquals(8, process.getMigrationTasksWithLaunchers().size());
+        assertEquals(7, process.getMigrationTasks().size());
+        assertEquals(7, process.getMigrationTasksWithLaunchers().size());
     }
     
     /**
@@ -239,9 +239,9 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         int currentPatchlevel = 3;
         setReportedPatchLevel(process.getControlledSystems().values(), currentPatchlevel);
         int patches = process.doMigrations(currentPatchlevel, context);
-        assertEquals(5, patches);
-        assertEquals(5, getMigrationStartedCount());
-        assertEquals(5, getMigrationSuccessCount());
+        assertEquals(4, patches);
+        assertEquals(4, getMigrationStartedCount());
+        assertEquals(4, getMigrationSuccessCount());
     }
     
     /**
