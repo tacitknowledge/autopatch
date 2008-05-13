@@ -1,4 +1,4 @@
-/* Copyright 2006 Tacit Knowledge LLC
+/* Copyright 2008 Tacit Knowledge LLC
  * 
  * Licensed under the Tacit Knowledge Open License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License. You may
@@ -20,18 +20,18 @@ import java.util.Properties;
  * 
  * @author  Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
-public interface RollbackListener
+public interface RollbackListener extends MigrationListener
 {
     /**
-     * Initialize the migration listener.  This provides an opportunity
-     * for the MigrationListener to initialize itself before patching
+     * Initialize the rollback listener.  This provides an opportunity
+     * for the RollbackListener to initialize itself before patching
      * begins.
      * @param properties The properties loaded from migration.properties
      */
     public void initialize(String systemName, Properties properties) throws MigrationException;
     
     /**
-     * Notifies the listener that the given task is about to start execution.
+     * Notifies the listener that the given rollback is about to start execution.
      * 
      * @param  task the recently finished task
      * @param  context the migration context
@@ -41,7 +41,7 @@ public interface RollbackListener
         throws MigrationException;
     
     /**
-     * Notifies the listener that the given task has completed execution. 
+     * Notifies the listener that the given roolback has completed execution. 
      * 
      * @param  task the recently finished task
      * @param  context the migration context
@@ -51,7 +51,7 @@ public interface RollbackListener
         throws MigrationException;
 
     /**
-     * Notifies the listener that the given task has completed execution. 
+     * Notifies the listener that the given rollback has completed execution. 
      * 
      * @param  task the recently finished task
      * @param  context the migration context
