@@ -226,6 +226,13 @@ public class MigrationProcess
 
 	if (isPatchSetRollbackable)
 	{
+	    // See if we should execute
+	    if (isReadOnly())
+	    {
+		throw new MigrationException(
+			"Unapplied rollbacks exist, but read-only flag is set");
+	    }
+
 	    // the list of patches is rollbackable now actually perform the
 	    // rollbacks
 	    log.info("A total of " + migrations.size() + " will execute.");
@@ -263,13 +270,13 @@ public class MigrationProcess
     }
 
     /**
-     * Helper method to determinne if the set of migration tasks is rollbackable
+     * Helper method to determine if the set of migration tasks is rollbackable
      * 
      * @param migrations
      *                a List of MigrationTasks
      * @return a boolean value indicating if all of the tasks can be rolledback
      */
-    private boolean isPatchSetRollbackable(List migrations)
+    protected boolean isPatchSetRollbackable(List migrations)
     {
 	boolean isRollbackable = true;
 
@@ -646,34 +653,10 @@ public class MigrationProcess
     public void addListener(MigrationListener listener)
     {
 	broadcaster.addListener(listener);
+	if(listener instanceof RollbackListener)
+	    rollbackBroadcaster.addListener((RollbackListener)listener);
     }
-
-    /**
-     * Registers the given <code>MigrationListener</code> as being interested
-     * in rollback task events.
-     * 
-     * @param listener
-     *                the listener to add; may not be <code>null</code>
-     */
-    public void addRollbackListener(RollbackListener listener)
-    {
-	rollbackBroadcaster.addListener(listener);
-    }
-
-    /**
-     * Removes the given <code>MigrationListener</code> from the list of
-     * listeners associated with this <code>Migration</code> instance.
-     * 
-     * @param listener
-     *                the listener to add; may not be <code>null</code>
-     * @return <code>true</code> if the listener was located and removed,
-     *         otherwise <code>false</code>.
-     */
-    public boolean removeRollbackListener(RollbackListener listener)
-    {
-	return rollbackBroadcaster.removeListener(listener);
-    }
-
+    
     /**
      * Removes the given <code>MigrationListener</code> from the list of
      * listeners associated with this <code>Migration</code> instance.
@@ -779,22 +762,10 @@ public class MigrationProcess
     {
 	for (Iterator it = listeners.iterator(); it.hasNext();)
 	{
-	    broadcaster.addListener((MigrationListener) it.next());
-	}
-    }
-
-    /**
-     * Registers the given <code>MigrationListeners</code> as being interested
-     * in migration task events.
-     * 
-     * @param listeners
-     *                the listeners to add;
-     */
-    public void addRollbackListeners(List listeners)
-    {
-	for (Iterator it = listeners.iterator(); it.hasNext();)
-	{
-	    rollbackBroadcaster.addListener((RollbackListener) it.next());
+	    MigrationListener listener = (MigrationListener) it.next();
+	    broadcaster.addListener(listener);
+	    if(listener instanceof RollbackListener)
+		rollbackBroadcaster.addListener((RollbackListener)listener);
 	}
     }
 }
