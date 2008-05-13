@@ -19,36 +19,45 @@ import com.tacitknowledge.util.migration.MigrationTaskSupport;
 import com.tacitknowledge.util.migration.TestMigrationContext;
 
 /**
- * Base class for rollback task tests. 
+ * Base class for rollback task tests.
  * 
- * @author  Artie Pesh-Imam (apeshimam@tacitknowledge.com)
+ * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
-public abstract class BaseTestRollbackableMigrationTask extends MigrationTaskSupport
+public abstract class BaseTestRollbackableMigrationTask extends
+	MigrationTaskSupport
 {
     /**
-     * Create a new <code>BaseTestMigrationTask</code>.
+     * Create a new <code>BaseTestRollbackableMigrationTask</code>.
      * 
-     * @param name the name of the task
-     * @param level the patch level of the task
+     * @param name
+     *                the name of the task
+     * @param level
+     *                the patch level of the task
      */
     protected BaseTestRollbackableMigrationTask(String name, int level)
     {
-        setName(name);
-        setLevel(new Integer(level));
+	setName(name);
+	setLevel(new Integer(level));
     }
-    
 
-    public void down(MigrationContext context) throws MigrationException 
+    /**
+     * Perform a rollback
+     */
+    public void down(MigrationContext context) throws MigrationException
     {
-        if (context instanceof TestMigrationContext)
-        {
-            TestMigrationContext ctx = (TestMigrationContext) context;
-            ctx.recordExecution(getName());
-        }
+	if (context instanceof TestMigrationContext)
+	{
+	    TestMigrationContext ctx = (TestMigrationContext) context;
+	    ctx.recordExecution(getName());
+	}
     }
 
-	public boolean isRollbackSupported() {
-		return true;
-	}
+    /**
+     * Return true indicating that rollback is supported
+     */
+    public boolean isRollbackSupported()
+    {
+	return true;
+    }
 
 }
