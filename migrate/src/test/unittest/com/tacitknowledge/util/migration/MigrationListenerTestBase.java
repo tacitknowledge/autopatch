@@ -23,7 +23,7 @@ import com.mockrunner.jdbc.JDBCTestCaseAdapter;
  * 
  * @author  Mike Hardy (mike@tacitknowledge.com)
  */
-public class MigrationListenerTestBase extends JDBCTestCaseAdapter implements MigrationListener
+public class MigrationListenerTestBase extends JDBCTestCaseAdapter implements RollbackListener
 {
     /** the count of times "migration started" was broadcast */
     private int migrationStartedCount = 0;
@@ -33,6 +33,15 @@ public class MigrationListenerTestBase extends JDBCTestCaseAdapter implements Mi
     
     /** the count of times "migration failed" was broadcast */
     private int migrationFailedCount = 0;
+    
+    /** the count of times "migration started" was broadcast */
+    private int rollbackStartedCount = 0;
+    
+    /** the count of times "migration success" was broadcast */
+    private int rollbackSuccessCount = 0;
+    
+    /** the count of times "migration failed" was broadcast */
+    private int rollbackFailedCount = 0;
     
     /**
      * Constructor for MigrationTest.
@@ -44,6 +53,48 @@ public class MigrationListenerTestBase extends JDBCTestCaseAdapter implements Mi
         super(name);
     }
     
+    public void rollbackStarted(RollbackableMigrationTask task, MigrationContext con)  {
+	setRollbackStartedCount(getRollbackStartedCount() + 1);
+    }
+    
+    public void rollbackSuccessful(RollbackableMigrationTask task, MigrationContext con) {
+	setRollbackSuccessCount(getRollbackSuccessCount() + 1);
+    }
+    
+    public void rollbackFailed(RollbackableMigrationTask task, MigrationContext con, MigrationException me) {
+	setRollbackFailedCount(getRollbackFailedCount() + 1);
+    }
+    
+    public int getRollbackStartedCount()
+    {
+        return rollbackStartedCount;
+    }
+
+    public void setRollbackStartedCount(int rollbackStartedCount)
+    {
+        this.rollbackStartedCount = rollbackStartedCount;
+    }
+
+    public int getRollbackSuccessCount()
+    {
+        return rollbackSuccessCount;
+    }
+
+    public void setRollbackSuccessCount(int rollbackSuccessCount)
+    {
+        this.rollbackSuccessCount = rollbackSuccessCount;
+    }
+
+    public int getRollbackFailedCount()
+    {
+        return rollbackFailedCount;
+    }
+
+    public void setRollbackFailedCount(int rollbackFailedCount)
+    {
+        this.rollbackFailedCount = rollbackFailedCount;
+    }
+
     /**
      * Implements the migration started listener
      *
