@@ -10,7 +10,7 @@ public class TestMigrationTaskRollback1 extends MigrationTaskSupport implements 
 
 	public TestMigrationTaskRollback1() {
 		setName("TestMigrationTaskRollback1");
-		setLevel(13);
+		setLevel(new Integer(13));
 	}
 
 	public void migrate(MigrationContext context) throws MigrationException {
