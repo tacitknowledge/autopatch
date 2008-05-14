@@ -209,21 +209,21 @@ public class MigrationProcess
 		    "The rollback patch level cannot be greater than the current patch level");
 	}
 
-	List migrations = getMigrationTasks();
-	validateTasks(migrations);
+	List rollbacks = getMigrationTasks();
+	validateTasks(rollbacks);
 
 	// filter tasks which are not required to run because they are at a
 	// level below the rollback level
 	PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(
 		currentLevel, rollbackLevel);
-	CollectionUtils.filter(migrations, rollbackPredicate);
-	Collections.sort(migrations);
+	CollectionUtils.filter(rollbacks, rollbackPredicate);
+	Collections.sort(rollbacks);
 
 	// need to reverse the list do we apply the rollbacks in descending
 	// order
-	Collections.reverse(migrations);
-	boolean isPatchSetRollbackable = isPatchSetRollbackable(migrations);
-
+	Collections.reverse(rollbacks);
+	boolean isPatchSetRollbackable = isPatchSetRollbackable(rollbacks);
+	taskCount = rollbackDryRun(rollbacks, context);
 	if (isPatchSetRollbackable)
 	{
 	    // See if we should execute
@@ -235,8 +235,9 @@ public class MigrationProcess
 
 	    // the list of patches is rollbackable now actually perform the
 	    // rollbacks
-	    log.info("A total of " + migrations.size() + " will execute.");
-	    for (Iterator i = migrations.iterator(); i.hasNext();)
+	    log.info("A total of " + taskCount + " rollbacks will execute.");
+	    taskCount = 0;
+	    for (Iterator i = rollbacks.iterator(); i.hasNext();)
 	    {
 		RollbackableMigrationTask task = (RollbackableMigrationTask) i
 			.next();
@@ -253,12 +254,12 @@ public class MigrationProcess
 	{
 	    // Can I list the tasks which are not rollbackable?
 	    log
-		    .info("Could not complete rollback because one or more of the tasks is not rollbackable");
+		    .info("Could not complete rollback because one or more of the tasks is not rollbackable. " +
+		    		"The system is still at patch level "+ currentLevel +".");
+	    taskCount = 0;
 	}
 	if (currentLevel == rollbackLevel)
 	{
-	    // log.info("Rollback complete (" + taskCount + " patch tasks have
-	    // been rolledback)");
 	    log
 		    .info("Rollback complete.  The system is now at the desired patch level.");
 	} else
@@ -301,6 +302,7 @@ public class MigrationProcess
 	return isRollbackable;
     }
 
+
     /**
      * Applies necessary patches to the system.
      * 
@@ -322,26 +324,7 @@ public class MigrationProcess
 	Collections.sort(migrations);
 	int taskCount = 0;
 
-	// Roll through once, just printing out what we'll do
-	for (Iterator i = migrations.iterator(); i.hasNext();)
-	{
-	    MigrationTask task = (MigrationTask) i.next();
-	    if (task.getLevel().intValue() > currentLevel)
-	    {
-		log
-			.info("Will execute patch task '" + getTaskLabel(task)
-				+ "'");
-		log.debug("Task will execute in context '" + context + "'");
-		taskCount++;
-	    }
-	}
-	if (taskCount > 0)
-	{
-	    log.info("A total of " + taskCount + " patch tasks will execute.");
-	} else
-	{
-	    log.info("System up-to-date.  No patch tasks will execute.");
-	}
+	taskCount = dryRun(currentLevel, context, migrations);
 
 	// See if we should execute
 	// FIXME test read-only mode throwing an exception or letting it go
@@ -378,6 +361,59 @@ public class MigrationProcess
 	    log.info("System up-to-date.  No patch tasks executed.");
 	}
 
+	return taskCount;
+    }
+    
+    private int rollbackDryRun(List migrations, MigrationContext context)
+    {
+	int taskCount = 0;
+	// Roll through once, just printing out what we'll do
+	for (Iterator i = migrations.iterator(); i.hasNext();)
+	{
+	    RollbackableMigrationTask task = (RollbackableMigrationTask) i.next();
+
+
+		log
+			.info("Will execute rollback for task '" + getTaskLabel(task)
+				+ "'");
+		log.debug("Task will execute in context '" + context + "'");
+		taskCount++;
+
+	}
+	if (taskCount > 0)
+	{
+	    log.info("A total of " + taskCount + " patch tasks will rollback.");
+	} else
+	{
+	    log.info("System up-to-date.  No patch tasks will execute.");
+	}
+	return taskCount;
+    }
+
+    private int dryRun(int currentLevel, MigrationContext context,
+	    List migrations)
+    {
+	int taskCount = 0;
+	// Roll through once, just printing out what we'll do
+	for (Iterator i = migrations.iterator(); i.hasNext();)
+	{
+	    MigrationTask task = (MigrationTask) i.next();
+	    if (task.getLevel().intValue() > currentLevel)
+	    {
+		log
+			.info("Will execute patch task '" + getTaskLabel(task)
+				+ "'");
+		log.debug("Task will execute in context '" + context + "'");
+		taskCount++;
+	    }
+	}
+	if (taskCount > 0)
+	{
+	    log.info("A total of " + taskCount + " patch tasks will execute.");
+	} else
+	{
+	    log.info("System up-to-date.  No patch tasks will execute.");
+	}
 	return taskCount;
     }
 
