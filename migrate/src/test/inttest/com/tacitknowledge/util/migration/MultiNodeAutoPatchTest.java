@@ -45,7 +45,6 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
     {
         super(name);
     }
-    
     /**
      * Test that all the tables were created successfully in all of the databases
      * 
@@ -86,6 +85,69 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        verifyTestTable(catalog1, "catalog_table_1");
        verifyTestTable(catalog2, "catalog_table_1");
        verifyTestTable(catalog3, "catalog_table_1");
+       
+       SqlUtil.close(core, null, null);
+       SqlUtil.close(orders, null, null);
+       SqlUtil.close(catalog1, null, null);
+       SqlUtil.close(catalog2, null, null);
+       SqlUtil.close(catalog3, null, null);
+    }
+    /**
+     * Test that all the tables were created successfully in all of the databases
+     * 
+     * @exception Exception if anything goes wrong
+     */
+    public void testMultiNodeRollback() throws Exception
+    {
+        log.debug("Testing multi node patching");
+        try
+        {
+            getDistributedLauncher().doMigrations();
+        }
+        catch (Exception e)
+        {
+            log.error("Unexpected error", e);
+            fail("shouldn't have thrown any exceptions");
+        }
+        
+        // Make sure everything worked out okay
+       Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
+       Connection orders = DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
+       Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
+       Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
+       Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
+       
+       // 4 patches should have executed
+       assertEquals(4, getPatchLevel(core));
+       assertEquals(4, getPatchLevel(orders));
+       assertEquals(4, getPatchLevel(catalog1));
+       assertEquals(4, getPatchLevel(catalog2));
+       assertEquals(4, getPatchLevel(catalog3));
+       
+       
+       // we should have test values in each table
+       verifyTestTable(core, "core_table_1");
+       verifyTestTable(orders, "order_table_1");
+       verifyTestTable(orders, "order_table_2");
+       verifyTestTable(catalog1, "catalog_table_1");
+       verifyTestTable(catalog2, "catalog_table_1");
+       verifyTestTable(catalog3, "catalog_table_1");
+       
+       try 
+       {
+	   getDistributedLauncher().doRollbacks(3);
+       } catch(Exception e)
+       {
+	   log.error("Unexpected error", e);
+	   fail("should not have received any exceptions");
+       }
+       
+       // 4 patches should have executed
+       assertEquals(3, getPatchLevel(core));
+       assertEquals(3, getPatchLevel(orders));
+       assertEquals(3, getPatchLevel(catalog1));
+       assertEquals(3, getPatchLevel(catalog2));
+       assertEquals(3, getPatchLevel(catalog3));
        
        SqlUtil.close(core, null, null);
        SqlUtil.close(orders, null, null);
