@@ -13,8 +13,6 @@
  */
 package com.tacitknowledge.util.migration;
 
-import javax.naming.OperationNotSupportedException;
-
 /**
  * Convenience base class for migration tasks.
  * 
@@ -25,20 +23,16 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
 {
     protected boolean isRollbackSupported = false;
 
-    /**
-     * The name of this migration task
-     */
+    /** The name of this migration task */
     private String name;
 
-    /**
-     * The relative order in which this test should run
-     */
+    /** The relative order in which this test should run */
     private Integer level;
 
     /** {@inheritDoc} */
     public String getName()
     {
-	return name;
+        return name;
     }
 
     /**
@@ -49,13 +43,13 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
      */
     public void setName(String name)
     {
-	this.name = name;
+        this.name = name;
     }
 
     /** {@inheritDoc} */
     public Integer getLevel()
     {
-	return level;
+        return level;
     }
 
     /**
@@ -66,18 +60,18 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
      */
     public void setLevel(Integer lvl)
     {
-	this.level = lvl;
+        this.level = lvl;
     }
 
     /** {@inheritDoc} */
     public int compareTo(Object o)
     {
-	MigrationTask task = (MigrationTask) o;
-	if (task.getLevel() == null)
-	{
-	    return 1;
-	}
-	return getLevel().compareTo(task.getLevel());
+        MigrationTask task = (MigrationTask) o;
+        if (task.getLevel() == null)
+        {
+            return 1;
+        }
+        return getLevel().compareTo(task.getLevel());
     }
 
     /**
@@ -85,8 +79,7 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
      */
     public void down(MigrationContext context) throws MigrationException
     {
-	throw new UnsupportedOperationException(
-		"This method is not supported by this task.");
+        throw new UnsupportedOperationException("This method is not supported by this task.");
     }
 
     /**
@@ -94,7 +87,7 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
      */
     public boolean isRollbackSupported()
     {
-	return isRollbackSupported;
+        return isRollbackSupported;
     }
 
     /**
@@ -104,7 +97,7 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
      */
     public void setRollbackSupported(boolean isRollbackSupported)
     {
-	this.isRollbackSupported = isRollbackSupported;
+        this.isRollbackSupported = isRollbackSupported;
     }
 
     /**
@@ -112,7 +105,7 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
      */
     public void migrate(MigrationContext context) throws MigrationException
     {
-	up(context);
+        up(context);
     }
 
     /**
@@ -122,7 +115,6 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
      */
     public void up(MigrationContext context) throws MigrationException
     {
-	// no op
+        // no op
     }
-
 }
