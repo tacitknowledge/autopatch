@@ -17,90 +17,179 @@ package com.tacitknowledge.util.migration.jdbc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 
 /**
- * Launches the migration process as a standalone application.  
+ * Launches the migration process as a standalone application.
  * <p>
  * This class expects the following Java environment parameters:
  * <ul>
- *    <li>migration.systemname - the name of the logical system being migrated</li>
- *    <li>migration.settings (optional) - the name of the settings file to use for migration</li>
+ * <li>migration.systemname - the name of the logical system being migrated</li>
+ * <li>migration.settings (optional) - the name of the settings file to use for
+ * migration</li>
  * </ul>
  * <p>
  * Below is an example of how this class can be configured in build.xml:
+ * 
  * <pre>
  *   ...
- *  &lt;target name="patch.database" description="Runs the migration system"&gt;
+ *  &lt;target name=&quot;patch.database&quot; description=&quot;Runs the migration system&quot;&gt;
  *   &lt;java 
- *       fork="true"
- *       classpathref="patch.classpath" 
- *       failonerror="true" 
- *       classname="com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher"&gt;
- *     &lt;sysproperty key="migration.systemname" value="${application.name}"/&gt;
+ *       fork=&quot;true&quot;
+ *       classpathref=&quot;patch.classpath&quot; 
+ *       failonerror=&quot;true&quot; 
+ *       classname=&quot;com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher&quot;&gt;
+ *     &lt;sysproperty key=&quot;migration.systemname&quot; value=&quot;${application.name}&quot;/&gt;
  *   &lt;/java&gt;
  * &lt;/target&gt;
  *   ...
- * </pre> 
+ * </pre>
  * 
- * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.MigrationProcess
+ * @author Mike Hardy (mike@tacitknowledge.com)
+ * @see com.tacitknowledge.util.migration.MigrationProcess
  */
 public class StandaloneMigrationLauncher
 {
     /**
      * Class logger
      */
-    private static Log log = LogFactory.getLog(StandaloneMigrationLauncher.class);
-    
+    private static Log log = LogFactory
+	    .getLog(StandaloneMigrationLauncher.class);
+
     /**
      * Private constructor - this object shouldn't be instantiated
      */
     private StandaloneMigrationLauncher()
-    { 
-        // does nothing
+    {
+	// does nothing
     }
-    
+
     /**
      * Run the migrations for the given system name
-     *
-     * @param arguments the command line arguments, if any (none are used)
-     * @exception Exception if anything goes wrong
+     * 
+     * @param arguments
+     *                the command line arguments, if any (none are used)
+     * @exception Exception
+     *                    if anything goes wrong
      */
     public static void main(String[] arguments) throws Exception
     {
-        String migrationSystemName = ConfigurationUtil.getRequiredParam("migration.systemname",
-            System.getProperties(), arguments, 0);
-        String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
-            System.getProperties(), arguments, 1);
-        
-        // The MigrationLauncher is responsible for handling the interaction
-        // between the PatchTable and the underlying MigrationTasks; as each
-        // task is executed, the patch level is incremented, etc.
-        try
-        {
-            JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher = null;
-            
-            if (migrationSettings == null)
-            {
-                log.info("Using migration.properties (default)");
-                launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
-            }
-            else
-            {
-                log.info("Using " + migrationSettings);
-                launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
-                    migrationSettings);
-            }
-                
-            launcher.doMigrations();
-        }
-        catch (Exception e)
-        {
-            log.error(e);
-            throw e;
-        }
+	String migrationSystemName = ConfigurationUtil.getRequiredParam(
+		"migration.systemname", System.getProperties(), arguments, 0);
+	String migrationSettings = ConfigurationUtil.getOptionalParam(
+		"migration.settings", System.getProperties(), arguments, 1);
+
+	boolean isRollback = false;
+	int rollbackLevel = -1;
+
+	for (int i = 0; i < arguments.length; i++)
+	{
+	    String argument1 = arguments[i];
+
+	    if ("-rollback".equals(argument1))
+	    {
+		isRollback = true;
+
+		if (i + 1 <= arguments.length)
+		{
+		    String argument2 = arguments[i + 1];
+
+		    if (argument2 != null)
+			rollbackLevel = Integer.parseInt(argument2);
+		}
+
+		if (rollbackLevel == -1)
+		{
+		    // this indicates that the rollback level has not been set
+		    throw new MigrationException(
+			    "The rollback flag requires a following integer parameter.");
+		}
+	    }
+
+	}
+
+	// The MigrationLauncher is responsible for handling the interaction
+	// between the PatchTable and the underlying MigrationTasks; as each
+	// task is executed, the patch level is incremented, etc.
+	try
+	{
+	    if (isRollback)
+	    {
+		doRollbacks(migrationSystemName, migrationSettings,
+			rollbackLevel);
+	    }
+	    doMigrations(migrationSystemName, migrationSettings);
+	}
+	catch (Exception e)
+	{
+	    log.error(e);
+	    throw e;
+	}
+    }
+
+    /**
+     * Private helper method to initiate the migration process.
+     * 
+     * @param migrationSystemName
+     *                the name of the system to migrate
+     * @param migrationSettings
+     *                additional properties for migration
+     * @throws MigrationException
+     */
+    private static void doRollbacks(String migrationSystemName,
+	    String migrationSettings, int rollbackLevel)
+	    throws MigrationException
+    {
+	JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
+		.createFactory();
+	JdbcMigrationLauncher launcher = null;
+
+	if (migrationSettings == null)
+	{
+	    log.info("Using migration.properties (default)");
+	    launcher = launcherFactory
+		    .createMigrationLauncher(migrationSystemName);
+	}
+	else
+	{
+	    log.info("Using " + migrationSettings);
+	    launcher = launcherFactory.createMigrationLauncher(
+		    migrationSystemName, migrationSettings);
+	}
+
+	launcher.doRollbacks(rollbackLevel);
+    }
+
+    /**
+     * Private helper method to initiate the migration process.
+     * 
+     * @param migrationSystemName
+     *                the name of the system to migrate
+     * @param migrationSettings
+     *                additional properties for migration
+     * @throws MigrationException
+     */
+    private static void doMigrations(String migrationSystemName,
+	    String migrationSettings) throws MigrationException
+    {
+	JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
+		.createFactory();
+	JdbcMigrationLauncher launcher = null;
+
+	if (migrationSettings == null)
+	{
+	    log.info("Using migration.properties (default)");
+	    launcher = launcherFactory
+		    .createMigrationLauncher(migrationSystemName);
+	}
+	else
+	{
+	    log.info("Using " + migrationSettings);
+	    launcher = launcherFactory.createMigrationLauncher(
+		    migrationSystemName, migrationSettings);
+	}
+
+	launcher.doMigrations();
     }
 }
