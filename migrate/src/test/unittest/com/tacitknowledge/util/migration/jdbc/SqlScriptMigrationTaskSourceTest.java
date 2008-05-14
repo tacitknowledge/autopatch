@@ -14,6 +14,9 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import junit.framework.TestCase;
 
 import com.tacitknowledge.util.migration.MigrationException;
@@ -26,6 +29,8 @@ import com.tacitknowledge.util.migration.MigrationTaskSupport;
  */
 public class SqlScriptMigrationTaskSourceTest extends TestCase
 {
+    /** Class logger */
+    private static Log log = LogFactory.getLog(SqlScriptMigrationTaskSourceTest.class);
     /**
      * Test loading up all the scripts in our test package
      */
@@ -39,7 +44,8 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
         }
         catch (MigrationException me)
         {
-            fail("There shouldn't have been a problem loading the tasks");
+            
+            fail("There shouldn't have been a problem loading the tasks: "+ me);
         }
         
         // There are 3 scripts in our package of scripts, make sure they are all here
@@ -65,7 +71,8 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
 	 }
 	 catch (MigrationException me)
 	 {
-	     fail("There shouldn't have been a problem loading the tasks");
+	     
+	     fail("There shouldn't have been a problem loading the tasks: "+ me);
 	 }
     }
 }
