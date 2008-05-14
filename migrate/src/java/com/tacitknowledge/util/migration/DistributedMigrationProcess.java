@@ -34,6 +34,7 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
  * systems, each of which has its own MigrationProcess.
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
+ * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  * @see com.tacitknowledge.util.migration.MigrationProcess
  */
 public class DistributedMigrationProcess extends MigrationProcess
@@ -81,6 +82,51 @@ public class DistributedMigrationProcess extends MigrationProcess
     public DistributedMigrationProcess()
     {
 	super();
+    }
+
+    /**
+     * Execute a dry run of the rollback process and return a count of the
+     * number of tasks which will rollback.
+     * 
+     * @param rollbacks
+     *                a <code>List</code> of RollbackableMigrationTasks
+     * @param migrationsWithLaunchers
+     *                a <code>LinkedHashMap</code> of task to launcher
+     * @return count of the number of rollbacks
+     */
+    protected int rollbackDryRun(List rollbacks,
+	    LinkedHashMap rollbacksWithLaunchers)
+    {
+	// take the list of rollbacks
+	// iterate through the rollbacks
+	// log the context in which each rollback will execute
+
+	int taskCount = 0;
+
+	if (isPatchSetRollbackable(rollbacks))
+	{
+	    for (Iterator i = rollbacks.iterator(); i.hasNext();)
+	    {
+		RollbackableMigrationTask task = (RollbackableMigrationTask) i
+			.next();
+		log.info("Will execute rollback for task '" + task.getName()
+			+ "'");
+		taskCount++;
+		JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) rollbacksWithLaunchers
+			.get(task);
+		for (Iterator contextIterator = launcher.getContexts().keySet()
+			.iterator(); contextIterator.hasNext();)
+		{
+
+		    MigrationContext context = (MigrationContext) contextIterator
+			    .next();
+		    log.debug("Task will execute in context '" + context + "'");
+
+		}
+	    }
+	}
+
+	return taskCount;
     }
 
     /**
@@ -170,7 +216,19 @@ public class DistributedMigrationProcess extends MigrationProcess
 	Collections.reverse(rollbacks);
 
 	validateControlledSystems(currentLevel);
+	taskCount = rollbackDryRun(rollbacks, rollbacksWithLaunchers);
 
+	if (taskCount > 0)
+	{
+	    log.info("A total of " + taskCount
+		    + " rollback patch tasks will execute.");
+	}
+	else
+	{
+	    log.info("System up-to-date.  No patch tasks will rollback.");
+	}
+
+	taskCount = 0;
 	if (isPatchSetRollbackable(rollbacks))
 	{
 	    if (isReadOnly())
@@ -199,16 +257,18 @@ public class DistributedMigrationProcess extends MigrationProcess
 		taskCount++;
 	    }
 
-	} else
-	{
-	    log
-		    .info("Could not complete rollback because one or more of the tasks is not rollbackable");
 	}
+	else
+	{
+	    log.info("Could not complete rollback because one or more of the tasks is not rollbackable");
+	}
+	
 	if (taskCount > 0)
 	{
 	    log.info("Rollback complete (" + taskCount
 		    + " patch tasks rolledback)");
-	} else
+	}
+	else
 	{
 	    log.info("The system could not rollback the tasks");
 	}
@@ -250,7 +310,8 @@ public class DistributedMigrationProcess extends MigrationProcess
 	if (taskCount > 0)
 	{
 	    log.info("A total of " + taskCount + " patch tasks will execute.");
-	} else
+	}
+	else
 	{
 	    log.info("System up-to-date.  No patch tasks will execute.");
 	}
@@ -287,7 +348,8 @@ public class DistributedMigrationProcess extends MigrationProcess
 		    applyPatch(launcherContext, task, true);
 		}
 		taskCount++;
-	    } else if (forceSync)// if a sync is forced, need to check all
+	    }
+	    else if (forceSync)// if a sync is forced, need to check all
 	    // the contexts to identify the ones out of
 	    // sync
 	    {
@@ -340,7 +402,8 @@ public class DistributedMigrationProcess extends MigrationProcess
 	{
 	    log.info("Patching complete (" + taskCount
 		    + " patch tasks executed)");
-	} else
+	}
+	else
 	{
 	    log.info("System up-to-date.  No patch tasks have been run.");
 	}
@@ -386,7 +449,8 @@ public class DistributedMigrationProcess extends MigrationProcess
 			log
 				.info(message
 					+ "  Continuing since 'forcesync' was specified.");
-		    } else
+		    }
+		    else
 		    {
 			throw new MigrationException(message);
 		    }
