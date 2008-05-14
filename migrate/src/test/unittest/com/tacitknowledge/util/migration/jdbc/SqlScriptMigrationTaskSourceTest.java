@@ -44,7 +44,7 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
         }
         catch (MigrationException me)
         {
-            
+            log.info("Unexpectedly caught: "+ me);
             fail("There shouldn't have been a problem loading the tasks: "+ me);
         }
         
@@ -71,7 +71,7 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
 	 }
 	 catch (MigrationException me)
 	 {
-	     
+	     log.info("Unexpectedly caught: "+ me);
 	     fail("There shouldn't have been a problem loading the tasks: "+ me);
 	 }
     }
