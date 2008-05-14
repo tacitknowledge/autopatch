@@ -54,6 +54,12 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
     private String sql = null;
     
     /**
+     * SQL to migrate down a patch level
+     */
+    private String downSql = null;
+    
+    
+    /**
      * Creates a new <code>SqlScriptMigrationTask</code>.
      */
     public SqlScriptMigrationTask()
@@ -63,17 +69,37 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
     
     /**
      * Creates a new <code>SqlScriptMigrationTask</code>
+     * 
+     * @param name the name of the SQL script to execute; this is just an
+     * 	      identifier and does not have to correspond to a file name 
+     * @param level the patch level of the migration task
+     * @param upSql the SQL to execute to migrate the patch level up one
+     * @param downSql the SQL to execute to rollback to this patch
+     */
+    public SqlScriptMigrationTask(String name, int level, String upSql, String downSql)
+    {
+	setName(name);
+	setLevel(new Integer(level));
+	this.sql = upSql;
+	this.downSql = downSql;
+	
+	setRollbackSupported(!"".equals(downSql));
+    }
+    
+    /**
+     * Creates a new <code>SqlScriptMigrationTask</code>
      *
      * @param name the name of the SQL script to execute; this is just an
      *        identifier and does not have to correspond to a file name 
      * @param level the patch level of the migration task
-     * @param sql the SQL to execute
+     * @param sql the SQL to execute	
      */ 
     public SqlScriptMigrationTask(String name, int level, String sql)
     {
         setName(name);
         setLevel(new Integer(level));
         this.sql = sql;
+        this.downSql = "";
     }
     
     /**
@@ -100,9 +126,28 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
         sql = sqlBuffer.toString();
     }
-
+    
     /** {@inheritDoc} */
-    public void migrate(MigrationContext ctx) throws MigrationException
+    public void up(MigrationContext context) throws MigrationException 
+    {
+	executeSql(context, sql);
+    }
+    
+    /** {@inheritDoc} */
+    public void down(MigrationContext context) throws MigrationException
+    {
+	executeSql(context, downSql);
+    }
+    
+    /**
+     * Executes the passed sql in the passed context.
+     * 
+     * @param ctx the <code>MigrationContext> to execute the SQL in
+     * @param sqlToExec the SQL to execute
+     * @throws MigrationException thrown if there is an error when executing the SQL
+     */
+    private void executeSql(MigrationContext ctx, String sqlToExec) 
+    	throws MigrationException
     {
         JdbcMigrationContext context = (JdbcMigrationContext) ctx;
         
@@ -120,7 +165,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
             // a if(sybase) conditional, we decided to clean the slate for everyone.
             context.commit();
 
-            List sqlStatements = getSqlStatements(context);
+            List sqlStatements = getSqlStatements(context, sqlToExec);
             for (listIterator = sqlStatements.listIterator(); listIterator.hasNext();)
             {
                 sqlStatement = (String) listIterator.next();
@@ -174,6 +219,11 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
     }
     
+    public List getSqlStatements(JdbcMigrationContext context) 
+    {
+	return getSqlStatements(context, sql);
+    }
+    
     /**
      * Parses the SQL/DDL to execute and returns a list of individual statements.  For database
      * types that support mulitple statements in a single <code>Statement.execute</code> call,
@@ -184,19 +234,19 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
      *                 can handle multiple statements at once
      * @return a list of SQL and DDL statements to execute
      */
-    public List getSqlStatements(JdbcMigrationContext context)
+    public List getSqlStatements(JdbcMigrationContext context, String sqlStatements)
     {
         List statements = new ArrayList();
         if (context.getDatabaseType().isMultipleStatementsSupported())
         {
-            statements.add(sql);
+            statements.add(sqlStatements);
             return statements;
         }
         
         StringBuffer currentStatement = new StringBuffer();
         boolean inQuotedString = false;
         boolean inComment = false;
-        char[] sqlChars = sql.toCharArray();
+        char[] sqlChars = sqlStatements.toCharArray();
         for (int i = 0; i < sqlChars.length; i++)
         {
             if (sqlChars[i] == '\n')
