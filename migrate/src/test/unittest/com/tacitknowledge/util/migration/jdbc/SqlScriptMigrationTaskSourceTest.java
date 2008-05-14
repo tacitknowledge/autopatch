@@ -30,7 +30,7 @@ import com.tacitknowledge.util.migration.MigrationTaskSupport;
 public class SqlScriptMigrationTaskSourceTest extends TestCase
 {
     /** Class logger */
-    private static Log log = LogFactory.getLog(SqlScriptMigrationTaskSourceTest.class);
+    private static Log log = LogFactory.getLog(SqlScriptMigrationTaskSource.class);
     /**
      * Test loading up all the scripts in our test package
      */
