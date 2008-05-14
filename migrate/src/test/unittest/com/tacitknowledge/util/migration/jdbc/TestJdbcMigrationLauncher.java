@@ -20,6 +20,7 @@ import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.PatchInfoStore;
+import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 
 /**
  * Override select things in the JdbcMigrationLauncher for testing purposes
@@ -118,5 +119,19 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
     public void setIgnoreMigrationSuccessfulEvents(boolean ignoreMigrationSuccessfulEvents)
     {
         this.ignoreMigrationSuccessfulEvents = ignoreMigrationSuccessfulEvents;
+    }
+
+    @Override
+    public void rollbackSuccessful(RollbackableMigrationTask task,
+	    MigrationContext context) throws MigrationException
+    {
+        if (isIgnoreMigrationSuccessfulEvents())
+        {
+            log.debug(this + " silently ignoring a migrationSuccessful call");
+        }
+        else
+        {
+            super.rollbackSuccessful(task, context);
+        }
     }
 }
