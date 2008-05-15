@@ -18,16 +18,20 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.easymock.MockControl;
 
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSupport;
+import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
 /**
@@ -37,6 +41,7 @@ import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
  */
 public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 {
+    private static Log log = LogFactory.getLog(SqlScriptMigrationTaskTest.class);
     /**
      * The task to test.
      */
@@ -85,6 +90,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 	    task.migrate(context);
 	} catch (MigrationException me)
 	{
+	    log.info("Unexpected exception", me);
 	    fail("unexpected exception");
 	}
     }
@@ -111,6 +117,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 		fail("Rollback should be supported for this task");
 	} catch (Exception e)
 	{
+	    log.info("Unexpected exception", e);
 	    fail();
 	}
     }
@@ -130,10 +137,20 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 	    tasks = source.getMigrationTasks(this.getClass().getPackage()
 		    .getName()
 		    + ".test");
-	    MigrationTaskSupport task = (MigrationTaskSupport)tasks.get(1);
-	    assertFalse(task.isRollbackSupported());
+	    
+	     for(Iterator i=tasks.iterator(); i.hasNext();) {
+		 //patch with ID 2 has no rollback
+		 RollbackableMigrationTask rollbackableTask = (RollbackableMigrationTask) i.next();
+		 if(rollbackableTask.getLevel().equals(Integer.valueOf(2)))
+		     assertFalse(rollbackableTask.isRollbackSupported());
+		 else
+		     assertTrue(rollbackableTask.isRollbackSupported());
+		 
+	     }
+
 	} catch (Exception e)
 	{
+	    log.info("Unexpected exception", e);
 	    fail();
 	}
     }
