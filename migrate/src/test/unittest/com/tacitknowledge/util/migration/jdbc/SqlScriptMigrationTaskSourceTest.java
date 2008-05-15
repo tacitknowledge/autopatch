@@ -12,15 +12,17 @@
  */
 package com.tacitknowledge.util.migration.jdbc;
 
+import java.util.Iterator;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import junit.framework.TestCase;
-
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSupport;
+import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 
 /**
  * Exercise the SqlScriptMigrationTaskSource
@@ -59,14 +61,20 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
     public void testNonRollbackableScript() {
 	 SqlScriptMigrationTaskSource source = new SqlScriptMigrationTaskSource();
 	 List tasks = null;
-	 MigrationTaskSupport task = null;
+	 RollbackableMigrationTask task = null;
 	 try 
 	 {
 	     tasks = source.getMigrationTasks(this.getClass().getPackage().getName() + ".test");
-	     task = (SqlScriptMigrationTask) tasks.get(0);
-	     assertTrue(task.isRollbackSupported());
-	     task = (SqlScriptMigrationTask) tasks.get(1);
-	     assertFalse(task.isRollbackSupported());
+	     
+	     for(Iterator i=tasks.iterator(); i.hasNext();) {
+		 //patch with ID 2 has no rollback
+		 task = (RollbackableMigrationTask) i.next();
+		 if(task.getLevel().equals(Integer.valueOf(2)))
+		     assertFalse(task.isRollbackSupported());
+		 else
+		     assertTrue(task.isRollbackSupported());
+		 
+	     }
 	     
 	 }
 	 catch (MigrationException me)
