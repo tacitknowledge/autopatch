@@ -47,4 +47,19 @@ public interface RollbackableMigrationTask extends MigrationTask
      * @return a boolean indicating if the task can be rolled back.
      */
     public boolean isRollbackSupported();
+    
+    /**
+     * Returns the name of this migration task. 
+     * 
+     * @return the name of this migration task
+     */
+    public String getName();
+    
+    /**
+     * Returns the relative order in which this migration should occur.
+     * 
+     * @return the relative order in which this migration should occur; may never
+     *         return <code>null</code>
+     */
+    public Integer getLevel();
 }
