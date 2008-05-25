@@ -19,37 +19,36 @@ import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSupport;
 import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.TestMigrationContext;
-import com.tacitknowledge.util.migration.tasks.BaseTestMigrationTask;
 
 public class TestRollbackableTask1 extends BaseTestRollbackableMigrationTask
 	implements RollbackableMigrationTask
-{
-
+	{
+    
     public TestRollbackableTask1()
     {
-	super("TestRollbackableTask1", 8);
+        super("TestRollbackableTask1", 8);
     }
-
+    
     public TestRollbackableTask1(int level)
     {
-	super("TestRollbackableTask1", level);
+        super("TestRollbackableTask1", level);
     }
-
+    
     public boolean isRollbackSupported()
     {
-	return false;
+        return false;
     }
-
+    
     /**
      * @see MigrationTaskSupport#migrate(MigrationContext)
      */
     public void migrate(MigrationContext context) throws MigrationException
     {
-	if (context instanceof TestMigrationContext)
-	{
-	    TestMigrationContext ctx = (TestMigrationContext) context;
-	    ctx.recordExecution(getName());
-	}
+        if (context instanceof TestMigrationContext)
+        {
+            TestMigrationContext ctx = (TestMigrationContext) context;
+            ctx.recordExecution(getName());
+        }
     }
-
-}
+    
+	}

@@ -18,37 +18,39 @@ import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.TestMigrationContext;
-import com.tacitknowledge.util.migration.tasks.BaseTestMigrationTask;
 
-public class TestRollbackableTask2 extends BaseTestRollbackableMigrationTask implements
-	RollbackableMigrationTask
+public class TestRollbackableTask2 extends BaseTestRollbackableMigrationTask 
+    implements RollbackableMigrationTask
 {
     private static Integer patchLevelOverride = new Integer(9);
     
-    public static void setPatchLevelOverride(Integer i) {
-	patchLevelOverride = (i);
+    public static void setPatchLevelOverride(Integer i) 
+    {
+        patchLevelOverride = (i);
     }
     
-    public Integer getLevel() {
-	return patchLevelOverride;
+    public Integer getLevel() 
+    {
+        return patchLevelOverride;
     }
     
-    public static void reset() {
-	patchLevelOverride = new Integer(9);
+    public static void reset() 
+    {
+        patchLevelOverride = new Integer(9);
     }
     
     public TestRollbackableTask2()
     {
-	super("TestRollbackableTask2", 9);
+        super("TestRollbackableTask2", 9);
     }
-
+    
     public void down(MigrationContext context) throws MigrationException
     {
-	if (context instanceof TestMigrationContext)
-	{
-	    TestMigrationContext ctx = (TestMigrationContext) context;
-	    ctx.recordExecution(getName());
-	}
+        if (context instanceof TestMigrationContext)
+        {
+            TestMigrationContext ctx = (TestMigrationContext) context;
+            ctx.recordExecution(getName());
+        }
     }
     
     public void up(MigrationContext context) throws MigrationException 

@@ -121,7 +121,6 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
         this.ignoreMigrationSuccessfulEvents = ignoreMigrationSuccessfulEvents;
     }
 
-    @Override
     public void rollbackSuccessful(RollbackableMigrationTask task,
 	    MigrationContext context) throws MigrationException
     {

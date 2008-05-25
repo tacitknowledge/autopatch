@@ -14,12 +14,9 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.util.Properties;
-
 /**
  * Abstract base class for MigrationListener authors that aren't interested in
  * implementing all the MigrationListener events.
- * @author Alex Soto <alex@tacitknowledge.com>
  * @author Alex Soto <apsoto@gmail.com>
  *
  */

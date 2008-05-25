@@ -83,9 +83,6 @@ public class JdbcMigrationLauncher implements RollbackListener
      */
     private LinkedHashMap contexts = new LinkedHashMap();
 
-    /** Whether we actually want to apply patches, or just look */
-    private boolean readOnly = false;
-
     /** Create a new MigrationProcess and add a SqlScriptMigrationTaskSource */
     public JdbcMigrationLauncher()
     {

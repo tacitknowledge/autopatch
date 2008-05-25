@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationTaskSupport;
 import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 
 /**
@@ -33,6 +32,7 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
 {
     /** Class logger */
     private static Log log = LogFactory.getLog(SqlScriptMigrationTaskSource.class);
+    
     /**
      * Test loading up all the scripts in our test package
      */
@@ -58,29 +58,34 @@ public class SqlScriptMigrationTaskSourceTest extends TestCase
      * Test that a Migration which does not have a rollback script correctly 
      * returns false for isRollbackSupported.
      */
-    public void testNonRollbackableScript() {
-	 SqlScriptMigrationTaskSource source = new SqlScriptMigrationTaskSource();
-	 List tasks = null;
-	 RollbackableMigrationTask task = null;
-	 try 
-	 {
-	     tasks = source.getMigrationTasks(this.getClass().getPackage().getName() + ".test");
-	     
-	     for(Iterator i=tasks.iterator(); i.hasNext();) {
-		 //patch with ID 2 has no rollback
-		 task = (RollbackableMigrationTask) i.next();
-		 if(task.getLevel().equals(Integer.valueOf(2)))
-		     assertFalse(task.isRollbackSupported());
-		 else
-		     assertTrue(task.isRollbackSupported());
-		 
-	     }
-	     
-	 }
-	 catch (MigrationException me)
-	 {
-	     log.info("Unexpectedly caught: "+ me);
-	     fail("There shouldn't have been a problem loading the tasks: "+ me);
-	 }
+    public void testNonRollbackableScript() 
+    {
+        SqlScriptMigrationTaskSource source = new SqlScriptMigrationTaskSource();
+        List tasks = null;
+        RollbackableMigrationTask task = null;
+        try 
+        {
+            tasks = source.getMigrationTasks(this.getClass().getPackage().getName() + ".test");
+            
+            for(Iterator i=tasks.iterator(); i.hasNext(); ) 
+            {
+                //patch with ID 2 has no rollback
+                task = (RollbackableMigrationTask) i.next();
+                if(task.getLevel().equals(Integer.valueOf(2)))
+                {
+                    assertFalse(task.isRollbackSupported());
+                }
+                else
+                {    
+                    assertTrue(task.isRollbackSupported());
+                }
+            }
+            
+        }
+        catch (MigrationException me)
+        {
+            log.info("Unexpectedly caught: "+ me);
+            fail("There shouldn't have been a problem loading the tasks: "+ me);
+        }
     }
 }
