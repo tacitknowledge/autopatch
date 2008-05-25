@@ -26,7 +26,6 @@ import com.tacitknowledge.util.migration.MigrationTask;
 
 
 /**
- * @author Alex Soto <alex@tacitknowledge.com>
  * @author Alex Soto <apsoto@gmail.com>
  *
  */

@@ -25,7 +25,7 @@ import com.mockrunner.mock.jdbc.MockResultSet;
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationListenerTestBase;
-import com.tacitknowledge.util.migration.MigrationTask;
+import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.PatchInfoStore;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
@@ -296,9 +296,9 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         contexts.put(node2Context, node2PatchInfoStore);
         launcher.setContexts(contexts);
         
-        MockControl taskControl = MockControl.createControl(MigrationTask.class);
+        MockControl taskControl = MockControl.createControl(RollbackableMigrationTask.class);
         MockControl contextControl = MockControl.createControl(MigrationContext.class);
-        MigrationTask task = (MigrationTask) taskControl.getMock();
+        RollbackableMigrationTask task = (RollbackableMigrationTask) taskControl.getMock();
         MigrationContext context = (MigrationContext) contextControl.getMock();
         
         // set expectations
