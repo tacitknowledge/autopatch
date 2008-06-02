@@ -19,11 +19,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.collections.CollectionUtils;
 
 /**
  * Discovers and executes a sequence of system patches. Patches take the form of
@@ -37,8 +38,11 @@ import org.apache.commons.collections.CollectionUtils;
  * One useful pre-defined <code>MigrationTask</code> is
  * <code>SqlScriptMigrationTask</code>, which wraps a .SQL file and executes
  * all statements inside it. Any file in the migration task search path that
- * matches the pattern "^patch(\d+)(_.+)?\.sql" will be wrapped with the
- * <code>SqlScriptMigrationTask</code>. The execution order for these tasks
+ * matches the pattern "^patch(\\d++)(?!-rollback)_?(.+)?\\.sql" will be wrapped with the
+ * <code>SqlScriptMigrationTask</code>.  Also, you rollback scripts are specified by 
+ * matching the pattern "^patch(\\d+)-rollback_(.+)\\.sql." The rollback scripts 
+ * are meant to reverse a patch and will reduce the level of the system to the 
+ * previous patch level.  The execution order for these tasks
  * is defined by the number immediately following the "patch" part of the SQL
  * script file name.
  * <p>
@@ -106,554 +110,572 @@ public class MigrationProcess
      */
     public MigrationProcess()
     {
-	addMigrationTaskSource(new ClassMigrationTaskSource());
+        addMigrationTaskSource(new ClassMigrationTaskSource());
     }
 
     /**
      * Adds the given package to the migration task search path.
      * 
-     * @param packageName
-     *                the name of the package to add to the search path
+     * @param packageName the name of the package to add to the search path
      */
     public void addPatchResourcePackage(String packageName)
     {
-	patchResourcePackages.add(packageName);
+        patchResourcePackages.add(packageName);
     }
 
     /**
      * Adds the given classpath-relative directory to the migration task search
      * path.
      * 
-     * @param dir
-     *                the name of the directory to add to the post-patch search
-     *                path
+     * @param dir the name of the directory to add to the post-patch search path
      */
     public void addPatchResourceDirectory(String dir)
     {
-	// Make the path package-name-like so that
-	// ClassLoader.getResourceAsStream
-	// will work correctly
-	String packageName = dir.replace('/', '.').replace('\\', '.');
-	addPatchResourcePackage(packageName);
+        // Make the path package-name-like so that
+        // ClassLoader.getResourceAsStream
+        // will work correctly
+        String packageName = dir.replace('/', '.').replace('\\', '.');
+        addPatchResourcePackage(packageName);
     }
 
     /**
      * Adds the given package to the post-patch migration task search path.
      * 
-     * @param packageName
-     *                the name of the package to add to the search path
+     * @param packageName the name of the package to add to the search path
      */
     public void addPostPatchResourcePackage(String packageName)
     {
-	postPatchResourcePackages.add(packageName);
+        postPatchResourcePackages.add(packageName);
     }
 
     /**
      * Adds the given classpath-relative directory to the post-patch migration
      * task search path.
      * 
-     * @param dir
-     *                the name of the directory to add to the post-patch search
-     *                path
+     * @param dir the name of the directory to add to the post-patch search path
      */
     public void addPostPatchResourceDirectory(String dir)
     {
-	// Make the path package-name-like so that
-	// ClassLoader.getResourceAsStream
-	// will work correctly
-	String packageName = dir.replace('/', '.').replace('\\', '.');
-	addPostPatchResourcePackage(packageName);
+        // Make the path package-name-like so that
+        // ClassLoader.getResourceAsStream
+        // will work correctly
+        String packageName = dir.replace('/', '.').replace('\\', '.');
+        addPostPatchResourcePackage(packageName);
     }
 
     /**
      * Adds a <code>MigrationTaskSource</code> to the list of sources that
      * provide this instance with <code>MigrationTask</code>s.
      * 
-     * @param source
-     *                the <code>MigrationTaskSource</code> to add; may not be
-     *                <code>null</code>
+     * @param source the <code>MigrationTaskSource</code> to add; may not be 
+     * <code>null</code>
      */
     public void addMigrationTaskSource(MigrationTaskSource source)
     {
-	// FIXME test null source protection
-	if (source == null)
-	{
-	    throw new IllegalArgumentException("source cannot be null.");
-	}
-	migrationTaskSources.add(source);
+        // FIXME test null source protection
+        if (source == null)
+        {
+            throw new IllegalArgumentException("source cannot be null.");
+        }
+        migrationTaskSources.add(source);
     }
 
     /**
      * Applies rollbacks to move the patch level from the current level to the
      * rollback level.
      * 
-     * @param currentLevel
-     *                an integer indicating the current patch level
-     * @param rollbackLevel
-     *                an integer indicating the level the desired patch level
-     * @param context
-     *                information and resources that are available to the
-     *                migration tasks
-     * @return
+     * @param currentLevel an integer indicating the current patch level
+     * @param rollbackLevel an integer indicating the level the desired patch level
+     * @param context information and resources that are available to the migration tasks
+     * @return the count of patches which were rolled back
      * @throws MigrationException
      */
-    public int doRollbacks(int currentLevel, int rollbackLevel,
-	    MigrationContext context) throws MigrationException
+    public int doRollbacks(int currentLevel, int rollbackLevel, MigrationContext context,
+            boolean forceRollback) throws MigrationException
     {
-	log.trace("Starting doRollbacks");
-	int taskCount = 0;
+        log.trace("Starting doRollbacks");
+        int taskCount = 0;
 
-	if (currentLevel < rollbackLevel)
-	{
-	    throw new IllegalArgumentException(
-		    "The rollback patch level cannot be greater than the current patch level");
-	}
+        if (currentLevel < rollbackLevel)
+        {
+            throw new IllegalArgumentException(
+                    "The rollback patch level cannot be greater than the current patch level");
+        }
 
-	List rollbacks = getMigrationTasks();
-	validateTasks(rollbacks);
+        List rollbacks = getMigrationTasks();
+        validateTasks(rollbacks);
 
-	// filter tasks which are not required to run because they are at a
-	// level below the rollback level
-	PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(
-		currentLevel, rollbackLevel);
-	CollectionUtils.filter(rollbacks, rollbackPredicate);
-	Collections.sort(rollbacks);
+        // filter tasks which are not required to run because they are at a
+        // level below the rollback level
+        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentLevel,
+                rollbackLevel);
+        CollectionUtils.filter(rollbacks, rollbackPredicate);
+        Collections.sort(rollbacks);
 
-	// need to reverse the list do we apply the rollbacks in descending
-	// order
-	Collections.reverse(rollbacks);
-	boolean isPatchSetRollbackable = isPatchSetRollbackable(rollbacks);
-	taskCount = rollbackDryRun(rollbacks, context);
-	if (isPatchSetRollbackable)
-	{
-	    // See if we should execute
-	    if (isReadOnly())
-	    {
-		throw new MigrationException(
-			"Unapplied rollbacks exist, but read-only flag is set");
-	    }
+        // need to reverse the list do we apply the rollbacks in descending
+        // order
+        Collections.reverse(rollbacks);
+        boolean isPatchSetRollbackable = isPatchSetRollbackable(rollbacks);
+        taskCount = rollbackDryRun(rollbacks, context);
+        if (isPatchSetRollbackable || forceRollback)
+        {
+            // See if we should execute
+            if (isReadOnly())
+            {
+                throw new MigrationException("Unapplied rollbacks exist, but read-only flag is set");
+            }
 
-	    // the list of patches is rollbackable now actually perform the
-	    // rollbacks
-	    log.info("A total of " + taskCount + " rollbacks will execute.");
-	    taskCount = 0;
-	    for (Iterator i = rollbacks.iterator(); i.hasNext();)
-	    {
-		RollbackableMigrationTask task = (RollbackableMigrationTask) i
-			.next();
+            // the list of patches is rollbackable now actually perform the
+            // rollbacks
+            log.info("A total of " + taskCount + " rollbacks will execute.");
+            taskCount = 0;
+            for (Iterator i = rollbacks.iterator(); i.hasNext();)
+            {
+                RollbackableMigrationTask task = (RollbackableMigrationTask) i.next();
 
-		log.info("Will rollback patch task '" + getTaskLabel(task)
-			+ "'");
-		log.debug("Task will rollback in context '" + context + "'");
+                log.info("Will rollback patch task '" + getTaskLabel(task) + "'");
+                log.debug("Task will rollback in context '" + context + "'");
 
-		applyRollback(context, task, true);
-		currentLevel--;
-		taskCount++;
-	    }
-	} else
-	{
-	    // Can I list the tasks which are not rollbackable?
-	    log
-		    .info("Could not complete rollback because one or more of the tasks is not rollbackable. " +
-		    		"The system is still at patch level "+ currentLevel +".");
-	    taskCount = 0;
-	}
-	if (currentLevel == rollbackLevel)
-	{
-	    log
-		    .info("Rollback complete.  The system is now at the desired patch level.");
-	} else
-	{
-	    log.info("The system was not able to rollback the patches.");
-	}
-	log.trace("Ending doRollbacks");
-	return taskCount;
+                applyRollback(context, task, true);
+                currentLevel--;
+                taskCount++;
+            }
+        }
+        else
+        {
+            // Can I list the tasks which are not rollbackable?
+            log
+                    .info("Could not complete rollback because one or more of the tasks is not rollbackable. "
+                            + "The system is still at patch level " + currentLevel + ".");
+            taskCount = 0;
+        }
+        if (currentLevel == rollbackLevel)
+        {
+            log.info("Rollback complete.  The system is now at the desired patch level.");
+        }
+        else
+        {
+            log.info("The system was not able to rollback the patches.");
+        }
+        log.trace("Ending doRollbacks");
+        return taskCount;
     }
 
     /**
      * Helper method to determine if the set of migration tasks is rollbackable
      * 
-     * @param migrations
-     *                a List of MigrationTasks
+     * @param migrations a <code>List</code> of MigrationTasks
      * @return a boolean value indicating if all of the tasks can be rolledback
      */
     protected boolean isPatchSetRollbackable(List migrations)
     {
-	boolean isRollbackable = true;
+        boolean isRollbackable = true;
 
-	for (Iterator i = migrations.iterator(); i.hasNext() && isRollbackable;)
-	{
-	    // for each migration check if the task is able to be rolledback
-	    // think about type
-	    RollbackableMigrationTask task = null;
-	    try
-	    {
-		task = (RollbackableMigrationTask) i.next();
-	    } catch (ClassCastException cce)
-	    {
-		isRollbackable = false;
-	    }
-	    if (!task.isRollbackSupported())
-	    {
-		isRollbackable = false;
-	    }
+        for (Iterator i = migrations.iterator(); i.hasNext() && isRollbackable;)
+        {
+            // for each migration check if the task is able to be rolledback
+            // think about type
+            RollbackableMigrationTask task = null;
+            try
+            {
+                task = (RollbackableMigrationTask) i.next();
+            }
+            catch (ClassCastException cce)
+            {
+                isRollbackable = false;
+                log.info("The task " + task.getName() + " is not rollbackable.");
+            }
+            if (!task.isRollbackSupported())
+            {
+                isRollbackable = false;
+                log.info("The task " + task.getName() + " is not rollbackable.");
+            }
 
-	}
-	return isRollbackable;
+        }
+        return isRollbackable;
     }
-
 
     /**
      * Applies necessary patches to the system.
      * 
-     * @param currentLevel
-     *                the current system patch level
-     * @param context
-     *                information and resources that are available to the
-     *                migration tasks
-     * @throws MigrationException
-     *                 if a migration fails
+     * @param currentLevel the current system patch level
+     * @param context information and resources that are available to the migration tasks
+     * @throws MigrationException if a migration fails
      * @return the number of <code>MigrationTask</code>s that have executed
      */
-    public int doMigrations(int currentLevel, MigrationContext context)
-	    throws MigrationException
+    public int doMigrations(int currentLevel, MigrationContext context) throws MigrationException
     {
-	log.trace("Starting doMigrations");
-	List migrations = getMigrationTasks();
-	validateTasks(migrations);
-	Collections.sort(migrations);
-	int taskCount = 0;
+        log.trace("Starting doMigrations");
+        List migrations = getMigrationTasks();
+        validateTasks(migrations);
+        Collections.sort(migrations);
+        int taskCount = 0;
 
-	taskCount = dryRun(currentLevel, context, migrations);
+        taskCount = dryRun(currentLevel, context, migrations);
 
-	// See if we should execute
-	// FIXME test read-only mode throwing an exception or letting it go
-	if (isReadOnly())
-	{
-	    if (taskCount > 0)
-	    {
-		throw new MigrationException(
-			"Unapplied patches exist, but read-only flag is set");
-	    }
+        // See if we should execute
+        // FIXME test read-only mode throwing an exception or letting it go
+        if (isReadOnly())
+        {
+            if (taskCount > 0)
+            {
+                throw new MigrationException("Unapplied patches exist, but read-only flag is set");
+            }
 
-	    log.info("In read-only mode - skipping patch application");
-	    return 0;
-	}
+            log.info("In read-only mode - skipping patch application");
+            return 0;
+        }
 
-	// Now apply them
-	taskCount = 0;
-	for (Iterator i = migrations.iterator(); i.hasNext();)
-	{
-	    MigrationTask task = (MigrationTask) i.next();
-	    if (task.getLevel().intValue() > currentLevel)
-	    {
-		applyPatch(context, task, true);
-		taskCount++;
-	    }
-	}
+        // Now apply them
+        taskCount = 0;
+        for (Iterator i = migrations.iterator(); i.hasNext();)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            if (task.getLevel().intValue() > currentLevel)
+            {
+                applyPatch(context, task, true);
+                taskCount++;
+            }
+        }
 
-	if (taskCount > 0)
-	{
-	    log.info("Patching complete (" + taskCount
-		    + " patch tasks executed)");
-	} else
-	{
-	    log.info("System up-to-date.  No patch tasks executed.");
-	}
+        if (taskCount > 0)
+        {
+            log.info("Patching complete (" + taskCount + " patch tasks executed)");
+        }
+        else
+        {
+            log.info("System up-to-date.  No patch tasks executed.");
+        }
 
-	return taskCount;
+        return taskCount;
     }
-    
+
+    /**
+     * Performs a dry run of rollbacks.  This method determines which tasks will rollback 
+     * and logs this information.
+     * 
+     * @param migrations a <code>List</code> of migrations
+     * @param context the <codde>MigrationContext</code> where rollbacks would occer
+     * @return the count of tasks which would rollback
+     */
     private int rollbackDryRun(List migrations, MigrationContext context)
     {
-	int taskCount = 0;
-	// Roll through once, just printing out what we'll do
-	for (Iterator i = migrations.iterator(); i.hasNext();)
-	{
-	    RollbackableMigrationTask task = (RollbackableMigrationTask) i.next();
+        int taskCount = 0;
+        // Roll through once, just printing out what we'll do
+        for (Iterator i = migrations.iterator(); i.hasNext();)
+        {
+            RollbackableMigrationTask task = (RollbackableMigrationTask) i.next();
 
+            log.info("Will execute rollback for task '" + getTaskLabel(task) + "'");
+            log.debug("Task will execute in context '" + context + "'");
+            taskCount++;
 
-		log
-			.info("Will execute rollback for task '" + getTaskLabel(task)
-				+ "'");
-		log.debug("Task will execute in context '" + context + "'");
-		taskCount++;
-
-	}
-	if (taskCount > 0)
-	{
-	    log.info("A total of " + taskCount + " patch tasks will rollback.");
-	} else
-	{
-	    log.info("System up-to-date.  No patch tasks will execute.");
-	}
-	return taskCount;
+        }
+        if (taskCount > 0)
+        {
+            log.info("A total of " + taskCount + " patch tasks will rollback.");
+        }
+        else
+        {
+            log.info("System up-to-date.  No patch tasks will execute.");
+        }
+        return taskCount;
     }
 
-    private int dryRun(int currentLevel, MigrationContext context,
-	    List migrations)
+    /**
+     * Peforms a dry run of migrations.  A dry run means that this method determines which tasks will run
+     * and logs this information. 
+     * 
+     * @param currentLevel the current level of the system
+     * @param context the <code>MigrationContext</code> where the migrations will execute.
+     * @param migrations a <code>List</code> of <code>MigrationTask</code> objects
+     * @return a count of the number of migrations which will execute
+     */
+    private int dryRun(int currentLevel, MigrationContext context, List migrations)
     {
-	int taskCount = 0;
-	// Roll through once, just printing out what we'll do
-	for (Iterator i = migrations.iterator(); i.hasNext();)
-	{
-	    MigrationTask task = (MigrationTask) i.next();
-	    if (task.getLevel().intValue() > currentLevel)
-	    {
-		log
-			.info("Will execute patch task '" + getTaskLabel(task)
-				+ "'");
-		log.debug("Task will execute in context '" + context + "'");
-		taskCount++;
-	    }
-	}
-	if (taskCount > 0)
-	{
-	    log.info("A total of " + taskCount + " patch tasks will execute.");
-	} else
-	{
-	    log.info("System up-to-date.  No patch tasks will execute.");
-	}
-	return taskCount;
+        int taskCount = 0;
+        // Roll through once, just printing out what we'll do
+        for (Iterator i = migrations.iterator(); i.hasNext();)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            if (task.getLevel().intValue() > currentLevel)
+            {
+                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
+                log.debug("Task will execute in context '" + context + "'");
+                taskCount++;
+            }
+        }
+        if (taskCount > 0)
+        {
+            log.info("A total of " + taskCount + " patch tasks will execute.");
+        }
+        else
+        {
+            log.info("System up-to-date.  No patch tasks will execute.");
+        }
+        return taskCount;
     }
 
     /**
      * Run post-migration tasks
      * 
-     * @param context
-     *                the context to use for the post-patch migrations
+     * @param context the context to use for the post-patch migrations
      * @return the number of <code>MigrationTask</code>s that executed
-     * @exception MigrationException
-     *                    if a post-patch task fails
+     * @exception MigrationException if a post-patch task fails
      */
-    public int doPostPatchMigrations(MigrationContext context)
-	    throws MigrationException
+    public int doPostPatchMigrations(MigrationContext context) throws MigrationException
     {
-	log.info("Running post-patch tasks...");
-	List postMigrationTasks = getPostPatchMigrationTasks();
-	validateTasks(postMigrationTasks);
-	Collections.sort(postMigrationTasks);
+        log.info("Running post-patch tasks...");
+        List postMigrationTasks = getPostPatchMigrationTasks();
+        validateTasks(postMigrationTasks);
+        Collections.sort(postMigrationTasks);
 
-	if (postMigrationTasks.size() == 0)
-	{
-	    log.info("No post-patch tasks found.");
-	    return 0;
-	}
+        if (postMigrationTasks.size() == 0)
+        {
+            log.info("No post-patch tasks found.");
+            return 0;
+        }
 
-	// Roll through once, just printing out what we'll do
-	int taskCount = 0;
-	for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
-	{
-	    MigrationTask task = (MigrationTask) i.next();
-	    log.info("Will execute post-patch task '" + getTaskLabel(task)
-		    + "'");
-	}
-	log.info("A total of " + taskCount + " post-patch tasks will execute.");
+        // Roll through once, just printing out what we'll do
+        int taskCount = 0;
+        for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            log.info("Will execute post-patch task '" + getTaskLabel(task) + "'");
+        }
+        log.info("A total of " + taskCount + " post-patch tasks will execute.");
 
-	// See if we should execute
-	// FIXME test read-only mode with no patches skipping post-patch tasks
-	if (isReadOnly())
-	{
-	    log.info("In read-only mode - skipping post-patch task execution");
-	    return 0;
-	}
+        // See if we should execute
+        // FIXME test read-only mode with no patches skipping post-patch tasks
+        if (isReadOnly())
+        {
+            log.info("In read-only mode - skipping post-patch task execution");
+            return 0;
+        }
 
-	// Now execute them
-	taskCount = 0;
-	for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
-	{
-	    MigrationTask task = (MigrationTask) i.next();
-	    applyPatch(context, task, false);
-	}
-	log
-		.info("Post-patch tasks complete (" + taskCount
-			+ " tasks executed)");
+        // Now execute them
+        taskCount = 0;
+        for (Iterator i = postMigrationTasks.iterator(); i.hasNext(); taskCount++)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            applyPatch(context, task, false);
+        }
+        log.info("Post-patch tasks complete (" + taskCount + " tasks executed)");
 
-	return taskCount;
+        return taskCount;
     }
 
-    public void applyRollback(MigrationContext context,
-	    RollbackableMigrationTask task, boolean broadcast)
-	    throws MigrationException
+    /**
+     * This method applies a single Rollback to the system.
+     * 
+     * @param context the <code>MigrationContext</code> in which the task is rolled back
+     * @param task the <code>RollbackableMigrationTask</code> which is to be rolled back
+     * @param broadcast a boolean indicating if the execution of this rollback should be broadcast to listeners
+     * @throws MigrationException is thrown in case of encountering an exception
+     */
+    public void applyRollback(MigrationContext context, RollbackableMigrationTask task,
+            boolean broadcast) throws MigrationException
     {
-	String label = getTaskLabel(task);
-	if (broadcast)
-	{
-	    rollbackBroadcaster.notifyListeners(task, context,
-		    MigrationBroadcaster.TASK_START);
-	    log.debug("broadcaster has "
-		    + rollbackBroadcaster.getListeners().size() + " listeners");
-	}
-	log.info("Executing patch task \"" + label + "\"...");
+        String label = getTaskLabel(task);
+        int rollbackLevel = getPreviousPatchLevel(task.getLevel().intValue());
 
-	try
-	{
-	    long startTime = System.currentTimeMillis();
-	    task.down(context);
-	    long duration = System.currentTimeMillis() - startTime;
-	    log.info("Finished patch task \"" + label + "\" (" + duration
-		    + " millis.)");
-	    if (broadcast)
-	    {
-		rollbackBroadcaster.notifyListeners(task, context,
-			MigrationBroadcaster.TASK_SUCCESS);
-	    }
-	    context.commit();
-	} catch (MigrationException e)
-	{
-	    if (broadcast)
-	    {
-		rollbackBroadcaster.notifyListeners(task, context, e,
-			MigrationBroadcaster.TASK_FAILED);
-	    }
-	    try
-	    {
-		context.rollback();
-		log.info("Patch task failed; rollback successful");
-	    } catch (MigrationException me)
-	    {
-		log.info("Patch task failed; COULD NOT ROLL BACK TRANSACTION",
-			me);
-	    }
-	    throw e;
-	}
+        if (broadcast)
+        {
+            rollbackBroadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START,
+                    rollbackLevel);
+            log
+                    .debug("broadcaster has " + rollbackBroadcaster.getListeners().size()
+                            + " listeners");
+        }
+        log.info("Executing patch task \"" + label + "\"...");
+
+        try
+        {
+            long startTime = System.currentTimeMillis();
+            task.down(context);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Finished patch task \"" + label + "\" (" + duration + " millis.)");
+            if (broadcast)
+            {
+                rollbackBroadcaster.notifyListeners(task, context,
+                        MigrationBroadcaster.TASK_SUCCESS, rollbackLevel);
+            }
+            context.commit();
+        }
+        catch (MigrationException e)
+        {
+            if (broadcast)
+            {
+                rollbackBroadcaster.notifyListeners(task, context, e,
+                        MigrationBroadcaster.TASK_FAILED, rollbackLevel);
+            }
+            try
+            {
+                context.rollback();
+                log.info("Patch task failed; rollback successful");
+            }
+            catch (MigrationException me)
+            {
+                log.info("Patch task failed; COULD NOT ROLL BACK TRANSACTION", me);
+            }
+            throw e;
+        }
     }
 
     /**
      * Apply a single patch
      * 
-     * @param context
-     *                the context the patch will need during application
-     * @param task
-     *                the application task to carry out
-     * @param broadcast
-     *                whether to broadcast to listeners that the patch applied
-     * @throws MigrationException
-     *                 if the patch application fails
+     * @param context the context the patch will need during application
+     * @param task the application task to carry out
+     * @param broadcast whether to broadcast to listeners that the patch applied
+     * @throws MigrationException if the patch application fails
      */
-    public void applyPatch(MigrationContext context, MigrationTask task,
-	    boolean broadcast) throws MigrationException
+    public void applyPatch(MigrationContext context, MigrationTask task, boolean broadcast)
+            throws MigrationException
     {
-	String label = getTaskLabel(task);
-	if (broadcast)
-	{
-	    broadcaster.notifyListeners(task, context,
-		    MigrationBroadcaster.TASK_START);
-	    log.debug("broadcaster has " + broadcaster.getListeners().size()
-		    + " listeners");
-	}
-	log.info("Executing patch task \"" + label + "\"...");
+        String label = getTaskLabel(task);
+        if (broadcast)
+        {
+            broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_START);
+            log.debug("broadcaster has " + broadcaster.getListeners().size() + " listeners");
+        }
+        log.info("Executing patch task \"" + label + "\"...");
 
-	try
-	{
-	    long startTime = System.currentTimeMillis();
-	    task.migrate(context);
-	    long duration = System.currentTimeMillis() - startTime;
-	    log.info("Finished patch task \"" + label + "\" (" + duration
-		    + " millis.)");
-	    if (broadcast)
-	    {
-		broadcaster.notifyListeners(task, context,
-			MigrationBroadcaster.TASK_SUCCESS);
-	    }
-	    context.commit();
-	} catch (MigrationException e)
-	{
-	    if (broadcast)
-	    {
-		broadcaster.notifyListeners(task, context, e,
-			MigrationBroadcaster.TASK_FAILED);
-	    }
-	    try
-	    {
-		context.rollback();
-		log.info("Patch task failed; rollback successful");
-	    } catch (MigrationException me)
-	    {
-		log.info("Patch task failed; COULD NOT ROLL BACK TRANSACTION",
-			me);
-	    }
-	    throw e;
-	}
+        try
+        {
+            long startTime = System.currentTimeMillis();
+            task.migrate(context);
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("Finished patch task \"" + label + "\" (" + duration + " millis.)");
+            if (broadcast)
+            {
+                broadcaster.notifyListeners(task, context, MigrationBroadcaster.TASK_SUCCESS);
+            }
+            context.commit();
+        }
+        catch (MigrationException e)
+        {
+            if (broadcast)
+            {
+                broadcaster.notifyListeners(task, context, e, MigrationBroadcaster.TASK_FAILED);
+            }
+            try
+            {
+                context.rollback();
+                log.info("Patch task failed; rollback successful");
+            }
+            catch (MigrationException me)
+            {
+                log.info("Patch task failed; COULD NOT ROLL BACK TRANSACTION", me);
+            }
+            throw e;
+        }
     }
 
     /**
      * Returns a list of all migration tasks, regardless of patch level.
      * 
      * @return a list of all migration tasks
-     * @throws MigrationException
-     *                 if one or more migration tasks could not be created
+     * @throws MigrationException if one or more migration tasks could not be created
      */
     public List getMigrationTasks() throws MigrationException
     {
-	return getTasksFromPackages(patchResourcePackages);
+        return getTasksFromPackages(patchResourcePackages);
     }
 
     /**
      * Returns a list of all post-patch migration tasks
      * 
      * @return a list of all post-patch migration tasks
-     * @throws MigrationException
-     *                 if one or more post-patch migration tasks could not be
-     *                 created
+     * @throws MigrationException if one or more post-patch migration tasks could not be created
      */
     public List getPostPatchMigrationTasks() throws MigrationException
     {
-	return getTasksFromPackages(postPatchResourcePackages);
+        return getTasksFromPackages(postPatchResourcePackages);
     }
 
     /**
      * Instantiate all the MigrationTask objects in the given resource packages
      * 
-     * @param resourcePackages
-     *                a List of Strings specifying package names to look for
-     *                tasks in
-     * @return List of MigrationTask objects instantiated from the given
-     *         packages
-     * @throws MigrationException
-     *                 if one or more post-patch migration tasks could not be
-     *                 created
+     * @param resourcePackages a List of Strings specifying package names to look for tasks in
+     * @return List of MigrationTask objects instantiated from the given packages
+     * @throws MigrationException if one or more post-patch migration tasks could not be
+     * created
      */
-    private List getTasksFromPackages(List resourcePackages)
-	    throws MigrationException
+    private List getTasksFromPackages(List resourcePackages) throws MigrationException
     {
-	List tasks = new ArrayList();
-	for (Iterator i = resourcePackages.iterator(); i.hasNext();)
-	{
-	    String packageName = (String) i.next();
-	    log.debug("Searching for patch tasks in package " + packageName);
+        List tasks = new ArrayList();
+        for (Iterator i = resourcePackages.iterator(); i.hasNext();)
+        {
+            String packageName = (String) i.next();
+            log.debug("Searching for patch tasks in package " + packageName);
 
-	    for (Iterator j = migrationTaskSources.iterator(); j.hasNext();)
-	    {
-		MigrationTaskSource source = (MigrationTaskSource) j.next();
-		List sourceTasks = source.getMigrationTasks(packageName);
-		if (sourceTasks.size() > 0)
-		{
-		    log.debug("Source [" + source + "] found "
-			    + sourceTasks.size() + " patch tasks: "
-			    + sourceTasks);
-		} else
-		{
-		    log
-			    .debug("Source [" + source
-				    + "] returned 0 patch tasks.");
-		}
+            for (Iterator j = migrationTaskSources.iterator(); j.hasNext();)
+            {
+                MigrationTaskSource source = (MigrationTaskSource) j.next();
+                List sourceTasks = source.getMigrationTasks(packageName);
+                if (sourceTasks.size() > 0)
+                {
+                    log.debug("Source [" + source + "] found " + sourceTasks.size()
+                            + " patch tasks: " + sourceTasks);
+                }
+                else
+                {
+                    log.debug("Source [" + source + "] returned 0 patch tasks.");
+                }
 
-		tasks.addAll(sourceTasks);
-	    }
-	}
+                tasks.addAll(sourceTasks);
+            }
+        }
 
-	// Its difficult to tell what's going on when you don't see any patches.
-	// This will help people realize they don't have patches, and perhaps
-	// help them discover why.
-	if (tasks.size() == 0)
-	{
-	    log
-		    .info("No patch tasks were discovered in your classpath. "
-			    + "Run with DEBUG logging enabled for patch task search details.");
-	}
+        // Its difficult to tell what's going on when you don't see any patches.
+        // This will help people realize they don't have patches, and perhaps
+        // help them discover why.
+        if (tasks.size() == 0)
+        {
+            log.info("No patch tasks were discovered in your classpath. "
+                    + "Run with DEBUG logging enabled for patch task search details.");
+        }
 
-	return tasks;
+        return tasks;
+    }
+
+    /**
+     * Returns the patch level which is previous to the current level
+     * 
+     * @param currentLevel the current patch level
+     * @return the level of the patch that was applied previous to the current patch l
+     * @throws MigrationException if there is an error retrieving the previous patch level
+     */
+    public int getPreviousPatchLevel(int currentLevel) throws MigrationException
+    {
+        boolean isCurrentPatchFound = false;
+        List tasks = getMigrationTasks();
+        int previousTaskLevel = 0;
+
+        Collections.sort(tasks);
+
+        for (ListIterator patchIterator = tasks.listIterator(); patchIterator.hasNext()
+                && !isCurrentPatchFound;)
+        {
+            int previousIndex = patchIterator.previousIndex();
+
+            //get the current patch
+            MigrationTask task = (MigrationTask) patchIterator.next();
+
+            if (currentLevel == task.getLevel().intValue())
+            {
+                //the current patch level is found
+                isCurrentPatchFound = true;
+
+                if (previousIndex != -1)
+                {
+                    MigrationTask previousTask = (MigrationTask) tasks.get(previousIndex);
+                    previousTaskLevel = previousTask.getLevel().intValue();
+                }
+            }
+        }
+        return previousTaskLevel;
     }
 
     /**
@@ -665,46 +687,44 @@ public class MigrationProcess
      */
     public int getNextPatchLevel() throws MigrationException
     {
-	List tasks = getMigrationTasks();
+        List tasks = getMigrationTasks();
 
-	if (tasks.size() == 0)
-	{
-	    return 1;
-	}
+        if (tasks.size() == 0)
+        {
+            return 1;
+        }
 
-	Collections.sort(tasks);
-	validateTasks(tasks);
-	MigrationTask lastTask = (MigrationTask) tasks.get(tasks.size() - 1);
+        Collections.sort(tasks);
+        validateTasks(tasks);
+        MigrationTask lastTask = (MigrationTask) tasks.get(tasks.size() - 1);
 
-	return lastTask.getLevel().intValue() + 1;
+        return lastTask.getLevel().intValue() + 1;
     }
 
     /**
      * Registers the given <code>MigrationListener</code> as being interested
      * in migration task events.
      * 
-     * @param listener
-     *                the listener to add; may not be <code>null</code>
+     * @param listener the listener to add; may not be <code>null</code>
      */
     public void addListener(MigrationListener listener)
     {
-	broadcaster.addListener(listener);
-	if(listener instanceof RollbackListener)
-	    rollbackBroadcaster.addListener((RollbackListener)listener);
+        broadcaster.addListener(listener);
+        if (listener instanceof RollbackListener)
+            rollbackBroadcaster.addListener((RollbackListener) listener);
     }
-    
+
     /**
      * Removes the given <code>MigrationListener</code> from the list of
      * listeners associated with this <code>Migration</code> instance.
      * 
-     * @param listener
-     *                the listener to add; may not be <code>null</code>
+     * @param listener the listener to add; may not be <code>null</code>
      * @return <code>true</code> if the listener was located and removed,
      *         otherwise <code>false</code>.
      */
     public boolean removeListener(MigrationListener listener)
     {
-	return broadcaster.removeListener(listener);
+        return broadcaster.removeListener(listener);
     }
 
     /**
@@ -714,56 +734,51 @@ public class MigrationProcess
      */
     public List getListeners()
     {
-	return broadcaster.getListeners();
+        return broadcaster.getListeners();
     }
 
     /**
      * Returns a user-friendly label for the specified task.
      * 
-     * @param task
-     *                the task to create a label for
+     * @param task the task to create a label for
      * @return a user-friendly label for the specified task
      */
     protected String getTaskLabel(MigrationTask task)
     {
-	return task.getName() + " [" + task.getClass().getName() + "]";
+        return task.getName() + " [" + task.getClass().getName() + "]";
     }
 
     /**
      * Ensures that no two <code>MigrationTasks</code> have the same ordering.
      * 
-     * @param migrations
-     *                the list of defined migration tasks
+     * @param migrations the list of defined migration tasks
      * @throws MigrationException
      *                 if the migration tasks are not correctly defined
      */
     public void validateTasks(List migrations) throws MigrationException
     {
-	Map usedOrderNumbers = new HashMap();
-	for (Iterator i = migrations.iterator(); i.hasNext();)
-	{
-	    MigrationTask task = (MigrationTask) i.next();
+        Map usedOrderNumbers = new HashMap();
+        for (Iterator i = migrations.iterator(); i.hasNext();)
+        {
+            MigrationTask task = (MigrationTask) i.next();
 
-	    Integer level = task.getLevel();
-	    if (level == null)
-	    {
-		throw new MigrationException("Patch task '"
-			+ getTaskLabel(task)
-			+ "' does not have a patch level defined.");
-	    }
+            Integer level = task.getLevel();
+            if (level == null)
+            {
+                throw new MigrationException("Patch task '" + getTaskLabel(task)
+                        + "' does not have a patch level defined.");
+            }
 
-	    if (usedOrderNumbers.containsKey(level))
-	    {
-		MigrationTask otherTask = (MigrationTask) usedOrderNumbers
-			.get(level);
-		throw new MigrationException("Patch task " + getTaskLabel(task)
-			+ " has a conflicting patch level with "
-			+ getTaskLabel(otherTask)
-			+ "; both are configured for patch level " + level);
-	    }
+            if (usedOrderNumbers.containsKey(level))
+            {
+                MigrationTask otherTask = (MigrationTask) usedOrderNumbers.get(level);
+                throw new MigrationException("Patch task " + getTaskLabel(task)
+                        + " has a conflicting patch level with " + getTaskLabel(otherTask)
+                        + "; both are configured for patch level " + level);
+            }
 
-	    usedOrderNumbers.put(level, task);
-	}
+            usedOrderNumbers.put(level, task);
+        }
     }
 
     /**
@@ -773,35 +788,33 @@ public class MigrationProcess
      */
     public boolean isReadOnly()
     {
-	return readOnly;
+        return readOnly;
     }
 
     /**
      * Set whether or not to actually apply patches
      * 
-     * @param readOnly
-     *                boolean true if we should skip application
+     * @param readOnly boolean true if we should skip application
      */
     public void setReadOnly(boolean readOnly)
     {
-	this.readOnly = readOnly;
+        this.readOnly = readOnly;
     }
 
     /**
      * Registers the given <code>MigrationListeners</code> as being interested
      * in migration task events.
      * 
-     * @param listeners
-     *                the listeners to add;
+     * @param listeners the listeners to add;
      */
     public void addListeners(List listeners)
     {
-	for (Iterator it = listeners.iterator(); it.hasNext();)
-	{
-	    MigrationListener listener = (MigrationListener) it.next();
-	    broadcaster.addListener(listener);
-	    if(listener instanceof RollbackListener)
-		rollbackBroadcaster.addListener((RollbackListener)listener);
-	}
+        for (Iterator it = listeners.iterator(); it.hasNext();)
+        {
+            MigrationListener listener = (MigrationListener) it.next();
+            broadcaster.addListener(listener);
+            if (listener instanceof RollbackListener)
+                rollbackBroadcaster.addListener((RollbackListener) listener);
+        }
     }
 }
