@@ -93,13 +93,14 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        SqlUtil.close(catalog3, null, null);
     }
     /**
-     * Test that all the tables were created successfully in all of the databases
+     * Test that all the tables were created successfully in all of the databases and then test 
+     * the rollback of the final task.
      * 
      * @exception Exception if anything goes wrong
      */
     public void testMultiNodeRollback() throws Exception
     {
-        log.debug("Testing multi node patching");
+        log.debug("Testing multi node rollback");
         try
         {
             getDistributedLauncher().doMigrations();
@@ -135,11 +136,11 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        
        try 
        {
-	   getDistributedLauncher().doRollbacks(3);
+    	   getDistributedLauncher().doRollbacks(3);
        } catch(Exception e)
        {
-	   log.error("Unexpected error", e);
-	   fail("should not have received any exceptions");
+    	   log.error("Unexpected error", e);
+    	   fail("should not have received any exceptions");
        }
        
        // 4 patches should have executed
