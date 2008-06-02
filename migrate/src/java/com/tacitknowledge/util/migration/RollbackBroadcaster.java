@@ -51,19 +51,15 @@ class RollbackBroadcaster
     /**
      * Notifies all registered listeners of a migration task event.
      * 
-     * @param task
-     *                the task that is being or that has been executed
-     * @param context
-     *                the context in which the task was executed
-     * @param eventType
-     *                TASK_START, TASK_SUCCESS, or TASK_FAIL
-     * @param e
-     *                the exception thrown by the task if the task failed
-     * @throws MigrationException
-     *                 if one of the listeners threw an exception
+     * @param task the task that is being or that has been executed
+     * @param context the context in which the task was executed
+     * @param eventType TASK_START, TASK_SUCCESS, or TASK_FAIL
+     * @param rollbackLevel
+     * @param e the exception thrown by the task if the task failed
+     * @throws MigrationException if one of the listeners threw an exception
      */
     public void notifyListeners(RollbackableMigrationTask task,
-	    MigrationContext context, MigrationException e, int eventType)
+	    MigrationContext context, MigrationException e, int eventType, int rollbackLevel)
 	    throws MigrationException
     {
 	for (Iterator i = listeners.iterator(); i.hasNext();)
@@ -76,7 +72,7 @@ class RollbackBroadcaster
 		break;
 
 	    case TASK_SUCCESS:
-		listener.rollbackSuccessful(task, context);
+		listener.rollbackSuccessful(task, rollbackLevel, context);
 		break;
 
 	    case TASK_FAILED:
@@ -92,27 +88,22 @@ class RollbackBroadcaster
     /**
      * Notifies all registered listeners of a migration task event.
      * 
-     * @param task
-     *                the task that is being or that has been executed
-     * @param context
-     *                the context in which the task was executed
-     * @param eventType
-     *                TASK_START, TASK_SUCCESS, or TASK_FAIL
-     * @throws MigrationException
-     *                 if one of the listeners threw an exception
+     * @param task the task that is being or that has been executed
+     * @param context the context in which the task was executed
+     * @param eventType TASK_START, TASK_SUCCESS, or TASK_FAIL
+     * @throws MigrationException if one of the listeners threw an exception
      */
     public void notifyListeners(RollbackableMigrationTask task,
-	    MigrationContext context, int eventType) throws MigrationException
+	    MigrationContext context, int eventType, int rollbackLevel) throws MigrationException
     {
-	notifyListeners(task, context, null, eventType);
+	notifyListeners(task, context, null, eventType, rollbackLevel);
     }
 
     /**
      * Registers the given <code>MigrationListener</code> as being interested
      * in migration task events.
      * 
-     * @param listener
-     *                the listener to add; may not be <code>null</code>
+     * @param listener the listener to add; may not be <code>null</code>
      */
     public void addListener(RollbackListener listener)
     {
@@ -127,8 +118,7 @@ class RollbackBroadcaster
      * Removes the given <code>MigrationListener</code> from the list of
      * listeners associated with the <code>Migration</code> instance.
      * 
-     * @param listener
-     *                the listener to add; may not be <code>null</code>
+     * @param listener the listener to add; may not be <code>null</code>
      * @return <code>true</code> if the listener was located and removed,
      *         otherwise <code>false</code>.
      */
