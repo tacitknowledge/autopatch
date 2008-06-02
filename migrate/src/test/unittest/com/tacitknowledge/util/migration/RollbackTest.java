@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * This class defines unit tests for the Rollback functionality.
- * @author apeshimam
+ * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  * 
  */
 public class RollbackTest extends MigrationListenerTestBase
@@ -67,6 +67,11 @@ public class RollbackTest extends MigrationListenerTestBase
         // TestMigrationTask3.setFail(false);
     }
     
+    /**
+     * This method tests the basic rollback functionality.
+     * 
+     * @throws MigrationException
+     */
     public void testRollbackAllTasks() throws MigrationException
     {
         List l = runner.getMigrationTasks();
@@ -86,12 +91,17 @@ public class RollbackTest extends MigrationListenerTestBase
         assertEquals(5, getMigrationSuccessCount());
         
         // execute the rollback
-        level = runner.doRollbacks(12, 8, context);
+        level = runner.doRollbacks(12, 8, context, false);
         assertEquals(4, level);
         assertEquals(4, getRollbackSuccessCount());
         
     }
     
+    /**
+     * This method tests the basic rollback functionality.
+     * 
+     * @throws MigrationException
+     */
     public void testRollbackPartialTasks() throws MigrationException
     {
         List l = runner.getMigrationTasks();
@@ -109,11 +119,17 @@ public class RollbackTest extends MigrationListenerTestBase
         assertTrue(context.hasExecuted("TestRollbackableTask5"));
         
         // execute the rollback
-        level = runner.doRollbacks(12, 8, context);
+        level = runner.doRollbacks(12, 8, context, false);
         assertEquals(4, level);
         assertEquals(4, getRollbackSuccessCount());
     }
     
+    /**
+     * This method tests the scneario when a non rollbackable task is attempted to rollback.
+     * Note that in this scenario, the forceRollback is false.
+     * 
+     * @throws MigrationException
+     */
     public void testRollbackNotRollbackableTask() throws MigrationException
     {
         doInitialMigrations();
@@ -121,7 +137,7 @@ public class RollbackTest extends MigrationListenerTestBase
         // execute the rollback
         try
         {
-            runner.doRollbacks(12, 7, context);
+            runner.doRollbacks(12, 7, context, false);
         } 
         catch (MigrationException me)
         {
@@ -130,6 +146,30 @@ public class RollbackTest extends MigrationListenerTestBase
         assertEquals(0, getRollbackSuccessCount());
     }
     
+    /**
+     * This tests the forceRollback functionality.
+     * @throws MigrationException
+     */
+    public void testForceRollback() throws MigrationException
+    {
+        doInitialMigrations();
+        
+        // execute the rollback
+        try
+        {
+            runner.doRollbacks(12, 7, context, true);
+        } 
+        catch (MigrationException me)
+        {
+            // expecting exception
+        }
+        assertEquals(5, getRollbackSuccessCount());
+    }
+    
+    /**
+     * this is a private helper method to perform initial migrations
+     * @throws MigrationException
+     */
     private void doInitialMigrations() throws MigrationException
     {
         List l = runner.getMigrationTasks();
@@ -147,6 +187,12 @@ public class RollbackTest extends MigrationListenerTestBase
         assertTrue(context.hasExecuted("TestRollbackableTask5"));
     }
     
+    /**
+     * this tests the scenario when the user tries to rollback to a level
+     * which is greater than the current patch level.
+     * 
+     * @throws MigrationException
+     */
     public void testInvalidRollbackLevel() throws MigrationException
     {
         List l = runner.getMigrationTasks();
@@ -165,7 +211,7 @@ public class RollbackTest extends MigrationListenerTestBase
         
         try
         {
-            level = runner.doRollbacks(level, 7, context);
+            level = runner.doRollbacks(level, 7, context, false);
         } 
         catch (IllegalArgumentException iae)
         {
@@ -174,6 +220,12 @@ public class RollbackTest extends MigrationListenerTestBase
         
     }
     
+    /**
+     * this test checks that the system correctly when a rollback is attempted 
+     * on a non-rollbackable task.
+     * 
+     * @throws MigrationException
+     */
     public void testMigrationTaskRollback() throws MigrationException
     {
         // add additional directory containing MigrationTask
@@ -196,7 +248,7 @@ public class RollbackTest extends MigrationListenerTestBase
         
         try
         {
-            level = runner.doRollbacks(13, 12, context);
+            level = runner.doRollbacks(13, 12, context, false);
         } 
         catch (MigrationException me)
         {
