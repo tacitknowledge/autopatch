@@ -47,12 +47,12 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
     /**
      * The regular expression used to match SQL patch files.
      */
-     private static final String SQL_PATCH_REGEX = "^patch(\\d+)_(.+)\\.sql";
+     private static final String SQL_PATCH_REGEX = "^patch(\\d++)(?!-rollback)_?(.+)?\\.sql";
 
     /**
      * The regular expression used to match SQL rollback files
      */
-    private static final String SQL_ROLLBACK_REGEX = "^patch(\\d+)-rollback_(.+)\\.sql";
+    private static final String SQL_ROLLBACK_REGEX = "^patch(\\d++)-rollback_?(.+)?\\.sql";
 
     /** {@inheritDoc} */
     public List getMigrationTasks(String packageName) throws MigrationException
@@ -89,12 +89,10 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
      * Creates a list of <code>SqlScriptMigrationTask</code>s based on the
      * array of SQL scripts.
      * 
-     * @param scripts
-     *                the classpath-relative array of SQL migration scripts
+     * @param scripts the classpath-relative array of SQL migration scripts
      * @return a list of <code>SqlScriptMigrationTask</code>s based on the
      *         array of SQL scripts
-     * @throws MigrationException
-     *                 if a SqlScriptMigrationTask could no be created
+     * @throws MigrationException if a SqlScriptMigrationTask could no be created
      */
     private List createMigrationScripts(String[] upScripts, String[] downScripts)
 	    throws MigrationException
@@ -142,11 +140,11 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
     }
 
     /**
-     * Returns the filename of the downscript
+     * Returns the filename of the downscript which matches the order of the order parameter.
      * 
-     * @param downScripts
-     * @param order
-     * @return
+     * @param downScripts an array of scripts
+     * @param order the order of the down script whose name should be returned
+     * @return the name of the down script that matches the order
      */
     private String getMatchingDownScript(String[] downScripts, int order,
 	    Pattern fileNamePattern) throws MigrationException
@@ -191,11 +189,9 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
     /**
      * Reads the file contents into a String object.
      * 
-     * @param is
-     *                the <code>InputStream</code>
+     * @param is the <code>InputStream</code>
      * @return a <code>String</code> with the contents of the InputStream
-     * @throws MigrationException
-     *                 if there's an error reading in the contents
+     * @throws MigrationException if there's an error reading in the contents
      */
     private String readSql(InputStream is) throws MigrationException
     {
@@ -231,15 +227,11 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
     /**
      * Returns the order for the file.
      * 
-     * @param p
-     *                a Pattern defining the file name pattern
-     * @param script
-     *                the Script
-     * @param scriptFileName
-     *                the name of the file
+     * @param p a Pattern defining the file name pattern
+     * @param script  the Script
+     * @param scriptFileName the name of the file
      * @return an int indicating the order
-     * @throws MigrationException
-     *                 in case the file name is invalid
+     * @throws MigrationException in case the file name is invalid
      */
     private int getOrder(Pattern p, String script, String scriptFileName)
 	    throws MigrationException
