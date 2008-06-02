@@ -75,4 +75,21 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
         
         return super.doMigrations();
     }
+    
+    /**
+     * Starts the application migration process across all configured contexts
+     *
+     * @return the number of patches applied
+     * @throws MigrationException if an unrecoverable error occurs during
+     *         the migration
+     */
+    public int doRollbacks(int rollbackLevel) throws MigrationException
+    {
+        if (getContexts().size() == 0)
+        {
+            throw new MigrationException("You must configure a migration context");
+        }
+        
+        return super.doRollbacks(rollbackLevel);
+    }    
 }
