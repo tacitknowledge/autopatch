@@ -167,7 +167,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
     public void testParsingMultipleStatement() throws IOException
     {
 	InputStream is = getClass().getResourceAsStream(
-		"test/patch0001_first_patch.sql");
+		"test/patch0001.sql");
 	task = new SqlScriptMigrationTask("test", 1, is);
 	is.close();
 
