@@ -49,83 +49,106 @@ import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
  * @author Mike Hardy (mike@tacitknowledge.com)
  * @see com.tacitknowledge.util.migration.MigrationProcess
  */
-public class StandaloneMigrationLauncher
+public final class StandaloneMigrationLauncher
 {
+    /**
+     * The force rollback parameter
+     */
+    private static final String FORCE_ROLLBACK = "-force";
+
+    /**
+     * The rollback parameter
+     */
+    private static final String ROLLBACK = "-rollback";
+
     /**
      * Class logger
      */
-    private static Log log = LogFactory
-	    .getLog(StandaloneMigrationLauncher.class);
+    private static Log log = LogFactory.getLog(StandaloneMigrationLauncher.class);
 
     /**
      * Private constructor - this object shouldn't be instantiated
      */
     private StandaloneMigrationLauncher()
     {
-	// does nothing
+        // does nothing
     }
 
     /**
      * Run the migrations for the given system name
      * 
      * @param arguments
-     *                the command line arguments, if any (none are used)
+     *                the command line arguments, if any
      * @exception Exception
      *                    if anything goes wrong
      */
-    public static void main(String[] arguments) throws Exception
+    public static void main(final String[] arguments) throws Exception
     {
-	String migrationSystemName = ConfigurationUtil.getRequiredParam(
-		"migration.systemname", System.getProperties(), arguments, 0);
-	String migrationSettings = ConfigurationUtil.getOptionalParam(
-		"migration.settings", System.getProperties(), arguments, 1);
 
-	boolean isRollback = false;
-	int rollbackLevel = -1;
+        String migrationSystemName = ConfigurationUtil.getRequiredParam("migration.systemname",
+                System.getProperties(), arguments, 0);
+        String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings", System
+                .getProperties(), arguments, 1);
 
-	for (int i = 0; i < arguments.length; i++)
-	{
-	    String argument1 = arguments[i];
+        boolean isRollback = false;
+        int rollbackLevel = -1;
+        boolean forceRollback = false;
 
-	    if ("-rollback".equals(argument1))
-	    {
-		isRollback = true;
+        for (int i = 0; i < arguments.length; i++)
+        {
+            String argument1 = arguments[i];
 
-		if (i + 1 <= arguments.length)
-		{
-		    String argument2 = arguments[i + 1];
+            if (ROLLBACK.equals(argument1))
+            {
+                isRollback = true;
 
-		    if (argument2 != null)
-			rollbackLevel = Integer.parseInt(argument2);
-		}
+                if (i + 2 <= arguments.length)
+                {
+                    String argument2 = arguments[i + 1];
 
-		if (rollbackLevel == -1)
-		{
-		    // this indicates that the rollback level has not been set
-		    throw new MigrationException(
-			    "The rollback flag requires a following integer parameter.");
-		}
-	    }
+                    if (argument2 != null)
+                    {
+                        rollbackLevel = Integer.parseInt(argument2);
+                    }
+                }
 
-	}
+                if (rollbackLevel == -1)
+                {
+                    // this indicates that the rollback level has not been set
+                    throw new MigrationException(
+                            "The rollback flag requires a following integer parameter to indicate the rollback level.");
+                }
+            }
 
-	// The MigrationLauncher is responsible for handling the interaction
-	// between the PatchTable and the underlying MigrationTasks; as each
-	// task is executed, the patch level is incremented, etc.
-	try
-	{
-	    if (isRollback)
-	    {
-		doRollbacks(migrationSystemName, migrationSettings,
-			rollbackLevel);
-	    }
-	    doMigrations(migrationSystemName, migrationSettings);
-	}
-	catch (Exception e)
-	{
-	    log.error(e);
-	    throw e;
-	}
+            if (FORCE_ROLLBACK.equals(argument1))
+            {
+                forceRollback = true;
+            }
+
+        }
+
+        // The MigrationLauncher is responsible for handling the interaction
+        // between the PatchTable and the underlying MigrationTasks; as each
+        // task is executed, the patch level is incremented, etc.
+        try
+        {
+            if (isRollback)
+            {
+                log
+                        .info("Found rollback flag. Autopatch will attempt to rollback the system to patch level "
+                                + rollbackLevel + ".");
+                doRollbacks(migrationSystemName, migrationSettings, rollbackLevel, forceRollback);
+            }
+            else
+            {
+                doMigrations(migrationSystemName, migrationSettings);
+            }
+        }
+        catch (Exception e)
+        {
+            log.error(e);
+            throw e;
+        }
     }
 
     /**
@@ -137,28 +160,27 @@ public class StandaloneMigrationLauncher
      *                additional properties for migration
      * @throws MigrationException
      */
-    private static void doRollbacks(String migrationSystemName,
-	    String migrationSettings, int rollbackLevel)
-	    throws MigrationException
+    private static void doRollbacks(final String migrationSystemName,
+            final String migrationSettings, final int rollbackLevel, final boolean forceRollback)
+            throws MigrationException
     {
-	JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
-		.createFactory();
-	JdbcMigrationLauncher launcher = null;
+        JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
+                .createFactory();
+        JdbcMigrationLauncher launcher = null;
 
-	if (migrationSettings == null)
-	{
-	    log.info("Using migration.properties (default)");
-	    launcher = launcherFactory
-		    .createMigrationLauncher(migrationSystemName);
-	}
-	else
-	{
-	    log.info("Using " + migrationSettings);
-	    launcher = launcherFactory.createMigrationLauncher(
-		    migrationSystemName, migrationSettings);
-	}
+        if (migrationSettings == null)
+        {
+            log.info("Using migration.properties (default)");
+            launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
+        }
+        else
+        {
+            log.info("Using " + migrationSettings);
+            launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
+                    migrationSettings);
+        }
 
-	launcher.doRollbacks(rollbackLevel);
+        launcher.doRollbacks(rollbackLevel, forceRollback);
     }
 
     /**
@@ -170,26 +192,25 @@ public class StandaloneMigrationLauncher
      *                additional properties for migration
      * @throws MigrationException
      */
-    private static void doMigrations(String migrationSystemName,
-	    String migrationSettings) throws MigrationException
+    private static void doMigrations(final String migrationSystemName,
+            final String migrationSettings) throws MigrationException
     {
-	JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
-		.createFactory();
-	JdbcMigrationLauncher launcher = null;
+        JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
+                .createFactory();
+        JdbcMigrationLauncher launcher = null;
 
-	if (migrationSettings == null)
-	{
-	    log.info("Using migration.properties (default)");
-	    launcher = launcherFactory
-		    .createMigrationLauncher(migrationSystemName);
-	}
-	else
-	{
-	    log.info("Using " + migrationSettings);
-	    launcher = launcherFactory.createMigrationLauncher(
-		    migrationSystemName, migrationSettings);
-	}
+        if (migrationSettings == null)
+        {
+            log.info("Using migration.properties (default)");
+            launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
+        }
+        else
+        {
+            log.info("Using " + migrationSettings);
+            launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
+                    migrationSettings);
+        }
 
-	launcher.doMigrations();
+        launcher.doMigrations();
     }
 }
