@@ -213,7 +213,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         int rollbackPatchLevel = 8;
         
         setReportedPatchLevel(process.getControlledSystems().values(), currentPatchlevel);
-        int patches = process.doRollbacks(currentPatchlevel, rollbackPatchLevel, getContext());
+        int patches = process.doRollbacks(currentPatchlevel, rollbackPatchLevel, getContext(), false);
         assertEquals(4, patches);
         assertEquals(4, getRollbackStartedCount());
         assertEquals(4, getRollbackSuccessCount());
@@ -242,7 +242,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         // Now do the migrations, and make sure we get the right number of events
         try
         {
-            process.doRollbacks(currentPatchLevel, rollbackPatchLevel, getContext());
+            process.doRollbacks(currentPatchLevel, rollbackPatchLevel, getContext(), false);
             fail("There should have been an exception - unapplied patches + read-only don't work");
         } 
         catch (MigrationException me)
