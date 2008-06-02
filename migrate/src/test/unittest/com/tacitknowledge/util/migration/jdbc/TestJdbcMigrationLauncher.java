@@ -121,7 +121,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
         this.ignoreMigrationSuccessfulEvents = ignoreMigrationSuccessfulEvents;
     }
 
-    public void rollbackSuccessful(RollbackableMigrationTask task,
+    public void rollbackSuccessful(RollbackableMigrationTask task,int rollbackLevel,
 	    MigrationContext context) throws MigrationException
     {
         if (isIgnoreMigrationSuccessfulEvents())
@@ -130,7 +130,7 @@ public class TestJdbcMigrationLauncher extends JdbcMigrationLauncher
         }
         else
         {
-            super.rollbackSuccessful(task, context);
+            super.rollbackSuccessful(task, rollbackLevel,context);
         }
     }
 }
