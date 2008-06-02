@@ -99,8 +99,7 @@ public class JdbcMigrationLauncher implements RollbackListener
     /**
      * Create a new <code>MigrationLancher</code>.
      * 
-     * @param context
-     *                the <code>JdbcMigrationContext</code> to use.
+     * @param context the <code>JdbcMigrationContext</code> to use.
      */
     public JdbcMigrationLauncher(JdbcMigrationContext context)
     {
@@ -156,6 +155,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         }
     }
 
+    
     /**
      * Performs the application rollbacks
      * 
@@ -166,6 +166,22 @@ public class JdbcMigrationLauncher implements RollbackListener
      * @throws MigrationException if an unrecoverable error occurs during the migration
      */
     public int doRollbacks(JdbcMigrationContext context, int rollbackLevel)
+    throws SQLException, MigrationException 
+    {
+    	return doRollbacks(context,rollbackLevel, false);
+    }
+    
+    /**
+     * Performs the application rollbacks
+     * 
+     * @param context the database context to run the patches in
+     * @param rollbackLevel the level the system should rollback to
+     * @param forceRollback is a boolean indicating if the application should ignore a check to see if all patches are rollbackable
+     * @return the number of patches applied
+     * @throws SQLException if an unrecoverable database error occurs while working with the patches table.
+     * @throws MigrationException if an unrecoverable error occurs during the migration
+     */
+    public int doRollbacks(JdbcMigrationContext context, int rollbackLevel, boolean forceRollback)
     throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
@@ -186,7 +202,7 @@ public class JdbcMigrationLauncher implements RollbackListener
             // run the rollbacks
             try
             {
-                executedPatchCount = migrationProcess.doRollbacks(patchLevel, rollbackLevel, context);
+                executedPatchCount = migrationProcess.doRollbacks(patchLevel, rollbackLevel, context, forceRollback);
             }
             
             // restore autocommit state
@@ -224,7 +240,7 @@ public class JdbcMigrationLauncher implements RollbackListener
             }
         }
     }
-
+    
     /**
      * Initiates the application rollback process.
      * 
@@ -249,6 +265,45 @@ public class JdbcMigrationLauncher implements RollbackListener
             {
                 JdbcMigrationContext context = (JdbcMigrationContext) contextIter.next();
                 rollbackCount = doRollbacks(context, rollbackLevel);
+                log.info("Executed " + rollbackCount + " patches for context " + context);
+            }
+        } 
+        catch (SQLException se)
+        {
+            throw new MigrationException("SqlException during rollback", se);
+        } 
+        finally
+        {
+            SqlUtil.close(conn, null, null);
+        }
+        
+        return rollbackCount;
+    }
+    /**
+     * Initiates the application rollback process.
+     * 
+     * @param rollbackLevel the patch level the system should rollback to 
+     * @param forceRollback a boolean indcating if the check for all tasks being rollbackable should be ignored
+     * @return an integer indicating how many patches were rolled back
+     * @throws MigrationException is thrown in case of an error while rolling back
+     */
+    public int doRollbacks(int rollbackLevel, boolean forceRollback) throws MigrationException
+    {
+        if (contexts.size() == 0)
+        {
+            throw new MigrationException(
+            "You must configure a migration context");
+        }
+        int rollbackCount = 0;
+        
+        Connection conn = null;
+        try
+        {
+            
+            for (Iterator contextIter = contexts.keySet().iterator(); contextIter.hasNext();)
+            {
+                JdbcMigrationContext context = (JdbcMigrationContext) contextIter.next();
+                rollbackCount = doRollbacks(context, rollbackLevel, forceRollback);
                 log.info("Executed " + rollbackCount + " patches for context " + context);
             }
         } 
@@ -317,9 +372,8 @@ public class JdbcMigrationLauncher implements RollbackListener
      * Sets the colon-separated path of packages and directories within the
      * class path that are sources of post-patch tasks
      * 
-     * @param searchPath
-     *                a colon-separated path of packages and directories within
-     *                the class path that are sources of post-patch tasks
+     * @param searchPath a colon-separated path of packages and directories within
+     *                   the class path that are sources of post-patch tasks
      */
     public void setPostPatchPath(String searchPath)
     {
@@ -687,12 +741,14 @@ public class JdbcMigrationLauncher implements RollbackListener
         log.debug("Task " + task.getName() + " failed for context " + context, e);
     }
 
+    /** {@inheritDoc} */
     public void rollbackStarted(RollbackableMigrationTask task, MigrationContext context) throws MigrationException
     {
         log.debug("Started rollback " + task.getName() + " for context " + context);
     }
 
-    public void rollbackSuccessful(RollbackableMigrationTask task, MigrationContext context) throws MigrationException
+    /** {@inheritDoc} */
+    public void rollbackSuccessful(RollbackableMigrationTask task, int rollbackLevel, MigrationContext context) throws MigrationException
     {
         log.debug("Rollback of task " + task.getName()	+ " was successful for context " + context + " in launcher " + this);
         int patchLevel = task.getLevel().intValue();
@@ -701,7 +757,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
         {
             PatchInfoStore store = (PatchInfoStore) ((Map.Entry) patchTableIter.next()).getValue();
-            store.updatePatchLevel(patchLevel - 1);   
+            store.updatePatchLevel(rollbackLevel);   
         }
     }
 }
