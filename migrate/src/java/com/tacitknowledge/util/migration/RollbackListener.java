@@ -47,7 +47,7 @@ public interface RollbackListener extends MigrationListener
      * @param  context the migration context
      * @throws MigrationException if an unrecoverable error occurs
      */
-    public void rollbackSuccessful(RollbackableMigrationTask task, MigrationContext context)
+    public void rollbackSuccessful(RollbackableMigrationTask task, int rollbackLevel, MigrationContext context)
         throws MigrationException;
 
     /**
