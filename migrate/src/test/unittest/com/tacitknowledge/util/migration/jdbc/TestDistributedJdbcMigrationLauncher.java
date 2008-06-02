@@ -93,7 +93,7 @@ public class TestDistributedJdbcMigrationLauncher extends DistributedJdbcMigrati
     /**
      * {@inheritDoc}
      */
-    public void rollbackSuccessful(RollbackableMigrationTask task,
+    public void rollbackSuccessful(RollbackableMigrationTask task, int rollbackLevel,
 	    MigrationContext context) throws MigrationException
     {
 	log.debug(this + " silently ignoring a rollbackSuccessful call");
