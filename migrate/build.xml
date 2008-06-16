@@ -1,11 +1,7 @@
 <project name="autopatch" default="compile" basedir=".">
 
 <!--
-    Tacit Knowledge AutoPatch
--->
-
-<!--
-   Main build file for the Tacit Knowledge Migrate library.
+   Main build file for the Tacit Knowledge AutoPatch library.
 
    Build file sections
 
@@ -16,6 +12,13 @@
    Unit Test Targets - target having to do with unit test execution
 
    Outputs of the build go to the ${build.home} directory.
+   
+   Note that you will need the Spring and ATG DAS jars to build the
+   "dist" or optional targets, as that brings in code which implements
+   bindings from AutoPatch to those systems. If you are a Tacit employee
+   you'll find those files in storage::/opt/software/downloads/java/autopatch_libs.
+   If you are not a Tacit employee, Spring is easy to get, but ATG is not,
+   and we're not allowed to redistribute it.
 
    Build reports (for things like unit testing)
    go to the ${reports.home} directory.
