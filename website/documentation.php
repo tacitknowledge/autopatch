@@ -3,7 +3,8 @@
 <?= navbar("Documentation"); ?>
 <?php include("includes/updates.inc"); ?>
     
-
+<p>Please note that this version of the documentation is for AutoPatch 1.0.  Follow this <a href="/documentation-1.2b.php">link</a> 
+  for the 1.2 documentation.</p>
 <h3>AutoPatch Documentation</h3>
 
 <ol>
