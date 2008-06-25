@@ -3,7 +3,8 @@
 <?= navbar("Documentation"); ?>
 <?php include("includes/updates.inc"); ?>
     
-
+<p>Please note that this version of the documentation is for AutoPatch 1.2.  Follow this <a href="/documentation.php">link</a> 
+  for the 1.0 documentation.</p>
 <h3>AutoPatch Documentation</h3>
 
 <ol>
@@ -404,7 +405,7 @@ external system with persistence.</p>
 </ul>
 </li>
 
-<li><a name="rollback"></a><p>How to rollback patches</p>
+<li><a name="rollback"></a><p><b>How to rollback patches</b></p>
 
 <p>One of the new features in AutoPatch 1.1 is that patches can now be rolled back. 
 A rollback is when the patch level of a system is reduced. AutoPatch can execute 
@@ -465,7 +466,7 @@ In fact, patch111.sql and patch111-rollback_foo.sql would be associated.</p>
 Autopatch executes rollbacks in a descending manner based upon the patch level. So, if you were to 
 issue a rollback to level 10 and the system is at level 13, the patches that rollback would be 13, 12 and 11.</p>
 </li>		
-<li><a name="migration"></a><p>How to migrate from AutoPatch 1.1 to AutoPatch 1.2</p>
+<li><a name="migration"></a><p><b>How to migrate from AutoPatch 1.1 to AutoPatch 1.2</b></p>
 <p>AutoPatch 1.2 completely supports AutoPatch 1.0, but you'll need to make some changes if you'd like to 
 take advantage of the new features.</p>
 <p>If you have implemented the MigrationTask interface, you'll need to change the implementation to 
