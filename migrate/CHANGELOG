@@ -1,6 +1,20 @@
 Changelog for AutoPatch
 =======================
 
+
+Version 1.2
+----------------------------------
+- Added ability for migrations to be rolled back.  This change maintains 
+  100% backwards compatibility for existing implementations of MigrationTask. 
+  Initations of rollback migrations are available through the 
+  StandaloneMigrationLauncher which now can accept a flag "-rollback." An 
+  additional integer parameter is required to indicate the level that the 
+  system should rollback to. Added a  new interface called 
+  RollbackableMigrationTask which defines three methods:  isRollbackSupported, 
+  up and down. Deprecated  MigrationTask. All new tasks should now implement 
+  RollbackableMigrationTask. If a task is not intended
+  to be rolledback, then return false for isRollbackSupported.
+  
 Version HEAD <CHANGE UPON RELEASE>
 ----------------------------------
 - Example configuration for mssql / ant from Simon Kingaby. Thanks Simon!
