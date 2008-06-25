@@ -1,6 +1,9 @@
 Changelog for AutoPatch
 =======================
 
+Version HEAD <CHANGE UPON RELEASE>
+----------------------------------
+- nothing yet (1.2 just released)
 
 Version 1.2
 ----------------------------------
@@ -15,8 +18,6 @@ Version 1.2
   RollbackableMigrationTask. If a task is not intended
   to be rolledback, then return false for isRollbackSupported.
   
-Version HEAD <CHANGE UPON RELEASE>
-----------------------------------
 - Example configuration for mssql / ant from Simon Kingaby. Thanks Simon!
 
 - Exposed the MigrationListener framework to allow user defined 
