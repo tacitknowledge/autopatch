@@ -5,7 +5,11 @@ Version HEAD <CHANGE UPON RELEASE>
 ----------------------------------
 - nothing yet (1.2 just released)
 
-Version 1.2
+Version 1.2.0-b2
+---------------------------------
+- Included bugfix in discovery jar for duplicate patch detection
+
+Version 1.2.0-b1
 ----------------------------------
 - Added ability for migrations to be rolled back.  This change maintains 
   100% backwards compatibility for existing implementations of MigrationTask. 

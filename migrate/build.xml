@@ -38,7 +38,7 @@
   <property name="component.title"         value="Tacit Knowledge AutoPatch"/>
 
   <!-- The current version number of this application -->
-  <property name="version.number"          value="1.1.0"/>
+  <property name="version.number"          value="1.2.0-b2"/>
   <property name="component.version"       value="${version.number}-cvs"/>
   <property name="component.version.maven" value="${version.number}-SNAPSHOT"/>
 
