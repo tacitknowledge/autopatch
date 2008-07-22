@@ -25,8 +25,8 @@
 	<classpathentry kind="lib" path="lib/test/hsqldb.jar"/>
 	<classpathentry kind="lib" path="lib/build/checkstyle-all-4.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/dbunit-2.2.jar" sourcepath="/opt/software/dbunit-2.2/src/java"/>
-	<classpathentry kind="lib" path="lib/core/tk-util-1.1.2.jar" sourcepath="/Users/asoto/projects/tacitknowledge/common/util/src/java"/>
 	<classpathentry kind="lib" path="lib/core/commons-lang-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/test/easymock1.2_Java1.3.jar"/>
+	<classpathentry kind="lib" path="lib/core/tk-discovery-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
