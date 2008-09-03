@@ -20,7 +20,7 @@ import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
 
 /**
- * Goal which provides patch information.
+ * Goal which applies patches found in the classpath.
  *
  * @goal distributed-patch
  * @execute phase=compile
@@ -34,13 +34,13 @@ public class DistributedPatchExecutionMojo extends AbstractAutoPatchMojo {
         {           
             addClasspathElementsClassLoader();
             
-            DistributedJdbcMigrationLauncherFactory launcherFactory =
-                new DistributedJdbcMigrationLauncherFactory();
-            DistributedJdbcMigrationLauncher launcher
-                = (DistributedJdbcMigrationLauncher)launcherFactory.createMigrationLauncher(systemName);
-            launcher.doMigrations();
+            DistributedJdbcMigrationLauncherFactory launcherFactory = new DistributedJdbcMigrationLauncherFactory();
+            DistributedJdbcMigrationLauncher distributedLauncher =
+                    (DistributedJdbcMigrationLauncher)launcherFactory.createMigrationLauncher(systemName, migrationSettings);
+
+            distributedLauncher.doMigrations();
         }
-        catch (Exception e) 
+        catch (Exception e)
         {
             getLog().error(e);
             throw new MojoFailureException(e.getMessage());

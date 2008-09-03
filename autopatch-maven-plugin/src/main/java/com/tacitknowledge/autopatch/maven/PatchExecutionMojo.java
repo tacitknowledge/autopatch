@@ -21,29 +21,23 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactoryLoader;
 
 /**
- * Goal which provides patch information.
+ * Goal which applies patches found in the classpath.
  *
  * @goal patch
  * @execute phase=compile
  * @requiresDependencyResolution compile
  */
-public class PatchExecutionMojo extends AbstractAutoPatchMojo 
-{
+public class PatchExecutionMojo extends AbstractAutoPatchMojo {
 
-    public void execute() throws MojoExecutionException, MojoFailureException 
-    {
-        try 
-        {           
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        try {
             addClasspathElementsClassLoader();
-            
-            JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher
-                = launcherFactory.createMigrationLauncher(systemName);
+
+            JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader.createFactory();
+            JdbcMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName, migrationSettings);
             launcher.doMigrations();
         }
-        catch (Exception e) 
-        {
+        catch (Exception e) {
             getLog().error(e);
             throw new MojoFailureException(e.getMessage());
         }

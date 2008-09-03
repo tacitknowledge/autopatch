@@ -33,7 +33,7 @@ public class DistributedPatchUnlockMojo extends AbstractAutoPatchMojo
     	    addClasspathElementsClassLoader();
             
             DistributedMigrationTableUnlock mtu = new DistributedMigrationTableUnlock();
-    		mtu.tableUnlock(systemName);
+    		mtu.tableUnlock(systemName, migrationSettings);
         }
         catch (Exception e) 
         {

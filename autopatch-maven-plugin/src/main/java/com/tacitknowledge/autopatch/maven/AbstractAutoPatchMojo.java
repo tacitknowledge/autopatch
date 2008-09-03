@@ -30,12 +30,19 @@ import org.apache.maven.plugin.AbstractMojo;
 public abstract class AbstractAutoPatchMojo extends AbstractMojo 
 {
     /**
-     * @parameter expression="${project.compileClasspathElements}"
+     * @parameter default-value="${project.compileClasspathElements}"
      * @required
      * @readonly
      */
     protected List classpathElements;
-    
+
+    /**
+     * The migration property file to get migration settings from
+     * @parameter expression="${autopatch.migration.settings}"
+     *
+     */
+    protected String migrationSettings = "migration.properties";
+
     /**
      * The system to get patch information about
      * @parameter expression="${autopatch.system.name}"

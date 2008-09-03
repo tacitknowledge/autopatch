@@ -3,3 +3,6 @@
 target
 build
 .settings
+*.iml
+*.ipr
+*.iws

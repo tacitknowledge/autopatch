@@ -33,7 +33,7 @@ public class PatchUnlockMojo extends AbstractAutoPatchMojo
     	    addClasspathElementsClassLoader();
             
             MigrationTableUnlock mtu = new MigrationTableUnlock();
-    		mtu.tableUnlock(systemName);
+    		mtu.tableUnlock(systemName, migrationSettings);
         }
         catch (Exception e) 
         {

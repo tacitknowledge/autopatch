@@ -33,7 +33,7 @@ public class DistributedPatchInformationMojo extends AbstractAutoPatchMojo
     	    addClasspathElementsClassLoader();
             
         	DistributedMigrationInformation mi = new DistributedMigrationInformation();
-    		mi.getMigrationInformation(systemName);
+    		mi.getMigrationInformation(systemName, migrationSettings);
         }
         catch (Exception e) 
         {

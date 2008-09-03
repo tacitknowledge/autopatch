@@ -7,7 +7,7 @@
 	<groupId>com.tacitknowledge.autopatch</groupId>
 	<artifactId>tk-autopatch-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>autopatch-maven-plugin</name>
 	<url>http://autopatch.sourceforge.net/</url>
 	<description>Maven plugin for AutoPatch</description>
@@ -226,7 +226,27 @@
 			<artifactId>tk-autopatch</artifactId>
 			<version>1.2.0-b2-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.7</version>
+			<scope>test</scope>
+		</dependency>
+		 <!--<dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-plugin-api</artifactId>
+         <version>2.0</version>
+         <scope>test</scope>
+      </dependency>
+	-->
+	<dependency>
+         <groupId>org.apache.maven.shared</groupId>
+         <artifactId>maven-plugin-testing-harness</artifactId>
+         <version>1.0-beta-1</version>
+         <scope>test</scope>
+      </dependency>
 	</dependencies>
+	
 
 	<!-- Repository holding maven autopatch plugin distribution -->
 	<distributionManagement>
