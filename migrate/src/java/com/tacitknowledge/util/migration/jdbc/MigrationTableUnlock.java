@@ -20,6 +20,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tacitknowledge.util.migration.MigrationContext;
+
 /**
  * Allows you to force-unlock a migration table with an orphaned lock. Should
  * be used in the same way that MigrationInformation is used
@@ -65,6 +67,18 @@ public class MigrationTableUnlock
      */
     public void tableUnlock(String systemName) throws Exception
     {
+    	tableUnlock(systemName, MigrationContext.MIGRATION_CONFIG_FILE);
+    }
+    
+    /**
+     * unlock the patch table for the given system name
+     * 
+     * @param systemName the name of the system
+     * @param migrationSettings migration settings file
+     * @throws Exception if anything goes wrong
+     */
+    public void tableUnlock(String systemName, String migrationSettings) throws Exception
+    {
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
@@ -72,8 +86,7 @@ public class MigrationTableUnlock
         {
             JdbcMigrationLauncherFactory launcherFactory = 
                 JdbcMigrationLauncherFactoryLoader.createFactory();
-            JdbcMigrationLauncher launcher
-                = launcherFactory.createMigrationLauncher(systemName);
+            JdbcMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName, migrationSettings);
             
             // Print out information for all contexts
             Map contextMap = launcher.getContexts();

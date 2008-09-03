@@ -93,14 +93,10 @@ public class DistributedStandaloneMigrationLauncher
             else
             {
                 log.info("Using " + migrationSettings);
-                launcher = factory.createMigrationLauncher(systemName,
-                    migrationSettings);
+                launcher = factory.createMigrationLauncher(systemName, migrationSettings);
             }            	
             launcher.doMigrations();
             
-            
-            
-  
         }
         catch (Exception e)
         {

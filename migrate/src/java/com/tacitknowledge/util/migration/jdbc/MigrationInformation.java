@@ -118,8 +118,7 @@ public class MigrationInformation
             else
             {
             	log.info("Using " + migrationSettings);
-            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
-            			migrationSettings);
+            	launcher = launcherFactory.createMigrationLauncher(migrationSystemName, migrationSettings);
             }
             
             // Print out information for all contexts

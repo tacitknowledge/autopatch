@@ -115,7 +115,7 @@ public class DistributedMigrationInformation
             DistributedJdbcMigrationLauncherFactory factory = 
                 new DistributedJdbcMigrationLauncherFactory();
             DistributedJdbcMigrationLauncher launcher = null;
-          //      = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
+
             if (migrationSettings == null)
             {
             	log.info("Using migration.properties (default)");
@@ -124,8 +124,7 @@ public class DistributedMigrationInformation
             else
             {
             	log.info("Using " + migrationSettings);
-            	launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName,
-            			migrationSettings);
+            	launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName, migrationSettings);
             }
             // FIXME test that the migration information is correct
             Map contextMap = launcher.getContexts();
