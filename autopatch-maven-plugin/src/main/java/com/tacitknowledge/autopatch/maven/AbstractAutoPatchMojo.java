@@ -32,7 +32,6 @@ public abstract class AbstractAutoPatchMojo extends AbstractMojo
     /**
      * @parameter default-value="${project.compileClasspathElements}"
      * @required
-     * @readonly
      */
     protected List classpathElements;
 
