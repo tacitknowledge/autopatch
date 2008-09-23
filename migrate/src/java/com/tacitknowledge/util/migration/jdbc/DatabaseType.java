@@ -136,7 +136,7 @@ public class DatabaseType
         
         if(migrationProperties.containsKey(databaseType + "." + propertyName))
         {
-            value = migrationProperties.getProperty(databaseType + propertyName);
+            value = migrationProperties.getProperty(databaseType + "." + propertyName);
         }
         else
         {
