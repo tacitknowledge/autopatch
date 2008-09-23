@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>com.tacitknowledge.autopatch</groupId>
 			<artifactId>tk-autopatch</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>[1.1,)</version>
 		</dependency>
 		<!-- install it to repository from $ATG_HOME/../DAS/lib/classes.jar -->
 		<dependency>
