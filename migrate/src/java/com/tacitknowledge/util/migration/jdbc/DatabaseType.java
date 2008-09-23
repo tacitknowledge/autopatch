@@ -29,7 +29,7 @@ import java.util.Properties;
  * <ul>
  *    <li>patches.create - DDL that creates the patches table</li>
  *    <li>level.create - SQL that inserts a new patch level record for the system</li>
- *    <li>level.read - SQL tahat selects the current patch level of the system</li>
+ *    <li>level.read - SQL that selects the current patch level of the system</li>
  *    <li>level.update - SQL that updates the current patch level of the system</li>
  *    <li>lock.read - Returns 'T' if the system patch lock is in use, 'F' otherwise</li>
  *    <li>lock.obtain - SQL that selects the patch lock for the system</li>
@@ -66,13 +66,21 @@ public class DatabaseType
      */
     public DatabaseType(String databaseType)
     {
-        // required to keep old behaviour where it expects the properties file in the same package
-        // dir as the DatabaseType class because it was loaded via Class.getResourceAsStream()
+        // required to keep old behavior where it expects the properties file in the same location
+        // as the DatabaseType class because it was loaded via Class.getResourceAsStream()
         String className = this.getClass().getName();
         int index = className.lastIndexOf(".");
         String databasePropertiesFilename = className.substring(0,index).replace(".", "/") + "/" + databaseType + ".properties";
         databaseProperties = loadProperties(databasePropertiesFilename, this.getClass().getClassLoader());
-        migrationProperties = loadProperties("migration.properties", Thread.currentThread().getContextClassLoader());
+        migrationProperties = new Properties();
+        try
+        {
+            migrationProperties = loadProperties("migration.properties", Thread.currentThread().getContextClassLoader());
+        }
+        catch (IllegalArgumentException iae)
+        {
+            // this is okay, in this class, migration.properties is only used to override SQL
+        }
         this.databaseType = databaseType;
     }
     
