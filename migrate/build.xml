@@ -120,22 +120,6 @@
     </path>
     
 <!-- ========== Test Execution Defaults =================================== -->
-
-    <!-- Construct unit test classpath -->
-    <path id="compile.test.classpath">
-
-      <!-- Add everything in the compile classpath -->
-      <path refid="compile.classpath"/>
-
-      <!-- Add the test binary path and test support libraries -->
-      <pathelement location="${build.home}/tests"/>
-      <fileset dir="${lib.dir}/test">
-          <include name="**/*.jar"/>
-      </fileset>
-        <fileset dir="${lib.dir}/ant">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
     
   <!-- Construct unit test classpath -->
   <path id="test.classpath">
@@ -158,9 +142,6 @@
 
     <!-- Add the test binary path and test support libraries -->
     <pathelement location="${build.home}/inttests"/>
-    <fileset dir="${lib.dir}/test">
-        <include name="**/*.jar"/>
-    </fileset>
   </path>
 
   <!-- Should all tests fail if one does? -->
@@ -214,7 +195,7 @@
              debug="${compile.debug}"
        deprecation="${compile.deprecation}"
           optimize="${compile.optimize}">
-      <classpath refid="compile.test.classpath"/>
+      <classpath refid="test.classpath"/>
     </javac>
 
     <copy    todir="${build.home}/tests" filtering="on">
@@ -229,7 +210,7 @@
              debug="${compile.debug}"
        deprecation="${compile.deprecation}"
           optimize="${compile.optimize}">
-      <classpath refid="compile.test.classpath"/>
+      <classpath refid="test.classpath"/>
     </javac>
 
     <copy    todir="${build.home}/inttests" filtering="on">
@@ -321,7 +302,8 @@
   <target name="all" depends="clean,compile"
    description="Clean and compile all applications"/>
 
-
+<!-- ========== Javadoc Targets ======================================== -->
+	
   <target name="javadoc" depends="compile"
    description="Create application Javadoc documentation">
     <mkdir      dir="${dist.home}"/>
@@ -382,42 +364,54 @@
             <classpath refid="compile.optional.spring.classpath"/>
           </javadoc>
         </target>
-
-  <target name="dist" depends="clean,compile,compile.optional,test,javadoc,javadoc.optional" description="Create binary distribution">
-    <mkdir      dir="${dist.home}"/>
-    <copy file="${build.home}/tk-${component.name}-${component.version}.jar"
-          toDir="${dist.home}"/>
-    <copy file="${build.home}/tk-${component.name}-optional-atg-${component.version}.jar"
-              toDir="${dist.home}"/>
-    <copy file="${build.home}/tk-${component.name}-optional-spring-${component.version}.jar"
-                toDir="${dist.home}"/>
-    <mkdir      dir="${dist.home}/src"/>
-    <copy     todir="${dist.home}/src" filtering="on">
-      <fileset  dir="${basedir}/src"/>
-    </copy>
-    <mkdir      dir="${dist.home}/lib"/>
-    <copy todir="${dist.home}/lib/">
-      <fileset  dir="${lib.dir}/core/"/>
-    </copy>
-    <mkdir      dir="${dist.home}/docs/contrib"/>
-    <copy todir="${dist.home}/docs/contrib/">
-      <fileset  dir="${basedir}/contrib"/>
-    </copy>
-    <copy todir="${dist.home}/docs" file="${basedir}/README"/>
-    <copy todir="${dist.home}/docs" file="${basedir}/migration.properties"/>
-    <mkdir dir="${build.home}/tk-${component.name}-${component.version}"/>
-    <move todir="${build.home}/tk-${component.name}-${component.version}">
-       <fileset dir="${dist.home}" />
-    </move>
-    <mkdir dir="${dist.home}/tk-${component.name}-${component.version}"/>
-    <move todir="${dist.home}/tk-${component.name}-${component.version}">
-       <fileset dir="${build.home}/tk-${component.name}-${component.version}" />
-    </move>
-    <zip destfile="${build.home}/tk-${component.name}-${component.version}-all.zip"
-          basedir="${basedir}/dist">
-    </zip>
-    <move file="${build.home}/tk-${component.name}-${component.version}-all.zip"
-         todir="${dist.home}"/>
+	
+<!-- ========== Distribution Targets ======================================== -->
+	
+	<target name="package" description="Packages files for use in distribution.">
+		<mkdir      dir="${dist.home}/src"/>
+    	<copy     todir="${dist.home}/src" filtering="on">
+      		<fileset  dir="${basedir}/src"/>
+    	</copy>
+    	<mkdir      dir="${dist.home}/lib"/>
+    	<copy todir="${dist.home}/lib/">
+      		<fileset  dir="${lib.dir}/core/"/>
+    	</copy>
+    	<mkdir      dir="${dist.home}/docs/contrib"/>
+    	<copy todir="${dist.home}/docs/contrib/">
+      		<fileset  dir="${basedir}/contrib"/>
+    	</copy>
+		
+		<copy todir="${dist.home}/docs" file="${basedir}/README"/>
+    	<copy todir="${dist.home}/docs" file="${basedir}/migration.properties"/>
+    	<mkdir dir="${build.home}/tk-${component.name}-${component.version}"/>
+    	<move todir="${build.home}/tk-${component.name}-${component.version}">
+       		<fileset dir="${dist.home}" />
+    	</move>
+    	<mkdir dir="${dist.home}/tk-${component.name}-${component.version}"/>
+    	<move todir="${dist.home}/tk-${component.name}-${component.version}">
+       		<fileset dir="${build.home}/tk-${component.name}-${component.version}" />
+    	</move>
+		
+	</target>
+	
+	<!-- Distribute the application -->
+	<target name="dist" description="Create binary distribution without optional components." depends="clean,compile,test,javadoc">
+		<mkdir dir="${dist.home}"/>
+    	<copy file="${build.home}/tk-${component.name}-${component.version}.jar" toDir="${dist.home}"/>
+		<antcall target="package"/>
+    	<zip destfile="${build.home}/tk-${component.name}-${component.version}-all-no-optional.zip" basedir="${basedir}/dist" />
+    	<move file="${build.home}/tk-${component.name}-${component.version}-all-no-optional.zip" todir="${dist.home}"/>
+	</target>
+	
+	<!-- Distribute the application with the additional optional components -->
+	<target name="dist.optional" depends="clean,compile,compile.optional,test,javadoc,javadoc.optional" description="Create binary distribution with optional components.">
+		<mkdir dir="${dist.home}"/>
+		<copy file="${build.home}/tk-${component.name}-${component.version}.jar" toDir="${dist.home}"/>
+	    <copy file="${build.home}/tk-${component.name}-optional-atg-${component.version}.jar" toDir="${dist.home}"/>
+	    <copy file="${build.home}/tk-${component.name}-optional-spring-${component.version}.jar" toDir="${dist.home}"/>
+		<antcall target="package"/>
+	    <zip destfile="${build.home}/tk-${component.name}-${component.version}-all-inc-optional.zip" basedir="${basedir}/dist"/>
+	    <move file="${build.home}/tk-${component.name}-${component.version}-all-inc-optional.zip" todir="${dist.home}"/>
   </target>
 
 <!-- ============= Standards check on the full tree ====================== -->
@@ -455,7 +449,7 @@
         </fail>
     </target>
     
-  <target name="unittest"  depends="compile.tests,test.dependency" description="Run all unit tests">
+  <target name="unittest"  depends="compile.tests" description="Run all unit tests">
       <taskdef name="junit"
           classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
           <classpath refid="test.classpath"/>
@@ -472,7 +466,7 @@
       </junit>
   </target>
 
-  <target name="inttest"  depends="compile.inttests,test.dependency" description="Run all integration tests">
+  <target name="inttest"  depends="compile.inttests" description="Run all integration tests">
     <taskdef name="junit"
         classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
         <classpath refid="test.classpath"/>
@@ -491,5 +485,5 @@
 
   <target name="test" depends="unittest,inttest" description="Run all unit and integration tests" />
 
-  <target name="autobuild" depends="dist"/>
+  <target name="autobuild" depends="dist.optional"/>
 </project>

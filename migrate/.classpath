@@ -18,7 +18,6 @@
 	<classpathentry kind="lib" path="lib/test/mockrunner0.2.6.jar"/>
 	<classpathentry kind="lib" path="lib/test/struts-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/core/log4j-1.2.8.jar"/>
-	<classpathentry kind="lib" path="lib/ant/junit.jar"/>
 	<classpathentry kind="var" path="DYNAMO_HOME/DAS/lib/das.jar"/>
 	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
 	<classpathentry kind="lib" path="lib/test/hsqldb.jar"/>
@@ -27,5 +26,6 @@
 	<classpathentry kind="lib" path="lib/core/commons-lang-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/test/easymock1.2_Java1.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/tk-discovery-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/test/junit.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
