@@ -129,6 +129,9 @@
 	<!-- Construct test compilation classpath -->
 	<path id="compiletest.classpath">
 		<path refid="core.classpath" />
+		<fileset dir="${lib.dir}/core">
+			<include name="j2ee13.jar" />
+		</fileset>
 		<pathelement location="${build.home}/tests" />
 		<fileset dir="${lib.dir}/compiletest">
 			<include name="*.jar" />
