@@ -6,26 +6,7 @@
 	<classpathentry excluding="**" kind="src" path="contrib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/build/servletapi-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/core/commons-logging-1.0.3.jar"/>
-	<classpathentry kind="lib" path="lib/core/poi-2.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/test/commons-beanutils-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/test/commons-collections-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/test/commons-digester-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/test/j2ee13.jar"/>
-	<classpathentry kind="lib" path="lib/test/jspapi-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/test/mockejb.jar"/>
-	<classpathentry kind="lib" path="lib/test/mockrunner0.2.6.jar"/>
-	<classpathentry kind="lib" path="lib/test/struts-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/core/log4j-1.2.8.jar"/>
-	<classpathentry kind="var" path="DYNAMO_HOME/DAS/lib/das.jar"/>
-	<classpathentry kind="var" path="SPRING_HOME/dist/spring.jar"/>
-	<classpathentry kind="lib" path="lib/test/hsqldb.jar"/>
-	<classpathentry kind="lib" path="lib/build/checkstyle-all-4.3.jar"/>
-	<classpathentry kind="lib" path="lib/core/dbunit-2.2.jar" sourcepath="/opt/software/dbunit-2.2/src/java"/>
-	<classpathentry kind="lib" path="lib/core/commons-lang-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/test/easymock1.2_Java1.3.jar"/>
 	<classpathentry kind="lib" path="lib/core/tk-discovery-1.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/test/junit.jar"/>
+	<classpathentry kind="lib" path="lib/core/j2ee13.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

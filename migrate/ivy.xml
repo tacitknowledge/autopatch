@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://ivyrep.jayasoft.org/ivy-doc.xsl"?>
+<ivy-module
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="http://incubator.apache.org/ivy/schemas/ivy.xsd"
+		version="2.0">
+
+	<info organisation="com.tacitknowledge" module="autopatch"/>
+
+	<configurations>
+       	<conf name="compile" visibility="public" description="compilation" />
+    	<conf name="compiletest" extends="compile" description="compilation of test classes" />
+    	<conf name="test" description="running tests" />  
+    </configurations>
+    
+	<dependencies>
+		<!-- core dependencies -->
+		<dependency org="org.dbunit" name="dbunit" rev="2.2" conf="compile->default"/>
+		<dependency org="servletapi" name="servletapi" rev="2.4" conf="compile->default"/>
+		<dependency org="checkstyle" name="checkstyle" rev="4.3" conf="compile->default"/>
+
+		<!-- test compilation dependencies -->
+		<dependency org="easymock" name="easymock" rev="1.1" conf="compiletest->default"/>
+		<dependency org="com.mockrunner" name="mockrunner" rev="0.3.1" conf="compiletest->default"/>
+		<dependency org="org.mockejb" name="mockejb" rev="0.6-beta2" conf="compiletest->default"/>
+		
+		<!-- test execution dependencies -->
+		<dependency org="junit" name="junit" rev="3.8.1" conf="test->default"/>
+		<dependency org="struts" name="struts" rev="1.2.2" conf="test->default"/>
+		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.6.1" conf="test->default"/>
+		<dependency org="commons-digester" name="commons-digester" rev="1.5" conf="test->default"/>
+		<dependency org="hsqldb" name="hsqldb" rev="1.8.0.7" conf="test->default"/>
+	</dependencies>
+
+</ivy-module>
