@@ -5,6 +5,11 @@ Version HEAD <CHANGE UPON RELEASE>
 ----------------------------------
 - nothing yet (1.2 just released)
 
+Version 1.2.0-b3
+---------------------------------
+- Altered logging and comments for autocommit+commit/rollback to more closely
+  correlate with severity and the needed fix
+
 Version 1.2.0-b2
 ---------------------------------
 - Included bugfix in discovery jar for duplicate patch detection

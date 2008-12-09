@@ -8,7 +8,7 @@
 	<groupId>com.tacitknowledge.autopatch</groupId>
 	<artifactId>tk-autopatch</artifactId>
 	<name>AutoPatch</name>
-	<version>1.2.0-b2-SNAPSHOT</version>
+	<version>1.2.0-b3-SNAPSHOT</version>
 	<description>automated Java patching system</description>
 	<url>http://autopatch.sourceforge.net/</url>
 	<organization>
