@@ -16,7 +16,7 @@
 	<dependencies>
 		<!-- core dependencies -->
 		<dependency org="org.dbunit" name="dbunit" rev="2.2" conf="compile->default"/>
-		<dependency org="javax.servlet" name="servletapi" rev="2.4" conf="compile->default"/>
+		<dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="compile->default"/>
 		<dependency org="checkstyle" name="checkstyle" rev="4.3" conf="compile->default"/>
 
 		<!-- test compilation dependencies -->
