@@ -417,7 +417,7 @@ configuration file.
 --------------
 Java patches may be implemented by subclassing MigrationTaskSupport.
 
-&d) XML Data Patch
+7d) XML Data Patch
 ------------------
 Create an xml file that follows the format of DBUnit's FlatXmlDataSet format.
 http://dbunit.sourceforge.net/apidocs/org/dbunit/dataset/xml/FlatXmlDataSet.html
