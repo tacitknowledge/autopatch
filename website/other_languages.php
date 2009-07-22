@@ -11,13 +11,13 @@
 
 <p>We have pretty good / used in production implementations in:
 <ul>
-<li><a href="http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate/php/">PHP</a></li>
+<li><a href="http://autopatch.cvs.sourceforge.net/viewvc/autopatch/autopatch/migrate/php/">PHP</a></li>
 </ul>
 
 <p>We have basic implementations in:
 <ul>
-<li><a href="http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate/ruby/">Ruby</a> (it's different than stock Migrations - it works on Windows/SQLServer)
-<li><a href="http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate/dotnet/">.NET</a>.
+<li><a href="http://autopatch.cvs.sourceforge.net/viewvc/autopatch/autopatch/migrate/ruby/">Ruby</a> (it's different than stock Migrations - it works on Windows/SQLServer)
+<li><a href="http://autopatch.cvs.sourceforge.net/viewvc/autopatch/autopatch/migrate/dotnet/">.NET</a>.
 </ul>
 </p>
 
