@@ -10,7 +10,7 @@ function navbar()
 			"Home" => "index.php", 
 			"About Us" => "about_us.php", 
 			"Contact Us" => "contact_us.php",
-			"Documentation" => "documentation.php", 
+			"Documentation" => "documentation-1.2b.php", 
 			"FAQ" => "faq.php", 
 			"Links" => "links.php",
 			"Other Languages" => "other_languages.php",
