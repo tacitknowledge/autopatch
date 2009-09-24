@@ -46,41 +46,6 @@ namespace com.tacitknowledge.util.migration.ado.conf
         }
 
 
-        /*
-         * Returns the server name.
-         * 
-         */
-        [ConfigurationProperty("server")]
-        public String Server
-        {
-            get { return (string)this["server"]; }
-            set { this["server"] = value; }
-        }
-
-       
-        /*
-         * Returns the username
-         * 
-         */
-        [ConfigurationProperty("username")]
-        public String Username
-        {
-            get { return (string)this["username"]; }
-            set { this["username"] = value; }
-        }
-
-        /*
-         * Returns the password
-         * 
-         */
-        [ConfigurationProperty("password")]
-        public String Password
-        {
-            get { return (string)this["password"]; }
-            set { this["password"] = value; }
-        }
-
-
         #endregion
 
     }

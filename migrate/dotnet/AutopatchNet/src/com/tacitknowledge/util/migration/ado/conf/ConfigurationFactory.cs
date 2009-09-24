@@ -94,14 +94,14 @@ namespace com.tacitknowledge.util.migration.ado.conf
 
         internal DBConfiguration getDBConfiguration()
         {
-            if (dbConfig != null)
+            if (dbConfig == null)
             {
 
                 try
                 {
 
                     // Retrieve DB configuration settings from app.config file
-                    dbConfig = null;// ConfigurationManager.GetSection("MigrationDatabaseSettings") as DBConfiguration;
+                    dbConfig = System.Configuration.ConfigurationManager.GetSection("MigrationDatabaseSettings") as DBConfiguration;
 
                 }
                 catch (Exception e)
@@ -119,11 +119,11 @@ namespace com.tacitknowledge.util.migration.ado.conf
 
         internal MigrationConfiguration getMigrationConfiguration()
         {
-            if (migrationConfig != null)
+            if (migrationConfig == null)
             {
                 try
                 {
-                    migrationConfig = null; // ConfigurationManager.GetSection("MigrationSettings") as MigrationConfiguration;
+                    migrationConfig = System.Configuration.ConfigurationManager.GetSection("MigrationSettings") as MigrationConfiguration;
                 }
                 catch (Exception e)
                 {

@@ -38,7 +38,7 @@ namespace com.tacitknowledge.util.migration.ado
         /// <summary>
         /// The regular expression used to match SQL patch files.
         /// </summary>
-        private static readonly String SQL_PATCH_REGEX = "patch(\\d+)(_.+)?\\.sql";
+        private static readonly String SQL_PATCH_REGEX = "patch(\\d+)(_.+)?\\.sql$";
         #endregion
 
         #region Public methods

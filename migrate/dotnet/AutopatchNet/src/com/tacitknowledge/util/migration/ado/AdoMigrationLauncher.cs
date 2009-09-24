@@ -285,9 +285,9 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <param name="context">
         /// the <code>IAdoMigrationContext</code> used for the migrations
 		/// </param>
-		public virtual void AddContext(IAdoMigrationContext context)
-		{
-			IPatchInfoStore patchTable = new PatchTable(context);
+        public virtual void AddContext(IAdoMigrationContext context)
+        {
+            IPatchInfoStore patchTable = new PatchTable(context);
 			log.Debug("Adding context " + context + " with patch table " + patchTable + " in launcher " + this);
 			contexts.Add(context, patchTable);
 		}
@@ -437,7 +437,7 @@ namespace com.tacitknowledge.util.migration.ado
 					piStore.LockPatchStore();
 					lockObtained = true;
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
 					// this happens when someone woke up at the same time,
 					// raced us to the lock and won. We re-sleep and try again.

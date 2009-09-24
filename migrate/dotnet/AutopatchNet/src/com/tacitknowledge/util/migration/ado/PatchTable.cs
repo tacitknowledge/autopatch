@@ -16,6 +16,8 @@ using System;
 using log4net;
 using log4net.Config;
 using com.tacitknowledge.util.migration;
+using System.Data;
+using System.Data.Common;
 #endregion
 
 namespace com.tacitknowledge.util.migration.ado
@@ -45,56 +47,67 @@ namespace com.tacitknowledge.util.migration.ado
 	public class PatchTable : IPatchInfoStore
 	{
 		/// <summary> {@inheritDoc}</summary>
-		virtual public int PatchLevel
-		{
-			get
-			{
-				CreatePatchStoreIfNeeded();
-				
-				System.Data.OleDb.OleDbCommand stmt = null;
-				//UPGRADE_TODO: Interface 'java.sql.ResultSet' was converted to 'System.Data.OleDb.OleDbDataReader' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlResultSet'"
-				System.Data.OleDb.OleDbDataReader rs = null;
-				try
-				{
-                    stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.read"));
-                    //SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
-					rs = stmt.ExecuteReader();
-					if (rs.Read())
-					{
-						return rs.GetInt32(1 - 1);
-					}
-					else
-					{
-						// We don't yet have a patch record for this system; create one
-						createSystemPatchRecord();
-						return 0;
-					}
-				}
-				catch (System.Data.OleDb.OleDbException e)
-				{
-					throw new MigrationException("Unable to get patch level", e);
-				}
-				finally
-				{
-					//SqlUtil.close(null, stmt, rs);
-				}
-			}
-			
-		}
-		/// <summary> {@inheritDoc}</summary>
+        virtual public int PatchLevel
+        {
+            get
+            {
+                CreatePatchStoreIfNeeded();
+
+                DbCommand stmt = null;
+                DbDataReader rs = null;
+                try
+                {
+                    stmt = context.Database.GetSqlStringCommand(getSql("readLevel"));
+                    stmt.Connection = context.Connection;
+                    stmt.Transaction = context.Transaction;
+                    context.Database.AddInParameter(stmt, "@SystemName", DbType.AnsiString, context.SystemName);
+
+                    rs = stmt.ExecuteReader();
+                    if (rs.Read())
+                    {
+                        return rs.GetInt32(1 - 1);
+                    }
+                    else
+                    {
+                        // We don't yet have a patch record for this system; create one
+                        createSystemPatchRecord();
+                        return 0;
+                    }
+                }
+                catch (DbException e)
+                {
+                    throw new MigrationException("Unable to get patch level", e);
+                }
+                finally
+                {
+                    if (rs != null)
+                    {
+                        rs.Close();
+                        rs.Dispose();
+                    }
+                    if (stmt != null)
+                    {
+                        stmt.Dispose();
+                    }
+                }
+            }
+        }
+
+        /// <summary> {@inheritDoc}</summary>
 		virtual public bool PatchStoreLocked
 		{
 			get
 			{
 				CreatePatchStoreIfNeeded();
-				
-				System.Data.OleDb.OleDbCommand stmt = null;
-				//UPGRADE_TODO: Interface 'java.sql.ResultSet' was converted to 'System.Data.OleDb.OleDbDataReader' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlResultSet'"
-				System.Data.OleDb.OleDbDataReader rs = null;
-				try
+
+                DbCommand stmt = null;
+                DbDataReader rs = null;
+                try
 				{
-                    stmt = null;//SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("lock.read"));
-					//SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
+                    stmt = context.Database.GetSqlStringCommand(getSql("readLock"));
+                    stmt.Connection = context.Connection;
+                    stmt.Transaction = context.Transaction;
+                    context.Database.AddInParameter(stmt, "@SystemName", DbType.AnsiString, context.SystemName);
 					rs = stmt.ExecuteReader();
 					
 					if (rs.Read())
@@ -106,17 +119,25 @@ namespace com.tacitknowledge.util.migration.ado
 						return false;
 					}
 				}
-				catch (System.Data.OleDb.OleDbException e)
+				catch (DbException e)
 				{
 					throw new MigrationException("Unable to determine if table is locked", e);
 				}
 				finally
 				{
-					//SqlUtil.close(null, stmt, rs);
-				}
+                    if (rs != null)
+                    {
+                        rs.Close();
+                        rs.Dispose();
+                    }
+                    if (stmt != null)
+                    {
+                        stmt.Dispose();
+                    }
+                }
 			}
-			
 		}
+        
 		/// <summary> Class logger</summary>
 		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.PatchTable'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
 		private static ILog log;
@@ -126,7 +147,7 @@ namespace com.tacitknowledge.util.migration.ado
 		
 		/// <summary> The database connection </summary>
 		//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-        private System.Data.Common.DbConnection conn = null;
+        //private System.Data.Common.DbConnection conn = null;
 		
 		/// <summary> Keeps track of table validation (see #createPatchesTableIfNeeded)</summary>
 		private bool tableExistenceValidated = false;
@@ -156,34 +177,33 @@ namespace com.tacitknowledge.util.migration.ado
 			{
 				return ;
 			}
-			
-			System.Data.OleDb.OleDbCommand stmt = null;
-			//UPGRADE_TODO: Interface 'java.sql.ResultSet' was converted to 'System.Data.OleDb.OleDbDataReader' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlResultSet'"
-			System.Data.OleDb.OleDbDataReader rs = null;
-			try
+
+            DbCommand stmt = null;
+            DbDataReader rs = null;
+            try
 			{
 				// TODO: Find a better, cross-platform way to determine if a table exists.
 				//       Simply expecting a SQLException is kind of a hack
-                stmt = null;//SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.read"));
-				//SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
+                stmt = context.Database.GetSqlStringCommand(getSql("readLevel"));
+                stmt.Connection = context.Connection;
+                stmt.Transaction = context.Transaction;
+                context.Database.AddInParameter(stmt, "@SystemName", DbType.AnsiString, context.SystemName);
 				rs = stmt.ExecuteReader();
 				log.Debug("'patches' table already exists.");
 				tableExistenceValidated = true;
 			}
-			catch (System.Data.OleDb.OleDbException)
+			catch (DbException)
 			{
-				//SqlUtil.close(null, stmt, rs);
 				log.Info("'patches' table must not exist; creating....");
 				try
 				{
-                    stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("patches.create"));
 					if (log.IsDebugEnabled)
 					{
-						log.Debug("Creating patches table with SQL '" + getSql("patches.create") + "'");
+                        log.Debug("Creating patches table with SQL '" + getSql("createPatches") + "'");
 					}
-					stmt.ExecuteNonQuery();
+                    context.Database.ExecuteNonQuery(CommandType.Text, getSql("createPatches"));
 				}
-				catch (System.Data.OleDb.OleDbException sqle)
+				catch (DbException sqle)
 				{
 					throw new MigrationException("Unable to create patch table", sqle);
 				}
@@ -192,33 +212,46 @@ namespace com.tacitknowledge.util.migration.ado
 			}
 			finally
 			{
-				//SqlUtil.close(null, stmt, rs);
+                if (rs != null)
+                {
+                    rs.Close();
+                    rs.Dispose();
+                }
+                if (stmt != null)
+                {
+                    stmt.Dispose();
+                }
 			}
 		}
 		
 		/// <summary> {@inheritDoc}</summary>
-		public virtual void  UpdatePatchLevel(int level)
-		{
-			// Make sure a patch record already exists for this system
-			int generatedAux = PatchLevel;
-			
-			System.Data.OleDb.OleDbCommand stmt = null;
-			try
-			{
-                stmt = null; // SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.update"));
-                //SupportClass.TransactionManager.manager.SetValue(stmt, 1, level);
-                //SupportClass.TransactionManager.manager.SetValue(stmt, 2, context.getSystemName());
-				stmt.ExecuteNonQuery();
-			}
-			catch (System.Data.OleDb.OleDbException e)
-			{
-				throw new MigrationException("Unable to update patch level", e);
-			}
-			finally
-			{
-                //SqlUtil.close(null, stmt, null);
-			}
-		}
+        public virtual void UpdatePatchLevel(int level)
+        {
+            // Make sure a patch record already exists for this system
+            int generatedAux = PatchLevel;
+
+            DbCommand stmt = null;
+            try
+            {
+                stmt = context.Database.GetSqlStringCommand(getSql("updateLevel"));
+                stmt.Connection = context.Connection;
+                stmt.Transaction = context.Transaction;
+                context.Database.AddInParameter(stmt, "@PatchLevel", DbType.Int32, level);
+                context.Database.AddInParameter(stmt, "@SystemName", DbType.AnsiString, context.SystemName);
+                stmt.ExecuteNonQuery();
+            }
+            catch (DbException e)
+            {
+                throw new MigrationException("Unable to update patch level", e);
+            }
+            finally
+            {
+                if (stmt != null)
+                {
+                    stmt.Dispose();
+                }
+            }
+        }
 		
 		/// <summary> {@inheritDoc}</summary>
 		public virtual void  LockPatchStore()
@@ -256,23 +289,26 @@ namespace com.tacitknowledge.util.migration.ado
 		private void  createSystemPatchRecord()
 		{
 			System.String systemName = context.SystemName;
-			System.Data.OleDb.OleDbCommand stmt = null;
+			DbCommand stmt = null;
 			try
 			{
-                stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql("level.create"));
-                //SupportClass.TransactionManager.manager.SetValue(stmt, 1, systemName);
-				stmt.ExecuteNonQuery();
+                stmt = context.Database.GetSqlStringCommand(getSql("createLevel"));
+                context.Database.AddInParameter(stmt, "@SystemName", DbType.AnsiString, systemName);
+                context.Database.ExecuteNonQuery(stmt);
 				log.Info("Created patch record for " + systemName);
 			}
-			catch (System.Data.OleDb.OleDbException e)
+			catch (DbException e)
 			{
 				log.Error("Error creating patch record for system '" + systemName + "'", e);
 				throw e;
 			}
 			finally
 			{
-                //SqlUtil.close(null, stmt, null);
-			}
+                if (stmt != null)
+                {
+                    stmt.Dispose();
+                }
+            }
 		}
 		
 		/// <summary> Obtains or releases a lock for this system in the patches table. 
@@ -284,27 +320,31 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  MigrationException if an unrecoverable database error occurs </throws>
 		private void  updatePatchLock(bool lock_Renamed)
 		{
-			System.String sqlkey = (lock_Renamed)?"lock.obtain":"lock.release";
-			System.Data.OleDb.OleDbCommand stmt = null;
+            System.String sqlkey = (lock_Renamed) ? "obtainLock" : "releaseLock";
+			DbCommand stmt = null;
 			
 			try
 			{
-                stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, getSql(sqlkey));
-				if (log.IsDebugEnabled)
+                stmt = context.Database.GetSqlStringCommand(getSql(sqlkey));
+                context.Database.AddInParameter(stmt, "@SystemName", DbType.AnsiString, context.SystemName);
+
+                if (log.IsDebugEnabled)
 				{
 					log.Debug("Updating patch table lock: " + getSql(sqlkey));
 				}
-				//SupportClass.TransactionManager.manager.SetValue(stmt, 1, context.getSystemName());
-				stmt.ExecuteNonQuery();
+                context.Database.ExecuteNonQuery(stmt);
 			}
-			catch (System.Data.OleDb.OleDbException e)
+			catch (DbException e)
 			{
 				throw new MigrationException("Unable to update patch lock to " + lock_Renamed, e);
 			}
 			finally
 			{
-                //SqlUtil.close(null, stmt, null);
-			}
+                if (stmt != null)
+                {
+                    stmt.Dispose();
+                }
+            }
 		}
 		static PatchTable()
 		{

@@ -115,6 +115,7 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ado\loader\DelimitedFileLoader.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\loader\ExcelFileLoader.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\loader\FileLoadingUtility.cs" />
+    <Compile Include="src\com\tacitknowledge\util\migration\ado\util\ConnectionWrapperDataSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchEventListener.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\AutoPatchLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSource.cs" />
@@ -137,7 +138,6 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ado\SqlScriptMigrationTask.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\SqlScriptMigrationTaskSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\StandaloneMigrationLauncher.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\ado\util\ConnectionWrapperDataSource.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\WebAppMigrationLauncher.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\IMigrationContext.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationDataSource.cs" />
@@ -151,9 +151,9 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ado\conf\MigrationConfiguration.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationTaskSupport.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\IPatchInfoStore.cs" />
-    <Content Include="App_Config.xml" />
-    <None Include="App.config" />
-    <None Include="app.log4net" />
+    <None Include="app.log4net">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="sqlserver.resources" />

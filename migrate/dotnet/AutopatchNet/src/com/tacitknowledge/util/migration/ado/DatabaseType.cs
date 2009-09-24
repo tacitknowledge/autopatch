@@ -13,6 +13,9 @@
  */
 #region Imports
 using System;
+using System.Reflection;
+using System.Resources;
+using System.Collections;
 #endregion
 
 namespace com.tacitknowledge.util.migration.ado
@@ -26,13 +29,13 @@ namespace com.tacitknowledge.util.migration.ado
 	/// own <i>database-type</i>.properties file containing the database-specific SQL and DDL.  The
 	/// required keys are:
 	/// <ul>
-	/// <li>patches.create - DDL that creates the patches table</li>
-	/// <li>level.create - SQL that inserts a new patch level record for the system</li>
-	/// <li>level.read - SQL tahat selects the current patch level of the system</li>
-	/// <li>level.update - SQL that updates the current patch level of the system</li>
-	/// <li>lock.read - Returns 'T' if the system patch lock is in use, 'F' otherwise</li>
-	/// <li>lock.obtain - SQL that selects the patch lock for the system</li>
-	/// <li>lock.release - SQL that releases the patch lock for the system</li>
+    /// <li>createPatches - DDL that creates the patches table</li>
+    /// <li>createLevel - SQL that inserts a new patch level record for the system</li>
+    /// <li>readLevel - SQL tahat selects the current patch level of the system</li>
+    /// <li>updateLevel - SQL that updates the current patch level of the system</li>
+    /// <li>readLock - Returns 'T' if the system patch lock is in use, 'F' otherwise</li>
+    /// <li>obtainLock - SQL that selects the patch lock for the system</li>
+    /// <li>releaseLock - SQL that releases the patch lock for the system</li>
 	/// </ul>
 	/// 
 	/// Use <i>postgres.properties</i> or <i>oracle.properties</i> as a baseline for adding
@@ -81,42 +84,36 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </param>
 		public DatabaseType(System.String databaseType)
 		{
-            // TODO Convert this constructor
-            return;
-             /*
-              * Should be using .resx files for properties
-              */ 
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string resourceName = string.Format("AutopatchNet.{0}.resources", databaseType.ToLower());
+            System.IO.Stream rs = assembly.GetManifestResourceStream(resourceName);
+            if (rs == null)
+            {
+                throw new System.ArgumentException("Could not find SQL resources file for database '" + databaseType + "'; make sure that there is a '" + databaseType.ToLower() + ".resources' file in package.");
+            }
+            try
+            {
+                ResourceReader reader = new ResourceReader(rs);
+                IDictionaryEnumerator en = reader.GetEnumerator();
+                while(en.MoveNext())
+                {
+                    string sqlkey = (string)en.Key;
+                    string sql = (string)en.Value;
+                    properties.Add(sqlkey, sql);
+                }
 
-			//UPGRADE_ISSUE: Method 'java.lang.Class.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetResourceAsStream_javalangString'"
-            System.IO.Stream is_Renamed = null;// GetType().getResourceAsStream(databaseType + ".properties");
-			if (is_Renamed == null)
-			{
-				//UPGRADE_ISSUE: Method 'java.lang.Package.getName' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangPackage'"
-				//UPGRADE_ISSUE: Method 'java.lang.Class.getPackage' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetPackage'"
-				throw new System.ArgumentException("Could not find SQL properties " + " file for database '" + databaseType + "'; make sure that there " + " is a '" + databaseType + ".properties' file in package.");
-			}
-			try
-			{
-				//UPGRADE_TODO: Method 'java.util.Properties.load' was converted to 'System.Collections.Specialized.NameValueCollection' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilPropertiesload_javaioInputStream'"
-				properties = new System.Collections.Specialized.NameValueCollection(System.Configuration.ConfigurationSettings.AppSettings);
-			}
-			catch (System.IO.IOException e)
-			{
-				throw new System.ArgumentException("Could not read SQL properties " + " file for database '" + databaseType + "'.", e);
-			}
-			finally
-			{
-				try
-				{
-					is_Renamed.Close();
-				}
-				catch (System.IO.IOException)
-				{
-					// not important
-				}
-			}
-			
-			this.databaseType = databaseType;
+                reader.Close();
+            }
+            catch (System.IO.IOException e)
+            {
+                throw new System.ArgumentException("Could not read SQL resources file for database '" + databaseType + "'.", e);
+            }
+            finally
+            {
+                rs.Close();
+            }
+
+            this.databaseType = databaseType;
 		}
 		
 		/// <summary> Return the name of the database type

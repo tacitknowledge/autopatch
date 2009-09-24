@@ -102,7 +102,7 @@ namespace com.tacitknowledge.util.migration.ado
 					//UPGRADE_TODO: Format of property file may need to be changed. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1089'"
 					System.Collections.Specialized.NameValueCollection props = new System.Collections.Specialized.NameValueCollection();
 					//UPGRADE_TODO: Method 'java.util.Properties.load' was converted to 'System.Collections.Specialized.NameValueCollection' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilPropertiesload_javaioInputStream'"
-					props = new System.Collections.Specialized.NameValueCollection(System.Configuration.ConfigurationSettings.AppSettings);
+					props = new System.Collections.Specialized.NameValueCollection(System.Configuration.ConfigurationManager.AppSettings);
 					
 					configureFromMigrationProperties(launcher, systemName, props);
 				}

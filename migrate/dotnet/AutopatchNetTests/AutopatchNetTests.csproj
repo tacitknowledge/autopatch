@@ -64,7 +64,6 @@
     <Compile Include="src\com\tacitknowledge\util\migration\ado\SqlScriptMigrationTaskTest.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ClassMigrationTaskSourceTest.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\ado\SqlScriptMigrationTaskSourceTest.cs" />
-    <Compile Include="src\com\tacitknowledge\util\migration\DistributedMigrationProcessTest.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationProcessEventsTest.cs" />
     <Compile Include="src\com\tacitknowledge\testhelpers\MigrationTask2.cs" />
     <Compile Include="src\com\tacitknowledge\util\migration\MigrationProcessTest.cs" />

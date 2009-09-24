@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutopatchNet", "AutopatchNE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutopatchNetTests", "AutopatchNetTests\AutopatchNetTests.csproj", "{7D75B340-ED6E-4589-9842-4BDF080740A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{D61142EE-3F72-4EE6-9BD7-CF10748A3EA6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{28C2B8AF-8C38-4E56-B3B3-FF9178368903}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +21,10 @@ Global
 		{7D75B340-ED6E-4589-9842-4BDF080740A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D75B340-ED6E-4589-9842-4BDF080740A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D75B340-ED6E-4589-9842-4BDF080740A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D61142EE-3F72-4EE6-9BD7-CF10748A3EA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D61142EE-3F72-4EE6-9BD7-CF10748A3EA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D61142EE-3F72-4EE6-9BD7-CF10748A3EA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D61142EE-3F72-4EE6-9BD7-CF10748A3EA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28C2B8AF-8C38-4E56-B3B3-FF9178368903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28C2B8AF-8C38-4E56-B3B3-FF9178368903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28C2B8AF-8C38-4E56-B3B3-FF9178368903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28C2B8AF-8C38-4E56-B3B3-FF9178368903}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

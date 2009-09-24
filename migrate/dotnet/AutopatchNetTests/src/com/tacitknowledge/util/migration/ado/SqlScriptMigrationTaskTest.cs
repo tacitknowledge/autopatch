@@ -48,7 +48,7 @@ namespace com.tacitknowledge.util.migration.ado
                 mocks.CreateMock<FakeDatabase>(new object[] {"connString", SqlClientFactory.Instance});
             DbTransaction trans = mocks.CreateMock<DbTransaction>();
             DbCommand cmd = mocks.CreateMock<DbCommand>();
-            DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
+            DatabaseType dbType = mocks.CreateMock<DatabaseType>("sqlserver");
 
             Expect.Call(context.DatabaseType).Return(dbType);
             Expect.Call(context.Database).Return(db);
@@ -85,7 +85,7 @@ namespace com.tacitknowledge.util.migration.ado
                 mocks.CreateMock<FakeDatabase>(new object[] { "connString", SqlClientFactory.Instance });
             DbTransaction trans = mocks.CreateMock<DbTransaction>();
             DbCommand cmd = mocks.CreateMock<DbCommand>();
-            DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
+            DatabaseType dbType = mocks.CreateMock<DatabaseType>("sqlserver");
 
             // We have 3 DatabaseType property access on the execution path
             Expect.Call(context.DatabaseType).Return(dbType).Repeat.Times(3);
@@ -109,7 +109,7 @@ namespace com.tacitknowledge.util.migration.ado
                         new SqlScriptMigrationTask("patch0003_dummy_SQL_file", 3, sr);
                     task.Migrate(context);
                 }
-                catch (MigrationException me)
+                catch (MigrationException)
                 {
                     Assert.Fail("We should not have got an exception");
                 }
@@ -131,7 +131,7 @@ namespace com.tacitknowledge.util.migration.ado
         {
             MockRepository mocks = new MockRepository();
             IAdoMigrationContext context = mocks.CreateMock<IAdoMigrationContext>();
-            DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
+            DatabaseType dbType = mocks.CreateMock<DatabaseType>("sqlserver");
 
             using (mocks.Ordered())
             {
@@ -182,7 +182,7 @@ namespace com.tacitknowledge.util.migration.ado
         {
             MockRepository mocks = new MockRepository();
             IAdoMigrationContext context = mocks.CreateMock<IAdoMigrationContext>();
-            DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
+            DatabaseType dbType = mocks.CreateMock<DatabaseType>("sqlserver");
 
             using (mocks.Ordered())
             {
@@ -231,7 +231,7 @@ namespace com.tacitknowledge.util.migration.ado
                 mocks.CreateMock<FakeDatabase>(new object[] { "connString", SqlClientFactory.Instance });
             DbTransaction trans = mocks.CreateMock<DbTransaction>();
             DbCommand cmd = mocks.CreateMock<DbCommand>();
-            DatabaseType dbType = mocks.CreateMock<DatabaseType>("postgres");
+            DatabaseType dbType = mocks.CreateMock<DatabaseType>("sqlserver");
 
             Expect.Call(context.DatabaseType).Return(dbType);
             Expect.Call(context.Database).Return(db);

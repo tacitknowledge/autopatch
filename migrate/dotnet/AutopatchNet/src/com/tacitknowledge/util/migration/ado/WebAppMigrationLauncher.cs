@@ -59,23 +59,22 @@ namespace com.tacitknowledge.util.migration.ado
 	/// <seealso cref="com.tacitknowledge.util.migration.MigrationProcess">
 	/// </seealso>
 
-    public class WebAppMigrationLauncher 
+    public class WebAppMigrationLauncher : AutoPatchLauncher 
 	{
 		/// <summary> Keeps track of the first run of the class within this web app deployment.
 		/// This should always be true, but you can never be too careful.
 		/// </summary>
-		private static bool firstRun = true;
+		//private static bool firstRun = true;
 		
 		/// <summary>
 		/// Log object
 		/// </summary>
 		private static ILog log;
 		
-		
 		/// <summary>
 		/// 
 		/// </summary>
-		public void  initialize()
+		public override void  initialize()
 		{
 			try
 			{
@@ -91,7 +90,7 @@ namespace com.tacitknowledge.util.migration.ado
 					AdoMigrationLauncherFactory launcherFactory = AdoMigrationLauncherFactoryLoader.createFactory();
 					AdoMigrationLauncher launcher = launcherFactory.createMigrationLauncher(migrationConfig.SystemName);
 					launcher.DoMigrations();
-                    firstRun = false;
+                    //firstRun = false;
 				}
 				catch (MigrationException e)
 				{
@@ -119,9 +118,11 @@ namespace com.tacitknowledge.util.migration.ado
 				throw e;
 			}
 		}
-		
-		
-		
+
+        public override void dispose()
+        {
+            throw new Exception("The method or operation is not implemented.");
+        }		
 		
 		static WebAppMigrationLauncher()
 		{

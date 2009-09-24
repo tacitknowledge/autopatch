@@ -95,8 +95,25 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <throws>  MigrationException if an unexpected error occurs </throws>
 		private void  configureFromMigrationProperties(AdoMigrationLauncher launcher, System.String systemName)
 		{
-			//TODO: alter this to use MigrationConfigurationManager
-		}
+            MigrationConfigurationManager configMgr = new MigrationConfigurationManager();
+            DBConfiguration dbConfig = configMgr.getDBConfiguration();
+            MigrationConfiguration migrationConfig = configMgr.getMigrationConfiguration();
+
+            launcher.PatchPath = migrationConfig.PatchPath;
+            launcher.PostPatchPath = migrationConfig.PostPatchPath;
+
+            DataSourceMigrationContext context = DataSourceMigrationContext;
+            System.String databaseType = dbConfig.DatabaseType;
+            context.DatabaseType = new DatabaseType(databaseType);
+            
+            // Finish setting up the context
+            context.SystemName = systemName;
+
+            //context.DataSource = dataSource;
+
+            // done reading in config, set launcher's context
+            launcher.AddContext(context);
+        }
 		
 		/// <summary> Configure the launcher from the provided properties, system name
 		/// 
