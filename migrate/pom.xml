@@ -8,7 +8,7 @@
 	<groupId>com.tacitknowledge.autopatch</groupId>
 	<artifactId>tk-autopatch</artifactId>
 	<name>AutoPatch</name>
-	<version>1.2.0-b3-SNAPSHOT</version>
+	<version>1.2.1</version>
 	<description>automated Java patching system</description>
 	<url>http://autopatch.sourceforge.net/</url>
 	<organization>
@@ -153,6 +153,15 @@
       		<id>woffca</id>
       		<name>Vladimir Pertu</name>
       		<email>woffca at users.sourceforge.net</email>
+      		<organization>Tacit Knowledge LLC</organization>
+      		<roles>
+        		<role>Developer</role>
+      		</roles>
+    	</developer>
+    	<developer>
+      		<id>marquesfarques</id>
+      		<name>Marques Lee</name>
+      		<email>marquesfarques at users.sourceforge.net</email>
       		<organization>Tacit Knowledge LLC</organization>
       		<roles>
         		<role>Developer</role>

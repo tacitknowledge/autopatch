@@ -15,12 +15,16 @@ package com.tacitknowledge.util.migration.jdbc.atg;
 
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.AutoPatchService;
+import com.tacitknowledge.util.migration.jdbc.DataSourceMigrationContext;
+import com.tacitknowledge.util.migration.jdbc.DatabaseType;
 
 import atg.nucleus.Configuration;
 import atg.nucleus.Nucleus;
 import atg.nucleus.Service;
 import atg.nucleus.ServiceEvent;
 import atg.nucleus.ServiceException;
+
+import javax.sql.DataSource;
 
 /**
  * Automatically applies database DDL and SQL patches to all schemas on server startup.
@@ -32,25 +36,28 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
 {
     /** Our Nucleus */
     private Nucleus nucleus = null;
-    
+
     /** The Configuration we have */
     private Configuration configuration = null;
-    
+
     /** Whether we are running or not */
     private boolean running = false;
-    
+
     /** patch on startService - set to false if orchestrated by ATGDistributedAutoPatchService */
     private boolean patchOnStartup = true;
-    
+
     /** Take the server down on errors? */
     private boolean failServerOnError = true;
-    
+
     /** The patch to the post-patch tasks */
     private String postPatchPath = null;
-    
+
+    /** The DataSources controlled by this system */
+    private DataSource[] dataSources;
+
     /**
      * Handle patching the database on startup
-     * 
+     *
      * @see atg.nucleus.ServiceListener#startService(atg.nucleus.ServiceEvent)
      */
     public void startService(ServiceEvent se) throws ServiceException
@@ -60,12 +67,17 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
             setRunning(true);
             setNucleus(se.getNucleus());
             setServiceConfiguration(se.getServiceConfiguration());
+
+            /* if we have multiple datasources defined, create and add contexts for them */
+            configureDataSources();
+
             doStartService();
         }
     }
-    
+
     /**
      * @see com.tacitknowledge.util.migration.jdbc.AutoPatchService#patch()
+     * @throws atg.nucleus.ServiceException on error
      */
     public void doStartService() throws ServiceException
     {
@@ -86,7 +98,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
                                        + "you want it to start anyway");
                     System.exit(1);
                 }
-                
+
                 throw new ServiceException("There was a problem patching the database", me);
             }
         }
@@ -94,12 +106,33 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
 
     /**
      * Resets the "running" state to false
-     * 
+     *
      * @see atg.nucleus.Service#stopService()
      */
     public void stopService() throws ServiceException
     {
         setRunning(false);
+    }
+
+    /** configures multiple datasources for this system */
+    private void configureDataSources()
+    {
+        if (getDataSources() != null)
+        {
+            int numSources = getDataSources().length;
+
+            for (int i = 0; i < numSources; i++)
+            {
+                DataSource source = getDataSources()[i];
+                DataSourceMigrationContext context = getDataSourceMigrationContext();
+
+                context.setSystemName(getSystemName());
+                context.setDatabaseType(new DatabaseType(getDatabaseType()));
+                context.setDataSource(source);
+
+                addContext(context);
+            }
+        }
     }
 
     /**
@@ -160,7 +193,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
      * Whether we should patch in startService or not. This is useful because
      * under ATGDistributedAutoPatchService control these services should not
      * start on their own
-     * 
+     *
      * @return boolean true if the service should patch in startService
      */
     public boolean isPatchOnStartup()
@@ -172,7 +205,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
      * Whether we should patch in startService or not. This is useful because
      * under ATGDistributedAutoPatchService control these services should not
      * start on their own
-     * 
+     *
      * @param patchOnStartup true if the service should patch in startService
      */
     public void setPatchOnStartup(boolean patchOnStartup)
@@ -185,7 +218,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
      * throwing an Error instead of an Exception so ATG will halt module loading. It is
      * recommended to leave this set to true as allowing startup on patch failure may allow
      * your software to run despite an inconsistent state in the database
-     * 
+     *
      * @return boolean true if the server should stop module load on patch failure
      */
     public boolean isFailServerOnError()
@@ -201,7 +234,7 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     {
         this.failServerOnError = failServerOnError;
     }
-     
+
     /**
      * @return Returns the postPatchPath.
      */
@@ -209,12 +242,24 @@ public class ATGAutoPatchService extends AutoPatchService implements Service
     {
         return postPatchPath;
     }
-     
+
     /**
      * @param postPatchPath The postPatchPath to set.
      */
     public void setPostPatchPath(String postPatchPath)
     {
         this.postPatchPath = postPatchPath;
+    }
+
+    /** @return the DataSources managed by this system */
+    public DataSource[] getDataSources()
+    {
+        return dataSources;
+    }
+
+    /** @param dataSources the DataSources managed by this system */
+    public void setDataSources(DataSource[] dataSources)
+    {
+        this.dataSources = dataSources;
     }
 }

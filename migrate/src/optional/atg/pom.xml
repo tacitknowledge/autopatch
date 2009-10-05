@@ -6,7 +6,7 @@
 	<groupId>com.tacitknowledge.autopatch</groupId>
 	<artifactId>tk-autopatch-optional-atg</artifactId>
 	<name>AutoPatch ATG</name>
-	<version>1.1.0</version>
+	<version>1.2.1</version>
 	<description>
 		automated Java patching system - ATG module
 	</description>
@@ -43,9 +43,9 @@
 		</dependency>
 		<!-- install it to repository from $ATG_HOME/../DAS/lib/classes.jar -->
 		<dependency>
-			<groupId>atg.DAS</groupId>
-			<artifactId>classes</artifactId>
-			<version>7.2</version>
+			<groupId>atg.das</groupId>
+			<artifactId>das-classes</artifactId>
+			<version>[7.2,)</version>
 		</dependency>
 	</dependencies>
 
