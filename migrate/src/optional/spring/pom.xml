@@ -1,56 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.tacitknowledge.autopatch</groupId>
-	<artifactId>tk-autopatch-optional-spring</artifactId>
-	<name>AutoPatch Spring</name>
-	<version>1.1.0</version>
-	<description>automated Java patching system - Spring module</description>
-	<url>http://autopatch.sourceforge.net/</url>
-	<inceptionYear>...</inceptionYear>
-	<organization>
-		<name>Tacit Knowledge</name>
-	</organization>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<repositories>
-		<repository>
-			<id>tk-public</id>
-			<name>TK Public Repository</name>
-			<url>http://repo1.tacitknowledge.com/repository/public</url>
-			<layout>default</layout>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-	</repositories>
+    <groupId>com.tacitknowledge.autopatch</groupId>
+    <artifactId>tk-autopatch-optional-spring</artifactId>
+    <version>1.1.0</version>
 
-	<build>
-		<sourceDirectory>${basedir}</sourceDirectory>
-	</build>
+    <name>AutoPatch Spring</name>
+    <description>
+        An automated Java patching system - Spring module
+    </description>
+    <url>http://autopatch.sourceforge.net/</url>
+    <organization>
+        <name>Tacit Knowledge</name>
+    </organization>
+    <inceptionYear>...</inceptionYear>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.tacitknowledge.autopatch</groupId>
-			<artifactId>tk-autopatch</artifactId>
-			<version>[1.1,)</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-			<version>1.1.2</version>
-		</dependency>
-	</dependencies>
+    <repositories>
+        <repository>
+            <id>tk-public</id>
+            <name>TK Public Repository</name>
+            <url>http://repo1.tacitknowledge.com/repository/public</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
-	<distributionManagement>
-		<repository>
-			<id>tk-public</id>
-			<name>TK Public Repository</name>
-			<url>scp://repo1.tacitknowledge.com:/opt/maven-repo/public</url>
-		</repository>
-	</distributionManagement>
+    <build>
+        <sourceDirectory>${basedir}</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.tacitknowledge.autopatch</groupId>
+            <artifactId>tk-autopatch</artifactId>
+            <version>[1.1,)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+    </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>tk-public</id>
+            <name>TK Public Repository</name>
+            <url>scp://repo1.tacitknowledge.com:/opt/maven-repo/public</url>
+        </repository>
+    </distributionManagement>
 </project>

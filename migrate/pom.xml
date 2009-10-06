@@ -1,554 +1,570 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<!-- Artifact details -->
-	<groupId>com.tacitknowledge.autopatch</groupId>
-	<artifactId>tk-autopatch</artifactId>
-	<name>AutoPatch</name>
-	<version>1.2.1</version>
-	<description>automated Java patching system</description>
-	<url>http://autopatch.sourceforge.net/</url>
-	<organization>
-		<name>Tacit Knowledge</name>
-		<url>http://www.tacitknowledge.com</url>
-	</organization>
-	<inceptionYear>2006</inceptionYear>
+    <!-- Artifact details -->
+    <groupId>com.tacitknowledge.autopatch</groupId>
+    <artifactId>tk-autopatch</artifactId>
+    <version>1.2.1</version>
 
-	<!-- Prerequisites to build project -->
-	<prerequisites>
-		<maven>2.0.6</maven>
-	</prerequisites>
+    <name>AutoPatch</name>
+    <description>
+        An automated Java patching system
+    </description>
+    <url>http://autopatch.sourceforge.net/</url>
+    <organization>
+        <name>Tacit Knowledge</name>
+        <url>http://www.tacitknowledge.com</url>
+    </organization>
+    <inceptionYear>2006</inceptionYear>
 
-	<!-- configurable properties used in this build -->
-	<properties>
-		<source.jdk>1.4</source.jdk>
-		<target.jdk>1.4</target.jdk>
-	
-		<unit.tests.pattern>**/*Test.java</unit.tests.pattern>
-		<integration.tests.pattern>**/MigrationUnlockTest.java,**/MultiNodeAutoPatchTest.java</integration.tests.pattern>
+    <!-- Prerequisites to build project -->
+    <prerequisites>
+        <maven>2.0.6</maven>
+    </prerequisites>
 
-		<unit.tests.tasks.source>${basedir}/src/test/unittest/com/tacitknowledge/util/migration/jdbc/test/</unit.tests.tasks.source>
-		<unit.tests.tasks.package>com/tacitknowledge/util/migration/jdbc/test</unit.tests.tasks.package>
+    <!-- configurable properties used in this build -->
+    <properties>
+        <source.jdk>1.4</source.jdk>
+        <target.jdk>1.4</target.jdk>
 
-		<integration.tests.tasks.source>${basedir}/src/test/inttest/com/tacitknowledge/util/migration/inttest-tasks</integration.tests.tasks.source>
-		<integration.tests.tasks.package>com/tacitknowledge/util/migration/inttest-tasks</integration.tests.tasks.package>
-	</properties>
+        <unit.tests.pattern>**/*Test.java</unit.tests.pattern>
 
-	<!-- Project license -->
-	<licenses>
-		<license>
-			<name>Project License</name>
-			<url>http://www.tacitknowledge.com/licenses-1.0</url>
-		</license>
-	</licenses>
+        <integration.tests.pattern>
+            **/MigrationUnlockTest.java,**/MultiNodeAutoPatchTest.java
+        </integration.tests.pattern>
 
-	<!-- Issue tracking info -->
-	<issueManagement>
-		<system>SourceForge issue tracker</system>
-		<url>https://sourceforge.net/tracker/?group_id=106637</url>
-	</issueManagement>
-	
-	<!-- Mailing lists -->
-	<mailingLists>
-		<mailingList>
-			<name>Autopatch CVS list</name>
-			<subscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-cvs</subscribe>
-			<unsubscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-cvs</unsubscribe>
-			<post>autopatch-cvs@lists.sourceforge.net</post>
-			<archive>http://sourceforge.net/mailarchive/forum.php?forum_name=autopatch-cvs</archive>
-		</mailingList>
+        <unit.tests.tasks.source>
+            ${basedir}/src/test/unittest/com/tacitknowledge/util/migration/jdbc/test/
+        </unit.tests.tasks.source>
 
-		<mailingList>
-			<name>Autopatch Announce list</name>
-			<subscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-announce</subscribe>
-			<unsubscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-announce</unsubscribe>
-			<post>autopatch-announce@lists.sourceforge.net</post>
-			<archive>http://sourceforge.net/mailarchive/forum.php?forum_name=autopatch-announce</archive>
-		</mailingList>
-	</mailingLists>
+        <unit.tests.tasks.package>com/tacitknowledge/util/migration/jdbc/test</unit.tests.tasks.package>
 
-	<!-- Source control management -->
-	<scm>
-		<url>http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate</url>
-	</scm>
+        <integration.tests.tasks.source>
+            ${basedir}/src/test/inttest/com/tacitknowledge/util/migration/inttest-tasks
+        </integration.tests.tasks.source>
 
-	<!-- Project developers -->
- 	<developers>
-    	<developer>
-      		<id>acroitor</id>
-      		<name>Alexandru Croitor</name>
-      		<email>acroitor at users.sourceforge.net</email>
-      		<roles>
-        		<role>Developer</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>asoto</id>
-      		<name>Alex Soto</name>
-      		<email>asoto at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Developer</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>davidmartinez</id>
-      		<name>David Martinez</name>
-      		<email>davidmartinez at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Project Admin</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>imorti</id>
-      		<name>Ian Mortimer</name>
-      		<email>imorti at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Developer</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>mikehardy</id>
-      		<name>Mike Hardy</name>
-      		<email>mikehardy at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-      			<role>Project Manager</role>
-        		<role>Project Admin</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>saskew</id>
-      		<name>Scott Askew</name>
-      		<email>saskew at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Project Admin</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>tkmgilbert</id>
-      		<name>Marek Gilbert</name>
-      		<email>tkmgilbert at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Project Admin</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>vgangantk</id>
-      		<name>Vladislav Gangan</name>
-      		<email>vgangantk at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Developer</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>woffca</id>
-      		<name>Vladimir Pertu</name>
-      		<email>woffca at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Developer</role>
-      		</roles>
-    	</developer>
-    	<developer>
-      		<id>marquesfarques</id>
-      		<name>Marques Lee</name>
-      		<email>marquesfarques at users.sourceforge.net</email>
-      		<organization>Tacit Knowledge LLC</organization>
-      		<roles>
-        		<role>Developer</role>
-      		</roles>
-    	</developer>
+        <integration.tests.tasks.package>
+            com/tacitknowledge/util/migration/inttest-tasks
+        </integration.tests.tasks.package>
+    </properties>
+
+    <!-- Project license -->
+    <licenses>
+        <license>
+            <name>Project License</name>
+            <url>http://www.tacitknowledge.com/licenses-1.0</url>
+        </license>
+    </licenses>
+
+    <!-- Issue tracking info -->
+    <issueManagement>
+        <system>SourceForge issue tracker</system>
+        <url>https://sourceforge.net/tracker/?group_id=106637</url>
+    </issueManagement>
+
+    <!-- Mailing lists -->
+    <mailingLists>
+        <mailingList>
+            <name>Autopatch CVS list</name>
+            <subscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-cvs</subscribe>
+            <unsubscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-cvs</unsubscribe>
+            <post>autopatch-cvs@lists.sourceforge.net</post>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=autopatch-cvs</archive>
+        </mailingList>
+
+        <mailingList>
+            <name>Autopatch Announce list</name>
+            <subscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-announce</subscribe>
+            <unsubscribe>https://lists.sourceforge.net/lists/listinfo/autopatch-announce</unsubscribe>
+            <post>autopatch-announce@lists.sourceforge.net</post>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum_name=autopatch-announce</archive>
+        </mailingList>
+    </mailingLists>
+
+    <!-- Source control management -->
+    <scm>
+        <url>http://autopatch.cvs.sourceforge.net/autopatch/autopatch/migrate</url>
+    </scm>
+
+    <!-- Project developers -->
+    <developers>
+        <developer>
+            <id>acroitor</id>
+            <name>Alexandru Croitor</name>
+            <email>acroitor at users.sourceforge.net</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>asoto</id>
+            <name>Alex Soto</name>
+            <email>asoto at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>davidmartinez</id>
+            <name>David Martinez</name>
+            <email>davidmartinez at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Project Admin</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>imorti</id>
+            <name>Ian Mortimer</name>
+            <email>imorti at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>mikehardy</id>
+            <name>Mike Hardy</name>
+            <email>mikehardy at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Project Manager</role>
+                <role>Project Admin</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>saskew</id>
+            <name>Scott Askew</name>
+            <email>saskew at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Project Admin</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>tkmgilbert</id>
+            <name>Marek Gilbert</name>
+            <email>tkmgilbert at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Project Admin</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>vgangantk</id>
+            <name>Vladislav Gangan</name>
+            <email>vgangantk at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>woffca</id>
+            <name>Vladimir Pertu</name>
+            <email>woffca at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>marquesfarques</id>
+            <name>Marques Lee</name>
+            <email>marquesfarques at users.sourceforge.net</email>
+            <organization>Tacit Knowledge LLC</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
     </developers>
 
-	<!-- Reporting plugins configuration -->
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-report-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jxr-plugin</artifactId>
-				<version>2.1</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.3</version>
-				<configuration>
-					<excludePackageNames>inttest:unittest</excludePackageNames>
-					<links>
-						<link>http://java.sun.com/j2se/1.4.2/docs/api</link>
-						<link>http://java.sun.com/j2ee/1.4/docs/api</link>
-						<link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-						<link>http://commons.apache.org/collections/apidocs-COLLECTIONS_3_0/</link>
-						<link>http://commons.apache.org/logging/apidocs/</link>
-						<link>http://junit.sourceforge.net/javadoc/</link>
-						<link>http://logging.apache.org/log4j/1.2/apidocs/</link>
-					</links>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>clirr-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jdepend-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>taglist-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<configuration>
-					<linkXref>true</linkXref>
-					<targetJdk>${target.jdk}</targetJdk>
-					<reportSets>
-						<reportSet>
-							<reports>
-								<report>pmd</report>
-								<report>cpd</report>
-							</reports>
-						</reportSet>
-					</reportSets>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.2-SNAPSHOT</version>
-				<configuration>
-					<configLocation>tacit_checkstyle.config</configLocation>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
+    <!-- Reporting plugins configuration -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <excludePackageNames>inttest:unittest</excludePackageNames>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.4.2/docs/api</link>
+                        <link>http://java.sun.com/j2ee/1.4/docs/api</link>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                        <link>http://commons.apache.org/collections/apidocs-COLLECTIONS_3_0/</link>
+                        <link>http://commons.apache.org/logging/apidocs/</link>
+                        <link>http://junit.sourceforge.net/javadoc/</link>
+                        <link>http://logging.apache.org/log4j/1.2/apidocs/</link>
+                    </links>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>clirr-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jdepend-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>taglist-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <configuration>
+                    <linkXref>true</linkXref>
+                    <targetJdk>${target.jdk}</targetJdk>
+                    <reportSets>
+                        <reportSet>
+                            <reports>
+                                <report>pmd</report>
+                                <report>cpd</report>
+                            </reports>
+                        </reportSet>
+                    </reportSets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.2-SNAPSHOT</version>
+                <configuration>
+                    <configLocation>tacit_checkstyle.config</configLocation>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 
-	<!-- TK repository -->
-	<repositories>
-		<repository>
-			<id>tk-public</id>
-			<name>TK Public Repository</name>
-			<url>http://repo1.tacitknowledge.com/repository/public</url>
-			<layout>default</layout>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-	</repositories>
+    <!-- TK repository -->
+    <repositories>
+        <repository>
+            <id>tk-public</id>
+            <name>TK Public Repository</name>
+            <url>http://repo1.tacitknowledge.com/repository/public</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
-	<!-- Plugin repository needed for maven SNAPSHOT plugins -->
-	<pluginRepositories>
-		<pluginRepository>
-			<id>apache.org</id>
-			<name>Maven Plugin Snapshots</name>
-			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
+    <!-- Plugin repository needed for maven SNAPSHOT plugins -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apache.org</id>
+            <name>Maven Plugin Snapshots</name>
+            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
-	<!-- Build configuration -->
-	<build>
-		<!-- definition of source location -->
-		<sourceDirectory>${basedir}/src/java</sourceDirectory>
-		<!-- test sources location -->
-		<testSourceDirectory>${basedir}/src/test</testSourceDirectory>
-		<!-- resources needed -->
-		<resources>
-			<resource>
-				<targetPath>
-					com/tacitknowledge/util/migration/jdbc
-				</targetPath>
-				<directory>
-					${basedir}/src/java/com/tacitknowledge/util/migration/jdbc
-				</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-			</resource>
-		</resources>
-	
-		<!-- resources used during test -->
-		<testResources>
-			<!-- Include resources for both unit and integration tests since they are in different folders -->
-			<testResource>
-				<directory>${basedir}/src/test/unittest</directory>
-				<includes>
-					<include>*.properties</include>
-				</includes>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</testResource>
-			<testResource>
-				<directory>${basedir}/src/test/inttest</directory>
-				<includes>
-					<include>*.properties</include>
-				</includes>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</testResource>
+    <!-- Build configuration -->
+    <build>
+        <!-- definition of source location -->
+        <sourceDirectory>${basedir}/src/java</sourceDirectory>
+        <!-- test sources location -->
+        <testSourceDirectory>${basedir}/src/test</testSourceDirectory>
+        <!-- resources needed -->
+        <resources>
+            <resource>
+                <targetPath>
+                    com/tacitknowledge/util/migration/jdbc
+                </targetPath>
+                <directory>
+                    ${basedir}/src/java/com/tacitknowledge/util/migration/jdbc
+                </directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
 
-			<!-- Custom mapping needed to copy resources for testing to specific packages
-				due to non-standard directory structure -->
-			<!-- Each folder containing test resources needs to be mapped separately -->
-			<testResource>
-				<!-- SQL scripts for Unit tests go to jdbc/test folder -->
-				<targetPath>${unit.tests.tasks.package}</targetPath>
-				<directory>${unit.tests.tasks.source}</directory>
-				<includes>
-					<include>**/*.sql</include>
-				</includes>
-			</testResource>
-			<testResource>
-				<!-- SQL scripts for Integration tests go to inttest-tasks folder -->
-				<targetPath>
-					${integration.tests.tasks.package}/catalog/
-				</targetPath>
-				<directory>
-					${integration.tests.tasks.source}/catalog/
-				</directory>
-				<includes>
-					<include>**/*.sql</include>
-				</includes>
-			</testResource>
-			<testResource>
-				<targetPath>
-					${integration.tests.tasks.package}/core/
-				</targetPath>
-				<directory>
-					${integration.tests.tasks.source}/core/
-				</directory>
-				<includes>
-					<include>**/*.sql</include>
-				</includes>
-			</testResource>
-			<testResource>
-				<targetPath>
-					${integration.tests.tasks.package}/order/
-				</targetPath>
-				<directory>
-					${integration.tests.tasks.source}/order/
-				</directory>
-				<includes>
-					<include>**/*.sql</include>
-				</includes>
-			</testResource>
-		</testResources>
+        <!-- resources used during test -->
+        <testResources>
+            <!-- Include resources for both unit and integration tests since they are in different folders -->
+            <testResource>
+                <directory>${basedir}/src/test/unittest</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <directory>${basedir}/src/test/inttest</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
 
-		<!-- Plugins configuration -->
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
-				<configuration>
-					<source>${source.jdk}</source>
-					<target>${target.jdk}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<!-- unit test run configuration -->
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.3</version>
-				<configuration>
-					<childDelegation>true</childDelegation>
-					<includes>
-						<include>${unit.tests.pattern}</include>
-					</includes>
-					<!-- excluding integration tests from unit testing -->
-					<excludes>
-						<exclude>${integration.tests.pattern}</exclude>
-					</excludes>
-					<skip>false</skip>
-				</configuration>
+            <!-- Custom mapping needed to copy resources for testing to specific packages
+                   due to non-standard directory structure -->
+            <!-- Each folder containing test resources needs to be mapped separately -->
+            <testResource>
+                <!-- SQL scripts for Unit tests go to jdbc/test folder -->
+                <targetPath>${unit.tests.tasks.package}</targetPath>
+                <directory>${unit.tests.tasks.source}</directory>
+                <includes>
+                    <include>**/*.sql</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <!-- SQL scripts for Integration tests go to inttest-tasks folder -->
+                <targetPath>
+                    ${integration.tests.tasks.package}/catalog/
+                </targetPath>
+                <directory>
+                    ${integration.tests.tasks.source}/catalog/
+                </directory>
+                <includes>
+                    <include>**/*.sql</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <targetPath>
+                    ${integration.tests.tasks.package}/core/
+                </targetPath>
+                <directory>
+                    ${integration.tests.tasks.source}/core/
+                </directory>
+                <includes>
+                    <include>**/*.sql</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <targetPath>
+                    ${integration.tests.tasks.package}/order/
+                </targetPath>
+                <directory>
+                    ${integration.tests.tasks.source}/order/
+                </directory>
+                <includes>
+                    <include>**/*.sql</include>
+                </includes>
+            </testResource>
+        </testResources>
 
-				<!-- Definition for integration tests -->
-				<executions>
-					<execution>
-						<id>integration-test</id>
-						<phase>integration-test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<!-- special configuration to pick up src/test/inttest during integration-test phase -->
-						<configuration>
-							<!-- overriding exclude defined earlier for unit test-->
-							<excludes>
-								<exclude>none</exclude>
-							</excludes>
-							<includes>
-								<!-- overriding include defined earlier for unit test-->
-								<include>none</include>
-								<!-- Including only specific integration tests -->
-								<include>
-									${integration.tests.pattern}
-								</include>
-							</includes>
-							<skip>false</skip>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.1</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.0.4</version>
-				<configuration>
-				  <outputDirectory>${basedir}/target/</outputDirectory>
-		          <finalName>${project.artifactId}-${project.version}</finalName>
-		          <attach>false</attach>
-		        </configuration>
-			</plugin>
-		</plugins>
-	</build>
+        <!-- Plugins configuration -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>${source.jdk}</source>
+                    <target>${target.jdk}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- unit test run configuration -->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <childDelegation>true</childDelegation>
+                    <includes>
+                        <include>${unit.tests.pattern}</include>
+                    </includes>
+                    <!-- excluding integration tests from unit testing -->
+                    <excludes>
+                        <exclude>${integration.tests.pattern}</exclude>
+                    </excludes>
+                    <skip>false</skip>
+                </configuration>
 
-	<!-- Project dependencies -->
-	<dependencies>
-		<dependency>
-			<groupId>com.tacitknowledge</groupId>
-			<artifactId>tk-discovery</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>[2.0,)</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<dependency>
-         	<groupId>commons-collections</groupId>
-         	<artifactId>commons-collections</artifactId>
-         	<version>3.0</version>
-      </dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit-addons</groupId>
-			<artifactId>junit-addons</artifactId>
-			<version>1.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.9</version>
-		</dependency>
-		<dependency>
-			<groupId>dbunit</groupId>
-			<artifactId>dbunit</artifactId>
-			<version>[2.1,)</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.j2ee</groupId>
-			<artifactId>j2ee</artifactId>
-			<version>1.3</version>
-		</dependency>
-		<dependency>
-			<groupId>poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>2.5.1-final-20040804</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.6.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-digester</groupId>
-			<artifactId>commons-digester</artifactId>
-			<version>1.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockejb</groupId>
-			<artifactId>mockejb</artifactId>
-			<version>0.6-beta2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.mockrunner</groupId>
-			<artifactId>mockrunner</artifactId>
-			<version>0.3.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.j2ee</groupId>
-			<artifactId>j2ee</artifactId>
-			<version>1.3</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>easymock</groupId>
-			<artifactId>easymock</artifactId>
-			<version>1.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>struts</groupId>
-			<artifactId>struts</artifactId>
-			<version>1.2.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>1.8.0.7</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+                <!-- Definition for integration tests -->
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <!-- special configuration to pick up src/test/inttest during integration-test phase -->
+                        <configuration>
+                            <!-- overriding exclude defined earlier for unit test-->
+                            <excludes>
+                                <exclude>none</exclude>
+                            </excludes>
+                            <includes>
+                                <!-- overriding include defined earlier for unit test-->
+                                <include>none</include>
+                                <!-- Including only specific integration tests -->
+                                <include>
+                                    ${integration.tests.pattern}
+                                </include>
+                            </includes>
+                            <skip>false</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-	<!-- Repository holding autopatch distribution -->
-	<distributionManagement>
-		<repository>
-			<id>tk-public</id>
-			<name>TK Public Repository</name>
-			<url>scp://repo1.tacitknowledge.com:/opt/maven-repo/public</url>
-		</repository>
-	</distributionManagement>
+    <!-- Project dependencies -->
+    <dependencies>
+        <dependency>
+            <groupId>com.tacitknowledge</groupId>
+            <artifactId>tk-discovery</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>[2.0,)</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit-addons</groupId>
+            <artifactId>junit-addons</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.9</version>
+        </dependency>
+        <dependency>
+            <groupId>dbunit</groupId>
+            <artifactId>dbunit</artifactId>
+            <version>[2.1,)</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.j2ee</groupId>
+            <artifactId>j2ee</artifactId>
+            <version>1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>2.5.1-final-20040804</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>1.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockejb</groupId>
+            <artifactId>mockejb</artifactId>
+            <version>0.6-beta2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mockrunner</groupId>
+            <artifactId>mockrunner</artifactId>
+            <version>0.3.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.j2ee</groupId>
+            <artifactId>j2ee</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>struts</groupId>
+            <artifactId>struts</artifactId>
+            <version>1.2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.8.0.7</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- Repository holding autopatch distribution -->
+    <distributionManagement>
+        <repository>
+            <id>tk-public</id>
+            <name>TK Public Repository</name>
+            <url>scp://repo1.tacitknowledge.com:/opt/maven-repo/public</url>
+        </repository>
+    </distributionManagement>
 </project>
 
