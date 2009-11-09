@@ -3,6 +3,7 @@
     <fileset id="autopatch.jars" dir="${autopatch.dir}">
         <include name="build/tk-autopatch-*.jar" />
         <include name="lib/core/*.jar" />
+        <include name="lib/compile/*.jar" />
     </fileset>
     
     <fileset id="dependent.jars" dir="${basedir}/lib">
