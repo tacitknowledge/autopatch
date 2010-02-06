@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutopatchNet", "AutopatchNET\AutopatchNet.csproj", "{EAA9DFF3-D7EC-41FA-8486-1C3FCBF45910}"
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutopatchNet", "AutopatchNet\AutopatchNet.csproj", "{EAA9DFF3-D7EC-41FA-8486-1C3FCBF45910}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutopatchNetTests", "AutopatchNetTests\AutopatchNetTests.csproj", "{7D75B340-ED6E-4589-9842-4BDF080740A3}"
 EndProject
