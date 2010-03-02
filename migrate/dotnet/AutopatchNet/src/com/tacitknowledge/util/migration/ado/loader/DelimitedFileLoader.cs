@@ -23,7 +23,7 @@ namespace com.tacitknowledge.util.migration.ado.loader
 	
 	/// <summary> Loads files assumed to be in a delimited format and representing a 
 	/// table in the database.  The file name should begin with the prefix:  
-	/// "&lt;tablename&gt;_tb".  The file's first row should represent the name of 
+	/// "&lt;tablename&gt;_db".  The file's first row should represent the name of 
 	/// each column in the table that the underlying data elements (rows 2 
 	/// through n) will be mapped to.  
 	/// 
@@ -34,13 +34,12 @@ namespace com.tacitknowledge.util.migration.ado.loader
 	/// </version>
 	public abstract class DelimitedFileLoader:SqlLoadMigrationTask
     {
+        private const string PARAMETER_NAME_PREFIX = "@P";
         #region Member Variable
         /// <summary> The path separator</summary>
-        //UPGRADE_NOTE: Final was removed from the declaration of 'PATH_SEPARATOR '. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1003'"
         public static readonly System.String PATH_SEPARATOR = System.IO.Path.DirectorySeparatorChar.ToString();
 
         /// <summary> Class logger</summary>
-        //UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.loader.DelimitedFileLoader'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
         private static ILog log;
 
         /// <summary> Private variable that indicates if the header has been parsed or not. </summary>
@@ -54,7 +53,8 @@ namespace com.tacitknowledge.util.migration.ado.loader
 		/// </summary>
 		/// <returns> the delimiter string used to separate columns
 		/// </returns>
-		public abstract System.String Delimiter{get;}
+		public abstract System.Char Delimiter{get;}
+
 		/// <summary> Returns the table name from the full path name 
 		/// by parsing it out of a file in the format
 		/// name_db&lt;period&gt;(some extension)
@@ -68,7 +68,6 @@ namespace com.tacitknowledge.util.migration.ado.loader
 			{
 				System.String name = Name;
 				int startTable = name.LastIndexOf(PATH_SEPARATOR);
-				//UPGRADE_WARNING: Method 'java.lang.String.indexOf' was converted to 'System.String.IndexOf' which may throw an exception. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1101'"
 				int endTable = name.IndexOf("_db", startTable);
 				return name.Substring((startTable + 1), (endTable) - ((startTable + 1)));
 			}
@@ -88,19 +87,14 @@ namespace com.tacitknowledge.util.migration.ado.loader
 				try
 				{
 					System.String columnHeader = getHeader(ResourceAsStream);
-					System.String delimiter = Delimiter;
-                    //SupportClass.Tokenizer st = new SupportClass.Tokenizer(columnHeader, delimiter);
-					System.Collections.ArrayList columnNames = new System.Collections.ArrayList();
-                    //while (st.HasMoreTokens())
-                    //{
-                    //    columnNames.Add((st.NextToken().Trim()));
-                    //}
-					System.Text.StringBuilder query = new System.Text.StringBuilder("INSERT INTO ");
-					query.Append(TableFromName);
+					System.Char delimiter = Delimiter;
+                    string[] columnNames = columnHeader.Split(delimiter);
+
+                    System.Text.StringBuilder query = new System.Text.StringBuilder("INSERT INTO ");
+                    query.Append(TableFromName);
 					query.Append(" (");
 					System.Collections.IEnumerator it = columnNames.GetEnumerator();
 					bool firstTime = true;
-					//UPGRADE_TODO: Method 'java.util.Iterator.hasNext' was converted to 'System.Collections.IEnumerator.MoveNext' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratorhasNext'"
 					while (it.MoveNext())
 					{
 						if (!firstTime)
@@ -111,30 +105,29 @@ namespace com.tacitknowledge.util.migration.ado.loader
 						{
 							firstTime = false;
 						}
-						//UPGRADE_TODO: Method 'java.util.Iterator.next' was converted to 'System.Collections.IEnumerator.Current' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javautilIteratornext'"
-						query.Append((System.String) it.Current);
+						query.Append((string) it.Current);
 					}
 					query.Append(") VALUES (");
-					for (int i = 0; i < columnNames.Count; i++)
+					for (int i = 1; i <= columnNames.Length; i++)
 					{
-						if (i > 0)
-						{
-							query.Append(", ");
-						}
-						query.Append("?");
-					}
-					query.Append(")");
+						if (i > 1)
+                        {
+                            query.Append(", ");
+                        }
+                        query.Append(PARAMETER_NAME_PREFIX + i.ToString());
+                    }
+                    query.Append(")");
 					return query.ToString();
 				}
-				catch (System.IO.IOException e)
+				catch (System.ArgumentException e)
 				{
 					log.Error("No header was found for file: " + Name, e);
 				}
 				return null;
 			}
-			
-		}
-		/// <summary> Gets an input stream by first checking the current classloader, 
+        }
+
+        /// <summary> Gets an input stream by first checking the current classloader, 
 		/// then trying to use the system classloader, and finally, trying 
 		/// to access the file on the file system.  If the file is not found, 
 		/// an <code>IllegalArgumentException</code> will be thrown.
@@ -177,7 +170,7 @@ namespace com.tacitknowledge.util.migration.ado.loader
 		/// <returns> false if the header is returned, true otherwise
 		/// </returns>
 		/// <throws>  SQLException if an error occurs while inserting data into the database </throws>
-		protected internal bool insert(System.String data, System.Data.OleDb.OleDbCommand stmt)
+		override protected internal bool insert(System.String data, System.Data.Common.DbCommand stmt)
 		{
 			if (!parsedHeader)
 			{
@@ -185,38 +178,41 @@ namespace com.tacitknowledge.util.migration.ado.loader
 				log.Info("Header returned: " + data);
 				return false;
 			}
-            //SupportClass.Tokenizer st = new SupportClass.Tokenizer(data, Delimiter);
-			//int counter = 1;
+
+            int counter = 1;
 			log.Info("Row being parsed: " + data);
-            //while (st.HasMoreTokens())
-            //{
-            //    System.String colVal = st.NextToken();
-            //    if (colVal.ToUpper().Equals("<null>".ToUpper()))
-            //    {
-            //        SupportClass.TransactionManager.manager.SetValue(stmt, counter, null);
-            //    }
-            //    else
-            //    {
-            //        SupportClass.TransactionManager.manager.SetValue(stmt, counter, colVal);
-            //    }
-            //    counter++;
-            //}
-			return true;
+            stmt.Parameters.Clear();
+            foreach (string colVal in data.Split(Delimiter))
+            {
+                System.Data.Common.DbParameter parameter = stmt.CreateParameter();
+                parameter.ParameterName = PARAMETER_NAME_PREFIX + counter.ToString();
+
+                if (colVal.ToLower().Equals("<null>"))
+                {
+                    parameter.Value = DBNull.Value;
+                }
+                else
+                {
+                    parameter.Value = colVal;
+                }
+
+                stmt.Parameters.Add(parameter);
+                counter++;
+            }
+            return true;
 		}
 		
 		/// <summary> Returns the header (first line) of the file.
 		/// 
 		/// </summary>
-		/// <param name="is">the input stream containing the data to load
+        /// <param name="inputStream">the input stream containing the data to load
 		/// </param>
 		/// <returns> the first row
 		/// </returns>
 		/// <throws>  IOException if the input stream could not be read </throws>
-		protected internal virtual System.String getHeader(System.IO.Stream is_Renamed)
+		protected internal virtual System.String getHeader(System.IO.Stream inputStream)
 		{
-			//UPGRADE_TODO: The differences in the expected value  of parameters for constructor 'java.io.BufferedReader.BufferedReader'  may cause compilation errors.  "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1092'"
-			//UPGRADE_WARNING: At least one expression was used more than once in the target code. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1181'"
-			System.IO.StreamReader reader = new System.IO.StreamReader(new System.IO.StreamReader(is_Renamed, System.Text.Encoding.Default).BaseStream, new System.IO.StreamReader(is_Renamed, System.Text.Encoding.Default).CurrentEncoding);
+            System.IO.StreamReader reader = new System.IO.StreamReader(inputStream);
 			return reader.ReadLine();
 		}
 		static DelimitedFileLoader()

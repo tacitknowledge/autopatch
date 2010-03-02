@@ -46,7 +46,6 @@ namespace com.tacitknowledge.util.migration.ado
 		/// </returns>
 		protected internal abstract System.String StatmentSql{get;}
 		/// <summary> Class logger</summary>
-		//UPGRADE_NOTE: The initialization of  'log' was moved to static method 'com.tacitknowledge.util.migration.ado.SqlLoadMigrationTask'. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1005'"
 		private static ILog log;
 		
 		/// <summary> Creates a new <code>SqlScriptMigrationTask</code>.</summary>
@@ -57,15 +56,15 @@ namespace com.tacitknowledge.util.migration.ado
 		
 		/// <seealso cref="MigrationTaskSupport.Migrate(IMigrationContext)">
 		/// </seealso>
-		public override void  Migrate(IMigrationContext ctx)
+		public override void Migrate(IMigrationContext ctx)
 		{
 			DataSourceMigrationContext context = (DataSourceMigrationContext) ctx;
 			
 			try
 			{
-				//UPGRADE_NOTE: There are other database providers or managers under System.Data namespace which can be used optionally to better fit the application requirements. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1208'"
-				System.Data.Common.DbConnection conn = context.Connection;
-                System.Data.Common.DbCommand stmt = null;// SupportClass.TransactionManager.manager.PrepareStatement(conn, StatmentSql);
+                System.Data.Common.DbCommand stmt = context.Database.GetSqlStringCommand(StatmentSql);
+                stmt.Connection = context.Connection;
+                stmt.Transaction = context.Transaction;
 				System.Collections.IList rows = getData(ResourceAsStream);
 				int rowCount = rows.Count;
 				for (int i = 0; i < rowCount; i++)
@@ -74,33 +73,15 @@ namespace com.tacitknowledge.util.migration.ado
 					bool loadRowFlag = insert(data, stmt);
 					if (loadRowFlag)
 					{
-						//UPGRADE_ISSUE: Method 'java.sql.PreparedStatement.addBatch' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlPreparedStatementaddBatch'"
-						//stmt.addBatch();
-						if (i % 50 == 0)
-						{
-							//UPGRADE_TODO: Method 'java.sql.Statement.executeBatch' was converted to 'SupportClass.BatchManager.manager.ExecuteUpdate' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlStatementexecuteBatch'"
-							//SupportClass.BatchManager.manager.ExecuteUpdate(stmt);
-						}
+                        stmt.ExecuteNonQuery();
 					}
 				}
-				//UPGRADE_TODO: Method 'java.sql.Statement.executeBatch' was converted to 'SupportClass.BatchManager.manager.ExecuteUpdate' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javasqlStatementexecuteBatch'"
-				//SupportClass.BatchManager.manager.ExecuteUpdate(stmt);
 			}
 			catch (System.Exception e)
 			{
 				System.String message = Name + ": Error running SQL \"" + StatmentSql + "\"";
 				log.Error(message, e);
-				if (e is System.Data.OleDb.OleDbException)
-				{
-					//UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-                    //if (((System.Data.OleDb.OleDbException) e).getNextException() != null)
-                    //{
-                    //    //UPGRADE_ISSUE: Method 'java.sql.SQLException.getNextException' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javasqlSQLExceptiongetNextException'"
-                    //    log.Error("Chained SQL Exception", ((System.Data.OleDb.OleDbException) e).getNextException());
-                    //}
-				}
-				
-				throw new MigrationException(message, e);
+                throw new MigrationException(message, e);
 			}
 		}
 		
@@ -129,17 +110,15 @@ namespace com.tacitknowledge.util.migration.ado
 		/// <summary> Returns the data to load as a list of rows.
 		/// 
 		/// </summary>
-		/// <param name="is">the input stream containing the data to load
+        /// <param name="inputStream">the input stream containing the data to load
 		/// </param>
 		/// <returns> the data to load as a list of rows
 		/// </returns>
 		/// <throws>  IOException if the input stream could not be read </throws>
-		protected internal virtual System.Collections.IList getData(System.IO.Stream is_Renamed)
+		protected internal virtual System.Collections.IList getData(System.IO.Stream inputStream)
 		{
 			System.Collections.IList data = new System.Collections.ArrayList();
-			//UPGRADE_TODO: The differences in the expected value  of parameters for constructor 'java.io.BufferedReader.BufferedReader'  may cause compilation errors.  "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1092'"
-			//UPGRADE_WARNING: At least one expression was used more than once in the target code. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1181'"
-			System.IO.StreamReader reader = new System.IO.StreamReader(new System.IO.StreamReader(is_Renamed, System.Text.Encoding.Default).BaseStream, new System.IO.StreamReader(is_Renamed, System.Text.Encoding.Default).CurrentEncoding);
+			System.IO.StreamReader reader = new System.IO.StreamReader(inputStream);
 			System.String line = null;
 			while ((line = reader.ReadLine()) != null)
 			{

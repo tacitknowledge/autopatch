@@ -51,28 +51,19 @@ namespace com.tacitknowledge.util.migration.ado.loader
 		{
 			get
 			{
-				//UPGRADE_ISSUE: Method 'java.lang.Class.getResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassgetResourceAsStream_javalangString'"
-                System.IO.Stream stream = null;// GetType().getResourceAsStream(fileName);
-				if (stream == null)
-				{
-					//UPGRADE_ISSUE: Method 'java.lang.ClassLoader.getSystemResourceAsStream' was not converted. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1000_javalangClassLoader'"
-                    stream = null;// ClassLoader.getSystemResourceAsStream(fileName);
-				}
-				if (stream == null)
-				{
-					System.IO.FileInfo f = new System.IO.FileInfo(fileName);
-					try
-					{
-						//UPGRADE_TODO: Constructor 'java.io.FileInputStream.FileInputStream' was converted to 'System.IO.FileStream.FileStream' which has a different behavior. "ms-help://MS.VSCC.v80/dv_commoner/local/redirect.htm?index='!DefaultContextWindowIndex'&keyword='jlca1073_javaioFileInputStreamFileInputStream_javaioFile'"
-						stream = new System.IO.FileStream(f.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-					}
-					catch (System.IO.FileNotFoundException e)
-					{
-						log.Error("The file: " + fileName + " was not found.", e);
-						throw new System.ArgumentException("Must have a valid file name.");
-					}
-				}
-				return stream;
+                System.IO.Stream stream = null;
+
+                System.IO.FileInfo f = new System.IO.FileInfo(fileName);
+                try
+                {
+                    stream = new System.IO.FileStream(f.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+                }
+                catch (System.IO.FileNotFoundException e)
+                {
+                    log.Error("The file: " + fileName + " was not found.", e);
+                    throw new System.ArgumentException("Must have a valid file name.", e);
+                }
+                return stream;
 			}
 			
 		}
