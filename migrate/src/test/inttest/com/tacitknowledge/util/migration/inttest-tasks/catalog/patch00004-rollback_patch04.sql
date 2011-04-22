@@ -1,1 +1,0 @@
-DELETE FROM catalog_table_1 where id = 1;
