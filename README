@@ -1,41 +1,13 @@
-AutoPatch README
+AutoPatch
+=========
 
---------------------------------------------------------------------------
-
-Table of Contents
-
-0) Where do I get AutoPatch?
-1) What is AutoPatch?
-2) Design Requirements
-3) Basic Design
-4) Detailed Design
-5) How to integrate AutoPatch with a web application
-6) How to integrate AutoPatch with your development cycle
-7) How to implement a patch
-8) How to extend AutoPatch with new patch types
-9) How to rollback patches
-10) How to migrate from a previous version of AutoPatch to 1.2
-
---------------------------------------------------------------------------
-
-
-0) Where do I get AutoPatch?
+Where do I get AutoPatch?
 ----------------------------
 
-AutoPatch is open source, and is developed transparently on SourceForge.
+AutoPatch is open source, and is developed transparently on [Github](http://github.com/tacitknowledge/autopatch).
 
-You may find more information at http://autopatch.sourceforge.net
-
-There is a tracker for bugs, feature requests, and patches.
-There are mailing lists for announcements, users, and cvs commits.
-
-You can browse the CVS repository and watch the development if you want.
-
---------------------------------------------------------------------------
-
-
-1) What is AutoPatch?
----------------------
+What is AutoPatch?
+------------------
 
 AutoPatch is an automated Java patching system. Among other things, it
 allows a Java application to easily do things like keep a database
@@ -51,95 +23,79 @@ model) all the way down to the alteration of external systems, without
 needing an army of DBAs or similar to go around and patch your databases 
 when you release new code requiring schema changes.
 
-Owing to a semi-recent name change, you will find uses of the word
+For historical reasons (circa 2004) you will find uses of the word
 "migrate" or "migration" everywhere. Please consider the words
 "migrate" and "migration" as synonyms for "patch".
 
---------------------------------------------------------------------------
-
-
-2) Design Requirements
-----------------------
+Design Requirements
+-------------------
 
 AutoPatch was designed with a few very simple requirements in mind.
 
-o  Patches should execute before any server logic
-     - This is important, or the application logic couldn't trust the
-       state of the external systems
-o  AutoPatch must enforce a total natural ordering on all patches.
-     - This allows a developer to depend on the results of previous
-       patches, for instance a patch can use database tables defined 
-       in patches that were executed previously
-o  AutoPatch must ensure that each patch is applied once and only once
-     - Having them apply multiple times would mean the patch author
-       could never trust the initial state of the database, making
-       patch development very difficult
-o  AutoPatch should be able to globally order patches that execute
-       against multiple external systems
-o  AutoPatch should be capable of executing post-patching maintenance
-       after patching (things like recompiling pl/sql, etc)
-o  AutoPatch should be capable of executing the same patch across
-       multiple databases with the same schema
-o  AutoPatch should be capable of running in a read only way, showing
-       what it would do, but not changing anything
+* Patches should execute before any server logic
+  - This is important, or the application logic couldn't trust the
+    state of the external systems
+* AutoPatch must enforce a total natural ordering on all patches.
+  - This allows a developer to depend on the results of previous
+    patches, for instance a patch can use database tables defined 
+    in patches that were executed previously
+* AutoPatch must ensure that each patch is applied once and only once
+  - Having them apply multiple times would mean the patch author
+    could never trust the initial state of the database, making
+    patch development very difficult
+* AutoPatch should be able to globally order patches that execute
+  against multiple external systems
+* AutoPatch should be capable of executing post-patching maintenance
+  after patching (things like recompiling pl/sql, etc)
+* AutoPatch should be capable of executing the same patch across
+  multiple databases with the same schema
+* AutoPatch should be capable of running in a read only way, showing
+  what it would do, but not changing anything
    
 
---------------------------------------------------------------------------
-
-
-3) Basic Design
----------------
+Basic Design
+------------
 
 Given the AutoPatch design requirements, a very simple design has been
 created. There is a patch launcher, which serves as the controller
 for all patch activity.
 
-3a) Startup
------------
+### Startup
 Applications wishing to use AutoPatch must instantiate a
 MigrationLauncher by implementing an adapter that starts the launcher
 on application startup, or using an existing adapter.
 
-3b) Patch Level
----------------
+### Patch Level
 The launcher is able to determine the current patch level of the system
 in a durable way, so that it knows the patch level across multiple runs.
 
-3c) Patch Loading
------------------
+### Patch Loading
 The launcher searches the classpath for any available objects that
 implement a common patch type, or any files that are in a
 directory known to hold patches.
 
-3d) Patch Ordering
-------------------
+### Patch Ordering
 The launcher loads all of the patches into a single list and orders them.
 
-3e) Patch Execution
--------------------
+### Patch Execution
 Each patch is executed, one after another. Any errors are considered
 fatal, as the application logic will not be able to trust the state of
 external systems, and is thus cause for total shutdown.
 
-3f) Post-Patch Tasks
---------------------
+### Post-Patch Tasks
 These have loading, ordering and execution steps similar to regular patches,
 the only difference is that these run *every* time AutoPatch runs. This allows
 you to do maintenance tasks (like recompiling PL/SQL or similar) after patch
 runs, but means that the tasks in here *must* be re-runnable. They will run a lot.
 
---------------------------------------------------------------------------
-
-
-4) Detailed Design
-------------------
+Detailed Design
+---------------
 
 Expanding on the Basic Design with implementation-specific details,
 this section describes the current implementation of AutoPatch, with
 references to actual classnames.
 
-4a) Startup
------------
+### Startup
 The MigrationLauncher object is the main entry point of the AutoPatch
 system. There are a few adaptors that have been implemented, one for web
 application integration (WebAppMigrationLauncher), one for
@@ -162,8 +118,7 @@ specifying where in the classpath AutoPatch should search for patches.
 Other MigrationLaunchers are configured in different ways, and you should
 consult the javadoc information in the adapter that you wish to use.
 
-4b) Patch Level
----------------
+### Patch Level
 Once the MigrationLauncher has started executing, and finished reading
 in its configuration file, it will use the database parameters to
 configure the PatchTable object. PatchTable will inspect the database
@@ -177,8 +132,7 @@ the type is "postgres", PatchTable will attempt to load the SQL
 property file "postgres.properties" and use the SQL in that file to
 interact with the database when persisting patch level information.
 
-4c) Patch Loading
------------------
+### Patch Loading
 Once the patch level is determined, the colon-separated patch path
 specified in the configuration file is searched for all objects that
 implement the MigrationTask type. Each directory in your classpath has
@@ -190,8 +144,8 @@ and in practice all patches use the sub-classes.
 
 The first sub-class is the SqlScriptMigrationTask. It allows for raw
 text files containing SQL to be used as migrations, so long as they
-follow the naming convention 'patchNNNN_<name>.sql'
-(e.g. 'patch0001_create_initial_schema.sql'), where the numbers are
+follow the naming convention 'patchNNNN\_{name}.sql'
+(e.g. 'patch0001\_create\_initial\_schema.sql'), where the numbers are
 globally unique among all patches.
 
 The second sub-class is the SqlLoadMigrationTask, which allows you to
@@ -201,13 +155,14 @@ data at a time.
 
 Another data load type is the FlatXmlDataSetTaskSource.  This class allows
 you to use xml data files to bulk load data into the system.  As per the
-name, the xml format is the same as the DBUnit FlatXmlDataSet format
-type (http://dbunit.sourceforge.net/apidocs/org/dbunit/dataset/xml/FlatXmlDataSet.html).  
+name, the xml format is the same as the [DBUnit FlatXmlDataSet format
+type](http://dbunit.sourceforge.net/apidocs/org/dbunit/dataset/xml/FlatXmlDataSet.html).
 Data sets in this format must match the typical patch naming
-standard, except that it must end with a .xml suffix (patchNNNN_<name>.xml).
+standard, except that it must end with a .xml suffix (patchNNNN\_{name}.xml).
 Examples:
-patch0002_initial_data.xml
-patch0005_load_stuff.xml
+
+    patch0002_initial_data.xml
+    patch0005_load_stuff.xml
 
 Another sub-class currently implemented is
 MigrationTaskSupport. This is a more basic patch object, and allows
@@ -216,8 +171,7 @@ the guise of a patch. It is potentially very useful to perform a data
 migration after one patch adds new tables and columns, but before another 
 patch removes other tables or columns.
 
-4d) Patch Ordering
-------------------
+### Patch Ordering
 Its important to realize that patches must have a total global ordering -
 meaning that each patch must be associated with a unique level.
 
@@ -234,15 +188,15 @@ which will tell you the current patch level in the database, and the
 current maximum patch level implemented by MigrationTasks in the classpath. 
 A suggested ant target to implement this check looks like this:
 
-  <target name="patch.information" description="Gets patch information from code and the database">
-    <java
-        fork="true"
-        classpathref="inttest.classpath"
-        failonerror="true" 
-        classname="com.tacitknowledge.util.migration.jdbc.MigrationInformation">
-      <sysproperty key="migration.systemname" value="${application.name}"/>
-    </java>
-  </target>
+    <target name="patch.information" description="Gets patch information from code and the database">
+      <java
+          fork="true"
+          classpathref="inttest.classpath"
+          failonerror="true" 
+          classname="com.tacitknowledge.util.migration.jdbc.MigrationInformation">
+        <sysproperty key="migration.systemname" value="${application.name}"/>
+      </java>
+    </target>
 
 The classpath must contain the migration.properties, the AutoPatch
 jar, as well as all of the patch objects, for the information to be
@@ -252,8 +206,7 @@ For distributed systems, it is important to note that you may not have
 two patches with the same patch number in multiple sub-launchers. Each
 patch must have a globally unique patch level across all sub-launchers.
 
-4e) Patch Execution
--------------------
+### Patch Execution
 Patch execution is relatively straightforward, except for the
 possibility that application servers in a cluster may all start at the
 same time, and attempt to execute patches at the same time.
@@ -279,11 +232,8 @@ that the patch level is correct, but not automatically patch, useful in
 production configurations.
 
 
---------------------------------------------------------------------------
-
-
-5) How to integrate AutoPatch with a web application
-----------------------------------------------------
+How to integrate AutoPatch with a web application
+-------------------------------------------------
 The easiest way to integrate AutoPatch with a web application is to
 add the WebAppMigrationLauncher as a ContextListener for your
 application context. This can be done with a web.xml snippet that
@@ -310,12 +260,12 @@ So long as migration.properties, the AutoPatch library, , its dependent librarie
 your patches (with their paths specified in migration.properties) are
 in the web application's classpath, AutoPatch should work fine.
 
-5b) As of the 0.7 release of autopatch there is a new way to configure your web 
+As of the 0.7 release of autopatch there is a new way to configure your web 
 application.  You can use JNDI to supply a data source and eliminate the need for a 
 migration.properties file altogether.  Do this by adding the following to your 
 web.xml file: 
 
-	<!-- in the context-params section -->
+   	<!-- in the context-params section -->
     <context-param>
         <param-name>migration.systemname</param-name>
 		<param-value>beekeeper</param-value>
@@ -337,8 +287,8 @@ web.xml file:
 		<param-value>jdbc/profile</param-value>
     </context-param>
 	
-	<!-- in the listeners section -->
-	<listener>
+	  <!-- in the listeners section -->
+	  <listener>
         <listener-class>com.tacitknowledge.util.migration.jdbc.WebAppJNDIMigrationLauncher</listener-class>
     </listener>
 
@@ -347,11 +297,8 @@ existed in the migration.properties file.  All database connection properties ha
 been replaced by a parameter called migration.datasource.  This uses an existing 
 datasource to perform the autopatch updates.
 
---------------------------------------------------------------------------
-
-
-6) How to integrate AutoPatch with your development cycle
----------------------------------------------------------
+How to integrate AutoPatch with your development cycle
+------------------------------------------------------
 Its possible to run AutoPatch completely from the command-line, so
 that patch development and deployment may take place without need for
 a web application container.
@@ -359,15 +306,15 @@ a web application container.
 The StandaloneMigrationLauncher is used for this, and an ant task to
 run this would look like this:
 
-  <target name="patch.database" depends="compile" description="Runs the patch system">
-    <java
-        fork="true"
-        failonerror="true" 
-        classname="com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher">
-      <classpath refid="inttest.classpath"/>
-      <sysproperty key="migration.systemname" value="${application.name}"/>
-    </java>
-  </target>
+    <target name="patch.database" depends="compile" description="Runs the patch system">
+      <java
+          fork="true"
+          failonerror="true" 
+          classname="com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher">
+        <classpath refid="inttest.classpath"/>
+        <sysproperty key="migration.systemname" value="${application.name}"/>
+      </java>
+    </target>
 
 If you combine this rule with the patch.information ant target given
 above, it should be relatively easy to point at a database, determine
@@ -378,34 +325,30 @@ settings so the default 'migration.properties' settings file might not work in t
 To overcome this issue it is possible to specify an optional 'migration.settings' parameter
 (either system property or command line argument) like this:
 
-  <target name="patch.database" depends="compile" description="Runs the patch system">
-    <java
-        fork="true"
-        failonerror="true" 
-        classname="com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher">
-      <classpath refid="inttest.classpath"/>
-      <sysproperty key="migration.systemname" value="${application.name}"/>
-      <sysproperty key="migration.settings" value="${username}.properties"/>
-    </java>
-  </target>
+    <target name="patch.database" depends="compile" description="Runs the patch system">
+      <java
+          fork="true"
+          failonerror="true" 
+          classname="com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher">
+        <classpath refid="inttest.classpath"/>
+        <sysproperty key="migration.systemname" value="${application.name}"/>
+        <sysproperty key="migration.settings" value="${username}.properties"/>
+      </java>
+    </target>
 
 If you happen to rely on command line arguments, please take a note that 'migration.systemname'
 must come first (e.g. index 0) followed by 'migration.settings' (e.g. index 1).
 
---------------------------------------------------------------------------
+How to implement a patch
 
+### SQL data load patch
 
-7) How to implement a patch
----------------------------
-
-7a) SQL data load patch
------------------------
 A SQL data load patch can be implemented by extending
 SqlLoadMigrationTask and including the delimited data file...
 
 
-7b) SQL patch
--------------
+### SQL patch
+
 SQL patches should be implemented by simply following the SQL file
 naming convention outlined above as you create the new SQL patch, 
 putting the SQL commands in the patch file, and then by putting the 
@@ -413,24 +356,20 @@ patches in the classpath in a location specified in the AutoPatch
 configuration file.
 
 
-7c) Java patch
---------------
+### Java patch
+
 Java patches may be implemented by subclassing MigrationTaskSupport.
 
-7d) XML Data Patch
-------------------
-Create an xml file that follows the format of DBUnit's FlatXmlDataSet format.
-http://dbunit.sourceforge.net/apidocs/org/dbunit/dataset/xml/FlatXmlDataSet.html
-Also, it should follow the naming convention patchNNNN_<name>.xml.
+### XML Data Patch
 
---------------------------------------------------------------------------
+Create an xml file that follows the format of [DBUnit's FlatXmlDataSet format](http://dbunit.sourceforge.net/apidocs/org/dbunit/dataset/xml/FlatXmlDataSet.html).
+Also, it should follow the naming convention patchNNNN\_{name}.xml.
 
+How to extend AutoPatch with new patch types
+--------------------------------------------
 
-8) How to extend AutoPatch with new patch types
------------------------------------------------
+### Adding New Task Types
 
-8a) Adding New Task Types
--------------------------
 By examining SqlScriptMigrationTask, you should be able to get some
 ideas on how to extend the system. There's no reason why there
 couldn't be an LdapScriptMigrationTask that read .ldif files, or an
@@ -438,8 +377,8 @@ XmlScriptMigrationTask that issued SOAP or XML-RPC calls. As long as they
 allow themselves to be compared such that they fit into the natural patch
 ordering, and errors are propagated out after logging, they will work fine.
 
-8b) Patch Information Persistence
----------------------------------
+### Patch Information Persistence
+
 Currently the patch level of the system is stored in a database, however
 the idea of the "system patch level" is a separate subsystem in AutoPatch, and
 its not necessary for the patch table to be persisted in a
@@ -447,8 +386,8 @@ database. Its entirely possible that a flat file would be sufficient
 for some applications, or that LDAP or a web server was the only
 external system with persistence.
 
-9) How to rollback patches
----------------------------------
+### How to rollback patches
+
 One of the new features in AutoPatch 1.2 is that patches can now be rolled back. 
 A rollback is when the patch level of a system is reduced. AutoPatch can execute 
 rollback anywhere from one patch to all the patches on a system. All you have to do 
@@ -496,20 +435,20 @@ The next step is to find the patches. To make this easy, what we've done is depr
 existing MigrationTask object and added a new interface called RollbackableMigrationTask. Additionally, 
 we've extended the functionality that loads SQL scripts into tasks to include rollback scripts. 
 So, for your existing patches, you'll just need to create a new SQL script and make it available for 
-AutoPatch to load. Rollback scripts are named as follows:  patch<patch level>-rollback_<patch name>.sql.  
-An example of a valid rollback file name is patch111-rollback_testname.sql. In this case, the 111 is the level 
+AutoPatch to load. Rollback scripts are named as follows:  patch<patch level>-rollback\_{patch name}.sql.  
+An example of a valid rollback file name is patch111-rollback\_testname.sql. In this case, the 111 is the level 
 of the patch. Conceptually, you should think of this script as inherently linked to the forward patch.
 The mechanism that associates a patch SQL script and a rollback SQL script is the level. 
-So, patch111_testname.sql and patch111-rollback_testname.sql are linked. Please note that the 
+So, patch111\_testname.sql and patch111-rollback\_testname.sql are linked. Please note that the 
 name of the patch does not have any role in linking a patch and its rollback. 
-In fact, patch111.sql and patch111-rollback_foo.sql would be associated.
+In fact, patch111.sql and patch111-rollback\_foo.sql would be associated.
 
 Just as with the up process for patching, the ordering in which rollbacks execute is important. 
 Autopatch executes rollbacks in a descending manner based upon the patch level. So, if you were to 
 issue a rollback to level 10 and the system is at level 13, the patches that rollback would be 13, 12 and 11.
 	
-10) How to migrate from AutoPatch 1.1 to AutoPatch 1.2
-------------------------------------------------------
+### How to migrate from AutoPatch 1.1 to AutoPatch 1.2
+
 AutoPatch 1.2 completely supports AutoPatch 1.0, but you'll need to make some changes if you'd like to 
 take advantage of the new features.
 
