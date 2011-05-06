@@ -33,7 +33,7 @@ with massively lower costs and no environment skew.
 
 
 Where do I get AutoPatch?
-----------------------------
+-------------------------
 AutoPatch is open source and is hosted at [Github](http://github.com/tacitknowledge/autopatch).
 
-The documentation for Autopatch is on the [Autopatch Wiki](https://github.com/tacitknowledge/autopatch/wiki)
+The documentation for AutoPatch is on the [AutoPatch Wiki](https://github.com/tacitknowledge/autopatch/wiki)

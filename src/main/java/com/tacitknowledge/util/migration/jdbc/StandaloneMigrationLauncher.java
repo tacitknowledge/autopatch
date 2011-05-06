@@ -135,7 +135,7 @@ public final class StandaloneMigrationLauncher
             if (isRollback)
             {
                 log
-                        .info("Found rollback flag. Autopatch will attempt to rollback the system to patch level "
+                        .info("Found rollback flag. AutoPatch will attempt to rollback the system to patch level "
                                 + rollbackLevel + ".");
                 doRollbacks(migrationSystemName, migrationSettings, rollbackLevel, forceRollback);
             }
