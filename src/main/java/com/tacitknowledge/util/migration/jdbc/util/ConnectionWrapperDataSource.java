@@ -87,4 +87,16 @@ public class ConnectionWrapperDataSource implements DataSource
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
+
+    /** {@inheritDoc} */
+    public boolean isWrapperFor(Class iface)
+    {
+        return connection != null && iface.isAssignableFrom(connection.getClass());
+    }
+
+    /** {@inheritDoc} */
+    public Object unwrap(Class iface)
+    {
+        return connection;
+    }
 }

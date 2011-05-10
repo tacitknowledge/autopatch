@@ -173,6 +173,18 @@ public class NonPooledDataSource implements DataSource
         this.username = username;
     }
     
+    /** {@inheritDoc} */
+    public boolean isWrapperFor(Class iface)
+    {
+        return false;
+    }
+
+    /** {@inheritDoc} */
+    public Object unwrap(Class iface)
+    {
+        return null;
+    }
+
     /**
      * Useful for debugging
      * 
