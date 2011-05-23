@@ -14,9 +14,7 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
 
 
 /**
- * @author Alex Soto <alex@tacitknowledge.com>
- * @author Alex Soto <apsoto@gmail.com>
- *
+ * @author Alex Soto (apsoto@gmail.com)
  */
 public class WhinyMigrationListener implements MigrationListener
 {
