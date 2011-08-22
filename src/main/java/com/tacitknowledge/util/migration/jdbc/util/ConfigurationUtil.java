@@ -146,6 +146,24 @@ public class ConfigurationUtil
         }
     }
     
+    
+    /**
+     * Returns the value of the specified servlet context initialization parameter.
+     * Since it is an optional parameter then <code>null</code> is returned
+     * instead of an exception if an error occurs.
+     * 
+     * @param  param the parameter to return
+     * @param  sce the <code>ServletContextEvent</code> being handled
+     * @param  caller calling object, used for printing information if there is a problem
+     * @return the value of the specified servlet context initialization parameter
+     * @throws IllegalArgumentException if the parameter does not exist
+     */
+    public static String getOptionalParam(String param, ServletContextEvent sce, Object caller)
+        throws IllegalArgumentException
+    {
+        return getServletContextParam(param, sce, caller, false);
+    }
+    
     /**
      * Returns the value of the specified servlet context initialization parameter.
      * 
@@ -158,14 +176,35 @@ public class ConfigurationUtil
     public static String getRequiredParam(String param, ServletContextEvent sce, Object caller)
         throws IllegalArgumentException
     {
+        return getServletContextParam(param, sce, caller, true);
+    }
+    
+    /**
+     * Returns the value of the specified servlet context initialization parameter.
+     * 
+     * @param  param the parameter to return
+     * @param  sce the <code>ServletContextEvent</code> being handled
+     * @param  caller calling object, used for printing information if there is a problem
+     * @param throwException if <code>true</code> then the method will throw an exception; if
+     *  <code>false</code> is supplied then it will return <code>null</code>
+     * @return the value of the specified servlet context initialization parameter if found;
+     *  <code>null</code> otherwise
+     * @throws IllegalArgumentException if the parameter does not exist
+     */
+    private static String getServletContextParam(String param, ServletContextEvent sce,
+            Object caller, boolean throwException)
+        throws IllegalArgumentException
+    {
         ServletContext context = sce.getServletContext();
         String value = context.getInitParameter(param);
-        if (value == null)
+        
+        if (value == null && throwException)
         {
             throw new IllegalArgumentException("'" + param + "' is a required "
                 + "servlet context initialization parameter for the \""
                 + caller.getClass().getName() + "\" class.  Aborting.");
         }
+        
         return value;
     }
     
