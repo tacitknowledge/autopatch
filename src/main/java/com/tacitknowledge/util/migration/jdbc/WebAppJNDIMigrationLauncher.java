@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 import com.tacitknowledge.util.discovery.WebAppResourceListSource;
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
 
 /**
  * Used to configure the migration engine using JNDI and properties 
@@ -74,11 +75,7 @@ public class WebAppJNDIMigrationLauncher implements ServletContextListener
             // task is executed, the patch level is incremented, etc.
             try
             {
-                JdbcMigrationLauncherFactory launcherFactory = 
-                    JdbcMigrationLauncherFactoryLoader.createFactory();
-                JdbcMigrationLauncher launcher
-                    = launcherFactory.createMigrationLauncher(sce);
-                launcher.doMigrations();
+                MigrationUtil.doMigrations(sce);
             }
             catch (MigrationException e)
             {

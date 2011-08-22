@@ -25,6 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 import com.tacitknowledge.util.discovery.WebAppResourceListSource;
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
+import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
 
 /**
  * Launches the migration process upon application context creation.  This class
@@ -86,18 +88,15 @@ public class WebAppMigrationLauncher implements ServletContextListener
             }
             firstRun = false;
             
-            String systemName = getRequiredParam("migration.systemname", sce);
+            String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", sce, this);
+            String settings = ConfigurationUtil.getOptionalParam("migration.settings", sce, this);
             
             // The MigrationLauncher is responsible for handling the interaction
             // between the PatchTable and the underlying MigrationTasks; as each
             // task is executed, the patch level is incremented, etc.
             try
             {
-                JdbcMigrationLauncherFactory launcherFactory = 
-                    JdbcMigrationLauncherFactoryLoader.createFactory(); 
-                JdbcMigrationLauncher launcher
-                    = launcherFactory.createMigrationLauncher(systemName);
-                launcher.doMigrations();
+                MigrationUtil.doMigrations(systemName, settings);
             }
             catch (MigrationException e)
             {
@@ -129,26 +128,5 @@ public class WebAppMigrationLauncher implements ServletContextListener
     {
         log.debug("context is being destroyed " + sce);
     }
-    
-    /**
-     * Returns the value of the specified servlet context initialization parameter.
-     * 
-     * @param  param the parameter to return
-     * @param  sce the <code>ServletContextEvent</code> being handled
-     * @return the value of the specified servlet context initialization parameter
-     * @throws IllegalArgumentException if the parameter does not exist
-     */
-    private String getRequiredParam(String param, ServletContextEvent sce)
-        throws IllegalArgumentException
-    {
-        ServletContext context = sce.getServletContext();
-        String value = context.getInitParameter(param);
-        if (value == null)
-        {
-            throw new IllegalArgumentException("'" + param + "' is a required "
-                + "servlet context initialization parameter for the \""
-                + getClass().getName() + "\" class.  Aborting.");
-        }
-        return value;
-    }
+
 }

@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 
 /**
@@ -138,11 +139,11 @@ public final class StandaloneMigrationLauncher
                 log
                         .info("Found rollback flag. AutoPatch will attempt to rollback the system to patch level "
                                 + rollbackLevel + ".");
-                doRollbacks(migrationSystemName, migrationSettings, rollbackLevel, forceRollback);
+                MigrationUtil.doRollbacks(migrationSystemName, migrationSettings, rollbackLevel, forceRollback);
             }
             else
             {
-                doMigrations(migrationSystemName, migrationSettings);
+                MigrationUtil.doMigrations(migrationSystemName, migrationSettings);
             }
         }
         catch (Exception e)
@@ -150,68 +151,5 @@ public final class StandaloneMigrationLauncher
             log.error(e);
             throw e;
         }
-    }
-
-    /**
-     * Private helper method to initiate the migration process.
-     * 
-     * @param migrationSystemName
-     *                the name of the system to migrate
-     * @param migrationSettings
-     *                additional properties for migration
-     * @throws MigrationException
-     */
-    private static void doRollbacks(final String migrationSystemName,
-            final String migrationSettings, final int rollbackLevel, final boolean forceRollback)
-            throws MigrationException
-    {
-        JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
-                .createFactory();
-        JdbcMigrationLauncher launcher = null;
-
-        if (migrationSettings == null)
-        {
-            log.info("Using migration.properties (default)");
-            launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
-        }
-        else
-        {
-            log.info("Using " + migrationSettings);
-            launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
-                    migrationSettings);
-        }
-
-        launcher.doRollbacks(rollbackLevel, forceRollback);
-    }
-
-    /**
-     * Private helper method to initiate the migration process.
-     * 
-     * @param migrationSystemName
-     *                the name of the system to migrate
-     * @param migrationSettings
-     *                additional properties for migration
-     * @throws MigrationException
-     */
-    private static void doMigrations(final String migrationSystemName,
-            final String migrationSettings) throws MigrationException
-    {
-        JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
-                .createFactory();
-        JdbcMigrationLauncher launcher = null;
-
-        if (migrationSettings == null)
-        {
-            log.info("Using migration.properties (default)");
-            launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
-        }
-        else
-        {
-            log.info("Using " + migrationSettings);
-            launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
-                    migrationSettings);
-        }
-
-        launcher.doMigrations();
     }
 }
