@@ -173,12 +173,14 @@ public class MigrationProcess
      */
     public void addMigrationTaskSource(MigrationTaskSource source)
     {
-        // FIXME test null source protection
         if (source == null)
         {
             throw new IllegalArgumentException("source cannot be null.");
         }
-        migrationTaskSources.add(source);
+        else
+        {
+            migrationTaskSources.add(source);
+        }
     }
 
     /**
