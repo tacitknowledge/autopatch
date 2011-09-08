@@ -15,7 +15,12 @@
 
 package com.tacitknowledge.util.migration;
 
+import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
+import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask1;
 import junit.framework.TestCase;
+import org.easymock.AbstractMatcher;
+import org.easymock.MockControl;
+
 
 /**
  * Test the {@link MigrationProcess} class.
@@ -45,6 +50,19 @@ public class MigrationProcessTest extends TestCase
             assertEquals("source cannot be null." , iaex.getMessage());
         }
 
+    }
+
+    public void testApplyPatchWithNoBroadCasters() throws MigrationException
+    {
+        MockControl migrationContextControl =
+                MockControl.createStrictControl(MigrationContext.class);
+        MigrationContext migrationContextMock =
+                (MigrationContext) migrationContextControl.getMock();
+        migrationContextMock.commit();
+        migrationContextControl.replay();
+        TestMigrationTask2 migrationTask = new TestMigrationTask2();
+        migrationProcess.applyPatch(migrationContextMock, migrationTask, false);
+        migrationContextControl.verify();
     }
 
 
