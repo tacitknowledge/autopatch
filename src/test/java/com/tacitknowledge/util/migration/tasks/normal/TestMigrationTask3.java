@@ -32,7 +32,7 @@ public class TestMigrationTask3 extends BaseTestMigrationTask
     private static boolean fail = false;
      
     /**
-     * Creates a new <code>TestMigrationTask4</code>.
+     * Creates a new <code>TestMigrationTask3</code>.
      */
     public TestMigrationTask3()
     {
