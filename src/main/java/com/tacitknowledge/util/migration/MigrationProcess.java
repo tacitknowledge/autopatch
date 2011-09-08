@@ -386,13 +386,13 @@ public class MigrationProcess
     }
 
     /**
-     * Peforms a dry run of migrations.  A dry run means that this method determines which tasks will run
-     * and logs this information. 
+     * Performs a dry run of migrations. A dry run means that this method determines which
+     * tasks will run and logs this information.
      * 
-     * @param currentLevel the current level of the system
+     * @param currentLevel the current level of the system as an int
      * @param context the <code>MigrationContext</code> where the migrations will execute.
      * @param migrations a <code>List</code> of <code>MigrationTask</code> objects
-     * @return a count of the number of migrations which will execute
+     * @return a count of the number of migrations which will execute  as an int
      */
     private int dryRun(int currentLevel, MigrationContext context, List migrations)
     {
