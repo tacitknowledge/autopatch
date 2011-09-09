@@ -33,10 +33,17 @@ public class MigrationProcessTest extends TestCase
 
     private MigrationProcess migrationProcess = null;
 
+    private MockControl migrationContextControl = null;
+
+    private MigrationContext migrationContextMock = null;
+
     public void setUp() throws Exception
     {
         super.setUp();
         migrationProcess = new MigrationProcess();
+        migrationContextControl = MockControl.createStrictControl(MigrationContext.class);
+        migrationContextMock =
+                (MigrationContext) migrationContextControl.getMock();
     }
 
     public void testAddMigrationTaskSourceWhenNullSourceIsPassed()
@@ -54,10 +61,6 @@ public class MigrationProcessTest extends TestCase
 
     public void testApplyPatchWithNoBroadCasters() throws MigrationException
     {
-        MockControl migrationContextControl =
-                MockControl.createStrictControl(MigrationContext.class);
-        MigrationContext migrationContextMock =
-                (MigrationContext) migrationContextControl.getMock();
         migrationContextMock.commit();
         migrationContextControl.replay();
         TestMigrationTask2 migrationTask = new TestMigrationTask2();
@@ -65,5 +68,14 @@ public class MigrationProcessTest extends TestCase
         migrationContextControl.verify();
     }
 
+    public void testApplyPatchWithBroadcasters() throws MigrationException
+    {
+        migrationContextMock.commit();
+        migrationContextControl.replay();
+        TestMigrationTask2 migrationTask = new TestMigrationTask2();
+        migrationProcess.setMigrationBroadcaster(new MigrationBroadcaster());
+        migrationProcess.applyPatch(migrationContextMock, migrationTask, true);
+        migrationContextControl.verify();
+    }
 
 }

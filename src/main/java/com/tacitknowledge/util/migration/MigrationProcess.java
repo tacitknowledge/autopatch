@@ -94,7 +94,7 @@ public class MigrationProcess
     /**
      * Used to broadcast migration task notifications
      */
-    private MigrationBroadcaster broadcaster = new MigrationBroadcaster();
+    private MigrationBroadcaster broadcaster = null;
 
     /**
      * Used to broadcast rollback task notifications
@@ -112,6 +112,16 @@ public class MigrationProcess
     public MigrationProcess()
     {
         addMigrationTaskSource(new ClassMigrationTaskSource());
+        setMigrationBroadcaster(new MigrationBroadcaster());
+    }
+
+    /**
+     * Sets the <code>MigrationBroadcaster</code> for the current instance.
+     * @param migrationBroadcaster with the <code>MigrationBroadcaster</code> to be set
+     */
+    protected void setMigrationBroadcaster(MigrationBroadcaster migrationBroadcaster)
+    {
+         this.broadcaster = migrationBroadcaster;
     }
 
     /**
