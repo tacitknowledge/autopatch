@@ -411,7 +411,7 @@ public class MigrationProcess
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
-            if (task.getLevel().intValue() > currentLevel)
+            if (shouldMigrationRun(task.getLevel().intValue() , currentLevel))
             {
                 log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 log.debug("Task will execute in context '" + context + "'");
@@ -428,6 +428,12 @@ public class MigrationProcess
         }
         return taskCount;
     }
+
+    private boolean shouldMigrationRun(int migrationLevel , int currentLevel)
+    {
+         return migrationLevel > currentLevel;
+    }
+
 
     /**
      * Run post-migration tasks
