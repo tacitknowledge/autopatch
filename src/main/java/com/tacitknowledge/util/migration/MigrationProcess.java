@@ -404,7 +404,7 @@ public class MigrationProcess
      * @param migrations a <code>List</code> of <code>MigrationTask</code> objects
      * @return a count of the number of migrations which will execute  as an int
      */
-    private int dryRun(int currentLevel, MigrationContext context, List migrations)
+    protected int dryRun(int currentLevel, MigrationContext context, List migrations)
     {
         int taskCount = 0;
         // Roll through once, just printing out what we'll do

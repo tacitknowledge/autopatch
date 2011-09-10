@@ -16,10 +16,15 @@
 package com.tacitknowledge.util.migration;
 
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
+import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
 import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask1;
 import junit.framework.TestCase;
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -55,7 +60,9 @@ public class MigrationProcessTest extends TestCase
         catch (IllegalArgumentException iaex)
         {
             assertEquals("source cannot be null." , iaex.getMessage());
+            return;
         }
+        fail("We should have fail before this.");
 
     }
 
@@ -76,6 +83,34 @@ public class MigrationProcessTest extends TestCase
         migrationProcess.setMigrationBroadcaster(new MigrationBroadcaster());
         migrationProcess.applyPatch(migrationContextMock, migrationTask, true);
         migrationContextControl.verify();
+    }
+
+    public void testDryRunWithEmptyMigrationList()
+    {
+       int taskCount = migrationProcess.dryRun(3, migrationContextMock, new ArrayList());
+       assertEquals("Task count should be zero with an empty MigrationList", 0 , taskCount);
+    }
+
+    public void testDryRunWithNullMigrationList()
+    {
+        try
+        {
+            migrationProcess.dryRun(3, migrationContextMock, null);
+        }
+        catch (NullPointerException npe)
+        {
+            return; // We expected this
+        }
+        fail("A null List of migrations should throw a NPE");
+    }
+
+    public void testDryRunWithMigrationsInOrder()
+    {
+        RollbackableMigrationTask migrationTask2 = new TestMigrationTask2();
+        RollbackableMigrationTask migrationTask3 = new TestMigrationTask3();
+        List migrationsList = Arrays.asList(migrationTask2, migrationTask3);
+        int taskCount = migrationProcess.dryRun(3, migrationContextMock, migrationsList);
+        assertEquals("TaskCount should be equal to 2", 2, taskCount);
     }
 
 }
