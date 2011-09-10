@@ -108,7 +108,9 @@ public class MigrationProcessTest extends TestCase
     {
         RollbackableMigrationTask migrationTask2 = new TestMigrationTask2();
         RollbackableMigrationTask migrationTask3 = new TestMigrationTask3();
-        List migrationsList = Arrays.asList(migrationTask2, migrationTask3);
+        List migrationsList = new ArrayList();
+        migrationsList.add(migrationTask2);
+        migrationsList.add(migrationTask3);
         int taskCount = migrationProcess.dryRun(3, migrationContextMock, migrationsList);
         assertEquals("TaskCount should be equal to 2", 2, taskCount);
     }
