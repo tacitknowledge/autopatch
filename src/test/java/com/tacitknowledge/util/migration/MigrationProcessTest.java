@@ -17,13 +17,9 @@ package com.tacitknowledge.util.migration;
 
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
-import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask1;
 import junit.framework.TestCase;
-import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 

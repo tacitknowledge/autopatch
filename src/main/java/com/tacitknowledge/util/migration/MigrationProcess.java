@@ -102,6 +102,12 @@ public class MigrationProcess
     private RollbackBroadcaster rollbackBroadcaster = new RollbackBroadcaster();
 
     /**
+     * Holds the strategy used to work with the different patches
+     */
+    private MigrationRunnerStrategy migrationRunnerStrategy = null;
+
+
+    /**
      * Whether we actually want to apply patches, or just look
      */
     private boolean readOnly = false;
@@ -113,7 +119,16 @@ public class MigrationProcess
     {
         addMigrationTaskSource(new ClassMigrationTaskSource());
         setMigrationBroadcaster(new MigrationBroadcaster());
+        setMigrationRunnerStrategy(new OrderedMigrationRunnerStrategy());
+
     }
+
+
+    public void setMigrationRunnerStrategy( MigrationRunnerStrategy migrationRunnerStrategy)
+    {
+        this.migrationRunnerStrategy = migrationRunnerStrategy;
+    }
+
 
     /**
      * Sets the <code>MigrationBroadcaster</code> for the current instance.
@@ -257,9 +272,8 @@ public class MigrationProcess
         else
         {
             // Can I list the tasks which are not rollbackable?
-            log
-                    .info("Could not complete rollback because one or more of the tasks is not rollbackable. "
-                            + "The system is still at patch level " + currentLevel + ".");
+            log.info("Could not complete rollback because one or more of the tasks " +
+                    "is not rollbackable.The system is still at patch level " + currentLevel + ".");
             taskCount = 0;
         }
         if (currentLevel == rollbackLevel)
@@ -322,9 +336,7 @@ public class MigrationProcess
         List migrations = getMigrationTasks();
         validateTasks(migrations);
         Collections.sort(migrations);
-        int taskCount = 0;
-
-        taskCount = dryRun(currentLevel, context, migrations);
+        int taskCount =  dryRun(currentLevel, context, migrations);
 
         // See if we should execute
         // FIXME test read-only mode throwing an exception or letting it go
@@ -411,7 +423,8 @@ public class MigrationProcess
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
-            if (shouldMigrationRun(task.getLevel().intValue() , currentLevel))
+            if (migrationRunnerStrategy
+                    .shouldMigrationRun(task.getLevel().intValue() , currentLevel))
             {
                 log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 log.debug("Task will execute in context '" + context + "'");
@@ -428,12 +441,6 @@ public class MigrationProcess
         }
         return taskCount;
     }
-
-    private boolean shouldMigrationRun(int migrationLevel , int currentLevel)
-    {
-         return migrationLevel > currentLevel;
-    }
-
 
     /**
      * Run post-migration tasks
