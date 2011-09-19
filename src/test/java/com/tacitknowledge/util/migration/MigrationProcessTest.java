@@ -102,13 +102,47 @@ public class MigrationProcessTest extends TestCase
 
     public void testDryRunWithMigrationsInOrder()
     {
+        int taskCount = migrationProcess.dryRun(3, migrationContextMock, getMigrationTasks());
+        assertEquals("TaskCount should be equal to 2", 2, taskCount);
+    }
+
+    private List getMigrationTasks()
+    {
         RollbackableMigrationTask migrationTask2 = new TestMigrationTask2();
         RollbackableMigrationTask migrationTask3 = new TestMigrationTask3();
         List migrationsList = new ArrayList();
         migrationsList.add(migrationTask2);
         migrationsList.add(migrationTask3);
-        int taskCount = migrationProcess.dryRun(3, migrationContextMock, migrationsList);
-        assertEquals("TaskCount should be equal to 2", 2, taskCount);
+        return migrationsList;
     }
+
+
+    public void testDoMigrationInReadOnlyWithZeroTasksThrowsError() throws MigrationException
+    {
+        MockControl migrationTaskSourceControl = null;
+        try
+        {
+            migrationProcess.setReadOnly(true);
+            migrationTaskSourceControl = MockControl.createStrictControl(MigrationTaskSource.class);
+            MigrationTaskSource migrationTaskSourceMock =
+                    (MigrationTaskSource) migrationTaskSourceControl.getMock();
+            migrationProcess.addPatchResourcePackage("testPackageName");
+            migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
+                    getMigrationTasks("testPackageName"),getMigrationTasks());
+            migrationTaskSourceControl.replay();
+            migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
+            migrationProcess.doMigrations(2, migrationContextMock);
+        }
+        catch (MigrationException miex)
+        {
+            migrationTaskSourceControl.verify();
+            return; // We expect this, succesful scenario
+        }
+        fail("We should have thrown an error since we have migrations but we are in " +
+                "read only mode");
+     }
+
+
+
 
 }
