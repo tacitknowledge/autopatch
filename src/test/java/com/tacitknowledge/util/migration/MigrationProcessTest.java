@@ -38,6 +38,10 @@ public class MigrationProcessTest extends TestCase
 
     private MigrationContext migrationContextMock = null;
 
+    private MockControl migrationTaskSourceControl = null;
+
+    private MigrationTaskSource migrationTaskSourceMock = null;
+
     public void setUp() throws Exception
     {
         super.setUp();
@@ -45,6 +49,9 @@ public class MigrationProcessTest extends TestCase
         migrationContextControl = MockControl.createStrictControl(MigrationContext.class);
         migrationContextMock =
                 (MigrationContext) migrationContextControl.getMock();
+        migrationTaskSourceControl = MockControl.createStrictControl(MigrationTaskSource.class);
+        migrationTaskSourceMock = (MigrationTaskSource) migrationTaskSourceControl.getMock();
+        migrationProcess.addPatchResourcePackage("testPackageName");
     }
 
     public void testAddMigrationTaskSourceWhenNullSourceIsPassed()
@@ -117,18 +124,13 @@ public class MigrationProcessTest extends TestCase
     }
 
 
-    public void testDoMigrationInReadOnlyWithZeroTasksThrowsError() throws MigrationException
+    public void testDoMigrationInReadOnlyWithExistingTasksThrowsError() throws MigrationException
     {
-        MockControl migrationTaskSourceControl = null;
         try
         {
             migrationProcess.setReadOnly(true);
-            migrationTaskSourceControl = MockControl.createStrictControl(MigrationTaskSource.class);
-            MigrationTaskSource migrationTaskSourceMock =
-                    (MigrationTaskSource) migrationTaskSourceControl.getMock();
-            migrationProcess.addPatchResourcePackage("testPackageName");
             migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                    getMigrationTasks("testPackageName"),getMigrationTasks());
+                    getMigrationTasks("testPackageName"), getMigrationTasks());
             migrationTaskSourceControl.replay();
             migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
             migrationProcess.doMigrations(2, migrationContextMock);
@@ -143,6 +145,36 @@ public class MigrationProcessTest extends TestCase
      }
 
 
+    public void testDoMigrationInReadOnlyWithZeroTasks() throws MigrationException
+    {
+        migrationProcess.setReadOnly(true);
+        migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
+                    getMigrationTasks("testPackageName"), new ArrayList());
+        migrationTaskSourceControl.replay();
+        migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
+        migrationProcess.doMigrations(0, migrationContextMock);
+    }
 
+    public void testDoTwoMigrations() throws MigrationException
+    {
+       migrationProcess.setReadOnly(false);
+        migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
+                    getMigrationTasks("testPackageName"), getMigrationTasks());
+        migrationTaskSourceControl.replay();
+        migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
+        assertEquals("We should have executed 2 migrations",
+                2, migrationProcess.doMigrations(2, migrationContextMock));
+    }
+
+    public void testDontDoMigrations() throws MigrationException
+    {
+       migrationProcess.setReadOnly(false);
+        migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
+                    getMigrationTasks("testPackageName"), getMigrationTasks());
+        migrationTaskSourceControl.replay();
+        migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
+        assertEquals("We should have executed no migrations",
+                0, migrationProcess.doMigrations(100, migrationContextMock));
+    }
 
 }
