@@ -37,11 +37,3 @@ Where do I get AutoPatch?
 AutoPatch is open source and is hosted at [Github](http://github.com/tacitknowledge/autopatch).
 
 The documentation for AutoPatch is on the [AutoPatch Wiki](https://github.com/tacitknowledge/autopatch/wiki)
-
-
-How do I build AutoPatch?
--------------------------
-We're in the process of submitting AutoPatch and associated projects to the Central Maven
-Repository ([see ticket](https://github.com/tacitknowledge/autopatch/issues/1)).  Until
-that occurs you'll need to download, build, and install the
-[Discovery](https://github.com/tacitknowledge/discovery) project before building AutoPatch.
