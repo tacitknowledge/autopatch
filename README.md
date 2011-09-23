@@ -37,3 +37,11 @@ Where do I get AutoPatch?
 AutoPatch is open source and is hosted at [Github](http://github.com/tacitknowledge/autopatch).
 
 The documentation for AutoPatch is on the [AutoPatch Wiki](https://github.com/tacitknowledge/autopatch/wiki)
+
+You can include AutoPath in your Maven project via:
+
+    <dependency>
+      <groupId>com.tacitknowledge</groupId>
+      <artifactId>autopatch</artifact>
+      <version>0.4.0-SNAPSHOT</version>
+    </dependency>
