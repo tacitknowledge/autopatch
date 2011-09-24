@@ -339,7 +339,6 @@ public class MigrationProcess
         int taskCount =  dryRun(currentLevel, context, migrations);
 
         // See if we should execute
-        // FIXME test read-only mode throwing an exception or letting it go
         if (isReadOnly())
         {
             if (taskCount > 0)
@@ -356,7 +355,8 @@ public class MigrationProcess
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
-            if (task.getLevel().intValue() > currentLevel)
+            if (migrationRunnerStrategy
+                    .shouldMigrationRun(task.getLevel().intValue() , currentLevel))
             {
                 applyPatch(context, task, true);
                 taskCount++;
