@@ -119,8 +119,6 @@ public class MigrationProcess
     {
         addMigrationTaskSource(new ClassMigrationTaskSource());
         setMigrationBroadcaster(new MigrationBroadcaster());
-        setMigrationRunnerStrategy(new OrderedMigrationRunnerStrategy());
-
     }
 
 

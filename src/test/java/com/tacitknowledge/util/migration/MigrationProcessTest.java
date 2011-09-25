@@ -46,6 +46,8 @@ public class MigrationProcessTest extends TestCase
     {
         super.setUp();
         migrationProcess = new MigrationProcess();
+        migrationProcess.
+                setMigrationRunnerStrategy(MigrationRunnerFactory.getMigrationRunnerStrategy(null));
         migrationContextControl = MockControl.createStrictControl(MigrationContext.class);
         migrationContextMock =
                 (MigrationContext) migrationContextControl.getMock();

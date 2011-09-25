@@ -47,6 +47,7 @@ public class RollbackTest extends MigrationListenerTestBase
     {
         super.setUp();
         runner = new MigrationProcess();
+        runner.setMigrationRunnerStrategy(MigrationRunnerFactory.getMigrationRunnerStrategy(null));
         runner.addPatchResourceDirectory(getClass().getPackage().getName()
                 + ".tasks.rollback");
         runner.addPostPatchResourceDirectory(getClass().getPackage().getName()

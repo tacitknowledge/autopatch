@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import com.tacitknowledge.util.migration.MigrationRunnerFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -115,7 +116,10 @@ public class JdbcMigrationLauncher implements RollbackListener
      */
     public MigrationProcess getNewMigrationProcess()
     {
-        return new MigrationProcess();
+        MigrationProcess migrationProcess = new MigrationProcess();
+        migrationProcess.setMigrationRunnerStrategy
+                (MigrationRunnerFactory.getMigrationRunnerStrategy(null));
+        return migrationProcess;
     }
 
     /**
@@ -138,8 +142,8 @@ public class JdbcMigrationLauncher implements RollbackListener
             int migrationCount = 0;
             while (contextIter.hasNext())
             {
-                JdbcMigrationContext context = (JdbcMigrationContext) contextIter
-                .next();
+                JdbcMigrationContext context =
+                        (JdbcMigrationContext) contextIter.next();
                 migrationCount = doMigrations(context);
                 log.info("Executed " + migrationCount + " patches for context "
                         + context);
