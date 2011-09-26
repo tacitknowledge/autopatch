@@ -160,10 +160,10 @@
             </goals>
             <!-- special configuration to pick up src/test/inttest during integration-test phase -->
             <configuration>
-			        <directory>${basedir}/src/integration-test/java</directory>				    
-			        <excludes>
-	              <exclude>none</exclude>
-        	    </excludes>
+			  <testSourceDirectory>${basedir}/src/integration-test/java</testSourceDirectory>
+			  <excludes>
+	            <exclude>none</exclude>
+        	  </excludes>
               <includes>
                 <include>${integration.tests.pattern}</include>
               </includes>
