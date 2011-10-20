@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.tacitknowledge.autopatch</groupId>
-  <artifactId>tk-autopatch</artifactId>
-  <version>1.2.2</version>
+  <groupId>com.tacitknowledge</groupId>
+  <artifactId>autopatch</artifactId>
+  <version>1.2.7-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <parent>
+    <groupId>com.tacitknowledge</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>1</version>
+  </parent>
 
   <name>AutoPatch</name>
   <description>An automated Java patching system</description>
@@ -11,7 +18,7 @@
 
   <organization>
     <name>Tacit Knowledge</name>
-    <url>http://www.tacitknowledge.com</url>
+    <url>http://www.tacitknowledge.com/</url>
   </organization>
 
   <inceptionYear>2004</inceptionYear>
@@ -153,10 +160,10 @@
             </goals>
             <!-- special configuration to pick up src/test/inttest during integration-test phase -->
             <configuration>
-			        <directory>${basedir}/src/integration-test/java</directory>				    
-			        <excludes>
-	              <exclude>none</exclude>
-        	    </excludes>
+			  <testSourceDirectory>${basedir}/src/integration-test/java</testSourceDirectory>
+			  <excludes>
+	            <exclude>none</exclude>
+        	  </excludes>
               <includes>
                 <include>${integration.tests.pattern}</include>
               </includes>
@@ -179,15 +186,37 @@
           </archive>
         </configuration>
       </plugin>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>shaded</shadedClassifierName>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher</mainClass>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
     </plugins>
   </build>
 
   <dependencies>
     <dependency>
       <groupId>com.tacitknowledge</groupId>
-      <artifactId>tk-discovery</artifactId>
-      <version>1.0.1</version>
+      <artifactId>discovery</artifactId>
+      <version>[1.0,)</version>
       <scope>compile</scope>
     </dependency>
 
@@ -234,9 +263,9 @@
     </dependency>
 
     <dependency>
-      <groupId>dbunit</groupId>
+      <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
-      <version>[2.1,)</version>
+      <version>[2.2,)</version>
       <scope>compile</scope>
     </dependency>
 
@@ -303,14 +332,7 @@
         <version>2.1-rc4</version>
         <scope>test</scope>
     </dependency>
-            
-    <!-- <dependency>
-        <groupId>javax.j2ee</groupId>
-        <artifactId>j2ee</artifactId>
-        <version>1.4</version>
-        <scope>test</scope>
-    </dependency> -->
-    
+
     <dependency>
       <groupId>easymock</groupId>
       <artifactId>easymock</artifactId>

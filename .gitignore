@@ -9,4 +9,5 @@ target
 *.iml
 *.ipr
 *.iws
+.idea
 *.externalToolBuilders

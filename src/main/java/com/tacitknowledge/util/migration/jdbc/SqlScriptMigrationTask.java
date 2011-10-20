@@ -401,6 +401,12 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         {
             return true;
         }
+        if ("mysql".equals(databaseType)
+                && (currentStatement.startsWith("create procedure")
+                        || currentStatement.startsWith("create function")))
+        {
+            return true;
+        }
         
         return false;
     }

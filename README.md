@@ -38,10 +38,10 @@ AutoPatch is open source and is hosted at [Github](http://github.com/tacitknowle
 
 The documentation for AutoPatch is on the [AutoPatch Wiki](https://github.com/tacitknowledge/autopatch/wiki)
 
+You can include AutoPath in your Maven project via:
 
-How do I build AutoPatch?
--------------------------
-We're in the process of submitting AutoPatch and associated projects to the Central Maven
-Repository ([see ticket](https://github.com/tacitknowledge/autopatch/issues/1)).  Until
-that occurs you'll need to download, build, and install the
-[Discovery](https://github.com/tacitknowledge/discovery) project before building AutoPatch.
+    <dependency>
+      <groupId>com.tacitknowledge</groupId>
+      <artifactId>autopatch</artifact>
+      <version>1.2.6</version>
+    </dependency>
