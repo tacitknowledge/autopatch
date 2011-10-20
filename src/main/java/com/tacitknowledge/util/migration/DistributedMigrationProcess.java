@@ -89,7 +89,7 @@ public class DistributedMigrationProcess extends MigrationProcess
      * number of tasks which will rollback.
      * 
      * @param rollbacks a <code>List</code> of RollbackableMigrationTasks
-     * @param migrationsWithLaunchers a <code>LinkedHashMap</code> of task to launcher
+     * @param rollbacksWithLaunchers a <code>LinkedHashMap</code> of task to launcher
      * @return count of the number of rollbacks
      */
     protected final int rollbackDryRun(final List rollbacks, final LinkedHashMap rollbacksWithLaunchers)
@@ -252,16 +252,17 @@ public class DistributedMigrationProcess extends MigrationProcess
     /**
      * Applies necessary patches to the system.
      * 
-     * @param currentLevel the current system patch level
+     * @param patchInfoStore of the system to run
      * @param context information and resources that are available to the migration tasks
      * @throws MigrationException if a migration fails
      * @return the number of <code>MigrationTask</code>s that have executed
      * @Override
      */
-    public final int doMigrations(final int currentLevel, final MigrationContext context) throws MigrationException
+    public final int doMigrations(final PatchInfoStore patchInfoStore,
+                                  final MigrationContext context) throws MigrationException
     {
         log.debug("Starting doMigrations");
-
+         int currentLevel = patchInfoStore.getPatchLevel();
         // Get all the migrations, with their launchers, then get the list of
         // just the migrations
         LinkedHashMap migrationsWithLaunchers = getMigrationTasksWithLaunchers();
@@ -335,10 +336,11 @@ public class DistributedMigrationProcess extends MigrationProcess
                 for (Iterator j = launcher.getContexts().keySet().iterator(); j.hasNext();)
                 {
                     MigrationContext launcherContext = (MigrationContext) j.next();
-                    PatchInfoStore patchInfoStore = (PatchInfoStore) launcher.getContexts().get(
+                    PatchInfoStore patchInfoStoreOfContext =
+                            (PatchInfoStore) launcher.getContexts().get(
                             launcherContext);
 
-                    if (task.getLevel().intValue() > patchInfoStore.getPatchLevel())
+                    if (task.getLevel().intValue() > patchInfoStoreOfContext.getPatchLevel())
                     {
                         outOfSyncContexts.add(launcherContext);
                     }

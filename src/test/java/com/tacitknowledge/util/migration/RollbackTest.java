@@ -15,6 +15,8 @@
 
 package com.tacitknowledge.util.migration;
 
+import com.tacitknowledge.util.migration.builders.MockBuilder;
+
 import java.util.List;
 
 /**
@@ -29,7 +31,7 @@ public class RollbackTest extends MigrationListenerTestBase
     
     /** Test migration context */
     private TestMigrationContext context = null;
-    
+
     /**
      * Constructor for RollbackTest.
      * 
@@ -53,8 +55,6 @@ public class RollbackTest extends MigrationListenerTestBase
         runner.addPostPatchResourceDirectory(getClass().getPackage().getName()
                 + ".tasks.post");
         runner.addListener(this);
-        
-        
         context = new TestMigrationContext();
     }
     
@@ -79,7 +79,7 @@ public class RollbackTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(5, l.size());
         
-        int level = runner.doMigrations(1, context);
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(1), context);
         runner.doPostPatchMigrations(context);
         assertEquals(5, level);
         assertTrue(context.hasExecuted("TestRollbackableTask1"));
@@ -109,7 +109,7 @@ public class RollbackTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(5, l.size());
         
-        int level = runner.doMigrations(8, context);
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(8), context);
         runner.doPostPatchMigrations(context);
         assertEquals(4, level);
         assertEquals(4, getMigrationSuccessCount());
@@ -177,7 +177,7 @@ public class RollbackTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(5, l.size());
         
-        int level = runner.doMigrations(0, context);
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
         runner.doPostPatchMigrations(context);
         assertEquals(5, level);
         assertEquals(5, getMigrationSuccessCount());
@@ -200,7 +200,7 @@ public class RollbackTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(5, l.size());
         
-        int level = runner.doMigrations(0, context);
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
         runner.doPostPatchMigrations(context);
         assertEquals(5, level);
         assertEquals(5, getMigrationSuccessCount());
@@ -237,7 +237,7 @@ public class RollbackTest extends MigrationListenerTestBase
         
         assertEquals(6, l.size());
         
-        int level = runner.doMigrations(7, context);
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(7), context);
         runner.doPostPatchMigrations(context);
         assertEquals(6, level);
         assertEquals(6, getMigrationSuccessCount());

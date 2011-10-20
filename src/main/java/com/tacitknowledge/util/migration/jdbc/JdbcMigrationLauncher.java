@@ -491,14 +491,13 @@ public class JdbcMigrationLauncher implements RollbackListener
     protected int doMigrations(JdbcMigrationContext context) throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
-        
+
         lockPatchStore(context);
         
         // Now apply the patches
         int executedPatchCount = 0;
         try
         {
-            int patchLevel = patchTable.getPatchLevel();
             
             // remember the auto-commit state, and turn auto-commit off
             Connection conn = context.getConnection();
@@ -508,7 +507,7 @@ public class JdbcMigrationLauncher implements RollbackListener
             // run the migrations
             try
             {
-                executedPatchCount = migrationProcess.doMigrations(patchLevel,
+                executedPatchCount = migrationProcess.doMigrations(patchTable,
                         context);
             }
             
@@ -588,13 +587,8 @@ public class JdbcMigrationLauncher implements RollbackListener
      */
     protected PatchInfoStore createPatchStore(JdbcMigrationContext context) throws MigrationException
     {
-        PatchInfoStore piStore = new PatchTable(context);
-        
         // Make sure the table is created before claiming it exists by returning
-        piStore = (PatchInfoStore) contexts.get(context);
-        piStore.getPatchLevel();
-        
-        return piStore;
+        return (PatchInfoStore) contexts.get(context);
     }
 
     /**

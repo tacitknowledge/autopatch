@@ -19,6 +19,7 @@ import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
 import junit.framework.TestCase;
 import org.easymock.MockControl;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,10 @@ public class MigrationProcessTest extends TestCase
 
     private MigrationTaskSource migrationTaskSourceMock = null;
 
+    private MockControl patchInfoStoreControl = null;
+
+    private PatchInfoStore patchInfoStoreMock = null;
+
     public void setUp() throws Exception
     {
         super.setUp();
@@ -54,6 +59,8 @@ public class MigrationProcessTest extends TestCase
         migrationTaskSourceControl = MockControl.createStrictControl(MigrationTaskSource.class);
         migrationTaskSourceMock = (MigrationTaskSource) migrationTaskSourceControl.getMock();
         migrationProcess.addPatchResourcePackage("testPackageName");
+        patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
+        patchInfoStoreMock = (PatchInfoStore) patchInfoStoreControl.getMock();
     }
 
     public void testAddMigrationTaskSourceWhenNullSourceIsPassed()
@@ -64,7 +71,7 @@ public class MigrationProcessTest extends TestCase
         }
         catch (IllegalArgumentException iaex)
         {
-            assertEquals("source cannot be null." , iaex.getMessage());
+            assertEquals("source cannot be null.", iaex.getMessage());
             return;
         }
         fail("We should have fail before this.");
@@ -92,8 +99,8 @@ public class MigrationProcessTest extends TestCase
 
     public void testDryRunWithEmptyMigrationList()
     {
-       int taskCount = migrationProcess.dryRun(3, migrationContextMock, new ArrayList());
-       assertEquals("Task count should be zero with an empty MigrationList", 0 , taskCount);
+        int taskCount = migrationProcess.dryRun(3, migrationContextMock, new ArrayList());
+        assertEquals("Task count should be zero with an empty MigrationList", 0, taskCount);
     }
 
     public void testDryRunWithNullMigrationList()
@@ -134,8 +141,10 @@ public class MigrationProcessTest extends TestCase
             migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
                     getMigrationTasks("testPackageName"), getMigrationTasks());
             migrationTaskSourceControl.replay();
+            patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 2);
+            patchInfoStoreControl.replay();
             migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
-            migrationProcess.doMigrations(2, migrationContextMock);
+            migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock);
         }
         catch (MigrationException miex)
         {
@@ -144,39 +153,45 @@ public class MigrationProcessTest extends TestCase
         }
         fail("We should have thrown an error since we have migrations but we are in " +
                 "read only mode");
-     }
+    }
 
 
     public void testDoMigrationInReadOnlyWithZeroTasks() throws MigrationException
     {
         migrationProcess.setReadOnly(true);
         migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                    getMigrationTasks("testPackageName"), new ArrayList());
+                getMigrationTasks("testPackageName"), new ArrayList());
         migrationTaskSourceControl.replay();
         migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
-        migrationProcess.doMigrations(0, migrationContextMock);
+        patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 0);
+        patchInfoStoreControl.replay();
+        migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock);
     }
 
     public void testDoTwoMigrations() throws MigrationException
     {
-       migrationProcess.setReadOnly(false);
+        migrationProcess.setReadOnly(false);
         migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                    getMigrationTasks("testPackageName"), getMigrationTasks());
+                getMigrationTasks("testPackageName"), getMigrationTasks());
         migrationTaskSourceControl.replay();
         migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
+        patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 2);
+        patchInfoStoreControl.replay();
         assertEquals("We should have executed 2 migrations",
-                2, migrationProcess.doMigrations(2, migrationContextMock));
+                2, migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock));
     }
 
     public void testDontDoMigrations() throws MigrationException
     {
-       migrationProcess.setReadOnly(false);
+        migrationProcess.setReadOnly(false);
         migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                    getMigrationTasks("testPackageName"), getMigrationTasks());
+                getMigrationTasks("testPackageName"), getMigrationTasks());
         migrationTaskSourceControl.replay();
         migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
+        patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 100);
+        patchInfoStoreControl.replay();
         assertEquals("We should have executed no migrations",
-                0, migrationProcess.doMigrations(100, migrationContextMock));
+                0, migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock));
     }
 
 }

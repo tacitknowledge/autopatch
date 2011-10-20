@@ -17,6 +17,7 @@ package com.tacitknowledge.util.migration;
 
 import java.util.List;
 
+import com.tacitknowledge.util.migration.builders.MockBuilder;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
 
@@ -32,7 +33,7 @@ public class MigrationTest extends MigrationListenerTestBase
     
     /** Test migration context */
     private TestMigrationContext context = null;
-    
+
     /**
      * Constructor for MigrationTest.
      * 
@@ -55,7 +56,6 @@ public class MigrationTest extends MigrationListenerTestBase
         runner.addPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.rollback");
         runner.addPostPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.post");
         runner.addListener(this);
-        
         context = new TestMigrationContext();
     }
 
@@ -79,8 +79,8 @@ public class MigrationTest extends MigrationListenerTestBase
     {
         List l = runner.getMigrationTasks();
         assertEquals(9, l.size());
-        
-        int level = runner.doMigrations(0, context);
+
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
         runner.doPostPatchMigrations(context);
         assertEquals(9, level);
         assertTrue(context.hasExecuted("TestTask1"));
@@ -109,7 +109,7 @@ public class MigrationTest extends MigrationListenerTestBase
         assertEquals(9, l.size());
         
         // run them all once
-        int level = runner.doMigrations(0, context);
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
         runner.doPostPatchMigrations(context);
         assertEquals(9, level);
         assertTrue(context.hasExecuted("TestTask1"));
@@ -130,7 +130,7 @@ public class MigrationTest extends MigrationListenerTestBase
         setMigrationStartedCount(0);
         setMigrationFailedCount(0);
         setMigrationSuccessCount(0);
-        level = runner.doMigrations(15, context);
+        level = runner.doMigrations(new MockBuilder().getPatchInfoStore(15), context);
         runner.doPostPatchMigrations(context);
         assertEquals(0, level);
         assertTrue(context.hasExecuted("TestTask1"));
@@ -159,7 +159,7 @@ public class MigrationTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(9, l.size());
         
-        int level = runner.doMigrations(9, context);
+        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(9), context);
         runner.doPostPatchMigrations(context);
         assertEquals(3, level);
         assertFalse(context.hasExecuted("TestTask1"));
@@ -191,7 +191,7 @@ public class MigrationTest extends MigrationListenerTestBase
         int executedTasks = 0;
         try
         {
-            executedTasks = runner.doMigrations(5, context);
+            executedTasks = runner.doMigrations(new MockBuilder().getPatchInfoStore(5), context);
             runner.doPostPatchMigrations(context);
             fail("We called a migration that failed, this should have thrown an exception");
         }
@@ -225,7 +225,7 @@ public class MigrationTest extends MigrationListenerTestBase
         try
         {
             TestMigrationTask2.setPatchLevelOverride(new Integer(7));
-            runner.doMigrations(0, context);
+            runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
             fail("Expected a MigrationException due to a task patch level conflict");
         }
         catch (MigrationException e)
@@ -244,7 +244,7 @@ public class MigrationTest extends MigrationListenerTestBase
         try
         {
             TestMigrationTask2.setPatchLevelOverride(null);
-            runner.doMigrations(0, new TestMigrationContext());
+            runner.doMigrations(new MockBuilder().getPatchInfoStore(0), new TestMigrationContext());
             fail("Expected a MigrationException due to a null patch level");
         }
         catch (MigrationException e)

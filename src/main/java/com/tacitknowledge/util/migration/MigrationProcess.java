@@ -323,18 +323,21 @@ public class MigrationProcess
     /**
      * Applies necessary patches to the system.
      * 
-     * @param currentLevel the current system patch level
+     * @param patchInfoStore used to execute migrations
      * @param context information and resources that are available to the migration tasks
      * @throws MigrationException if a migration fails
      * @return the number of <code>MigrationTask</code>s that have executed
      */
-    public int doMigrations(int currentLevel, MigrationContext context) throws MigrationException
+    public int doMigrations(PatchInfoStore patchInfoStore,
+                            MigrationContext context) throws MigrationException
     {
+        int currentPatchLevel = patchInfoStore.getPatchLevel();
+
         log.trace("Starting doMigrations");
         List migrations = getMigrationTasks();
         validateTasks(migrations);
         Collections.sort(migrations);
-        int taskCount =  dryRun(currentLevel, context, migrations);
+        int taskCount =  dryRun(currentPatchLevel, context, migrations);
 
         // See if we should execute
         if (isReadOnly())
@@ -354,7 +357,7 @@ public class MigrationProcess
         {
             MigrationTask task = (MigrationTask) i.next();
             if (migrationRunnerStrategy
-                    .shouldMigrationRun(task.getLevel().intValue() , currentLevel))
+                    .shouldMigrationRun(task.getLevel().intValue() , currentPatchLevel))
             {
                 applyPatch(context, task, true);
                 taskCount++;

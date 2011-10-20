@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -234,28 +235,23 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
      */
     public void testMultiNodePatchesOutOfSyncNode() throws Exception
     {
-        System.setProperty("forcesync", "true");
-        
         // run the base multinode patch to bring the databases up to date
         testMultiNodePatch();
         
         // create a new migration launcher with a migration.properties that
         // specifies a new node
-        DistributedJdbcMigrationLauncherFactory dlFactory = new DistributedJdbcMigrationLauncherFactory();
+        DistributedJdbcMigrationLauncherFactory dlFactory =
+                new DistributedJdbcMigrationLauncherFactory();
         DistributedJdbcMigrationLauncher nodeAddedDistributedLauncher = 
             (DistributedJdbcMigrationLauncher) 
               dlFactory.createMigrationLauncher("integration_test", 
                                                 "node-added-inttest-migration.properties");
-        
+        DistributedMigrationProcess migrationProcess =
+                (DistributedMigrationProcess) nodeAddedDistributedLauncher.getMigrationProcess();
+        migrationProcess.setForceSync(true);
+
         // run the migrations and no MigrationException should be raised.
-        try
-        {
-            nodeAddedDistributedLauncher.doMigrations();
-        }
-        catch (MigrationException e)
-        {
-            fail("should not have thrown a MigrationException");
-        }
+        nodeAddedDistributedLauncher.doMigrations();
         
         // Make sure everything worked out okay
         Connection catalog4 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog4", "sa", "");
