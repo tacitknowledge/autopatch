@@ -15,17 +15,12 @@
 
 package com.tacitknowledge.util.migration.builders;
 
-import com.sun.xml.internal.xsom.impl.parser.Patch;
-import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationProcess;
-import com.tacitknowledge.util.migration.MigrationRunnerFactory;
 import com.tacitknowledge.util.migration.MigrationRunnerStrategy;
 import com.tacitknowledge.util.migration.PatchInfoStore;
 import org.easymock.MockControl;
 
 /**
- *
  * MockBuilder to retrieve simple objects used in different tests
  *
  * @author Oscar Gonzalez (oscar@tacitknowledge.com)
@@ -33,7 +28,7 @@ import org.easymock.MockControl;
 public class MockBuilder
 {
 
-    public  static PatchInfoStore getPatchInfoStore(int patchLevel) throws MigrationException
+    public static PatchInfoStore getPatchInfoStore(int patchLevel) throws MigrationException
     {
         MockControl patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
         PatchInfoStore patchInfoStoreMock = (PatchInfoStore) patchInfoStoreControl.getMock();
@@ -43,7 +38,7 @@ public class MockBuilder
         return patchInfoStoreMock;
     }
 
-    public  MigrationRunnerStrategy getMigrationStrategy()
+    public MigrationRunnerStrategy getMigrationStrategy()
     {
         MigrationRunnerStrategy migrationRunnerStrategy = new MigrationRunnerStrategy()
         {
@@ -52,7 +47,7 @@ public class MockBuilder
                 return migrationLevel > currentLevel;
             }
         };
-       return migrationRunnerStrategy;
+        return migrationRunnerStrategy;
     }
 
 }
