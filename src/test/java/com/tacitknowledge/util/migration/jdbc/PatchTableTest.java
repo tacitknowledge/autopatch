@@ -106,10 +106,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         h.prepareThrowsSQLException(table.getSql("level.read"));
         
         table.createPatchStoreIfNeeded();
-        
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+
+        commonVerifications();
         verifyCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
         verifySQLStatementExecuted(table.getSql("patches.create"));
@@ -159,9 +157,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         
         table.createPatchStoreIfNeeded();
         
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        commonVerifications();
         verifyNotCommitted();
         verifyPreparedStatementParameter(0, 1, "milestone");
         verifyPreparedStatementNotPresent(table.getSql("patches.create"));
@@ -183,9 +179,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         int i = table.getPatchLevel();
 
         assertEquals(13, i);
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        commonVerifications();
         verifyNotCommitted();
         verifyPreparedStatementParameter(1, 1, "milestone");
         verifyPreparedStatementNotPresent(table.getSql("level.create"));
@@ -207,10 +201,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         int i = table.getPatchLevel();
 
         assertEquals(0, i);
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
-        verifyCommitted();
+        commonVerifications();
         verifyPreparedStatementPresent(table.getSql("level.create"));
     }
 
@@ -230,9 +221,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         
         verifyPreparedStatementParameter(table.getSql("level.update"), 1, new Integer(13));
         verifyPreparedStatementParameter(table.getSql("level.update"), 2, "milestone");
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        commonVerifications();
         verifyCommitted();
     }
     
@@ -251,9 +240,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
         assertFalse(table.isPatchStoreLocked());
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        commonVerifications();
         verifyNotCommitted();
     }
     
@@ -272,9 +259,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
         
         assertTrue(table.isPatchStoreLocked());
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        commonVerifications();
         verifyNotCommitted();
     }
     
@@ -304,9 +289,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         }
         
         verifyPreparedStatementNotPresent(table.getSql("lock.obtain"));
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        commonVerifications();
         verifyNotCommitted();
     }
 
@@ -327,9 +310,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         table.lockPatchStore();
 
         verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
-        verifyAllResultSetsClosed();
-        verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        commonVerifications();
         verifyCommitted();
     }
     
@@ -343,9 +324,14 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         table.unlockPatchStore();
 
         verifyPreparedStatementParameter(table.getSql("lock.release"), 1, "milestone");
+        commonVerifications();
+        verifyCommitted();
+    }
+
+    private void commonVerifications()
+    {
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();
-        verifyCommitted();
     }
 }

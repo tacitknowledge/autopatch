@@ -334,7 +334,7 @@ public class MigrationProcess
         int currentPatchLevel = patchInfoStore.getPatchLevel();
 
         log.trace("Starting doMigrations");
-        List migrations = getMigrationTasks();
+        List<MigrationTask> migrations = getMigrationTasks();
         validateTasks(migrations);
         Collections.sort(migrations);
         int taskCount =  dryRun(currentPatchLevel, context, migrations);
@@ -353,11 +353,9 @@ public class MigrationProcess
 
         // Now apply them
         taskCount = 0;
-        for (Iterator i = migrations.iterator(); i.hasNext();)
+        for (MigrationTask task : migrations)
         {
-            MigrationTask task = (MigrationTask) i.next();
-            if (migrationRunnerStrategy
-                    .shouldMigrationRun(task.getLevel().intValue() , currentPatchLevel))
+            if (migrationRunnerStrategy.shouldMigrationRun(task.getLevel() , currentPatchLevel))
             {
                 applyPatch(context, task, true);
                 taskCount++;

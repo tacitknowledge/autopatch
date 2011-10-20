@@ -251,6 +251,11 @@ public class PatchTable implements PatchInfoStore
         updatePatchLock(false);
     }
 
+    public void isPatchApplied() throws MigrationException
+    {
+
+    }
+
     /**
      * Returns the SQL to execute for the database type associated with this patch table.
      * 

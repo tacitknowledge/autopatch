@@ -68,5 +68,9 @@ public interface PatchInfoStore
      * @exception MigrationException if unlocking the store fails 
      */
     public void unlockPatchStore() throws MigrationException;
-    
+
+    /**
+     * Determines if a given patch has been applied in the system
+     */
+    public void isPatchApplied() throws MigrationException;
 }
