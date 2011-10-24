@@ -814,7 +814,7 @@ public class MigrationProcess
         {
             MigrationTask task = (MigrationTask) i.next();
             if (migrationRunnerStrategy
-                    .shouldMigrationRun(task.getLevel().intValue() , patchInfoStore.getPatchLevel()))
+                    .shouldMigrationRun(task.getLevel().intValue() , patchInfoStore))
             {
                 log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 log.debug("Task will execute in context '" + migrationContext + "'");
