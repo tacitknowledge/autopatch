@@ -31,6 +31,4 @@ public interface MigrationRunnerStrategy
      * @return boolean value telling us if we should run the migration or not.
      */
    public boolean shouldMigrationRun(int migrationLevel , PatchInfoStore patchInfoStore) throws MigrationException;
-
-   public boolean shouldMigrationRun(int migrationLevel , int currentLevel);
 }

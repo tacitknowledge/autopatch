@@ -26,10 +26,7 @@ package com.tacitknowledge.util.migration;
 public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
 {
     public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException {
-        return shouldMigrationRun(migrationLevel, patchInfoStore.getPatchLevel());
+        return migrationLevel > patchInfoStore.getPatchLevel();
     }
 
-    public boolean shouldMigrationRun(int migrationLevel, int currentLevel) {
-        return migrationLevel > currentLevel;
-    }
 }
