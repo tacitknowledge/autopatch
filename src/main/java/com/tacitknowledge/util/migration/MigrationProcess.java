@@ -331,13 +331,12 @@ public class MigrationProcess
     public int doMigrations(PatchInfoStore patchInfoStore,
                             MigrationContext context) throws MigrationException
     {
-        int currentPatchLevel = patchInfoStore.getPatchLevel();
 
         log.trace("Starting doMigrations");
         List<MigrationTask> migrations = getMigrationTasks();
         validateTasks(migrations);
         Collections.sort(migrations);
-        int taskCount =  dryRun(currentPatchLevel, context, migrations);
+        int taskCount =  dryRun(patchInfoStore, context, migrations);
 
         // See if we should execute
         if (isReadOnly())
@@ -355,7 +354,7 @@ public class MigrationProcess
         taskCount = 0;
         for (MigrationTask task : migrations)
         {
-            if (migrationRunnerStrategy.shouldMigrationRun(task.getLevel() , currentPatchLevel))
+            if (migrationRunnerStrategy.shouldMigrationRun(task.getLevel() , patchInfoStore))
             {
                 applyPatch(context, task, true);
                 taskCount++;
@@ -398,41 +397,6 @@ public class MigrationProcess
         if (taskCount > 0)
         {
             log.info("A total of " + taskCount + " patch tasks will rollback.");
-        }
-        else
-        {
-            log.info("System up-to-date.  No patch tasks will execute.");
-        }
-        return taskCount;
-    }
-
-    /**
-     * Performs a dry run of migrations. A dry run means that this method determines which
-     * tasks will run and logs this information.
-     * 
-     * @param currentLevel the current level of the system as an int
-     * @param context the <code>MigrationContext</code> where the migrations will execute.
-     * @param migrations a <code>List</code> of <code>MigrationTask</code> objects
-     * @return a count of the number of migrations which will execute  as an int
-     */
-    protected int dryRun(int currentLevel, MigrationContext context, List migrations)
-    {
-        int taskCount = 0;
-        // Roll through once, just printing out what we'll do
-        for (Iterator i = migrations.iterator(); i.hasNext();)
-        {
-            MigrationTask task = (MigrationTask) i.next();
-            if (migrationRunnerStrategy
-                    .shouldMigrationRun(task.getLevel().intValue() , currentLevel))
-            {
-                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
-                log.debug("Task will execute in context '" + context + "'");
-                taskCount++;
-            }
-        }
-        if (taskCount > 0)
-        {
-            log.info("A total of " + taskCount + " patch tasks will execute.");
         }
         else
         {
@@ -841,5 +805,30 @@ public class MigrationProcess
             if (listener instanceof RollbackListener)
                 rollbackBroadcaster.addListener((RollbackListener) listener);
         }
+    }
+
+    public int dryRun(PatchInfoStore patchInfoStore, MigrationContext migrationContext, List migrations) throws MigrationException {
+        int taskCount = 0;
+        // Roll through once, just printing out what we'll do
+        for (Iterator i = migrations.iterator(); i.hasNext();)
+        {
+            MigrationTask task = (MigrationTask) i.next();
+            if (migrationRunnerStrategy
+                    .shouldMigrationRun(task.getLevel().intValue() , patchInfoStore.getPatchLevel()))
+            {
+                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
+                log.debug("Task will execute in context '" + migrationContext + "'");
+                taskCount++;
+            }
+        }
+        if (taskCount > 0)
+        {
+            log.info("A total of " + taskCount + " patch tasks will execute.");
+        }
+        else
+        {
+            log.info("System up-to-date.  No patch tasks will execute.");
+        }
+        return taskCount;
     }
 }
