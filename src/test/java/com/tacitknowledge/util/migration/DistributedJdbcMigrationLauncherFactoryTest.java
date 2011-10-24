@@ -276,7 +276,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         setReportedPatchLevel(controlledSystems.values(), currentPatchLevel);
         // Now do the migrations, and make sure we get the right number of events
         MigrationProcess process = launcher.getMigrationProcess();
-        process.setMigrationRunnerStrategy(new MockBuilder().getMigrationStrategy());
+        process.setMigrationRunnerStrategy(new OrderedMigrationRunnerStrategy());
         process.doMigrations(getPatchInfoStoreMock(currentPatchLevel), context);
 
         // The orders schema has four tasks that should go, make sure they did
