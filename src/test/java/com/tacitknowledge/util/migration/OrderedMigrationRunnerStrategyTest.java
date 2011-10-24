@@ -15,8 +15,9 @@
 
 package com.tacitknowledge.util.migration;
 
+import com.tacitknowledge.util.migration.builders.MockBuilder;
 import junit.framework.TestCase;
-import org.easymock.internal.NiceBehavior;
+
 
 /**
  * Test the {@link OrderedMigrationRunnerStrategy} class.
@@ -34,10 +35,28 @@ public class OrderedMigrationRunnerStrategyTest  extends TestCase
         migrationRunnerStrategy = new OrderedMigrationRunnerStrategy();
     }
 
-    public void testShouldMigrationsRunInOrder()
-    {
-        assertTrue(migrationRunnerStrategy.shouldMigrationRun(3, 2));
-        assertFalse(migrationRunnerStrategy.shouldMigrationRun(2, 3));
+    public void testShouldMigrationsRunInOrder() throws MigrationException {
+        PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(2);
+
+        assertTrue("Should be able to run migration if current level is below migration level",
+                migrationRunnerStrategy.shouldMigrationRun(3, patchInfoStore));
+
     }
+
+    public void testShouldMigrationFailIfCurrentLevelIsAboveMigrationLevel() throws MigrationException {
+        PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3);
+        assertFalse("Should not be able to run migration if current level is above migration level",
+                migrationRunnerStrategy.shouldMigrationRun(2, patchInfoStore));
+
+    }
+
+    public void testShouldMigrationFailIfCurrentAndMigrationLevelAreEquals() throws MigrationException {
+
+        PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3);
+        assertFalse("Should not be able to run migration if current level and migration level are equal",
+                migrationRunnerStrategy.shouldMigrationRun(3, patchInfoStore));
+    }
+
+
 
 }
