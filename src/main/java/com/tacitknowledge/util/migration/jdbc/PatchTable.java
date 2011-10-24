@@ -251,9 +251,37 @@ public class PatchTable implements PatchInfoStore
         updatePatchLock(false);
     }
 
-    public void isPatchApplied() throws MigrationException
+    /** {@inheritDoc} */
+    public boolean isPatchApplied(int patchLevel) throws MigrationException
     {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try
+        {
+            conn = context.getConnection();
+            stmt = conn.prepareStatement(getSql("level.exists"));
+            stmt.setString(1, context.getSystemName());
+            stmt.setString(2, String.valueOf(patchLevel));
+            rs = stmt.executeQuery();
+            if (rs.next())
+            {
+                return patchLevel == rs.getInt(1);
+            }
+            else
+            {
+                return false;
+            }
 
+        }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unable to determine if patch has been applied", e);
+        }
+        finally
+        {
+            SqlUtil.close(conn, stmt, rs);
+        }
     }
 
     /**

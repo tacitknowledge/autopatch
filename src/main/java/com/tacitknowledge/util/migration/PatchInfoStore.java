@@ -71,6 +71,8 @@ public interface PatchInfoStore
 
     /**
      * Determines if a given patch has been applied in the system
+     *
+     * @exception MigrationException if unlocking the store fails
      */
-    public void isPatchApplied() throws MigrationException;
+    public boolean isPatchApplied(int patchLevel) throws MigrationException;
 }
