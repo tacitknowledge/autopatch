@@ -38,16 +38,4 @@ public class MockBuilder
         return patchInfoStoreMock;
     }
 
-    public MigrationRunnerStrategy getMigrationStrategy()
-    {
-        MigrationRunnerStrategy migrationRunnerStrategy = new MigrationRunnerStrategy()
-        {
-            public boolean shouldMigrationRun(int migrationLevel, int currentLevel)
-            {
-                return migrationLevel > currentLevel;
-            }
-        };
-        return migrationRunnerStrategy;
-    }
-
 }
