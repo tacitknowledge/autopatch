@@ -164,13 +164,13 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(4);
         patchStore.getPatchLevel();
-        mockControl.setReturnValue(4);
+        mockControl.setReturnValue(4, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(5);
         patchStore.getPatchLevel();
-        mockControl.setReturnValue(5);
+        mockControl.setReturnValue(5, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(6);
         patchStore.getPatchLevel();
-        mockControl.setReturnValue(6);
+        mockControl.setReturnValue(6, MockControl.ONE_OR_MORE);
         patchStore.updatePatchLevel(7);
         // getPatchLevel() not called, but in case code changes in future, it will report the
         // correct level.
