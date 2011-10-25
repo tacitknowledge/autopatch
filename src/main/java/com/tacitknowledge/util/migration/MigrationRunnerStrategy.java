@@ -27,8 +27,8 @@ public interface MigrationRunnerStrategy
     /**
      * Determines if a <code>MigrationTask</code> is able to run.
       * @param migrationLevel of the <code>MigrationTask</code> to be check as in int
-     * @param patchInfo object representing patch level information
+     * @param patchInfoStore object representing patch level information
      * @return boolean value telling us if we should run the migration or not.
      */
-   public boolean shouldMigrationRun(int migrationLevel , PatchInfo patchInfo) throws MigrationException;
+   public boolean shouldMigrationRun(int migrationLevel , PatchInfoStore patchInfoStore) throws MigrationException;
 }
