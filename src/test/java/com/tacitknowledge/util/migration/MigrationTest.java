@@ -20,6 +20,7 @@ import java.util.List;
 import com.tacitknowledge.util.migration.builders.MockBuilder;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
+import org.easymock.MockControl;
 
 /**
  * Test basic migration functionality
@@ -33,6 +34,8 @@ public class MigrationTest extends MigrationListenerTestBase
     
     /** Test migration context */
     private TestMigrationContext context = null;
+    private MockControl patchInfoStoreControl;
+    private PatchInfoStore patchInfoStore;
 
     /**
      * Constructor for MigrationTest.
@@ -57,6 +60,8 @@ public class MigrationTest extends MigrationListenerTestBase
         runner.addPostPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.post");
         runner.addListener(this);
         context = new TestMigrationContext();
+        patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
+        patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
     }
 
     /**
@@ -80,7 +85,10 @@ public class MigrationTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(9, l.size());
 
-        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
+        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 0, MockControl.ONE_OR_MORE);
+        patchInfoStoreControl.replay();
+
+        int level = runner.doMigrations(patchInfoStore, context);
         runner.doPostPatchMigrations(context);
         assertEquals(9, level);
         assertTrue(context.hasExecuted("TestTask1"));
@@ -109,7 +117,10 @@ public class MigrationTest extends MigrationListenerTestBase
         assertEquals(9, l.size());
         
         // run them all once
-        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
+        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 0, MockControl.ONE_OR_MORE);
+        patchInfoStoreControl.replay();
+
+        int level = runner.doMigrations(patchInfoStore, context);
         runner.doPostPatchMigrations(context);
         assertEquals(9, level);
         assertTrue(context.hasExecuted("TestTask1"));
@@ -130,7 +141,12 @@ public class MigrationTest extends MigrationListenerTestBase
         setMigrationStartedCount(0);
         setMigrationFailedCount(0);
         setMigrationSuccessCount(0);
-        level = runner.doMigrations(new MockBuilder().getPatchInfoStore(15), context);
+
+        patchInfoStoreControl.reset();
+        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 15, MockControl.ONE_OR_MORE);
+        patchInfoStoreControl.replay();
+
+        level = runner.doMigrations(patchInfoStore, context);
         runner.doPostPatchMigrations(context);
         assertEquals(0, level);
         assertTrue(context.hasExecuted("TestTask1"));
@@ -158,8 +174,11 @@ public class MigrationTest extends MigrationListenerTestBase
     {
         List l = runner.getMigrationTasks();
         assertEquals(9, l.size());
-        
-        int level = runner.doMigrations(new MockBuilder().getPatchInfoStore(9), context);
+
+        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 9, MockControl.ONE_OR_MORE);
+        patchInfoStoreControl.replay();
+
+        int level = runner.doMigrations(patchInfoStore, context);
         runner.doPostPatchMigrations(context);
         assertEquals(3, level);
         assertFalse(context.hasExecuted("TestTask1"));
@@ -191,7 +210,9 @@ public class MigrationTest extends MigrationListenerTestBase
         int executedTasks = 0;
         try
         {
-            executedTasks = runner.doMigrations(new MockBuilder().getPatchInfoStore(5), context);
+            patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 5, MockControl.ONE_OR_MORE);
+            patchInfoStoreControl.replay();
+            executedTasks = runner.doMigrations(patchInfoStore, context);
             runner.doPostPatchMigrations(context);
             fail("We called a migration that failed, this should have thrown an exception");
         }
