@@ -21,7 +21,7 @@ package com.tacitknowledge.util.migration;
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
-public interface PatchInfoStore
+public interface PatchInfoStore extends PatchInfo
 {
     /**
      * Creates the patch storage area if it has not been done before
@@ -29,14 +29,7 @@ public interface PatchInfoStore
      * @exception MigrationException if creation is unsuccessful
      */
     public void createPatchStoreIfNeeded() throws MigrationException;
-    
-    /**
-     * Returns the current patch level of the system
-     *
-     * @return the current patch level of the system
-     * @exception MigrationException if it is not possible to get the patch level
-     */
-    public int getPatchLevel() throws MigrationException;
+
     
     /**
      * Updates the system patch level to the specified value
@@ -69,10 +62,4 @@ public interface PatchInfoStore
      */
     public void unlockPatchStore() throws MigrationException;
 
-    /**
-     * Determines if a given patch has been applied in the system
-     *
-     * @exception MigrationException if unlocking the store fails
-     */
-    public boolean isPatchApplied(int patchLevel) throws MigrationException;
 }
