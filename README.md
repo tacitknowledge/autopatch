@@ -45,3 +45,4 @@ You can include AutoPath in your Maven project via:
       <artifactId>autopatch</artifact>
       <version>1.2.6</version>
     </dependency>
+
