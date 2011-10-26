@@ -51,6 +51,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
 
     /** Used to specify different statements in the tests */
     private PreparedStatementResultSetHandler handler = null;
+    private MockControl contextControl;
+    private JdbcMigrationContext mockContext;
 
 
     /**
@@ -78,6 +80,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         context.setDatabaseType(new DatabaseType("postgres"));
         
         table = new PatchTable(context);
+        contextControl = MockControl.createControl(JdbcMigrationContext.class);
+        mockContext = (JdbcMigrationContext) contextControl.getMock();
     }
     
     /**
@@ -123,9 +127,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testCreatePatchesTableWithoutConnection() throws SQLException
     {
-        MockControl contextControl = MockControl.createControl(JdbcMigrationContext.class);
-        JdbcMigrationContext mockContext = (JdbcMigrationContext) contextControl.getMock();
-        
+
         // setup mock calls
         mockContext.getDatabaseType();
         contextControl.setReturnValue(new DatabaseType("postgres"), MockControl.ONE_OR_MORE);
@@ -342,6 +344,29 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         assertEquals(true, table.isPatchApplied(3));
         commonVerifications();
         verifyPreparedStatementPresent(table.getSql("level.exists"));
+
+    }
+
+    public void testMigrationExceptionIsThrownIfSQLExceptionHappens() throws SQLException {
+
+        mockContext.getDatabaseType();
+        contextControl.setReturnValue(new DatabaseType("postgres"), MockControl.ONE_OR_MORE);
+
+        mockContext.getConnection();
+        contextControl.setThrowable(new SQLException("An exception during getConnection"));
+        contextControl.replay();
+
+        table = new PatchTable(mockContext);
+
+        try {
+
+            table.isPatchApplied(3);
+            fail("MigrationException should have happened if SQLException");
+
+        } catch (MigrationException e) {
+
+            //Expected
+        }
 
     }
 
