@@ -18,6 +18,11 @@ package com.tacitknowledge.util.migration;
 public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrategy{
 
     public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException {
+
+        if (patchInfoStore == null) {
+            throw new IllegalArgumentException("Patch Info Store should not be null");
+        }
+
         return !patchInfoStore.isPatchApplied(migrationLevel);
     }
 }

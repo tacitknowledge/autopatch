@@ -48,4 +48,17 @@ public class MissingPatchMigrationRunnerStrategyTest extends TestCase{
         assertFalse( "The patch was not applied.", actualResult);
     }
 
+    public void testShouldMigrationThrowIllegalArgumentExceptionIfPatchInfoStoreParameterIsNull() throws MigrationException {
+
+        try {
+
+            strategy.shouldMigrationRun(3, null);
+            fail("If parameter Is null an Illegal Argument Exception should have been thrown");
+
+        } catch (IllegalArgumentException exception) {
+
+        }
+
+    }
+
 }
