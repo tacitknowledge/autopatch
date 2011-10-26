@@ -292,7 +292,7 @@ public class JdbcMigrationLauncherFactory
      * @throws IllegalArgumentException if a required parameter is missing
      * @throws MigrationException 
      */
-    private void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String system, 
+    void configureFromMigrationProperties(JdbcMigrationLauncher launcher, String system,
                                                   Properties props) 
         throws IllegalArgumentException, MigrationException
     {
@@ -360,6 +360,9 @@ public class JdbcMigrationLauncherFactory
             
             // setup the user-defined listeners
             List userDefinedListeners = loadMigrationListeners(system, props);
+
+            launcher.setMigrationStrategy(props.getProperty("migration.strategy"));
+
             launcher.getMigrationProcess().addListeners(userDefinedListeners);
             
             // done reading in config, set launcher's context

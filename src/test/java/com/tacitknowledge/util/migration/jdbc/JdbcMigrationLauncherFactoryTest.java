@@ -19,14 +19,19 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import com.tacitknowledge.util.migration.MigrationProcess;
 import junit.framework.TestCase;
 
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.test.listeners.TestListener1;
+import org.easymock.classextension.IMocksControl;
+
+import static org.easymock.classextension.EasyMock.*;
 
 public class JdbcMigrationLauncherFactoryTest extends TestCase
 {
+    private static final String MIGRATION_STRATEGY = "migrationStrategy";
     /** class under test */
     JdbcMigrationLauncherFactory factory = null;
     
@@ -151,6 +156,39 @@ public class JdbcMigrationLauncherFactoryTest extends TestCase
             // expected
         }
         
+    }
+
+    public void testConfigureMigrationLauncherFactorySetsMigrationStrategy() throws MigrationException {
+        factory = new JdbcMigrationLauncherFactory();
+
+        IMocksControl launcherControl = createNiceControl();
+        JdbcMigrationLauncher launcher = launcherControl.createMock(JdbcMigrationLauncher.class);
+
+        launcher.setMigrationStrategy(MIGRATION_STRATEGY);
+
+        MigrationProcess migrationProcess = new MigrationProcess();
+
+        expect(launcher.getMigrationProcess()).andReturn(migrationProcess);
+
+        launcherControl.replay();
+
+        String system = "anySystem";
+        Properties properties = new Properties();
+        properties.setProperty(system + ".patch.path", "systemPath");
+        properties.setProperty(system + ".jdbc.driver", "jdbcDriver");
+        properties.setProperty(system + ".jdbc.url", "jdbcUrl");
+        properties.setProperty(system + ".jdbc.username", "jdbcUsername");
+        properties.setProperty(system + ".jdbc.password", "jdbcPassword");
+        properties.setProperty(system + ".jdbc.dialect", "hsqldb");
+        properties.setProperty("migration.strategy", MIGRATION_STRATEGY);
+
+
+
+        factory.configureFromMigrationProperties(launcher, system, properties);
+
+
+        launcherControl.verify();
+
     }
 
 }
