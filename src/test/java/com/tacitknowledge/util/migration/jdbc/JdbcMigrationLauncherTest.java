@@ -19,16 +19,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.tacitknowledge.util.migration.*;
 import org.easymock.MockControl;
 
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.tacitknowledge.util.migration.MigrationContext;
-import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationListenerTestBase;
-import com.tacitknowledge.util.migration.PatchInfoStore;
-import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
 /**
@@ -38,6 +34,7 @@ import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
  */
 public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
 {
+    private static final String USER_STRATEGY = "myOwnStrategy";
     /** The mock JDBC connection to use during the tests */
     private MockConnection conn = null;
     
@@ -331,5 +328,26 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase
         taskControl.verify();
         node1PatchInfoStoreControl.verify();
         node2PatchInfoStoreControl.verify();
+    }
+
+    public void testGetOrderedAsDefaultStrategyWhenNotConfigured() {
+        String defaultMigrationStrategy = launcher.getMigrationStrategy();
+        assertEquals("Default migration strategy should be '" + MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY + "'",
+                MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY, defaultMigrationStrategy);
+    }
+
+    public void testGetTheMigrationStrategyAlreadyConfigured() {
+        launcher.setMigrationStrategy(USER_STRATEGY);
+        String currentMigrationStrategy = launcher.getMigrationStrategy();
+        assertEquals("Current migration strategy should be '" + USER_STRATEGY + "'",
+                USER_STRATEGY, currentMigrationStrategy);
+
+    }
+
+    public void testGetOrderedAsDefaultStrategyWhenEmptyStrategyIsConfigured() {
+        launcher.setMigrationStrategy(" ");
+        String defaultMigrationStrategy = launcher.getMigrationStrategy();
+        assertEquals("Current migration strategy should be '" + MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY + "'",
+                MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY, defaultMigrationStrategy);
     }
 }

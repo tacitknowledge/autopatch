@@ -24,7 +24,11 @@ package com.tacitknowledge.util.migration;
 
 public class MigrationRunnerFactory
 {
-     public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy)
+    public static final String ORDERED_MIGRATION_STRATEGY = "ordered";
+
+    public static final String DEFAULT_MIGRATION_STRATEGY = ORDERED_MIGRATION_STRATEGY;
+
+    public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy)
      {
         // Only migration strategy for now
         return new OrderedMigrationRunnerStrategy();
