@@ -761,10 +761,6 @@ public class JdbcMigrationLauncher implements RollbackListener
     }
 
     public String getMigrationStrategy() {
-        if(StringUtils.isBlank(migrationStrategy)){
-            return MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY;
-        }
-
         return migrationStrategy;
     }
 }

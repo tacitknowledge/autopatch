@@ -27,42 +27,28 @@ import org.apache.commons.logging.LogFactory;
  */
 
 public class MigrationRunnerFactory {
-    public static final String ORDERED_MIGRATION_STRATEGY = "ordered";
-
-    public static final String DEFAULT_MIGRATION_STRATEGY = ORDERED_MIGRATION_STRATEGY;
-
-    public static  final String MISSING_PATCH_MIGRATION_STRATEGY = "missingpatch";
 
     private static Log log = LogFactory.getLog(MigrationRunnerFactory.class);
+    public static final String DEFAULT_MIGRATION_STRATEGY = "com.tacitknowledge.util.migration.OrderedMigrationRunnerStrategy";
 
     public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy) {
 
         log.info("Strategy received '" + strategy + "'");
 
-        String strategyToApply = strategy;
-
-        if (StringUtils.isBlank(strategyToApply)) {
-            strategyToApply = DEFAULT_MIGRATION_STRATEGY;
-        } else {
-            strategyToApply = strategyToApply.trim();
-        }
-
-
-        if ( ORDERED_MIGRATION_STRATEGY.equals(strategyToApply)) {
+        if (StringUtils.isBlank(strategy)) {
             return new OrderedMigrationRunnerStrategy();
-        }
 
-        if (MISSING_PATCH_MIGRATION_STRATEGY.equals(strategyToApply)) {
-            return new MissingPatchMigrationRunnerStrategy();
         }
 
         try {
-            Class c = Class.forName(strategyToApply);
+            Class c = Class.forName(strategy.trim());
             MigrationRunnerStrategy runnerStrategy = (MigrationRunnerStrategy) c.newInstance();
             return runnerStrategy;
         } catch (Exception e) {
             throw new IllegalArgumentException("Strategy selected " + strategy + " cannot be instantiated ", e);
         }
+
+
     }
 
 }

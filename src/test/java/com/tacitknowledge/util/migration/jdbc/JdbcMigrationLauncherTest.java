@@ -36,7 +36,7 @@ import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
 public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
-    private static final String USER_STRATEGY = "myOwnStrategy";
+    private static final String ORDERED_MIGRATION_STRATEGY = "com.tacitknowledge.util.migration.OrderedMigrationRunnerStrategy";
     /**
      * The mock JDBC connection to use during the tests
      */
@@ -51,6 +51,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
      * The <code>JDBCMigrationConteext</code> used for testing
      */
     private DataSourceMigrationContext context = new DataSourceMigrationContext();
+    private static final String MISSING_PATCH_MIGRATION_STRATEGY = "com.tacitknowledge.util.migration.MissingPatchMigrationRunnerStrategy";
 
     /**
      * constructor that takes a name
@@ -345,26 +346,22 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         node2PatchInfoStoreControl.verify();
     }
 
-    public void testGetOrderedAsDefaultStrategyWhenNotConfigured() {
-        String defaultMigrationStrategy = launcher.getMigrationStrategy();
-        assertEquals("Default migration strategy should be '" + MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY + "'",
-                MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY, defaultMigrationStrategy);
-    }
 
     public void testGetTheMigrationStrategyAlreadyConfigured() throws MigrationException {
-        setupMigrationLauncher(MigrationRunnerFactory.MISSING_PATCH_MIGRATION_STRATEGY);
+        setupMigrationLauncher(MISSING_PATCH_MIGRATION_STRATEGY);
 
         String currentMigrationStrategy = launcher.getMigrationStrategy();
-        assertEquals("Current migration strategy should be '" + MigrationRunnerFactory.MISSING_PATCH_MIGRATION_STRATEGY + "'",
-                MigrationRunnerFactory.MISSING_PATCH_MIGRATION_STRATEGY, currentMigrationStrategy);
+        assertEquals("Current migration strategy should be '" + MISSING_PATCH_MIGRATION_STRATEGY + "'",
+                MISSING_PATCH_MIGRATION_STRATEGY, currentMigrationStrategy);
 
     }
 
     public void testGetOrderedAsDefaultStrategyWhenEmptyStrategyIsConfigured() throws MigrationException {
         setupMigrationLauncher(" ");
-        String defaultMigrationStrategy = launcher.getMigrationStrategy();
-        assertEquals("Current migration strategy should be '" + MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY + "'",
-                MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY, defaultMigrationStrategy);
+
+        MigrationProcess process = launcher.getMigrationProcess();
+
+        assertTrue("Should be instance of default object", process.getMigrationRunnerStrategy() instanceof OrderedMigrationRunnerStrategy);
     }
 
     public void testNotSettingStrategyGeneratesDefaultMigrationRunner() throws MigrationException {
@@ -378,7 +375,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
 
 
     public void testSettingOrderedStrategyGeneratesDefaultMigrationRunner() throws MigrationException {
-        setupMigrationLauncher(MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY);
+        setupMigrationLauncher(ORDERED_MIGRATION_STRATEGY);
 
         MigrationProcess process = launcher.getMigrationProcess();
 
@@ -387,15 +384,15 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
     }
 
     public void testSettingFullClassNameForStrategyGeneratesMigrationProcessAccordingToTheClasNameReceived() throws MigrationException {
-        setupMigrationLauncher("com.tacitknowledge.util.migration.MissingPatchMigrationRunnerStrategy");
+        setupMigrationLauncher(MISSING_PATCH_MIGRATION_STRATEGY);
 
         MigrationProcess process = launcher.getMigrationProcess();
 
         assertTrue("Should be instance of defined object", process.getMigrationRunnerStrategy() instanceof MissingPatchMigrationRunnerStrategy);
     }
 
-    public void testSettingMissingPatchStrategyGeneratesMigrationRunner() throws MigrationException {
-        setupMigrationLauncher(MigrationRunnerFactory.MISSING_PATCH_MIGRATION_STRATEGY);
+    public void testSettingFullClassNameWithTrailingSpacesForStrategyGeneratesMigrationProcessAccordingToTheClasNameReceived() throws MigrationException {
+        setupMigrationLauncher(" " +MISSING_PATCH_MIGRATION_STRATEGY + " ");
 
         MigrationProcess process = launcher.getMigrationProcess();
 
