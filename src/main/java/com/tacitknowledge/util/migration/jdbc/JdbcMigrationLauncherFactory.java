@@ -255,8 +255,7 @@ public class JdbcMigrationLauncherFactory
         {
             try
             {
-                Properties props = new Properties();
-                props.load(is);
+                Properties props = loadProperties(is);
 
                 configureFromMigrationProperties(launcher, systemName, props);
             }
@@ -283,6 +282,12 @@ public class JdbcMigrationLauncherFactory
         }
     }
 
+    protected Properties loadProperties(InputStream is) throws IOException {
+        Properties props = new Properties();
+        props.load(is);
+        return props;
+    }
+
     /**
      * Configure the launcher from the provided properties, system name
      * 
@@ -296,10 +301,13 @@ public class JdbcMigrationLauncherFactory
                                                   Properties props) 
         throws IllegalArgumentException, MigrationException
     {
+
+        launcher.setMigrationStrategy(props.getProperty("migration.strategy"));
+
         launcher.setPatchPath(ConfigurationUtil.getRequiredParam(props, system + ".patch.path"));
         launcher.setPostPatchPath(props.getProperty(system + ".postpatch.path"));
         launcher.setReadOnly(false);
-        if ("true".equals(props.getProperty(system + ".readonly"))) 
+        if ("true".equals(props.getProperty(system + ".readonly")))
         {
             launcher.setReadOnly(true);
         }
@@ -310,7 +318,7 @@ public class JdbcMigrationLauncherFactory
         {
             launcher.setLockPollRetries(Integer.parseInt(lockPollRetries));
         }
-        
+
         // TODO refactor the database name extraction from this and the servlet example
         String databases = props.getProperty(system + ".jdbc.systems");
         String[] databaseNames;
@@ -323,7 +331,7 @@ public class JdbcMigrationLauncherFactory
         {
             databaseNames = databases.split(",");
         }
-        
+
         for (int i = 0; i < databaseNames.length; i++)
         {
             String db = databaseNames[i];
@@ -331,37 +339,36 @@ public class JdbcMigrationLauncherFactory
             {
                 db = "." + db;
             }
-            
+
             // Set up the data source
             NonPooledDataSource dataSource = new NonPooledDataSource();
-            dataSource.setDriverClass(ConfigurationUtil.getRequiredParam(props, 
-                                                                         system + db + ".driver"));
-            dataSource.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, 
-                                                                         system + db + ".url"));
-            dataSource.setUsername(ConfigurationUtil.getRequiredParam(props, 
-                                                                      system + db + ".username"));
-            dataSource.setPassword(ConfigurationUtil.getRequiredParam(props, 
-                                                                      system + db + ".password"));
-        
+            dataSource.setDriverClass(ConfigurationUtil.getRequiredParam(props,
+                    system + db + ".driver"));
+            dataSource.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props,
+                    system + db + ".url"));
+            dataSource.setUsername(ConfigurationUtil.getRequiredParam(props,
+                    system + db + ".username"));
+            dataSource.setPassword(ConfigurationUtil.getRequiredParam(props,
+                    system + db + ".password"));
+
             // Set up the JDBC migration context; accepts one of two property names
             DataSourceMigrationContext context = getDataSourceMigrationContext();
-            String databaseType = 
+            String databaseType =
                 ConfigurationUtil.getRequiredParam(props,
-                                                   system + db + ".database.type", 
+                                                   system + db + ".database.type",
                                                    system + db + ".dialect");
             log.debug("setting type to " + databaseType);
             context.setDatabaseType(new DatabaseType(databaseType));
 
             context.setDatabaseName(databaseNames[i]);
-            
+
             // Finish setting up the context
             context.setSystemName(system);
             context.setDataSource(dataSource);
-            
+
             // setup the user-defined listeners
             List userDefinedListeners = loadMigrationListeners(system, props);
 
-            launcher.setMigrationStrategy(props.getProperty("migration.strategy"));
 
             launcher.getMigrationProcess().addListeners(userDefinedListeners);
             

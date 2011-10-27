@@ -15,6 +15,10 @@
 
 package com.tacitknowledge.util.migration;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Returns the  strategy we should we apply to decide if a patch needs to be applied
  * or we should rollback
@@ -22,16 +26,43 @@ package com.tacitknowledge.util.migration;
  * @author Oscar Gonzalez (oscar@tacitknowledge.com)
  */
 
-public class MigrationRunnerFactory
-{
+public class MigrationRunnerFactory {
     public static final String ORDERED_MIGRATION_STRATEGY = "ordered";
 
     public static final String DEFAULT_MIGRATION_STRATEGY = ORDERED_MIGRATION_STRATEGY;
 
-    public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy)
-     {
-        // Only migration strategy for now
-        return new OrderedMigrationRunnerStrategy();
-     }
+    public static  final String MISSING_PATCH_MIGRATION_STRATEGY = "missingpatch";
+
+    private static Log log = LogFactory.getLog(MigrationRunnerFactory.class);
+
+    public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy) {
+
+        log.info("Strategy received '" + strategy + "'");
+
+        String strategyToApply = strategy;
+
+        if (StringUtils.isBlank(strategyToApply)) {
+            strategyToApply = DEFAULT_MIGRATION_STRATEGY;
+        } else {
+            strategyToApply = strategyToApply.trim();
+        }
+
+
+        if ( ORDERED_MIGRATION_STRATEGY.equals(strategyToApply)) {
+            return new OrderedMigrationRunnerStrategy();
+        }
+
+        if (MISSING_PATCH_MIGRATION_STRATEGY.equals(strategyToApply)) {
+            return new MissingPatchMigrationRunnerStrategy();
+        }
+
+        try {
+            Class c = Class.forName(strategyToApply);
+            MigrationRunnerStrategy runnerStrategy = (MigrationRunnerStrategy) c.newInstance();
+            return runnerStrategy;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Strategy selected " + strategy + " cannot be instantiated ", e);
+        }
+    }
 
 }

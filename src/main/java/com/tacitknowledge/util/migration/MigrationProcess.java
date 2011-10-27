@@ -831,4 +831,8 @@ public class MigrationProcess
         }
         return taskCount;
     }
+
+    public MigrationRunnerStrategy getMigrationRunnerStrategy() {
+        return migrationRunnerStrategy;
+    }
 }

@@ -36,7 +36,6 @@ import com.tacitknowledge.util.migration.PatchInfoStore;
 import com.tacitknowledge.util.migration.RollbackListener;
 import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.jdbc.loader.FlatXmlDataSetTaskSource;
-import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 
 /**
  * Core starting point for a database migration run. This class obtains a
@@ -94,14 +93,6 @@ public class JdbcMigrationLauncher implements RollbackListener
     /** Create a new MigrationProcess and add a SqlScriptMigrationTaskSource */
     public JdbcMigrationLauncher()
     {
-        setMigrationProcess(getNewMigrationProcess());
-
-        // Make sure this class is notified when a patch is applied so that
-        // the patch level can be updated (see #migrationSuccessful).
-        migrationProcess.addListener(this);
-
-        getMigrationProcess().addMigrationTaskSource(new SqlScriptMigrationTaskSource());
-        getMigrationProcess().addMigrationTaskSource(new FlatXmlDataSetTaskSource());
     }
 
     /**
@@ -124,7 +115,7 @@ public class JdbcMigrationLauncher implements RollbackListener
     {
         MigrationProcess migrationProcess = new MigrationProcess();
         migrationProcess.setMigrationRunnerStrategy
-                (MigrationRunnerFactory.getMigrationRunnerStrategy(null));
+                (MigrationRunnerFactory.getMigrationRunnerStrategy(getMigrationStrategy()));
         return migrationProcess;
     }
 
@@ -343,11 +334,11 @@ public class JdbcMigrationLauncher implements RollbackListener
             String path = st.nextToken();
             if (path.indexOf('/') > -1)
             {
-                migrationProcess.addPatchResourceDirectory(path);
+                getMigrationProcess().addPatchResourceDirectory(path);
             }
             else
             {
-                migrationProcess.addPatchResourcePackage(path);
+                getMigrationProcess().addPatchResourcePackage(path);
             }
         }
     }
@@ -654,6 +645,11 @@ public class JdbcMigrationLauncher implements RollbackListener
      */
     public MigrationProcess getMigrationProcess()
     {
+        if (migrationProcess == null) {
+            setMigrationProcess(getNewMigrationProcess());
+
+        }
+
         return migrationProcess;
     }
 
@@ -665,6 +661,15 @@ public class JdbcMigrationLauncher implements RollbackListener
     public void setMigrationProcess(MigrationProcess migrationProcess)
     {
         this.migrationProcess = migrationProcess;
+
+        // Make sure this class is notified when a patch is applied so that
+        // the patch level can be updated (see #migrationSuccessful).
+        this.migrationProcess.addListener(this);
+
+        this.migrationProcess.addMigrationTaskSource(new SqlScriptMigrationTaskSource());
+
+        this.migrationProcess.addMigrationTaskSource(new FlatXmlDataSetTaskSource());
+
     }
 
     /**
