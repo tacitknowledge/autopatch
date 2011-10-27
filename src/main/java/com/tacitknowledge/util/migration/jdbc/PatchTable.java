@@ -284,6 +284,32 @@ public class PatchTable implements PatchInfoStore
         }
     }
 
+    public void updatePatchLevelAfterRollBack(int rollbackLevel) throws MigrationException {
+        // Make sure a patch record already exists for this system
+        getPatchLevel();
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try
+        {
+            conn = context.getConnection();
+            stmt = conn.prepareStatement(getSql("level.rollback"));
+            stmt.setInt(1, rollbackLevel);
+            stmt.setString(2, context.getSystemName());
+            stmt.execute();
+            context.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new MigrationException("Unable to update patch level", e);
+        }
+        finally
+        {
+            SqlUtil.close(conn, stmt, null);
+        }
+
+    }
+
     /**
      * Returns the SQL to execute for the database type associated with this patch table.
      * 

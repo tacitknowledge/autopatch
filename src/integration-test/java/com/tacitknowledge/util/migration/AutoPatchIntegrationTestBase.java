@@ -15,15 +15,14 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import java.sql.*;
 
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory;
 
+import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 import junit.framework.TestCase;
 
 /**
@@ -159,5 +158,26 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
     public void setMultiNodeLauncher(JdbcMigrationLauncher multiNodeLauncher)
     {
         this.multiNodeLauncher = multiNodeLauncher;
+    }
+
+    /**
+     * Get the patch level for a given database
+     *
+     * @param conn the database connection to use
+     * @return int representing the patch level
+     * @exception Exception if getting the patch level fails
+     */
+    protected int getPatchLevel(Connection conn) throws Exception
+    {
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT MAX(patch_level) AS patch_level FROM patches");
+        rs.next();
+        int patchLevel = rs.getInt("patch_level");
+        SqlUtil.close(null, stmt, rs);
+        return patchLevel;
+    }
+
+    protected Connection getOrderConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
     }
 }

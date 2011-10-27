@@ -75,4 +75,12 @@ public interface PatchInfoStore
      * @exception MigrationException if unlocking the store fails
      */
     public boolean isPatchApplied(int patchLevel) throws MigrationException;
+
+    /**
+     * Updates the system patch level to the specified value after rollback
+     *
+     * @param rollbackLevel the new system patch level
+     * @exception MigrationException if updating the patch level failed
+     */
+    public void updatePatchLevelAfterRollBack(int rollbackLevel) throws MigrationException;
 }

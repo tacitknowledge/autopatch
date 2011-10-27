@@ -15,10 +15,7 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -67,8 +64,8 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         
         // Make sure everything worked out okay
        Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
-       Connection orders = DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
-       Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
+        Connection orders = getOrderConnection();
+        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
        Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
        Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
        
@@ -94,6 +91,7 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        SqlUtil.close(catalog2, null, null);
        SqlUtil.close(catalog3, null, null);
     }
+
     /**
      * Test that all the tables were created successfully in all of the databases and then test 
      * the rollback of the final task.
@@ -115,8 +113,8 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         
         // Make sure everything worked out okay
        Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
-       Connection orders = DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
-       Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
+        Connection orders = getOrderConnection();
+        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
        Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
        Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
        
@@ -170,7 +168,7 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         getDistributedLauncher().doMigrations();
 
         Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
-        Connection orders = DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
+        Connection orders = getOrderConnection();
         Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
         Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
         Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
@@ -270,23 +268,7 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         SqlUtil.close(catalog5, null, null);
     }
     
-    /**
-     * Get the patch level for a given database
-     * 
-     * @param conn the database connection to use
-     * @return int representing the patch level
-     * @exception Exception if getting the patch level fails
-     */
-    private int getPatchLevel(Connection conn) throws Exception
-    {
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT patch_level FROM patches");
-        rs.next();
-        int patchLevel = rs.getInt("patch_level");
-        SqlUtil.close(null, stmt, rs);
-        return patchLevel;
-    }
-    
+
     /**
      * Verify that a given table exists and that it contains one row
      * with a value equal to the name of the table (this matches the inttest patches)

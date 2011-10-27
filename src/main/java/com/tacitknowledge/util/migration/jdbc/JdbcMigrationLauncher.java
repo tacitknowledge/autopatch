@@ -400,8 +400,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
         {
             PatchInfoStore store = (PatchInfoStore) ((Map.Entry) patchTableIter.next()).getValue();
-            int storePatchLevel = store.getPatchLevel();
-            if (patchLevel > storePatchLevel)
+            if (!store.isPatchApplied(patchLevel))
             {
                 store.updatePatchLevel(patchLevel);
             }
@@ -752,7 +751,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
         {
             PatchInfoStore store = (PatchInfoStore) ((Map.Entry) patchTableIter.next()).getValue();
-            store.updatePatchLevel(rollbackLevel);
+            store.updatePatchLevelAfterRollBack(rollbackLevel);
         }
     }
 

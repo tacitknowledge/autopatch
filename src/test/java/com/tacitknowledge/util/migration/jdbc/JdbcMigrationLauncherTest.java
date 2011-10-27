@@ -176,15 +176,26 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         patchStore.lockPatchStore();
         patchStore.getPatchLevel();
         mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
+
+        patchStore.isPatchApplied(4);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(4);
+
         patchStore.getPatchLevel();
         mockControl.setReturnValue(4, MockControl.ONE_OR_MORE);
+        patchStore.isPatchApplied(5);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(5);
+
         patchStore.getPatchLevel();
         mockControl.setReturnValue(5, MockControl.ONE_OR_MORE);
+        patchStore.isPatchApplied(6);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(6);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(6, MockControl.ONE_OR_MORE);
+        patchStore.isPatchApplied(7);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(7);
         // getPatchLevel() not called, but in case code changes in future, it will report the
         // correct level.
@@ -242,15 +253,27 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         // now the migrations proceed
         patchStore.getPatchLevel();
         mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
+        patchStore.isPatchApplied(4);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(4);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(4, MockControl.ONE_OR_MORE);
+
+        patchStore.isPatchApplied(5);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(5);
+
         patchStore.getPatchLevel();
         mockControl.setReturnValue(5, MockControl.ONE_OR_MORE);
+
+        patchStore.isPatchApplied(6);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(6);
         patchStore.getPatchLevel();
         mockControl.setReturnValue(6, MockControl.ONE_OR_MORE);
+
+        patchStore.isPatchApplied(7);
+        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(7);
         // getPatchLevel() not called, but in case code changes in future, it will report the
         // correct level.
@@ -328,12 +351,15 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         // node1 is at patchlevel 2
         node1PatchInfoStore.getPatchLevel();
         node1PatchInfoStoreControl.setDefaultReturnValue(node1PatchLevel);
-
+        node1PatchInfoStore.isPatchApplied(1);
+        node1PatchInfoStoreControl.setReturnValue(true);
         node1PatchInfoStoreControl.replay();
 
         // node2 is at patchlevel 1
         node2PatchInfoStore.getPatchLevel();
         node2PatchInfoStoreControl.setDefaultReturnValue(node2PatchLevel);
+        node2PatchInfoStore.isPatchApplied(1);
+        node2PatchInfoStoreControl.setReturnValue(false);
         node2PatchInfoStore.updatePatchLevel(migrationSuccessfulPatchLevel);
         node2PatchInfoStoreControl.setVoidCallable();
 
