@@ -16,7 +16,6 @@ package com.tacitknowledge.util.migration;
 
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory;
-import com.tacitknowledge.util.migration.jdbc.MigrationTableUnlock;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,13 +25,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-/**
- * Created by IntelliJ IDEA.
- * User: ulisespulido
- * Date: 10/27/11
- * Time: 11:49 AM
- * To change this template use File | Settings | File Templates.
- */
+
 public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatchIntegrationTestBase {
 
     /**
@@ -57,17 +50,17 @@ public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatc
         try {
             JdbcMigrationLauncherFactory lFactory = new JdbcMigrationLauncherFactory();
 
-            JdbcMigrationLauncher launcherBatch1 = lFactory.createMigrationLauncher("orders", "missingpatchstrategybranch1-inttest-migration.properties");
+            JdbcMigrationLauncher launcherBatch1 = lFactory.createMigrationLauncher("orders", "missingpatchstrategybatch1-inttest-migration.properties");
             launcherBatch1.doMigrations();
 
-            assertEquals(3, getPatchLevel(getOrderConnection()));
+            assertEquals(4, getPatchLevel(getOrderConnection()));
             assertTrue(isPatchApplied(getOrderConnection(), 1));
-            assertTrue(isPatchApplied(getOrderConnection(), 3));
+            assertTrue(isPatchApplied(getOrderConnection(), 4));
             assertFalse(isPatchApplied(getOrderConnection(), 2));
-            assertFalse(isPatchApplied(getOrderConnection(), 4));
+            assertFalse(isPatchApplied(getOrderConnection(), 3));
 
 
-            JdbcMigrationLauncher launcherBatch2 = lFactory.createMigrationLauncher("orders", "missingpatchstrategybranch2-inttest-migration.properties");
+            JdbcMigrationLauncher launcherBatch2 = lFactory.createMigrationLauncher("orders", "missingpatchstrategybatch2-inttest-migration.properties");
             launcherBatch2.doMigrations();
             currentPatches("orders");
 
