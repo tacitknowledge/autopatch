@@ -243,7 +243,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new String[]{"F"});
-        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone"});
+        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
         
         assertFalse(table.isPatchStoreLocked());
         commonVerifications();
@@ -262,7 +262,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new String[]{"T"});
-        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone"});
+        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
         
         assertTrue(table.isPatchStoreLocked());
         commonVerifications();
@@ -282,7 +282,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new String[]{"T"});
-        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone"});
+        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
         
         try
         {
@@ -311,11 +311,11 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         // Return an empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
-        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone"});
+        handler.prepareResultSet(table.getSql("lock.read"), rs, new String[]{"milestone", "milestone"});
         
         table.lockPatchStore();
-
         verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
+        verifyPreparedStatementParameter(table.getSql("lock.obtain"), 2, "milestone");
         commonVerifications();
         verifyCommitted();
     }

@@ -15,10 +15,7 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,8 +81,10 @@ public class MigrationUnlockTest extends AutoPatchIntegrationTestBase
     private void lockPatchTable(String database) throws Exception
     {
         Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:" + database, "sa", "");
-        Statement stmt = conn.createStatement();
-        int rowCount = stmt.executeUpdate("UPDATE patches SET patch_in_progress = 'T'");
+
+        PreparedStatement stmt = conn.prepareStatement("UPDATE patches SET patch_in_progress = 'T' WHERE patch_level in ( SELECT MAX(patch_level) FROM patches WHERE system_name = ?)");
+        stmt.setString(1, database);
+        int rowCount = stmt.executeUpdate();
         assertEquals(1, rowCount);
         SqlUtil.close(conn, stmt, null);
     }
@@ -99,8 +98,10 @@ public class MigrationUnlockTest extends AutoPatchIntegrationTestBase
     private void verifyPatchTableNotLocked(String database) throws Exception
     {
         Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:" + database, "sa", "");
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT patch_in_progress FROM patches");
+        PreparedStatement stmt = conn.prepareStatement("SELECT patch_in_progress FROM patches WHERE system_name = ? AND ( patch_in_progress <> 'F' OR patch_level in ( SELECT MAX(patch_level) FROM patches WHERE system_name = ? ))");
+        stmt.setString(1, database);
+        stmt.setString(2, database);
+        ResultSet rs = stmt.executeQuery();
         rs.next();
         assertEquals("F", rs.getString("patch_in_progress"));
         SqlUtil.close(conn, stmt, rs);

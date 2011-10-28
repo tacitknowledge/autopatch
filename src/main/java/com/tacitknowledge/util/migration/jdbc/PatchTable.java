@@ -214,6 +214,7 @@ public class PatchTable implements PatchInfoStore
             conn = context.getConnection();
             stmt = conn.prepareStatement(getSql("lock.read"));
             stmt.setString(1, context.getSystemName());
+            stmt.setString(2, context.getSystemName());
             rs = stmt.executeQuery();
             
             if (rs.next())
@@ -375,6 +376,9 @@ public class PatchTable implements PatchInfoStore
                 log.debug("Updating patch table lock: " + getSql(sqlkey));
             }
             stmt.setString(1, context.getSystemName());
+            if( lock ){
+                stmt.setString(2, context.getSystemName());
+            }
             stmt.execute();
             context.commit();
         }
