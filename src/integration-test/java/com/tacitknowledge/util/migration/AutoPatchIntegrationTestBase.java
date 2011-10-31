@@ -85,6 +85,12 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
         destroyDatabase("catalog1");
         destroyDatabase("catalog2");
         destroyDatabase("catalog3");
+        destroyDatabase("catalog4");
+        destroyDatabase("catalog5");
+        destroyDatabase("nodes");
+        destroyDatabase("node1");
+        destroyDatabase("node2");
+        destroyDatabase("node3");
     }
     
     /**

@@ -65,11 +65,11 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         }
         
         // Make sure everything worked out okay
-       Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:" + CORE, "sa", "");
-        Connection orders = getOrderConnection();
-        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:" + CATALOG + "1", "sa", "");
-       Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:" + CATALOG + "2", "sa", "");
-       Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:" + CATALOG + "3", "sa", "");
+       Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
+       Connection orders = getOrderConnection();
+       Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
+       Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
+       Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
        
        // 4 patches should have executed
        assertEquals(4, getPatchLevel(core, CORE));

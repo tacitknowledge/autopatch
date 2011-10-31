@@ -130,6 +130,81 @@ public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatc
 
     }
 
+    public void testMigrationRunsFromMultipleBatchesOnMultipleNodesWithForcedSync() throws Exception, SQLException {
+
+
+        testMigrationRunsFromTwoBatchesOnMultipleNodes( );
+
+        DistributedJdbcMigrationLauncherFactory dlFactory =
+            new DistributedJdbcMigrationLauncherFactory();
+
+        DistributedJdbcMigrationLauncher distributedLauncher3 = (DistributedJdbcMigrationLauncher)
+                dlFactory.createMigrationLauncher("nodes",
+                        "missingpatchstrategybatch3-inttest-migration.properties");
+        DistributedMigrationProcess distributedMigrationProcess3 = (DistributedMigrationProcess) distributedLauncher3.getMigrationProcess();
+        distributedMigrationProcess3.setForceSync(true);
+        distributedLauncher3.doMigrations();
+
+        Connection node1Conn = DriverManager.getConnection("jdbc:hsqldb:mem:node1", "sa", "");
+        Connection node2Conn = DriverManager.getConnection("jdbc:hsqldb:mem:node2", "sa", "");
+        Connection node3Conn = DriverManager.getConnection("jdbc:hsqldb:mem:node3", "sa", "");
+
+
+        assertEquals(4, getPatchLevel(node1Conn, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 4, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 2, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 3, "nodes"));
+
+
+        assertEquals(4, getPatchLevel(node2Conn, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 4, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 2, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 3, "nodes"));
+
+        assertEquals(4, getPatchLevel(node3Conn, "nodes"));
+        assertTrue(isPatchApplied(node3Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node3Conn, 4, "nodes"));
+        assertFalse(isPatchApplied(node3Conn, 2, "nodes"));
+        assertFalse(isPatchApplied(node3Conn, 3, "nodes"));
+
+        DistributedJdbcMigrationLauncher distributedLauncher4 = (DistributedJdbcMigrationLauncher)
+                dlFactory.createMigrationLauncher("nodes",
+                        "missingpatchstrategybatch4-inttest-migration.properties");
+
+        DistributedMigrationProcess distributedMigrationProcess4 = (DistributedMigrationProcess) distributedLauncher4.getMigrationProcess();
+        distributedMigrationProcess4.setForceSync(true);
+        distributedLauncher4.doMigrations();
+
+
+        assertEquals(4, getPatchLevel(node1Conn, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 4, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 2, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 3, "nodes"));
+
+
+        assertEquals(4, getPatchLevel(node2Conn, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 4, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 2, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 3, "nodes"));
+
+        assertEquals(4, getPatchLevel(node3Conn, "nodes"));
+        assertTrue(isPatchApplied(node3Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node3Conn, 4, "nodes"));
+        assertTrue(isPatchApplied(node3Conn, 2, "nodes"));
+        assertTrue(isPatchApplied(node3Conn, 3, "nodes"));
+
+
+        SqlUtil.close(node1Conn, null, null);
+        SqlUtil.close(node2Conn, null, null);
+        SqlUtil.close(node3Conn, null, null);
+
+
+    }
+
     private void currentPatches(String database) throws Exception {
         Connection conn = DriverManager.getConnection("jdbc:hsqldb:mem:orders", "sa", "");
         Statement stmt = conn.createStatement();
