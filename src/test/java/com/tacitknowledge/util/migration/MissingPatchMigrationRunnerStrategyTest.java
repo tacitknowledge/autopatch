@@ -14,8 +14,12 @@
  */
 package com.tacitknowledge.util.migration;
 
+import com.tacitknowledge.util.migration.builders.MockBuilder;
 import junit.framework.TestCase;
 import org.easymock.MockControl;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Test the {@link MissingPatchMigrationRunnerStrategy} class.
@@ -61,4 +65,39 @@ public class MissingPatchMigrationRunnerStrategyTest extends TestCase{
 
     }
 
+    public void testSystemIsSynchronized( ) throws MigrationException {
+        Set<Integer> patchInfoStorePatches = new HashSet<Integer>();
+        patchInfoStorePatches.add(1);
+        PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3, patchInfoStorePatches);
+
+        Set<Integer> currentPatchInfoStorePatches = new HashSet<Integer>();
+        currentPatchInfoStorePatches.add(1);
+        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3, currentPatchInfoStorePatches);
+        boolean systemSync = strategy.isSynchronized( currentPatchInfoStore, patchInfoStore );
+        assertTrue("System should be synchronized", systemSync );
+    }
+
+
+    public void testSystemIsNotSynchronized( ) throws MigrationException {
+        Set<Integer> patchInfoStorePatches = new HashSet<Integer>();
+        patchInfoStorePatches.add(12);
+        PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3, patchInfoStorePatches);
+
+        Set<Integer> currentPatchInfoStorePatches = new HashSet<Integer>();
+        currentPatchInfoStorePatches.add(1);
+        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3, currentPatchInfoStorePatches);
+        boolean systemSync = strategy.isSynchronized( currentPatchInfoStore, patchInfoStore );
+        assertFalse("System shouldn't be synchronized", systemSync );
+    }
+
+    public void testShouldMigrationThrowIllegalArgumentExceptionIfPatchInfoStoreParametersAreNullWhenIsSync( ) throws MigrationException {
+
+        try{
+            strategy.isSynchronized( null, null );
+            fail("If arguments are null an Illegal Argument Exception should have been thrown");
+        }catch(IllegalArgumentException exception ){
+
+        }
+
+    }
 }

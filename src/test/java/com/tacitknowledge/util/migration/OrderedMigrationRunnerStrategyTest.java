@@ -57,6 +57,35 @@ public class OrderedMigrationRunnerStrategyTest  extends TestCase
                 migrationRunnerStrategy.shouldMigrationRun(3, patchInfoStore));
     }
 
+    public void testSystemIsSynchronized( ) throws MigrationException {
 
+        PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3);
+        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3);;
+
+        boolean systemSync = migrationRunnerStrategy.isSynchronized( currentPatchInfoStore, patchInfoStore );
+
+        assertTrue("System should be synchronized", systemSync );
+    }
+
+    public void testSystemIsNotSynchronized( ) throws MigrationException {
+        PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(4);
+        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3);;
+
+
+        boolean systemSync = migrationRunnerStrategy.isSynchronized( currentPatchInfoStore, patchInfoStore );
+
+        assertFalse("System shouldn't be synchronized", systemSync);
+    }
+
+    public void testShouldMigrationThrowIllegalArgumentExceptionIfPatchInfoStoreParametersAreNullWhenIsSync( ) throws MigrationException {
+
+        try{
+            migrationRunnerStrategy.isSynchronized( null, null );
+            fail("If arguments are null an Illegal Argument Exception should have been thrown");
+        }catch(IllegalArgumentException exception ){
+
+        }
+
+    }
 
 }

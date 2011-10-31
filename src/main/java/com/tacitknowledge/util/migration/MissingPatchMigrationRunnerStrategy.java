@@ -15,6 +15,8 @@
 package com.tacitknowledge.util.migration;
 
 
+import java.util.Set;
+
 public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrategy{
 
     public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException {
@@ -24,5 +26,16 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
         }
 
         return !patchInfoStore.isPatchApplied(migrationLevel);
+    }
+
+    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException {
+
+        if( currentPatchInfoStore == null || patchInfoStore == null ){
+            throw new IllegalArgumentException("currentPatchInfoStore and patchInfoStore should not be null");
+        }
+        Set<Integer> currentPatchInfoStorePatchesApplied = currentPatchInfoStore.getPatchesApplied();
+        Set<Integer> patchInfoStorePatchesApplied = patchInfoStore.getPatchesApplied();
+
+        return currentPatchInfoStorePatchesApplied.equals(patchInfoStorePatchesApplied);
     }
 }

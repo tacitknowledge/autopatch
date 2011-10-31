@@ -31,4 +31,13 @@ public interface MigrationRunnerStrategy
      * @return boolean value telling us if we should run the migration or not.
      */
    public boolean shouldMigrationRun(int migrationLevel , PatchInfoStore patchInfoStore) throws MigrationException;
+
+    /**
+     * Determines if two stores are synchronized to each other.
+     * @param currentPatchInfoStore
+     * @param patchInfoStore
+     * @return
+     * @throws MigrationException
+     */
+   public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException;
 }

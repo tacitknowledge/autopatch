@@ -23,7 +23,9 @@ import org.easymock.MockControl;
 import org.easymock.classextension.IMocksControl;
 
 import java.util.Properties;
+import java.util.Set;
 
+import static org.easymock.EasyMock.endsWith;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createStrictControl;
 
@@ -35,11 +37,16 @@ import static org.easymock.classextension.EasyMock.createStrictControl;
 public class MockBuilder
 {
 
-    public static PatchInfoStore getPatchInfoStore(int patchLevel) throws MigrationException
+    public static PatchInfoStore getPatchInfoStore(int patchLevel) throws MigrationException {
+        return getPatchInfoStore(patchLevel, null);
+    }
+
+    public static PatchInfoStore getPatchInfoStore(int patchLevel, Set<Integer> patchesApplied) throws MigrationException
     {
         IMocksControl patchInfoStoreControl = createStrictControl();
         PatchInfoStore patchInfoStoreMock = patchInfoStoreControl.createMock(PatchInfoStore.class);
         expect( patchInfoStoreMock.getPatchLevel()).andReturn(patchLevel).anyTimes();
+        expect(patchInfoStoreMock.getPatchesApplied()).andReturn(patchesApplied);
         patchInfoStoreControl.replay();
         return patchInfoStoreMock;
     }

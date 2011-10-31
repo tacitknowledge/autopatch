@@ -29,4 +29,13 @@ public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
         return migrationLevel > patchInfoStore.getPatchLevel();
     }
 
+    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException {
+
+        if( currentPatchInfoStore == null || patchInfoStore == null ){
+            throw new IllegalArgumentException("currentPatchInfoStore and patchInfoStore should not be null");
+        }
+
+        return currentPatchInfoStore.getPatchLevel() == patchInfoStore.getPatchLevel();
+    }
+
 }
