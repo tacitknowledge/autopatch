@@ -164,13 +164,14 @@ public abstract class AutoPatchIntegrationTestBase extends TestCase
      * Get the patch level for a given database
      *
      * @param conn the database connection to use
+     * @param system
      * @return int representing the patch level
      * @exception Exception if getting the patch level fails
      */
-    protected int getPatchLevel(Connection conn) throws Exception
+    protected int getPatchLevel(Connection conn, String system) throws Exception
     {
         Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT MAX(patch_level) AS patch_level FROM patches");
+        ResultSet rs = stmt.executeQuery("SELECT MAX(patch_level) AS patch_level FROM patches WHERE system_name='" + system + "'");
         rs.next();
         int patchLevel = rs.getInt("patch_level");
         SqlUtil.close(null, stmt, rs);

@@ -304,7 +304,10 @@ public class DistributedMigrationProcess extends MigrationProcess
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
-            if ((task.getLevel().intValue() > currentLevel) && !forceSync)
+            int migrationLevel = task.getLevel().intValue();
+            boolean shouldApplyPatch = getMigrationRunnerStrategy().shouldMigrationRun(migrationLevel, patchInfoStore);
+
+            if (shouldApplyPatch && !forceSync)
             {
                 // Execute the task in the context it was loaded from
                 JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) migrationsWithLaunchers
@@ -340,7 +343,7 @@ public class DistributedMigrationProcess extends MigrationProcess
                             (PatchInfoStore) launcher.getContexts().get(
                             launcherContext);
 
-                    if (task.getLevel().intValue() > patchInfoStoreOfContext.getPatchLevel())
+                    if (migrationLevel > patchInfoStoreOfContext.getPatchLevel())
                     {
                         outOfSyncContexts.add(launcherContext);
                     }

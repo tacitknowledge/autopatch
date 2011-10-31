@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.tacitknowledge.util.migration.MigrationProcess;
+import com.tacitknowledge.util.migration.builders.MockBuilder;
 import junit.framework.TestCase;
 
 import com.tacitknowledge.util.migration.MigrationException;
@@ -173,14 +174,7 @@ public class JdbcMigrationLauncherFactoryTest extends TestCase
         launcherControl.replay();
 
         String system = "anySystem";
-        Properties properties = new Properties();
-        properties.setProperty(system + ".patch.path", "systemPath");
-        properties.setProperty(system + ".jdbc.driver", "jdbcDriver");
-        properties.setProperty(system + ".jdbc.url", "jdbcUrl");
-        properties.setProperty(system + ".jdbc.username", "jdbcUsername");
-        properties.setProperty(system + ".jdbc.password", "jdbcPassword");
-        properties.setProperty(system + ".jdbc.dialect", "hsqldb");
-        properties.setProperty("migration.strategy", MIGRATION_STRATEGY);
+        Properties properties = MockBuilder.getPropertiesWithSystemConfiguration("anySystem",MIGRATION_STRATEGY);
 
 
 

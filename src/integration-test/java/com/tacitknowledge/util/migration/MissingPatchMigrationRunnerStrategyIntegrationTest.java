@@ -14,16 +14,15 @@
  */
 package com.tacitknowledge.util.migration;
 
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 
 public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatchIntegrationTestBase {
@@ -32,6 +31,7 @@ public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatc
      * Class logger
      */
     private static Log log = LogFactory.getLog(MissingPatchMigrationRunnerStrategyIntegrationTest.class);
+    private static final String ORDERS = "orders";
 
     /**
      * Constructor
@@ -45,35 +45,88 @@ public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatc
     public void setUp() throws Exception {
     }
 
-    public void testMigrationRunsFromBranches() throws Exception {
-        log.debug("Testing migration from branch 1");
+    public void testMigrationRunsFromBatches() throws Exception {
+
         try {
             JdbcMigrationLauncherFactory lFactory = new JdbcMigrationLauncherFactory();
-
-            JdbcMigrationLauncher launcherBatch1 = lFactory.createMigrationLauncher("orders", "missingpatchstrategybatch1-inttest-migration.properties");
+            log.debug("Testing migration from batch 1");
+            JdbcMigrationLauncher launcherBatch1 = lFactory.createMigrationLauncher(ORDERS, "missingpatchstrategybatch1-inttest-migration.properties");
             launcherBatch1.doMigrations();
 
-            assertEquals(4, getPatchLevel(getOrderConnection()));
-            assertTrue(isPatchApplied(getOrderConnection(), 1));
-            assertTrue(isPatchApplied(getOrderConnection(), 4));
-            assertFalse(isPatchApplied(getOrderConnection(), 2));
-            assertFalse(isPatchApplied(getOrderConnection(), 3));
+            assertEquals(4, getPatchLevel(getOrderConnection(), ORDERS));
+            assertTrue(isPatchApplied(getOrderConnection(), 1, ORDERS));
+            assertTrue(isPatchApplied(getOrderConnection(), 4, ORDERS));
+            assertFalse(isPatchApplied(getOrderConnection(), 2, ORDERS));
+            assertFalse(isPatchApplied(getOrderConnection(), 3, ORDERS));
 
-
-            JdbcMigrationLauncher launcherBatch2 = lFactory.createMigrationLauncher("orders", "missingpatchstrategybatch2-inttest-migration.properties");
+            log.debug("Testing migration from batch 2");
+            JdbcMigrationLauncher launcherBatch2 = lFactory.createMigrationLauncher(ORDERS, "missingpatchstrategybatch2-inttest-migration.properties");
             launcherBatch2.doMigrations();
-            currentPatches("orders");
+            currentPatches(ORDERS);
 
-            assertEquals(4, getPatchLevel(getOrderConnection()));
-            assertTrue(isPatchApplied(getOrderConnection(), 1));
-            assertTrue(isPatchApplied(getOrderConnection(), 3));
-            assertTrue(isPatchApplied(getOrderConnection(), 4));
-            assertTrue(isPatchApplied(getOrderConnection(), 2));
+            assertEquals(4, getPatchLevel(getOrderConnection(), ORDERS));
+            assertTrue(isPatchApplied(getOrderConnection(), 1, ORDERS));
+            assertTrue(isPatchApplied(getOrderConnection(), 3, ORDERS));
+            assertTrue(isPatchApplied(getOrderConnection(), 4, ORDERS));
+            assertTrue(isPatchApplied(getOrderConnection(), 2, ORDERS));
 
         } catch (Exception e) {
             log.error("Unexpected error", e);
             fail("shouldn't have thrown any exceptions");
         }
+
+    }
+
+    public void testMigrationRunsFromTwoBatchesOnMultipleNodes() throws Exception, SQLException {
+        DistributedJdbcMigrationLauncherFactory dlFactory =
+            new DistributedJdbcMigrationLauncherFactory();
+
+        DistributedJdbcMigrationLauncher distributedLauncher1 = (DistributedJdbcMigrationLauncher)
+                dlFactory.createMigrationLauncher("nodes",
+                        "missingpatchstrategybatch1-inttest-migration.properties");
+
+        distributedLauncher1.doMigrations();
+
+        Connection node1Conn = DriverManager.getConnection("jdbc:hsqldb:mem:node1", "sa", "");
+        Connection node2Conn = DriverManager.getConnection("jdbc:hsqldb:mem:node2", "sa", "");
+
+        assertEquals(4, getPatchLevel(node1Conn, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 4, "nodes"));
+        assertFalse(isPatchApplied(node1Conn, 2, "nodes"));
+        assertFalse(isPatchApplied(node1Conn, 3, "nodes"));
+
+
+        assertEquals(4, getPatchLevel(node2Conn, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 4, "nodes"));
+        assertFalse(isPatchApplied(node2Conn, 2, "nodes"));
+        assertFalse(isPatchApplied(node2Conn, 3, "nodes"));
+
+
+        DistributedJdbcMigrationLauncher distributedLauncher2 = (DistributedJdbcMigrationLauncher)
+                dlFactory.createMigrationLauncher("nodes",
+                        "missingpatchstrategybatch2-inttest-migration.properties");
+
+        distributedLauncher2.doMigrations();
+
+        assertEquals(4, getPatchLevel(node1Conn, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 4, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 2, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 3, "nodes"));
+
+
+        assertEquals(4, getPatchLevel(node2Conn, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 4, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 2, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 3, "nodes"));
+
+
+        SqlUtil.close(node1Conn, null, null);
+        SqlUtil.close(node2Conn, null, null);
+
 
     }
 
@@ -88,10 +141,10 @@ public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatc
 
     }
 
-    private boolean isPatchApplied(Connection conn, int patch_level) throws Exception {
+    private boolean isPatchApplied(Connection conn, int patch_level, String system) throws Exception {
 
         Statement stmt = conn.createStatement();
-        String sql = "SELECT patch_level FROM patches WHERE system_name= 'orders' and patch_level=" + patch_level + "";
+        String sql = "SELECT patch_level FROM patches WHERE system_name= '" + system + "' and patch_level=" + patch_level + "";
         ResultSet rs = stmt.executeQuery(sql);
         return rs.next();
     }

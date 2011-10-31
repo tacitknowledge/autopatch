@@ -16,7 +16,6 @@
 package com.tacitknowledge.util.migration;
 
 import java.sql.*;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +33,10 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
 {
     /** Class logger */
     private static Log log = LogFactory.getLog(MultiNodeAutoPatchTest.class);
-    
+    private static final String CATALOG = "catalog";
+    private static final String ORDERS = "orders";
+    private static final String CORE = "core";
+
     /**
      * Constructor 
      * 
@@ -63,18 +65,18 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         }
         
         // Make sure everything worked out okay
-       Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
+       Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:" + CORE, "sa", "");
         Connection orders = getOrderConnection();
-        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
-       Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
-       Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
+        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:" + CATALOG + "1", "sa", "");
+       Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:" + CATALOG + "2", "sa", "");
+       Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:" + CATALOG + "3", "sa", "");
        
        // 4 patches should have executed
-       assertEquals(4, getPatchLevel(core));
-       assertEquals(4, getPatchLevel(orders));
-       assertEquals(4, getPatchLevel(catalog1));
-       assertEquals(4, getPatchLevel(catalog2));
-       assertEquals(4, getPatchLevel(catalog3));
+       assertEquals(4, getPatchLevel(core, CORE));
+       assertEquals(4, getPatchLevel(orders, ORDERS));
+       assertEquals(4, getPatchLevel(catalog1, CATALOG));
+       assertEquals(4, getPatchLevel(catalog2, CATALOG));
+       assertEquals(4, getPatchLevel(catalog3, CATALOG));
        
        
        // we should have test values in each table
@@ -113,17 +115,17 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         
         // Make sure everything worked out okay
        Connection core = DriverManager.getConnection("jdbc:hsqldb:mem:core", "sa", "");
-        Connection orders = getOrderConnection();
-        Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
+       Connection orders = getOrderConnection();
+       Connection catalog1 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog1", "sa", "");
        Connection catalog2 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog2", "sa", "");
        Connection catalog3 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog3", "sa", "");
        
        // 4 patches should have executed
-       assertEquals(4, getPatchLevel(core));
-       assertEquals(4, getPatchLevel(orders));
-       assertEquals(4, getPatchLevel(catalog1));
-       assertEquals(4, getPatchLevel(catalog2));
-       assertEquals(4, getPatchLevel(catalog3));
+       assertEquals(4, getPatchLevel(core, CORE));
+       assertEquals(4, getPatchLevel(orders, ORDERS));
+       assertEquals(4, getPatchLevel(catalog1, CATALOG));
+       assertEquals(4, getPatchLevel(catalog2, CATALOG));
+       assertEquals(4, getPatchLevel(catalog3, CATALOG));
        
        
        // we should have test values in each table
@@ -144,11 +146,11 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
        }
        
        // 4 patches should have executed
-       assertEquals(3, getPatchLevel(core));
-       assertEquals(3, getPatchLevel(orders));
-       assertEquals(3, getPatchLevel(catalog1));
-       assertEquals(3, getPatchLevel(catalog2));
-       assertEquals(3, getPatchLevel(catalog3));
+       assertEquals(3, getPatchLevel(core, CORE));
+       assertEquals(3, getPatchLevel(orders, ORDERS));
+       assertEquals(3, getPatchLevel(catalog1, CATALOG));
+       assertEquals(3, getPatchLevel(catalog2, CATALOG));
+       assertEquals(3, getPatchLevel(catalog3, CATALOG));
        
        SqlUtil.close(core, null, null);
        SqlUtil.close(orders, null, null);
@@ -175,14 +177,14 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         Connection catalog4 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog4", "sa", "");
 
         // make sure databases are in the state we expect
-        assertEquals(4, getPatchLevel(core));
-        assertEquals(4, getPatchLevel(orders));
-        assertEquals(4, getPatchLevel(catalog1));
-        assertEquals(4, getPatchLevel(catalog2));
-        assertEquals(4, getPatchLevel(catalog3));
+        assertEquals(4, getPatchLevel(core, CORE));
+        assertEquals(4, getPatchLevel(orders, ORDERS));
+        assertEquals(4, getPatchLevel(catalog1, CATALOG));
+        assertEquals(4, getPatchLevel(catalog2, CATALOG));
+        assertEquals(4, getPatchLevel(catalog3, CATALOG));
         try
         {
-            getPatchLevel(catalog4);
+            getPatchLevel(catalog4, CATALOG);
             fail("patches table should not exist at this point");
         } 
         catch (Exception e)
@@ -211,12 +213,12 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         }
         
         // no new patches should have executed
-        assertEquals(4, getPatchLevel(core));
-        assertEquals(4, getPatchLevel(orders));
-        assertEquals(4, getPatchLevel(catalog1));
-        assertEquals(4, getPatchLevel(catalog2));
-        assertEquals(4, getPatchLevel(catalog3));
-        assertEquals(0, getPatchLevel(catalog4));
+        assertEquals(4, getPatchLevel(core, CORE));
+        assertEquals(4, getPatchLevel(orders, ORDERS));
+        assertEquals(4, getPatchLevel(catalog1, CATALOG));
+        assertEquals(4, getPatchLevel(catalog2, CATALOG));
+        assertEquals(4, getPatchLevel(catalog3, CATALOG));
+        assertEquals(0, getPatchLevel(catalog4, CATALOG));
         
         SqlUtil.close(core, null, null);
         SqlUtil.close(orders, null, null);
@@ -256,8 +258,8 @@ public class MultiNodeAutoPatchTest extends AutoPatchIntegrationTestBase
         Connection catalog5 = DriverManager.getConnection("jdbc:hsqldb:mem:catalog5", "sa", "");
         
         // 4 patches should have executed
-        assertEquals(4, getPatchLevel(catalog4));
-        assertEquals(4, getPatchLevel(catalog5));
+        assertEquals(4, getPatchLevel(catalog4, CATALOG));
+        assertEquals(4, getPatchLevel(catalog5, CATALOG));
         
         
         // we should have test values in each table

@@ -23,12 +23,18 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.tacitknowledge.util.migration.*;
+import org.easymock.IMocksControl;
 import org.easymock.MockControl;
 
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
+
+import static org.easymock.EasyMock.anyInt;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createStrictControl;
 
 /**
  * Exercise the data source migration context
@@ -171,40 +177,27 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         // Finally they see if it is locked again, and it isn't, and it works
         patchStore.isPatchStoreLocked();
         mockControl.setReturnValue(false);
+
+
         patchStore.getPatchLevel();
         mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
         patchStore.lockPatchStore();
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
 
-        patchStore.isPatchApplied(4);
-        mockControl.setReturnValue(false);
+        IMocksControl migrationRunnerStrategyControl = createStrictControl();
+        MigrationRunnerStrategy migrationStrategyMock = migrationRunnerStrategyControl.createMock(MigrationRunnerStrategy.class);
+        expect(migrationStrategyMock.shouldMigrationRun(anyInt(), eq(patchStore))).andReturn(true).anyTimes();
+
         patchStore.updatePatchLevel(4);
-
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(4, MockControl.ONE_OR_MORE);
-        patchStore.isPatchApplied(5);
-        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(5);
-
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(5, MockControl.ONE_OR_MORE);
-        patchStore.isPatchApplied(6);
-        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(6);
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(6, MockControl.ONE_OR_MORE);
-        patchStore.isPatchApplied(7);
-        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(7);
-        // getPatchLevel() not called, but in case code changes in future, it will report the
-        // correct level.
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(7, MockControl.ZERO_OR_MORE);
         patchStore.unlockPatchStore();
+
         mockControl.replay();
+        migrationRunnerStrategyControl.replay();
 
         TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
+        testLauncher.getMigrationProcess().setMigrationRunnerStrategy(migrationStrategyMock);
         testLauncher.setLockPollMillis(0);
         testLauncher.setLockPollRetries(4);
         testLauncher.setIgnoreMigrationSuccessfulEvents(false);
@@ -250,44 +243,26 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         mockControl.setReturnValue(2);
         patchStore.lockPatchStore();
 
-        // now the migrations proceed
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
-        patchStore.isPatchApplied(4);
-        mockControl.setReturnValue(false);
+        IMocksControl migrationRunnerStrategyControl = createStrictControl();
+        MigrationRunnerStrategy migrationStrategyMock = migrationRunnerStrategyControl.createMock(MigrationRunnerStrategy.class);
+        expect(migrationStrategyMock.shouldMigrationRun(anyInt(), eq(patchStore))).andReturn(true).anyTimes();
+
         patchStore.updatePatchLevel(4);
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(4, MockControl.ONE_OR_MORE);
-
-        patchStore.isPatchApplied(5);
-        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(5);
-
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(5, MockControl.ONE_OR_MORE);
-
-        patchStore.isPatchApplied(6);
-        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(6);
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(6, MockControl.ONE_OR_MORE);
-
-        patchStore.isPatchApplied(7);
-        mockControl.setReturnValue(false);
         patchStore.updatePatchLevel(7);
-        // getPatchLevel() not called, but in case code changes in future, it will report the
-        // correct level.
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(7, MockControl.ZERO_OR_MORE);
         patchStore.unlockPatchStore();
-        mockControl.replay();
 
         TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
+        testLauncher.getMigrationProcess().setMigrationRunnerStrategy(migrationStrategyMock);
         testLauncher.setLockPollMillis(0);
         testLauncher.setLockPollRetries(3);
         testLauncher.setIgnoreMigrationSuccessfulEvents(false);
         testLauncher.setPatchStore(patchStore);
         testLauncher.setPatchPath("com.tacitknowledge.util.migration.tasks.normal");
+
+        mockControl.replay();
+        migrationRunnerStrategyControl.replay();
         testLauncher.doMigrations();
         mockControl.verify();
     }
@@ -348,22 +323,28 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
 
         taskControl.replay();
 
+        IMocksControl migrationStrategyControl = createStrictControl();
+        MigrationRunnerStrategy migrationStrategyMock = migrationStrategyControl.createMock(MigrationRunnerStrategy.class);
+
         // node1 is at patchlevel 2
         node1PatchInfoStore.getPatchLevel();
         node1PatchInfoStoreControl.setDefaultReturnValue(node1PatchLevel);
-        node1PatchInfoStore.isPatchApplied(1);
-        node1PatchInfoStoreControl.setReturnValue(true);
         node1PatchInfoStoreControl.replay();
+        expect(migrationStrategyMock.shouldMigrationRun(1, node1PatchInfoStore)).andReturn(false);
 
         // node2 is at patchlevel 1
         node2PatchInfoStore.getPatchLevel();
         node2PatchInfoStoreControl.setDefaultReturnValue(node2PatchLevel);
-        node2PatchInfoStore.isPatchApplied(1);
-        node2PatchInfoStoreControl.setReturnValue(false);
+        expect(migrationStrategyMock.shouldMigrationRun(1, node2PatchInfoStore)).andReturn(true);
+
+
         node2PatchInfoStore.updatePatchLevel(migrationSuccessfulPatchLevel);
         node2PatchInfoStoreControl.setVoidCallable();
 
         node2PatchInfoStoreControl.replay();
+        migrationStrategyControl.replay();
+
+        launcher.getMigrationProcess().setMigrationRunnerStrategy(migrationStrategyMock);
 
         // test and validate
         launcher.migrationSuccessful(task, context);

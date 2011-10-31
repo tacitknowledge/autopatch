@@ -22,6 +22,7 @@ import com.tacitknowledge.util.migration.jdbc.DistributedAutoPatchService;
 import com.tacitknowledge.util.migration.jdbc.TestAutoPatchService;
 import com.tacitknowledge.util.migration.jdbc.TestDataSourceMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.TestDistributedAutoPatchService;
+import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactoryTest;
 
 /**
  * Test the Distributed auto patch service to make sure it configures

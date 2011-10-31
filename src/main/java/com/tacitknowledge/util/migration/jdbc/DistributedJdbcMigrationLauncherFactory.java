@@ -170,7 +170,7 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
      * @throws IllegalArgumentException if a required parameter is missing
      * @throws MigrationException if there is problem setting the context into the launcher
      */
-    private void configureFromMigrationProperties(DistributedJdbcMigrationLauncher launcher, 
+    void configureFromMigrationProperties(DistributedJdbcMigrationLauncher launcher,
                                                   String systemName, Properties props,
                                                   String propFileName) 
         throws IllegalArgumentException, MigrationException
@@ -185,7 +185,8 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         ds.setDatabaseUrl(ConfigurationUtil.getRequiredParam(props, patchContext + ".jdbc.url"));
         ds.setUsername(ConfigurationUtil.getRequiredParam(props, patchContext + ".jdbc.username"));
         ds.setPassword(ConfigurationUtil.getRequiredParam(props, patchContext + ".jdbc.password"));
-        
+
+        launcher.setMigrationStrategy(props.getProperty("migration.strategy"));
         // Get any post-patch task paths
         launcher.setPostPatchPath(props.getProperty(patchContext + ".postpatch.path"));
         

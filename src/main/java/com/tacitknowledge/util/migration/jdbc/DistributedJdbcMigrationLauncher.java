@@ -18,6 +18,7 @@ package com.tacitknowledge.util.migration.jdbc;
 import com.tacitknowledge.util.migration.DistributedMigrationProcess;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationProcess;
+import com.tacitknowledge.util.migration.MigrationRunnerFactory;
 
 /**
  * Core starting point for a distributed database migration run.  
@@ -58,7 +59,10 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
      */
     public MigrationProcess getNewMigrationProcess()
     {
-        return new DistributedMigrationProcess();
+        DistributedMigrationProcess migrationProcess = new DistributedMigrationProcess();
+        migrationProcess.setMigrationRunnerStrategy
+                (MigrationRunnerFactory.getMigrationRunnerStrategy(getMigrationStrategy()));
+        return migrationProcess;
     }
     
     /**

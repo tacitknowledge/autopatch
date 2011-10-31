@@ -13,24 +13,26 @@
  * limitations under the License.
  */
 
-package com.tacitknowledge.util.migration;
+package com.tacitknowledge.util.migration.jdbc;
 
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Properties;
 
+import com.tacitknowledge.util.migration.*;
 import com.tacitknowledge.util.migration.builders.MockBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.easymock.MockControl;
 
-import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncher;
-import com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory;
-import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
-import com.tacitknowledge.util.migration.jdbc.TestDataSourceMigrationContext;
-import com.tacitknowledge.util.migration.jdbc.TestDistributedJdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
+
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createNiceControl;
 
 /**
  * Test the distributed launcher factory
@@ -105,7 +107,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
      *
      * @param launchers     Collection of JDBCMigrationLaunchers
      * @param levelToReport the patch level the mock should report
-     * @throws MigrationException
+     * @throws com.tacitknowledge.util.migration.MigrationException
      */
     protected void setReportedPatchLevel(Collection launchers, int levelToReport) throws MigrationException
     {
@@ -116,21 +118,11 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
             {
                 MigrationContext ctx = (MigrationContext) it.next();
 
-                launcher.getContexts().put(ctx, getPatchInfoStoreMock(levelToReport));
+                launcher.getContexts().put(ctx, MockBuilder.getPatchInfoStore(levelToReport));
             }
         }
     }
 
-
-    private PatchInfoStore getPatchInfoStoreMock(int levelToReport) throws MigrationException
-    {
-        MockControl patchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-        PatchInfoStore patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
-        patchInfoStore.getPatchLevel();
-        patchInfoStoreControl.setReturnValue(levelToReport);
-        patchInfoStoreControl.replay();
-        return patchInfoStore;
-    }
 
     /**
      * Test the configuration of the launchers versus a known property file
@@ -277,7 +269,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         // Now do the migrations, and make sure we get the right number of events
         MigrationProcess process = launcher.getMigrationProcess();
         process.setMigrationRunnerStrategy(new OrderedMigrationRunnerStrategy());
-        process.doMigrations(getPatchInfoStoreMock(currentPatchLevel), context);
+        process.doMigrations(MockBuilder.getPatchInfoStore(currentPatchLevel), context);
 
         // The orders schema has four tasks that should go, make sure they did
         JdbcMigrationLauncher ordersLauncher =
@@ -303,6 +295,24 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
         assertFalse(coreContext.hasExecuted("patch0001_first_patch"));
         assertFalse(coreContext.hasExecuted("patch0002_second_patch"));
         assertFalse(coreContext.hasExecuted("patch0003_third_patch"));
+    }
+
+    public void testShouldSetMigrationStrategyToDistributedJdbcMigrationLauncherFromProperties( ) throws MigrationException {
+        DistributedJdbcMigrationLauncherFactory factory = new DistributedJdbcMigrationLauncherFactory();
+        IMocksControl control = createNiceControl();
+        DistributedJdbcMigrationLauncher distributedLauncher = control.createMock(DistributedJdbcMigrationLauncher.class);
+
+        String systemName="mysystem";
+        String propertyFileName="migration.properties";
+        Properties properties = MockBuilder.getPropertiesWithDistributedSystemConfiguration("mysystem", "mystrategy", "orders");
+        distributedLauncher.setMigrationStrategy("mystrategy");
+        DistributedMigrationProcess migrationProcess=new DistributedMigrationProcess();
+        expect(distributedLauncher.getMigrationProcess() ).andReturn(migrationProcess).anyTimes();
+        control.replay();
+
+        factory.configureFromMigrationProperties(distributedLauncher, systemName,properties, propertyFileName);
+
+        control.verify();
     }
 
     /**

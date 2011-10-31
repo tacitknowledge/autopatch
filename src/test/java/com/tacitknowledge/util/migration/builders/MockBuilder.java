@@ -18,7 +18,14 @@ package com.tacitknowledge.util.migration.builders;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationRunnerStrategy;
 import com.tacitknowledge.util.migration.PatchInfoStore;
+import org.apache.commons.lang.ArrayUtils;
 import org.easymock.MockControl;
+import org.easymock.classextension.IMocksControl;
+
+import java.util.Properties;
+
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createStrictControl;
 
 /**
  * MockBuilder to retrieve simple objects used in different tests
@@ -30,12 +37,32 @@ public class MockBuilder
 
     public static PatchInfoStore getPatchInfoStore(int patchLevel) throws MigrationException
     {
-        MockControl patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
-        PatchInfoStore patchInfoStoreMock = (PatchInfoStore) patchInfoStoreControl.getMock();
-        patchInfoStoreMock.getPatchLevel();
-        patchInfoStoreControl.setReturnValue(patchLevel);
+        IMocksControl patchInfoStoreControl = createStrictControl();
+        PatchInfoStore patchInfoStoreMock = patchInfoStoreControl.createMock(PatchInfoStore.class);
+        expect( patchInfoStoreMock.getPatchLevel()).andReturn(patchLevel).anyTimes();
         patchInfoStoreControl.replay();
         return patchInfoStoreMock;
     }
+
+    public static Properties getPropertiesWithSystemConfiguration( String system, String strategy ){
+        Properties properties = new Properties();
+        properties.setProperty(system + ".patch.path", "systemPath");
+        properties.setProperty(system + ".jdbc.driver", "jdbcDriver");
+        properties.setProperty(system + ".jdbc.url", "jdbcUrl");
+        properties.setProperty(system + ".jdbc.username", "jdbcUsername");
+        properties.setProperty(system + ".jdbc.password", "jdbcPassword");
+        properties.setProperty(system + ".jdbc.dialect", "hsqldb");
+        properties.setProperty("migration.strategy", strategy);
+        return properties;
+    }
+
+    public static Properties getPropertiesWithDistributedSystemConfiguration( String system, String strategy, String subsystems ){
+        Properties properties = getPropertiesWithSystemConfiguration(system,strategy);
+        properties.setProperty(system + ".context", system);
+        properties.setProperty(system + ".controlled.systems", subsystems );
+
+        return properties;
+    }
+
 
 }

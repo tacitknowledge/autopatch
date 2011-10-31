@@ -23,18 +23,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import com.tacitknowledge.util.migration.MigrationRunnerFactory;
+import com.tacitknowledge.util.migration.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.MigrationContext;
-import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationProcess;
-import com.tacitknowledge.util.migration.MigrationTask;
-import com.tacitknowledge.util.migration.PatchInfoStore;
-import com.tacitknowledge.util.migration.RollbackListener;
-import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.jdbc.loader.FlatXmlDataSetTaskSource;
 
 /**
@@ -400,7 +393,8 @@ public class JdbcMigrationLauncher implements RollbackListener
         for (Iterator patchTableIter = contexts.entrySet().iterator(); patchTableIter.hasNext();)
         {
             PatchInfoStore store = (PatchInfoStore) ((Map.Entry) patchTableIter.next()).getValue();
-            if (!store.isPatchApplied(patchLevel))
+            MigrationRunnerStrategy strategy = getMigrationProcess().getMigrationRunnerStrategy();
+            if (strategy.shouldMigrationRun(patchLevel, store))
             {
                 store.updatePatchLevel(patchLevel);
             }
