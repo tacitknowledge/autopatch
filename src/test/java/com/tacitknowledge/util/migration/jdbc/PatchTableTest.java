@@ -16,6 +16,8 @@
 package com.tacitknowledge.util.migration.jdbc;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.easymock.MockControl;
 
@@ -379,6 +381,20 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         assertEquals(false, table.isPatchApplied(3));
         commonVerifications();
         verifyPreparedStatementPresent(table.getSql("level.exists"));
+    }
+
+    public void testPatchRetrievesSetWithPatchesApplied () throws SQLException, MigrationException {
+        handler = conn.getPreparedStatementResultSetHandler();
+        MockResultSet rs = handler.createResultSet();
+        rs.addColumn("patch_level", new Object[]{1, 2});
+        handler.prepareGlobalResultSet(rs);
+
+        Set<Integer> expected = new HashSet<Integer>();
+        expected.add(1);
+        expected.add(2);
+        assertEquals(expected, table.getPatchesApplied());
+        commonVerifications();
+        verifyPreparedStatementPresent(table.getSql("patches.all"));
     }
 
 

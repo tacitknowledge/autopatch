@@ -15,6 +15,8 @@
 
 package com.tacitknowledge.util.migration;
 
+import java.util.Set;
+
 /**
  * Interface for the persistence of information related to the patch level
  * of the system, as well as whether patches are currently being applied
@@ -83,4 +85,11 @@ public interface PatchInfoStore
      * @exception MigrationException if updating the patch level failed
      */
     public void updatePatchLevelAfterRollBack(int rollbackLevel) throws MigrationException;
+
+    /**
+     * Obtains all patches applied in the system.
+     * @return a set containing all patches number applied in the system.
+     * @throws MigrationException if retrieving patches fails.
+     */
+    public Set<Integer> getPatchesApplied() throws MigrationException;
 }

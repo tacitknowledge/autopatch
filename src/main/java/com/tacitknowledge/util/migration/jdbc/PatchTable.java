@@ -19,6 +19,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -390,5 +392,30 @@ public class PatchTable implements PatchInfoStore
         {
             SqlUtil.close(conn, stmt, null);
         }
+    }
+
+    public Set<Integer> getPatchesApplied() throws MigrationException {
+        createPatchStoreIfNeeded();
+
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+        Set <Integer> patches = new HashSet<Integer>();
+        try {
+            connection = context.getConnection();
+            stmt = connection.prepareStatement(getSql("patches.all"));
+            stmt.setString(1, context.getSystemName());
+            resultSet = stmt.executeQuery();
+            while(resultSet.next()) {
+                patches.add(resultSet.getInt("patch_level"));
+            }
+
+
+        } catch (SQLException e) {
+            throw  new MigrationException("Unable to get patch levels", e);
+        } finally {
+            SqlUtil.close(connection, stmt, resultSet);
+        }
+        return patches;
     }
 }
