@@ -18,12 +18,19 @@ package com.tacitknowledge.util.migration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import com.tacitknowledge.util.migration.builders.MockBuilder;
 import junit.framework.TestCase;
 
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.easymock.MockControl;
 
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
+
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createStrictControl;
 
 /**
  * Test the {@link DistributedMigrationProcess} class.
@@ -32,10 +39,14 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
  */
 public class DistributedMigrationProcessTest extends TestCase
 {
+    private static final int CURRENT_PATCH_LEVEL = 4;
     /** class under test */
     private DistributedMigrationProcess migrationProcess = null;
-    
-    
+    private PatchInfoStore currentPatchInfoStore;
+    private IMocksControl migrationRunnerStrategyControl;
+    private MigrationRunnerStrategy migrationRunnerStrategy;
+
+
     /**
      * Setup our tests.
      */
@@ -43,6 +54,9 @@ public class DistributedMigrationProcessTest extends TestCase
     {
         super.setUp();
         migrationProcess = new DistributedMigrationProcess();
+        currentPatchInfoStore = MockBuilder.getPatchInfoStore(CURRENT_PATCH_LEVEL);
+        migrationRunnerStrategyControl = createStrictControl();
+        migrationRunnerStrategy = migrationRunnerStrategyControl.createMock(MigrationRunnerStrategy.class);
     }
     
     protected HashMap createSystems()
@@ -61,9 +75,7 @@ public class DistributedMigrationProcessTest extends TestCase
     
     public void testValidateControlledSystemsWhenNodePatchLevelsAreInSync() throws Exception
     {
-        // the patch level the systems is at for test purposes.
-        int currentPatchLevel = 4;
-        
+
         // system has one node
         String systemName = "system1";
         JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
@@ -73,10 +85,12 @@ public class DistributedMigrationProcessTest extends TestCase
         JdbcMigrationContext context = (JdbcMigrationContext) contextControl.getMock();
         MockControl patchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
         PatchInfoStore patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
-        // setup mock patch info store to return the patch level we want
-        patchInfoStore.getPatchLevel();
-        patchInfoStoreControl.setReturnValue(currentPatchLevel);
-        patchInfoStoreControl.replay();
+
+        expect(migrationRunnerStrategy.isSynchronized(currentPatchInfoStore, patchInfoStore)).andReturn(true);
+
+        migrationRunnerStrategyControl.replay();
+
+        migrationProcess.setMigrationRunnerStrategy(migrationRunnerStrategy);
 
         // create the launcher's contexts collection
         LinkedHashMap contexts = new LinkedHashMap();
@@ -90,7 +104,7 @@ public class DistributedMigrationProcessTest extends TestCase
         
         try
         {
-            migrationProcess.validateControlledSystems(currentPatchLevel);
+            migrationProcess.validateControlledSystems(currentPatchInfoStore);
         }
         catch(Exception e)
         {
@@ -100,9 +114,6 @@ public class DistributedMigrationProcessTest extends TestCase
     
     public void testValidateControlledSystemsWhenNodePatchLevelsAreOutOfSync() throws Exception
     {
-        // the patch level the systems is at for test purposes.
-        int currentPatchLevel = 4;
-        
         // system has one node
         String systemName = "system1";
         JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
@@ -116,10 +127,7 @@ public class DistributedMigrationProcessTest extends TestCase
         node1Context.getDatabaseName();
         node1ContextControl.setReturnValue("node1", MockControl.ONE_OR_MORE);
         node1ContextControl.replay();
-        node1PatchInfoStore.getPatchLevel();
-        node1PatchInfoStoreControl.setReturnValue(currentPatchLevel);
-        node1PatchInfoStoreControl.replay();
-        
+
         // second node simulates a newly added database instance, it has not been patched
         MockControl node2ContextControl = MockControl.createControl(JdbcMigrationContext.class);
         JdbcMigrationContext node2Context = (JdbcMigrationContext) node2ContextControl.getMock();
@@ -129,9 +137,6 @@ public class DistributedMigrationProcessTest extends TestCase
         node2Context.getDatabaseName();
         node2ContextControl.setReturnValue("node2", MockControl.ONE_OR_MORE);
         node2ContextControl.replay();
-        node2PatchInfoStore.getPatchLevel();
-        node2PatchInfoStoreControl.setReturnValue(0);
-        node2PatchInfoStoreControl.replay();
 
         // create the launcher's contexts collection
         LinkedHashMap contexts = new LinkedHashMap();
@@ -143,9 +148,15 @@ public class DistributedMigrationProcessTest extends TestCase
         controlledSystems.put(systemName, launcher);
         
         migrationProcess.setControlledSystems(controlledSystems);
+        expect(migrationRunnerStrategy.isSynchronized(currentPatchInfoStore, node1PatchInfoStore)).andReturn(true);
+        expect(migrationRunnerStrategy.isSynchronized(currentPatchInfoStore, node2PatchInfoStore)).andReturn(false);
+
+        migrationRunnerStrategyControl.replay();
+
+        migrationProcess.setMigrationRunnerStrategy(migrationRunnerStrategy);
         try
         {
-            migrationProcess.validateControlledSystems(currentPatchLevel);
+            migrationProcess.validateControlledSystems(currentPatchInfoStore);
             fail("Unexpected exception when validating controlled systems.");
         }
         catch(MigrationException me)

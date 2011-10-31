@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.tacitknowledge.util.migration.builders.MockBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.easymock.MockControl;
@@ -52,6 +53,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
 
     /** A MigrationContext for us */
     private TestMigrationContext context = null;
+    private PatchInfoStore currentPatchInfoStore;
 
     /**
      * Just delegates to the superclass
@@ -139,6 +141,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         
         // set ourselves up as a listener for any migrations that run
         getLauncher().getMigrationProcess().addListener(this);
+        currentPatchInfoStore = MockBuilder.getPatchInfoStore(12);
     }
 
     /**
@@ -215,7 +218,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         int rollbackPatchLevel = 8;
         
         setReportedPatchLevel(process.getControlledSystems().values(), currentPatchlevel);
-        int patches = process.doRollbacks(currentPatchlevel, rollbackPatchLevel, getContext(), false);
+        int patches = process.doRollbacks(currentPatchInfoStore, rollbackPatchLevel, getContext(), false);
         assertEquals(4, patches);
         assertEquals(4, getRollbackStartedCount());
         assertEquals(4, getRollbackSuccessCount());
@@ -244,7 +247,7 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         // Now do the migrations, and make sure we get the right number of events
         try
         {
-            process.doRollbacks(currentPatchLevel, rollbackPatchLevel, getContext(), false);
+            process.doRollbacks(currentPatchInfoStore, rollbackPatchLevel, getContext(), false);
             fail("There should have been an exception - unapplied patches + read-only don't work");
         } 
         catch (MigrationException me)

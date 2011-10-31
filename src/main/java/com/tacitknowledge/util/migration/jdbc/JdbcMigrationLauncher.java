@@ -181,7 +181,6 @@ public class JdbcMigrationLauncher implements RollbackListener
         int executedPatchCount = 0;
         try
         {
-            int patchLevel = patchTable.getPatchLevel();
 
             // remember the auto-commit state, and turn auto-commit off
             Connection conn = context.getConnection();
@@ -191,7 +190,7 @@ public class JdbcMigrationLauncher implements RollbackListener
             // run the rollbacks
             try
             {
-                executedPatchCount = migrationProcess.doRollbacks(patchLevel, rollbackLevel, context, forceRollback);
+                executedPatchCount = migrationProcess.doRollbacks(patchTable, rollbackLevel, context, forceRollback);
             }
 
             // restore autocommit state

@@ -210,19 +210,21 @@ public class MigrationProcess
      * Applies rollbacks to move the patch level from the current level to the
      * rollback level.
      * 
-     * @param currentLevel an integer indicating the current patch level
+     *
+     * @param currentPatchInfoStore
      * @param rollbackLevel an integer indicating the level the desired patch level
      * @param context information and resources that are available to the migration tasks
      * @return the count of patches which were rolled back
      * @throws MigrationException
      */
-    public int doRollbacks(int currentLevel, int rollbackLevel, MigrationContext context,
+    public int doRollbacks(PatchInfoStore currentPatchInfoStore, int rollbackLevel, MigrationContext context,
             boolean forceRollback) throws MigrationException
     {
         log.trace("Starting doRollbacks");
         int taskCount = 0;
 
-        if (currentLevel < rollbackLevel)
+        int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
+        if (currentPatchLevel < rollbackLevel)
         {
             throw new IllegalArgumentException(
                     "The rollback patch level cannot be greater than the current patch level");
@@ -233,7 +235,7 @@ public class MigrationProcess
 
         // filter tasks which are not required to run because they are at a
         // level below the rollback level
-        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentLevel,
+        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchLevel,
                 rollbackLevel);
         CollectionUtils.filter(rollbacks, rollbackPredicate);
         Collections.sort(rollbacks);
@@ -263,7 +265,7 @@ public class MigrationProcess
                 log.debug("Task will rollback in context '" + context + "'");
 
                 applyRollback(context, task, true);
-                currentLevel--;
+                currentPatchLevel--;
                 taskCount++;
             }
         }
@@ -271,10 +273,10 @@ public class MigrationProcess
         {
             // Can I list the tasks which are not rollbackable?
             log.info("Could not complete rollback because one or more of the tasks " +
-                    "is not rollbackable.The system is still at patch level " + currentLevel + ".");
+                    "is not rollbackable.The system is still at patch level " + currentPatchInfoStore + ".");
             taskCount = 0;
         }
-        if (currentLevel == rollbackLevel)
+        if (currentPatchLevel == rollbackLevel)
         {
             log.info("Rollback complete.  The system is now at the desired patch level.");
         }

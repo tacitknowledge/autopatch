@@ -34,6 +34,7 @@ public class RollbackTest extends MigrationListenerTestBase
     private TestMigrationContext context = null;
     private MockControl patchInfoStoreControl;
     private PatchInfoStore patchInfoStore;
+    private PatchInfoStore currentPatchInfoStore;
 
     /**
      * Constructor for RollbackTest.
@@ -61,6 +62,7 @@ public class RollbackTest extends MigrationListenerTestBase
         context = new TestMigrationContext();
         patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
         patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
+        currentPatchInfoStore = MockBuilder.getPatchInfoStore(12);
     }
     
     /**
@@ -101,7 +103,8 @@ public class RollbackTest extends MigrationListenerTestBase
         assertEquals(5, getMigrationSuccessCount());
         
         // execute the rollback
-        level = runner.doRollbacks(12, 8, context, false);
+
+        level = runner.doRollbacks(currentPatchInfoStore, 8, context, false);
         assertEquals(4, level);
         assertEquals(4, getRollbackSuccessCount());
         
@@ -132,7 +135,7 @@ public class RollbackTest extends MigrationListenerTestBase
         assertTrue(context.hasExecuted("TestRollbackableTask5"));
         
         // execute the rollback
-        level = runner.doRollbacks(12, 8, context, false);
+        level = runner.doRollbacks(currentPatchInfoStore, 8, context, false);
         assertEquals(4, level);
         assertEquals(4, getRollbackSuccessCount());
     }
@@ -150,7 +153,7 @@ public class RollbackTest extends MigrationListenerTestBase
         // execute the rollback
         try
         {
-            runner.doRollbacks(12, 7, context, false);
+            runner.doRollbacks(currentPatchInfoStore, 7, context, false);
         } 
         catch (MigrationException me)
         {
@@ -170,7 +173,7 @@ public class RollbackTest extends MigrationListenerTestBase
         // execute the rollback
         try
         {
-            runner.doRollbacks(12, 7, context, true);
+            runner.doRollbacks(currentPatchInfoStore, 7, context, true);
         } 
         catch (MigrationException me)
         {
@@ -226,10 +229,12 @@ public class RollbackTest extends MigrationListenerTestBase
         assertTrue(context.hasExecuted("TestRollbackableTask3"));
         assertTrue(context.hasExecuted("TestRollbackableTask4"));
         assertTrue(context.hasExecuted("TestRollbackableTask5"));
-        
+
+
         try
         {
-            level = runner.doRollbacks(level, 7, context, false);
+            PatchInfoStore patchInfoStoreBasedOnLevel=MockBuilder.getPatchInfoStore(level);
+            level = runner.doRollbacks(patchInfoStoreBasedOnLevel, 7, context, false);
         } 
         catch (IllegalArgumentException iae)
         {
@@ -269,7 +274,8 @@ public class RollbackTest extends MigrationListenerTestBase
         
         try
         {
-            level = runner.doRollbacks(13, 12, context, false);
+            PatchInfoStore nestedPatchInfoStore=MockBuilder.getPatchInfoStore(13);
+            level = runner.doRollbacks(nestedPatchInfoStore, 12, context, false);
         } 
         catch (MigrationException me)
         {

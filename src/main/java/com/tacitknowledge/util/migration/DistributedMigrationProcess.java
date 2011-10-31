@@ -127,12 +127,11 @@ public class DistributedMigrationProcess extends MigrationProcess
      * Execute a dry run of the patch process and return a count of the number
      * of patches we would have executed.
      * 
-     * @param currentPatchLevel The current patch level of the database
+     * @param currentPatchInfoStore The current patch info store
      * @param migrationsWithLaunchers a map of migration task to launcher
      * @return count of the number of patches
      */
-    protected final int patchDryRun(final int currentPatchLevel, final LinkedHashMap migrationsWithLaunchers)
-    {
+    protected final int patchDryRun(final PatchInfoStore currentPatchInfoStore, final LinkedHashMap migrationsWithLaunchers) throws MigrationException {
         int taskCount = 0;
 
         for (Iterator i = migrationsWithLaunchers.entrySet().iterator(); i.hasNext();)
@@ -141,7 +140,8 @@ public class DistributedMigrationProcess extends MigrationProcess
             MigrationTask task = (MigrationTask) entry.getKey();
             JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) entry.getValue();
 
-            if (task.getLevel().intValue() > currentPatchLevel)
+
+            if (getMigrationRunnerStrategy().shouldMigrationRun(task.getLevel(),currentPatchInfoStore))
             {
                 log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 if (log.isDebugEnabled())
@@ -164,14 +164,15 @@ public class DistributedMigrationProcess extends MigrationProcess
     /**
      * Applies the necessary rollbacks to the system.
      * 
-     * @param currentLevel the current system patch level
+     *
+     * @param currentPatchInfoStore
      * @param rollbackLevel the level that the system should rollback to
      * @param context information and resources that are available to the migration tasks
      * @throws MigrationException if a rollback fails
      * @return the number of <code>RollbackableMigrationTasks</code> which have been rolled back
      * @Override
      */
-    public final int doRollbacks(final int currentLevel, final int rollbackLevel, final MigrationContext context,
+    public final int doRollbacks(final PatchInfoStore currentPatchInfoStore, final int rollbackLevel, final MigrationContext context,
             boolean forceRollback) throws MigrationException
     {
         log.debug("Starting doRollbacks");
@@ -185,7 +186,7 @@ public class DistributedMigrationProcess extends MigrationProcess
 
         // filter tasks which are not required to run because they are at a
         // level below the rollback level
-        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentLevel,
+        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchInfoStore.getPatchLevel(),
                 rollbackLevel);
         CollectionUtils.filter(rollbacks, rollbackPredicate);
 
@@ -194,7 +195,7 @@ public class DistributedMigrationProcess extends MigrationProcess
         Collections.sort(rollbacks);
         Collections.reverse(rollbacks);
 
-        validateControlledSystems(currentLevel);
+        validateControlledSystems(currentPatchInfoStore);
         taskCount = rollbackDryRun(rollbacks, rollbacksWithLaunchers);
 
         if (taskCount > 0)
@@ -262,7 +263,6 @@ public class DistributedMigrationProcess extends MigrationProcess
                                   final MigrationContext context) throws MigrationException
     {
         log.debug("Starting doMigrations");
-         int currentLevel = patchInfoStore.getPatchLevel();
         // Get all the migrations, with their launchers, then get the list of
         // just the migrations
         LinkedHashMap migrationsWithLaunchers = getMigrationTasksWithLaunchers();
@@ -273,10 +273,10 @@ public class DistributedMigrationProcess extends MigrationProcess
         validateTasks(migrations);
         Collections.sort(migrations);
 
-        validateControlledSystems(currentLevel);
+        validateControlledSystems(patchInfoStore);
 
         // determine how many tasks we're going to execute
-        int taskCount = patchDryRun(currentLevel, migrationsWithLaunchers);
+        int taskCount = patchDryRun(patchInfoStore, migrationsWithLaunchers);
 
         if (taskCount > 0)
         {
@@ -343,7 +343,7 @@ public class DistributedMigrationProcess extends MigrationProcess
                             (PatchInfoStore) launcher.getContexts().get(
                             launcherContext);
 
-                    if (migrationLevel > patchInfoStoreOfContext.getPatchLevel())
+                    if ( !getMigrationRunnerStrategy().isSynchronized( patchInfoStore, patchInfoStoreOfContext ) )
                     {
                         outOfSyncContexts.add(launcherContext);
                     }
@@ -381,8 +381,9 @@ public class DistributedMigrationProcess extends MigrationProcess
      * Validates that the controlled systems are all at the current patch level.
      * 
      * @throws MigrationException if all the controlled systems are not at the current patch level.
+     * @param currentPatchInfoStore
      */
-    protected final void validateControlledSystems(final int currentLevel) throws MigrationException
+    protected final void validateControlledSystems(final PatchInfoStore currentPatchInfoStore) throws MigrationException
     {
         for (Iterator it = getControlledSystems().keySet().iterator(); it.hasNext();)
         {
@@ -394,14 +395,13 @@ public class DistributedMigrationProcess extends MigrationProcess
             {
                 JdbcMigrationContext ctx = (JdbcMigrationContext) contextIt.next();
                 PatchInfoStore patchInfoStore = (PatchInfoStore) launcher.getContexts().get(ctx);
-                int patchLevel = patchInfoStore.getPatchLevel();
-                if (patchLevel != currentLevel)
+                if (!getMigrationRunnerStrategy().isSynchronized(currentPatchInfoStore, patchInfoStore))
                 {
                     String message = "Database " + ctx.getDatabaseName()
                             + " is out of sync with system: " + systemName + ".  "
                             + ctx.getDatabaseName() + " is at patch level "
-                            + Integer.toString(patchLevel) + " and the System is at patch level "
-                            + Integer.toString(currentLevel) + ".";
+                            + Integer.toString(patchInfoStore.getPatchLevel()) + " and the System is at patch level "
+                            + Integer.toString(currentPatchInfoStore.getPatchLevel()) + ".";
                     if (getForceSync())
                     {
                         log.info(message + "  Continuing since 'forcesync' was specified.");
