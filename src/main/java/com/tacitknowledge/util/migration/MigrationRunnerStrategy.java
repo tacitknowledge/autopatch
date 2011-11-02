@@ -15,6 +15,8 @@
 
 package com.tacitknowledge.util.migration;
 
+import java.util.List;
+
 /**
  * Dictates the methods that different algorithms should run when we
  * try to apply patches or get information about the patches that need to be run.
@@ -40,4 +42,6 @@ public interface MigrationRunnerStrategy
      * @throws MigrationException
      */
    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException;
+
+   public void getRollbackCandidates(List migrationTasksForRollback, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException;
 }

@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
-public class RollbackTest extends MigrationListenerTestBase
+public class MigrationProcessRollbackTest extends MigrationListenerTestBase
 {
     /** The class under test */
     private MigrationProcess runner = null;
@@ -37,11 +37,11 @@ public class RollbackTest extends MigrationListenerTestBase
     private PatchInfoStore currentPatchInfoStore;
 
     /**
-     * Constructor for RollbackTest.
+     * Constructor for MigrationProcessRollbackTest.
      * 
      * @param name the name of the test to run
      */
-    public RollbackTest(String name)
+    public MigrationProcessRollbackTest(String name)
     {
         super(name);
     }

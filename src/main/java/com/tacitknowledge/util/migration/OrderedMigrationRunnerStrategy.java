@@ -14,6 +14,11 @@
  */
 package com.tacitknowledge.util.migration;
 
+import org.apache.commons.collections.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
  *
  * Helps to get information about how the migrations should run based in an ordered stategy, i.e.
@@ -38,4 +43,23 @@ public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
         return currentPatchInfoStore.getPatchLevel() == patchInfoStore.getPatchLevel();
     }
 
+    public void getRollbackCandidates(List migrationTasksForRollback, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException {
+        int rollbackLevel = rollbackLevels[0];
+        int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
+
+        if (currentPatchLevel < rollbackLevel)
+        {
+            throw new IllegalArgumentException(
+                    "The rollback patch level cannot be greater than the current patch level");
+        }
+
+        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchLevel,
+                rollbackLevel);
+        CollectionUtils.filter(migrationTasksForRollback, rollbackPredicate);
+        Collections.sort(migrationTasksForRollback);
+         // need to reverse the list do we apply the rollbacks in descending
+        // order
+        Collections.reverse(migrationTasksForRollback);
+
+    }
 }

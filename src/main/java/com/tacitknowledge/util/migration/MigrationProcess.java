@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -222,30 +221,17 @@ public class MigrationProcess
     {
         log.trace("Starting doRollbacks");
         int taskCount = 0;
-        //TODO CHANGE THIS when migration to MigrationRunnerStrategy!!!!!!
-        int rollbackLevel = rollbackLevels[0];
-
-        int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
-        if (currentPatchLevel < rollbackLevel)
-        {
-            throw new IllegalArgumentException(
-                    "The rollback patch level cannot be greater than the current patch level");
-        }
-
         List rollbacks = getMigrationTasks();
         validateTasks(rollbacks);
 
-        //TODO This is what we need to move to the migration runner strategy impl.
-        // filter tasks which are not required to run because they are at a
-        // level below the rollback level
-        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchLevel,
-                rollbackLevel);
-        CollectionUtils.filter(rollbacks, rollbackPredicate);
-        Collections.sort(rollbacks);
+        int rollbackLevel = rollbackLevels[0];
 
-        // need to reverse the list do we apply the rollbacks in descending
-        // order
-        Collections.reverse(rollbacks);
+        int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
+
+
+        getMigrationRunnerStrategy().getRollbackCandidates(rollbacks, rollbackLevels, currentPatchInfoStore);
+
+
         boolean isPatchSetRollbackable = isPatchSetRollbackable(rollbacks);
         taskCount = rollbackDryRun(rollbacks, context);
         if (isPatchSetRollbackable || forceRollback)
