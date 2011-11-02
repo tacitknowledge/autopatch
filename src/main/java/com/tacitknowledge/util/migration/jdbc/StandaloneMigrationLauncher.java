@@ -139,8 +139,9 @@ public final class StandaloneMigrationLauncher
                 log
                         .info("Found rollback flag. AutoPatch will attempt to rollback the system to patch level "
                                 + rollbackLevel + ".");
-                MigrationUtil.doRollbacks(migrationSystemName, migrationSettings, rollbackLevel, forceRollback);
+                new MigrationUtil().doRollbacks(migrationSystemName, migrationSettings, new int[]{rollbackLevel}, forceRollback);
             }
+
             else
             {
                 MigrationUtil.doMigrations(migrationSystemName, migrationSettings);

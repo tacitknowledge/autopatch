@@ -19,15 +19,18 @@ public class MigrationUtil
 {
     /** Class logger */
     private static Log log = LogFactory.getLog(MigrationUtil.class);
-    
-    /**
-     * Shouldn't be used
-     */
-    private MigrationUtil()
-    {
-        // Do nothing
+
+    public JdbcMigrationLauncherFactory getLauncherFactory() {
+        return launcherFactory;
     }
-    
+
+    public void setLauncherFactory(JdbcMigrationLauncherFactory launcherFactory) {
+        this.launcherFactory = launcherFactory;
+    }
+
+    private JdbcMigrationLauncherFactory launcherFactory;
+
+
     /**
      * Helper method to initiate the migration process.
      * 
@@ -37,7 +40,7 @@ public class MigrationUtil
     public static void doMigrations(final ServletContextEvent sce) throws MigrationException
     {
         JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
+                new JdbcMigrationLauncherFactoryLoader().createFactory();
         JdbcMigrationLauncher launcher = launcherFactory.createMigrationLauncher(sce);
         launcher.doMigrations();
     }
@@ -54,7 +57,7 @@ public class MigrationUtil
     public static void doMigrations(final String migrationSystemName,
             final String migrationSettings) throws MigrationException
     {
-        JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
+        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactoryLoader ()
                 .createFactory();
         JdbcMigrationLauncher launcher = null;
 
@@ -82,26 +85,25 @@ public class MigrationUtil
      *                additional properties for migration
      * @throws MigrationException
      */
-    public static void doRollbacks(final String migrationSystemName,
-            final String migrationSettings, final int rollbackLevel, final boolean forceRollback)
+    public void doRollbacks(final String migrationSystemName,
+            final String migrationSettings, final int[] rollbackLevel, final boolean forceRollback)
             throws MigrationException
     {
-        JdbcMigrationLauncherFactory launcherFactory = JdbcMigrationLauncherFactoryLoader
-                .createFactory();
+
         JdbcMigrationLauncher launcher = null;
 
         if (migrationSettings == null)
         {
             log.info("Using migration.properties (default)");
-            launcher = launcherFactory.createMigrationLauncher(migrationSystemName);
+            launcher = getLauncherFactory().createMigrationLauncher(migrationSystemName);
         }
         else
         {
             log.info("Using " + migrationSettings);
-            launcher = launcherFactory.createMigrationLauncher(migrationSystemName,
+            launcher = getLauncherFactory().createMigrationLauncher(migrationSystemName,
                     migrationSettings);
         }
 
-        launcher.doRollbacks(rollbackLevel, forceRollback);
+        launcher.doRollbacks(rollbackLevel[0], forceRollback);
     }
 }

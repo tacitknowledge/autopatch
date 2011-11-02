@@ -48,7 +48,8 @@ public class AutoPatchSupport
      */
     public AutoPatchSupport(String systemName) throws MigrationException
     {
-        this(JdbcMigrationLauncherFactoryLoader.createFactory(), systemName);
+        //TODO should be injected
+        this(new JdbcMigrationLauncherFactoryLoader().createFactory(), systemName);
     }
 
     /**

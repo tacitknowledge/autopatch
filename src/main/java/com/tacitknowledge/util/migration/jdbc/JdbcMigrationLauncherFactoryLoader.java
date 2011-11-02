@@ -30,20 +30,13 @@ public class JdbcMigrationLauncherFactoryLoader
     /** Class logger */
     private static Log log = LogFactory.getLog(JdbcMigrationLauncherFactoryLoader.class);
     
-    /**
-     * Shouldn't be used
-     */
-    private JdbcMigrationLauncherFactoryLoader()
-    {
-        // do nothing
-    }
-    
+
     /**
      * Create the JdbcMigrationLauncherFactory
      * 
      * @return JdbcMigrationLauncherFactory (or subclass)
      */
-    public static JdbcMigrationLauncherFactory createFactory() 
+    public  JdbcMigrationLauncherFactory createFactory()
     {
         // Get the factory name from the system properties if possible
         String factoryName = System.getProperties().getProperty("migration.factory");

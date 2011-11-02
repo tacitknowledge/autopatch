@@ -237,8 +237,9 @@ public class DistributedJdbcMigrationLauncherFactory extends JdbcMigrationLaunch
         for (int i = 0; i < controlledSystemNames.length; i++)
         {
             log.info("Creating controlled patch executor for system " + controlledSystemNames[i]);
+            //TODO should be injected
             JdbcMigrationLauncherFactory factory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
+                new JdbcMigrationLauncherFactoryLoader().createFactory();
             JdbcMigrationLauncher subLauncher = 
                 factory.createMigrationLauncher(controlledSystemNames[i], propFileName);
             

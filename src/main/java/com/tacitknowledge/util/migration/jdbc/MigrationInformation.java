@@ -106,9 +106,9 @@ public class MigrationInformation
         int highestPatch = 0;
         
         try
-        {
+        {   //TODO should be injected
             JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
+                new JdbcMigrationLauncherFactoryLoader().createFactory();
             JdbcMigrationLauncher launcher = null;
             
             if (migrationSettings == null)

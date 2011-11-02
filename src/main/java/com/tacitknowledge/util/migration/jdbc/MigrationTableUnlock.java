@@ -84,9 +84,9 @@ public class MigrationTableUnlock
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
         try
-        {
+        {   //TODO should be injected
             JdbcMigrationLauncherFactory launcherFactory = 
-                JdbcMigrationLauncherFactoryLoader.createFactory();
+                new JdbcMigrationLauncherFactoryLoader().createFactory();
             JdbcMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName, migrationSettings);
             
             // Print out information for all contexts
