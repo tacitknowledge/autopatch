@@ -17,12 +17,12 @@ package com.tacitknowledge.util.migration.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 import com.tacitknowledge.util.migration.*;
+import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.easymock.MockControl;
 
@@ -34,6 +34,7 @@ import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 import static org.easymock.EasyMock.anyInt;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createControl;
 import static org.easymock.classextension.EasyMock.createStrictControl;
 
 /**
@@ -58,6 +59,13 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
      */
     private DataSourceMigrationContext context = new DataSourceMigrationContext();
     private static final String MISSING_PATCH_MIGRATION_STRATEGY = "com.tacitknowledge.util.migration.MissingPatchMigrationRunnerStrategy";
+    private IMocksControl rollbackMocksControl;
+    private MigrationProcess rollbackMigrationProcessMock;
+    private JdbcMigrationLauncher rollbackLauncher;
+    private static final int ROLLBACK_LEVEL = 3;
+    private static final int[] ROLLBACK_LEVELS = new int[]{ROLLBACK_LEVEL};
+    private static final int ROLLBACK_EXPECTED = 5;
+    private static final boolean FORCE_ROLLBACK = false;
 
     /**
      * constructor that takes a name
@@ -106,6 +114,44 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
                 .setProperty("migration.factory",
                         "com.tacitknowledge.util.migration.jdbc.TestJdbcMigrationLauncherFactory");
         setupMigrationLauncher(MigrationRunnerFactory.DEFAULT_MIGRATION_STRATEGY);
+        rollbackMocksControl = createControl();
+
+        int migrationTasksExecuted = 3;
+
+        JdbcMigrationContext contextMock = rollbackMocksControl.createMock(JdbcMigrationContext.class);
+        rollbackMigrationProcessMock = rollbackMocksControl.createMock(MigrationProcess.class);
+        PatchInfoStore patchInfoStoreMock = rollbackMocksControl.createMock(PatchInfoStore.class);
+        Connection connectionMock = rollbackMocksControl.createMock(Connection.class);
+
+        //Dependency Interactions
+        expect(patchInfoStoreMock.isPatchStoreLocked()).andReturn(false);
+        expect(patchInfoStoreMock.getPatchLevel()).andReturn(3);
+        patchInfoStoreMock.lockPatchStore();
+        patchInfoStoreMock.unlockPatchStore();
+        expect(contextMock.getConnection()).andReturn(connectionMock);
+        expect(connectionMock.getAutoCommit()).andReturn(true);
+        connectionMock.setAutoCommit(false);
+        expect(connectionMock.isClosed()).andReturn(false);
+        connectionMock.setAutoCommit(true);
+        expect(rollbackMigrationProcessMock.doRollbacks(patchInfoStoreMock,
+                ROLLBACK_LEVELS,
+                contextMock,
+                FORCE_ROLLBACK)).andReturn(ROLLBACK_EXPECTED);
+
+
+
+        //Setting Dependencies
+        rollbackLauncher = new JdbcMigrationLauncher();
+
+        rollbackMigrationProcessMock.addListener(rollbackLauncher);
+        rollbackMigrationProcessMock.addMigrationTaskSource(EasyMock.<MigrationTaskSource>anyObject());
+        rollbackMigrationProcessMock.addMigrationTaskSource(EasyMock.<MigrationTaskSource>anyObject());
+        expect(rollbackMigrationProcessMock.doPostPatchMigrations(contextMock)).andReturn(migrationTasksExecuted);
+
+        LinkedHashMap contexts=new LinkedHashMap();
+        contexts.put(contextMock, patchInfoStoreMock);
+        rollbackLauncher.setContexts(contexts);
+
     }
 
     private JdbcMigrationLauncher setupMigrationLauncher(final String strategy) throws MigrationException {
@@ -416,4 +462,29 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         }
 
     }
+
+    public void testDoRollbacksActionWithForceRollBackParameter() throws MigrationException, SQLException {
+
+        rollbackMocksControl.replay();
+        rollbackLauncher.setMigrationProcess(rollbackMigrationProcessMock);
+
+
+        int actual = rollbackLauncher.doRollbacks(ROLLBACK_LEVELS, FORCE_ROLLBACK );
+
+        assertEquals("Expected rollbacks should be 5", ROLLBACK_EXPECTED, actual);
+        rollbackMocksControl.verify();
+    }
+
+
+    public void testDoRollbacksActionWithoutForceRollbackParameter() throws MigrationException, SQLException {
+
+        rollbackMocksControl.replay();
+        rollbackLauncher.setMigrationProcess(rollbackMigrationProcessMock);
+
+        int actual = rollbackLauncher.doRollbacks(ROLLBACK_LEVELS);
+
+        assertEquals("Expected rollbacks should be 5", ROLLBACK_EXPECTED, actual);
+        rollbackMocksControl.verify();
+    }
+
 }

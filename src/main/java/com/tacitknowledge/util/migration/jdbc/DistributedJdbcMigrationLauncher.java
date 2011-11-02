@@ -96,6 +96,6 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
             throw new MigrationException("You must configure a migration context");
         }
         
-        return super.doRollbacks(rollbackLevel);
+        return super.doRollbacks(new int[] {rollbackLevel});
     }    
 }

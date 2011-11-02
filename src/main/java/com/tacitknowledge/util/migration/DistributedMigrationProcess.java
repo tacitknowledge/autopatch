@@ -166,17 +166,19 @@ public class DistributedMigrationProcess extends MigrationProcess
      * 
      *
      * @param currentPatchInfoStore
-     * @param rollbackLevel the level that the system should rollback to
+     * @param rollbackLevels the level that the system should rollback to
      * @param context information and resources that are available to the migration tasks
      * @throws MigrationException if a rollback fails
      * @return the number of <code>RollbackableMigrationTasks</code> which have been rolled back
      * @Override
      */
-    public final int doRollbacks(final PatchInfoStore currentPatchInfoStore, final int rollbackLevel, final MigrationContext context,
+    public final int doRollbacks(final PatchInfoStore currentPatchInfoStore, final int[] rollbackLevels, final MigrationContext context,
             boolean forceRollback) throws MigrationException
     {
         log.debug("Starting doRollbacks");
         int taskCount = 0;
+        //TODO Change when migrating this logic to MigrationRunnerStrategy
+        int rollbackLevel = rollbackLevels[0];
 
         // get all of the rollbacks, with launchers, then get the list of just
         // rollbacks

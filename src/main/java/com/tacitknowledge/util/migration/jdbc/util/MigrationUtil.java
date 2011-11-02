@@ -104,6 +104,6 @@ public class MigrationUtil
                     migrationSettings);
         }
 
-        launcher.doRollbacks(rollbackLevel[0], forceRollback);
+        launcher.doRollbacks(rollbackLevel, forceRollback);
     }
 }

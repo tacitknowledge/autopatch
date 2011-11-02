@@ -50,7 +50,7 @@ public class MigrationUtilTest extends TestCase{
     public void testDoRollbacksActionWithoutMigrationSettings() throws MigrationException {
 
         expect( launcherFactoryMock.createMigrationLauncher(MIGRATION_NAME)).andReturn(launcherMock);
-        expect(launcherMock.doRollbacks(ROLLBACK_LEVEL, FORCE_ROLLBACK)).andReturn(PATCHES_APPLIED);
+        expect(launcherMock.doRollbacks(ROLLBACK_LEVELS, FORCE_ROLLBACK)).andReturn(PATCHES_APPLIED);
         mockControl.replay();
 
 
@@ -62,7 +62,7 @@ public class MigrationUtilTest extends TestCase{
     public void testDoRollbackActionWithMigrationSettings() throws MigrationException{
 
         expect( launcherFactoryMock.createMigrationLauncher(MIGRATION_NAME, MIGRATION_SETTINGS)).andReturn(launcherMock);
-        expect( launcherMock.doRollbacks(ROLLBACK_LEVEL, FORCE_ROLLBACK)).andReturn(PATCHES_APPLIED);
+        expect( launcherMock.doRollbacks(ROLLBACK_LEVELS, FORCE_ROLLBACK)).andReturn(PATCHES_APPLIED);
         mockControl.replay();
 
         migrationUtil.doRollbacks(MIGRATION_NAME, MIGRATION_SETTINGS,ROLLBACK_LEVELS,FORCE_ROLLBACK);

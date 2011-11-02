@@ -212,16 +212,18 @@ public class MigrationProcess
      * 
      *
      * @param currentPatchInfoStore
-     * @param rollbackLevel an integer indicating the level the desired patch level
+     * @param rollbackLevels an integer indicating the level the desired patch level
      * @param context information and resources that are available to the migration tasks
      * @return the count of patches which were rolled back
      * @throws MigrationException
      */
-    public int doRollbacks(PatchInfoStore currentPatchInfoStore, int rollbackLevel, MigrationContext context,
+    public int doRollbacks(PatchInfoStore currentPatchInfoStore, int[] rollbackLevels, MigrationContext context,
             boolean forceRollback) throws MigrationException
     {
         log.trace("Starting doRollbacks");
         int taskCount = 0;
+        //TODO CHANGE THIS when migration to MigrationRunnerStrategy!!!!!!
+        int rollbackLevel = rollbackLevels[0];
 
         int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
         if (currentPatchLevel < rollbackLevel)
@@ -233,6 +235,7 @@ public class MigrationProcess
         List rollbacks = getMigrationTasks();
         validateTasks(rollbacks);
 
+        //TODO This is what we need to move to the migration runner strategy impl.
         // filter tasks which are not required to run because they are at a
         // level below the rollback level
         PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchLevel,
