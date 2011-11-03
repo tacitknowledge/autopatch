@@ -88,7 +88,7 @@ public class MigrationProcess
     /**
      * Migration task providers
      */
-    private List migrationTaskSources = new ArrayList();
+    private List<MigrationTaskSource> migrationTaskSources = new ArrayList<MigrationTaskSource>();
 
     /**
      * Used to broadcast migration task notifications
@@ -220,20 +220,15 @@ public class MigrationProcess
             boolean forceRollback) throws MigrationException
     {
         log.trace("Starting doRollbacks");
-        int taskCount = 0;
-        List rollbacks = getMigrationTasks();
-        validateTasks(rollbacks);
+        List<MigrationTask> allTasks = getMigrationTasks();
+        validateTasks(allTasks);
 
-        int rollbackLevel = rollbackLevels[0];
-
-        int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
+        List<MigrationTask> rollbackCandidates = getMigrationRunnerStrategy()
+                .getRollbackCandidates(allTasks, rollbackLevels, currentPatchInfoStore);
 
 
-        getMigrationRunnerStrategy().getRollbackCandidates(rollbacks, rollbackLevels, currentPatchInfoStore);
-
-
-        boolean isPatchSetRollbackable = isPatchSetRollbackable(rollbacks);
-        taskCount = rollbackDryRun(rollbacks, context);
+        boolean isPatchSetRollbackable = isPatchSetRollbackable(rollbackCandidates);
+        rollbackDryRun(rollbackCandidates, context);
         if (isPatchSetRollbackable || forceRollback)
         {
             // See if we should execute
@@ -243,19 +238,16 @@ public class MigrationProcess
             }
 
             // the list of patches is rollbackable now actually perform the
-            // rollbacks
-            log.info("A total of " + taskCount + " rollbacks will execute.");
-            taskCount = 0;
-            for (Iterator i = rollbacks.iterator(); i.hasNext();)
+            // rollback
+            log.info("A total of " + rollbackCandidates.size() + " rollbacks will execute.");
+            for (MigrationTask rollbackTask : rollbackCandidates)
             {
-                RollbackableMigrationTask task = (RollbackableMigrationTask) i.next();
+                RollbackableMigrationTask task = (RollbackableMigrationTask) rollbackTask;
 
                 log.info("Will rollback patch task '" + getTaskLabel(task) + "'");
                 log.debug("Task will rollback in context '" + context + "'");
 
                 applyRollback(context, task, true);
-                currentPatchLevel--;
-                taskCount++;
             }
         }
         else
@@ -263,9 +255,11 @@ public class MigrationProcess
             // Can I list the tasks which are not rollbackable?
             log.info("Could not complete rollback because one or more of the tasks " +
                     "is not rollbackable.The system is still at patch level " + currentPatchInfoStore + ".");
-            taskCount = 0;
         }
-        if (currentPatchLevel == rollbackLevel)
+
+        List<MigrationTask> rollbacksNotApplied = getMigrationRunnerStrategy()
+                .getRollbackCandidates(rollbackCandidates, rollbackLevels, currentPatchInfoStore);
+        if (rollbacksNotApplied.isEmpty())
         {
             log.info("Rollback complete.  The system is now at the desired patch level.");
         }
@@ -274,7 +268,7 @@ public class MigrationProcess
             log.info("The system was not able to rollback the patches.");
         }
         log.trace("Ending doRollbacks");
-        return taskCount;
+        return rollbackCandidates.size() - rollbacksNotApplied.size();
     }
 
     /**
@@ -372,13 +366,13 @@ public class MigrationProcess
      * @param context the <codde>MigrationContext</code> where rollbacks would occer
      * @return the count of tasks which would rollback
      */
-    private int rollbackDryRun(List migrations, MigrationContext context)
+    private int rollbackDryRun(List<MigrationTask> migrations, MigrationContext context)
     {
         int taskCount = 0;
         // Roll through once, just printing out what we'll do
-        for (Iterator i = migrations.iterator(); i.hasNext();)
+        for (MigrationTask migrationTask: migrations)
         {
-            RollbackableMigrationTask task = (RollbackableMigrationTask) i.next();
+            RollbackableMigrationTask task = (RollbackableMigrationTask) migrationTask;
 
             log.info("Will execute rollback for task '" + getTaskLabel(task) + "'");
             log.debug("Task will execute in context '" + context + "'");
@@ -558,7 +552,7 @@ public class MigrationProcess
      * @return a list of all migration tasks
      * @throws MigrationException if one or more migration tasks could not be created
      */
-    public List getMigrationTasks() throws MigrationException
+    public List<MigrationTask> getMigrationTasks() throws MigrationException
     {
         return getTasksFromPackages(patchResourcePackages);
     }
@@ -582,18 +576,16 @@ public class MigrationProcess
      * @throws MigrationException if one or more post-patch migration tasks could not be
      * created
      */
-    private List getTasksFromPackages(List resourcePackages) throws MigrationException
+    private List<MigrationTask> getTasksFromPackages(List<String> resourcePackages) throws MigrationException
     {
         List tasks = new ArrayList();
-        for (Iterator i = resourcePackages.iterator(); i.hasNext();)
+        for (String packageName: resourcePackages)
         {
-            String packageName = (String) i.next();
             log.debug("Searching for patch tasks in package " + packageName);
 
-            for (Iterator j = migrationTaskSources.iterator(); j.hasNext();)
+            for (MigrationTaskSource source : migrationTaskSources)
             {
-                MigrationTaskSource source = (MigrationTaskSource) j.next();
-                List sourceTasks = source.getMigrationTasks(packageName);
+                List<MigrationTask> sourceTasks = source.getMigrationTasks(packageName);
                 if (sourceTasks.size() > 0)
                 {
                     log.debug("Source [" + source + "] found " + sourceTasks.size()

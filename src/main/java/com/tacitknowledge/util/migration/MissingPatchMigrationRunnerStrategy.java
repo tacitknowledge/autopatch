@@ -17,6 +17,7 @@ package com.tacitknowledge.util.migration;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -43,9 +44,9 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
         return currentPatchInfoStorePatchesApplied.equals(patchInfoStorePatchesApplied);
     }
 
-    public void getRollbackCandidates(List migrationTasksForRollback, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException {
+    public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException {
         //TODO Adjust accordingly to this strategy (currently it is the same as in OrderedMigrationRunnerStrategy)
-        int rollbackLevel = rollbackLevels[0];
+                int rollbackLevel = rollbackLevels[0];
         int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
 
         if (currentPatchLevel < rollbackLevel)
@@ -56,11 +57,14 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
 
         PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchLevel,
                 rollbackLevel);
-        CollectionUtils.filter(migrationTasksForRollback, rollbackPredicate);
-        Collections.sort(migrationTasksForRollback);
+        List<MigrationTask> migrationCandidates = new ArrayList<MigrationTask>();
+        migrationCandidates.addAll(allMigrationTasks);
+        CollectionUtils.filter(migrationCandidates, rollbackPredicate);
+        Collections.sort(migrationCandidates);
          // need to reverse the list do we apply the rollbacks in descending
         // order
-        Collections.reverse(migrationTasksForRollback);
+        Collections.reverse(migrationCandidates);
+        return migrationCandidates;
 
     }
 }

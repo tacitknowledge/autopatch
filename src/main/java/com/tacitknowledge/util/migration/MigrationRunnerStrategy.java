@@ -43,5 +43,5 @@ public interface MigrationRunnerStrategy
      */
    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException;
 
-   public void getRollbackCandidates(List migrationTasksForRollback, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException;
+   public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException;
 }
