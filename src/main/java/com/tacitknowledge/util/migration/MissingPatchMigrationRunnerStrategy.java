@@ -16,11 +16,9 @@ package com.tacitknowledge.util.migration;
 
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrategy{
 
@@ -45,26 +43,30 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
     }
 
     public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException {
-        //TODO Adjust accordingly to this strategy (currently it is the same as in OrderedMigrationRunnerStrategy)
-                int rollbackLevel = rollbackLevels[0];
-        int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
 
-        if (currentPatchLevel < rollbackLevel)
-        {
-            throw new IllegalArgumentException(
-                    "The rollback patch level cannot be greater than the current patch level");
+        validateRollbackLevels(rollbackLevels);
+
+        List<Integer> rollbacksLevelList = Arrays.asList(ArrayUtils.toObject(rollbackLevels));
+        List<MigrationTask> rollbackCandidates = new ArrayList<MigrationTask>();
+
+
+        for( MigrationTask migrationTask : allMigrationTasks){
+            if( rollbacksLevelList.contains( migrationTask.getLevel())
+                    && currentPatchInfoStore.isPatchApplied( migrationTask.getLevel())){
+                rollbackCandidates.add( migrationTask );
+            }
         }
 
-        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchLevel,
-                rollbackLevel);
-        List<MigrationTask> migrationCandidates = new ArrayList<MigrationTask>();
-        migrationCandidates.addAll(allMigrationTasks);
-        CollectionUtils.filter(migrationCandidates, rollbackPredicate);
-        Collections.sort(migrationCandidates);
-         // need to reverse the list do we apply the rollbacks in descending
-        // order
-        Collections.reverse(migrationCandidates);
-        return migrationCandidates;
+        return rollbackCandidates;
+    }
 
+    private void validateRollbackLevels(int[] rollbackLevels) throws MigrationException {
+        if( rollbackLevels == null){
+            throw new MigrationException("rollbackLevels should not be null");
+        }
+
+        if (rollbackLevels.length == 0) {
+            throw new MigrationException("rollbackLevels should not be empty");
+        }
     }
 }
