@@ -15,6 +15,9 @@
 
 package com.tacitknowledge.util.migration.jdbc.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -28,6 +31,9 @@ import javax.servlet.ServletContextEvent;
  */
 public class ConfigurationUtil
 {
+     /** Class logger */
+    private static Log log = LogFactory.getLog(ConfigurationUtil.class);
+
     /**
      * Shouldn't be used
      */
@@ -102,16 +108,16 @@ public class ConfigurationUtil
         String value = props.getProperty(param);
         if (value == null)
         {
-            System.err.println("Parameter named: " + param + " was not found.");
-            System.err.println("-----Parameters found-----");
+            log.warn("Parameter named: " + param + " was not found.");
+            log.warn("-----Parameters found-----");
             Iterator propNameIterator = props.keySet().iterator();
             while (propNameIterator.hasNext())
             {
                 String name = (String) propNameIterator.next();
                 String val = props.getProperty(name);
-                System.err.println(name + " = " + val);
+                log.warn(name + " = " + val);
             }
-            System.err.println("--------------------------");
+            log.warn("--------------------------");
             throw new IllegalArgumentException("'" + param + "' is a required "
                 + "initialization parameter.  Aborting.");
         }
