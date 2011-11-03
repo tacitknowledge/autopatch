@@ -270,7 +270,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
             int [] rollbackLevels = new int[] {7};
             level = runner.doRollbacks(patchInfoStoreBasedOnLevel, rollbackLevels, context, false);
         } 
-        catch (IllegalArgumentException iae)
+        catch (MigrationException me)
         {
             // expected
         }

@@ -45,12 +45,14 @@ public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
     }
 
     public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException {
+        validateRollbackLevel(rollbackLevels);
+
         int rollbackLevel = rollbackLevels[0];
         int currentPatchLevel = currentPatchInfoStore.getPatchLevel();
 
         if (currentPatchLevel < rollbackLevel)
         {
-            throw new IllegalArgumentException(
+            throw new MigrationException(
                     "The rollback patch level cannot be greater than the current patch level");
         }
 
@@ -65,5 +67,19 @@ public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
         Collections.reverse(migrationCandidates);
         return migrationCandidates;
 
+    }
+
+    private void validateRollbackLevel(int[] rollbackLevels) throws MigrationException {
+        if( rollbackLevels == null){
+            throw new MigrationException("rollbackLevels should not be null");
+        }
+
+        if( rollbackLevels.length == 0 ){
+            throw new MigrationException("rollbackLevels should not be empty");
+        }
+
+        if( rollbackLevels.length > 1){
+            throw new MigrationException("OrderedMigrationRunnerStrategy only supports one rollbackLevel");
+        }
     }
 }

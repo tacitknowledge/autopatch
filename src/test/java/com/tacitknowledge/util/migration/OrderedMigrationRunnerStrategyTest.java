@@ -16,9 +16,16 @@
 package com.tacitknowledge.util.migration;
 
 import com.tacitknowledge.util.migration.builders.MockBuilder;
+import com.tacitknowledge.util.migration.tasks.rollback.*;
 import junit.framework.TestCase;
+import org.apache.commons.collections.iterators.ArrayListIterator;
+import org.easymock.IMocksControl;
 
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createControl;
 /**
  * Test the {@link OrderedMigrationRunnerStrategy} class.
  *
@@ -28,11 +35,25 @@ public class OrderedMigrationRunnerStrategyTest  extends TestCase
 {
 
     private MigrationRunnerStrategy migrationRunnerStrategy;
+    private List<MigrationTask> allMigrationTasks;
+    private IMocksControl mockControl;
+    private PatchInfoStore currentPatchInfoStore;
 
     public void setUp() throws Exception
     {
         super.setUp();
         migrationRunnerStrategy = new OrderedMigrationRunnerStrategy();
+        allMigrationTasks = new ArrayList<MigrationTask>();
+        mockControl = createControl();
+        currentPatchInfoStore = mockControl.createMock(PatchInfoStore.class);
+        allMigrationTasks.add(new TestRollbackableTask1());
+        allMigrationTasks.add(new TestRollbackableTask2());
+        allMigrationTasks.add(new TestRollbackableTask3());
+        allMigrationTasks.add(new TestRollbackableTask4());
+        allMigrationTasks.add(new TestRollbackableTask5());
+        expect( currentPatchInfoStore.getPatchLevel()).andReturn( 12 );
+        mockControl.replay();
+
     }
 
     public void testShouldMigrationsRunInOrder() throws MigrationException {
@@ -86,6 +107,60 @@ public class OrderedMigrationRunnerStrategyTest  extends TestCase
 
         }
 
+    }
+
+    public void testGetRollbackCandidatesAction( ) throws MigrationException {
+
+        int[] rollbackLevels = new int[]{9};
+
+        List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
+
+        assertEquals( "Expected rollback candidates should be 3",3, rollbackCandidates.size());
+
+    }
+
+    public void testGetRollbackCandidatesRollbackLevelsShouldContainOnlyOneLevel() throws MigrationException {
+
+        int[] rollbackLevels = new int[]{9,10};
+        try{
+            List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
+            fail( "MigrationException is expected due to the strategy does not support more than one rollbackLevel");
+        }catch( MigrationException exception){
+
+        }
+    }
+
+    public void testGetRollbackCandidatesRollbackLevelShouldBeLowerThanCurrentPatchLevel(){
+        int[] rollbackLevels = new int[]{13};
+
+        try {
+            List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
+            fail("The rollbackLevel should be lower than the currentPatchLevel");
+        } catch (MigrationException e) {
+
+        }
+    }
+
+    public void testGetRollbackCandidatesRollbackLevelShouldNotBeNull(){
+        int[] rollbackLevels = null;
+
+        try {
+            List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
+            fail("The rollbackLevel should not be null");
+        } catch (MigrationException e) {
+
+        }
+    }
+
+    public void testGetRollbackCandidatesRollbackLevelShouldNotBeEmpty(){
+        int[] rollbackLevels = new int[]{};
+
+        try {
+            List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
+            fail("The rollbackLevel should not be empty");
+        } catch (MigrationException e) {
+
+        }
     }
 
 }
