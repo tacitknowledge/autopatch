@@ -35,7 +35,7 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
     private static Log log = LogFactory.getLog(ClassMigrationTaskSource.class);
     
     /** {@inheritDoc} */
-    public List getMigrationTasks(String packageName) throws MigrationException
+    public List<MigrationTask> getMigrationTasks(String packageName) throws MigrationException
     {
         if (packageName == null)
         {
@@ -55,9 +55,9 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
      * @throws MigrationException if a class could not be instantiated; this
      *         is most likely due to the abscense of a default constructor
      */
-    private List instantiateTasks(Class[] taskClasses) throws MigrationException
+    private List<MigrationTask> instantiateTasks(Class[] taskClasses) throws MigrationException
     {
-        List tasks = new ArrayList();
+        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
         for (int i = 0; i < taskClasses.length; i++)
         {
             Class taskClass = taskClasses[i];
@@ -69,7 +69,7 @@ public class ClassMigrationTaskSource implements MigrationTaskSource
                 MigrationTask task = (MigrationTask) o;
                 if (task.getName() != null) 
                 {
-                    tasks.add(o);
+                    tasks.add(task);
                 }
                 else
                 {

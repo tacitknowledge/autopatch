@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.tacitknowledge.util.migration.MigrationTask;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -50,7 +51,7 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource
     /**
      * {@inheritDoc}
      */
-    public List getMigrationTasks(String packageName) throws MigrationException 
+    public List<MigrationTask> getMigrationTasks(String packageName) throws MigrationException
     {
         String path = packageName.replace('.', '/');
         String[] xmlFiles = ClassDiscoveryUtil.getResources(path, XML_PATCH_REGEX);
@@ -71,10 +72,10 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource
      * @return a list of {@link FlatXmlDataSetMigrationTask}
      * @throws MigrationException in unexpected error occurs 
      */
-    private List createMigrationTasks(String[] xmlFiles) throws MigrationException 
+    private List<MigrationTask> createMigrationTasks(String[] xmlFiles) throws MigrationException
     {
         Pattern p = Pattern.compile(XML_PATCH_REGEX);
-        List tasks = new ArrayList();
+        List<MigrationTask> tasks = new ArrayList<MigrationTask>();
         for (int i = 0; i < xmlFiles.length; i++)
         {
             String xmlPathname = xmlFiles[i];

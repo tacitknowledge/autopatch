@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.tacitknowledge.util.migration.MigrationTask;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,7 +57,7 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
     private static final String SQL_ROLLBACK_REGEX = "^patch(\\d++)-rollback_?(.+)?\\.sql";
 
     /** {@inheritDoc} */
-    public List getMigrationTasks(String packageName) throws MigrationException
+    public List<MigrationTask> getMigrationTasks(String packageName) throws MigrationException
     {
 	String path = packageName.replace('.', '/');
 
@@ -90,7 +91,8 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
      * Creates a list of <code>SqlScriptMigrationTask</code>s based on the
      * array of SQL scripts.
      * 
-     * @param scripts the classpath-relative array of SQL migration scripts
+     * @param upScripts the classpath-relative array of SQL migration scripts
+     * @param downScripts the classpath-relative array of SQL migration scripts
      * @return a list of <code>SqlScriptMigrationTask</code>s based on the
      *         array of SQL scripts
      * @throws MigrationException if a SqlScriptMigrationTask could no be created
@@ -101,7 +103,7 @@ public class SqlScriptMigrationTaskSource implements MigrationTaskSource
 	Pattern upFileNamePattern = Pattern.compile(SQL_PATCH_REGEX);
 	Pattern downFileNamePattern = Pattern.compile(SQL_ROLLBACK_REGEX);
 
-	List tasks = new ArrayList();
+	List<MigrationTask> tasks = new ArrayList<MigrationTask>();
 	for (int i = 0; i < upScripts.length; i++)
 	{
 	    String script = upScripts[i];

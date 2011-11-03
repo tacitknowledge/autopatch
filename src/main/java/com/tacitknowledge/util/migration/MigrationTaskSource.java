@@ -33,5 +33,5 @@ public interface MigrationTaskSource
      *         list must be returned.
      * @throws MigrationException if an unrecoverable error occurs
      */
-    public List getMigrationTasks(String packageName) throws MigrationException;
+    public List<MigrationTask> getMigrationTasks(String packageName) throws MigrationException;
 }
