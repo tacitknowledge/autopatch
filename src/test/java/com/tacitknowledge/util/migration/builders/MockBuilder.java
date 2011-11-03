@@ -53,7 +53,7 @@ public class MockBuilder
 
     public static Properties getPropertiesWithSystemConfiguration( String system, String strategy ){
         Properties properties = new Properties();
-        properties.setProperty(system + ".jdbc.database.type", "hsqldb");
+//        properties.setProperty(system + ".jdbc.database.type", "hsqldb");
         properties.setProperty(system + ".patch.path", "systemPath");
         properties.setProperty(system + ".jdbc.driver", "jdbcDriver");
         properties.setProperty(system + ".jdbc.url", "jdbcUrl");
