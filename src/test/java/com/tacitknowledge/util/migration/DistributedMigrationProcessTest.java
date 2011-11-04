@@ -15,14 +15,14 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 import com.tacitknowledge.util.migration.builders.MockBuilder;
+import com.tacitknowledge.util.migration.tasks.rollback.*;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
+import org.easymock.classextension.IMocksControl;
 import org.easymock.MockControl;
 
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
@@ -30,6 +30,8 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createControl;
+import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.createStrictControl;
 
 /**
@@ -166,6 +168,61 @@ public class DistributedMigrationProcessTest extends TestCase
         {
             fail("Unexpected exception when validating controlled systems.");
         }
+    }
+
+
+    public void testDoRollbacksActionMockingAsIfOrderedStrategyWereUsed() throws MigrationException {
+
+        String systemName = "system1";
+        JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
+        int[] rollbackLevels = new int[]{9};
+        IMocksControl mockControl = createControl();
+
+        JdbcMigrationContext migrationContextMock = mockControl.createMock(JdbcMigrationContext.class);
+        MigrationRunnerStrategy migrationRunnerStrategyMock = mockControl.createMock(MigrationRunnerStrategy.class);
+
+        TestRollbackableTask3 rollbackableTask3 = new TestRollbackableTask3();
+        TestRollbackableTask4 rollbackableTask4 = new TestRollbackableTask4();
+        TestRollbackableTask5 rollbackableTask5 = new TestRollbackableTask5();
+
+
+        List<MigrationTask> migrationTaskList = new ArrayList<MigrationTask>();
+        migrationTaskList.add(new TestRollbackableTask1());
+        migrationTaskList.add(new TestRollbackableTask2());
+        migrationTaskList.add(rollbackableTask3);
+        migrationTaskList.add(rollbackableTask4);
+        migrationTaskList.add(rollbackableTask5);
+
+        MigrationProcess migrationProcessMock = mockControl.createMock(MigrationProcess.class);
+        expect(migrationProcessMock.getMigrationTasks()).andReturn(migrationTaskList);
+
+        HashMap controlledSystems = new HashMap();
+        controlledSystems.put(systemName, launcher);
+        launcher.setMigrationProcess(migrationProcessMock);
+
+        PatchInfoStore patchInfoStoreMock = mockControl.createMock(PatchInfoStore.class);
+        expect(patchInfoStoreMock.getPatchLevel()).andReturn(12);
+
+        expect(migrationRunnerStrategyMock.isSynchronized(eq(currentPatchInfoStore), EasyMock.<PatchInfoStore>anyObject())).andReturn(true).anyTimes();
+        List<MigrationTask> rollbackCandidates = new ArrayList<MigrationTask>();
+        rollbackCandidates.add(rollbackableTask5);
+        rollbackCandidates.add(rollbackableTask4);
+        rollbackCandidates.add(rollbackableTask3);
+
+        expect(migrationRunnerStrategyMock.getRollbackCandidates(migrationTaskList, rollbackLevels, patchInfoStoreMock)).andReturn(rollbackCandidates);
+        expect(migrationRunnerStrategyMock.getRollbackCandidates(rollbackCandidates, rollbackLevels, patchInfoStoreMock)).andReturn(Collections.EMPTY_LIST);
+
+        mockControl.replay();
+
+        DistributedMigrationProcess distributedMigrationProcess = new DistributedMigrationProcess();
+        distributedMigrationProcess.setMigrationRunnerStrategy(migrationRunnerStrategyMock);
+        distributedMigrationProcess.setControlledSystems(controlledSystems);
+
+
+        boolean forceRollback=false;
+        int rollbacksApplied = distributedMigrationProcess.doRollbacks(patchInfoStoreMock,rollbackLevels,migrationContextMock,forceRollback);
+
+        assertEquals("Two rollbacks should be applied", 3, rollbacksApplied);
     }
 
 }

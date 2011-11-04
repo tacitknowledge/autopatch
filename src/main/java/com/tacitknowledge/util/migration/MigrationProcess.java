@@ -451,7 +451,7 @@ public class MigrationProcess
             boolean broadcast) throws MigrationException
     {
         String label = getTaskLabel(task);
-        int rollbackLevel = getPreviousPatchLevel(task.getLevel().intValue());
+        int rollbackLevel = task.getLevel().intValue();
 
         if (broadcast)
         {

@@ -224,4 +224,43 @@ public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatc
         return rs.next();
     }
 
+    public void testRollbacksRunOnMultipleNode() throws Exception {
+
+        //Applying migrations to node1 and node2
+        testMigrationRunsFromTwoBatchesOnMultipleNodes();
+
+        DistributedJdbcMigrationLauncherFactory dlFactory =
+            new DistributedJdbcMigrationLauncherFactory();
+
+        DistributedJdbcMigrationLauncher distributedLauncher2 = (DistributedJdbcMigrationLauncher)
+                dlFactory.createMigrationLauncher("nodes",
+                        "missingpatchstrategybatch2-inttest-migration.properties");
+
+        int[] rollbackLevels = new int[]{ 2, 3 };
+
+        distributedLauncher2.doRollbacks(rollbackLevels);
+
+        Connection node1Conn = DriverManager.getConnection("jdbc:hsqldb:mem:node1", "sa", "");
+        Connection node2Conn = DriverManager.getConnection("jdbc:hsqldb:mem:node2", "sa", "");
+
+
+        assertEquals(4, getPatchLevel(node1Conn, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node1Conn, 4, "nodes"));
+        assertFalse(isPatchApplied(node1Conn, 2, "nodes"));
+        assertFalse(isPatchApplied(node1Conn, 3, "nodes"));
+
+
+        assertEquals(4, getPatchLevel(node2Conn, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 1, "nodes"));
+        assertTrue(isPatchApplied(node2Conn, 4, "nodes"));
+        assertFalse(isPatchApplied(node2Conn, 2, "nodes"));
+        assertFalse(isPatchApplied(node2Conn, 3, "nodes"));
+
+
+        SqlUtil.close(node1Conn, null, null);
+        SqlUtil.close(node2Conn, null, null);
+
+    }
+
 }

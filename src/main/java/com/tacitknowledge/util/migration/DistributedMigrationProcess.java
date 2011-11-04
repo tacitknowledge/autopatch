@@ -176,48 +176,35 @@ public class DistributedMigrationProcess extends MigrationProcess
             boolean forceRollback) throws MigrationException
     {
         log.debug("Starting doRollbacks");
-        int taskCount = 0;
-        //TODO Change when migrating this logic to MigrationRunnerStrategy
-        int rollbackLevel = rollbackLevels[0];
-
-        // get all of the rollbacks, with launchers, then get the list of just
-        // rollbacks
+        // get all of the allTasks, with launchers, then get the list of just
+        // allTasks
         LinkedHashMap rollbacksWithLaunchers = getMigrationTasksWithLaunchers();
-        List rollbacks = new ArrayList();
-        rollbacks.addAll(rollbacksWithLaunchers.keySet());
+        List allTasks = new ArrayList();
+        allTasks.addAll(rollbacksWithLaunchers.keySet());
 
-        // filter tasks which are not required to run because they are at a
-        // level below the rollback level
-        PatchRollbackPredicate rollbackPredicate = new PatchRollbackPredicate(currentPatchInfoStore.getPatchLevel(),
-                rollbackLevel);
-        CollectionUtils.filter(rollbacks, rollbackPredicate);
+        List<MigrationTask> rollbackCandidates = getMigrationRunnerStrategy().getRollbackCandidates(allTasks, rollbackLevels, currentPatchInfoStore);
 
-        // make sure that the rollbacks are ok, sort and then reverse them
-        validateTasks(rollbacks);
-        Collections.sort(rollbacks);
-        Collections.reverse(rollbacks);
 
         validateControlledSystems(currentPatchInfoStore);
-        taskCount = rollbackDryRun(rollbacks, rollbacksWithLaunchers);
+        rollbackDryRun(rollbackCandidates, rollbacksWithLaunchers);
 
-        if (taskCount > 0)
+        if (rollbackCandidates.size() > 0)
         {
-            log.info("A total of " + taskCount + " rollback patch tasks will execute.");
+            log.info("A total of " + rollbackCandidates.size() + " rollback patch tasks will execute.");
         }
         else
         {
             log.info("System up-to-date.  No patch tasks will rollback.");
         }
 
-        taskCount = 0;
-        if (isPatchSetRollbackable(rollbacks) || forceRollback)
+        if (isPatchSetRollbackable(rollbackCandidates) || forceRollback)
         {
             if (isReadOnly())
             {
                 throw new MigrationException("Unapplied rollbacks exist, but read-only flag is set");
             }
 
-            for (Iterator rollbackIterator = rollbacks.iterator(); rollbackIterator.hasNext();)
+            for (Iterator rollbackIterator = rollbackCandidates.iterator(); rollbackIterator.hasNext();)
             {
                 RollbackableMigrationTask task = (RollbackableMigrationTask) rollbackIterator
                         .next();
@@ -231,7 +218,6 @@ public class DistributedMigrationProcess extends MigrationProcess
                     MigrationContext launcherContext = (MigrationContext) j.next();
                     applyRollback(launcherContext, task, true);
                 }
-                taskCount++;
             }
 
         }
@@ -241,15 +227,18 @@ public class DistributedMigrationProcess extends MigrationProcess
                     .info("Could not complete rollback because one or more of the tasks is not rollbackable.");
         }
 
-        if (taskCount > 0)
+        List<MigrationTask> rollbacksNotApplied = getMigrationRunnerStrategy().getRollbackCandidates(rollbackCandidates,
+                rollbackLevels, currentPatchInfoStore);
+
+        if (rollbacksNotApplied.isEmpty())
         {
-            log.info("Rollback complete (" + taskCount + " patch tasks rolledback)");
+            log.info("Rollback complete (" + rollbackCandidates.size() + " patch tasks rolledback)");
         }
         else
         {
             log.info("The system could not rollback the tasks");
         }
-        return taskCount;
+        return rollbackCandidates.size() - rollbacksNotApplied.size();
     }
 
     /**
@@ -345,7 +334,7 @@ public class DistributedMigrationProcess extends MigrationProcess
                             (PatchInfoStore) launcher.getContexts().get(
                             launcherContext);
 
-                    if ( !getMigrationRunnerStrategy().isSynchronized( patchInfoStore, patchInfoStoreOfContext ) )
+                    if ( !getMigrationRunnerStrategy().isSynchronized(patchInfoStore, patchInfoStoreOfContext) )
                     {
                         outOfSyncContexts.add(launcherContext);
                     }
