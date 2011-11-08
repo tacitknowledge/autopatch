@@ -19,7 +19,6 @@ package com.tacitknowledge.util.migration;
  * A single, idempotent migration task.
  * 
  * @author  Scott Askew (scott@tacitknowledge.com)
- * @deprecated Please use RollbackableMigrationTask
  */
 public interface MigrationTask extends Comparable
 {
