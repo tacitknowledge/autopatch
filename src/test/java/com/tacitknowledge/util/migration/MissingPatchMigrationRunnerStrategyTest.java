@@ -34,6 +34,7 @@ import static org.easymock.classextension.EasyMock.createControl;
  * Test the {@link MissingPatchMigrationRunnerStrategy} class.
  *
  * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
  */
 public class MissingPatchMigrationRunnerStrategyTest extends TestCase {
 

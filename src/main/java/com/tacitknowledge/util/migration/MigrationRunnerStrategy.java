@@ -22,6 +22,8 @@ import java.util.List;
  * try to apply patches or get information about the patches that need to be run.
  *
  * @author Oscar Gonzalez (oscar@tacitknowledge.com)
+ * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
  */
 
 public interface MigrationRunnerStrategy
@@ -43,5 +45,13 @@ public interface MigrationRunnerStrategy
      */
    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException;
 
+    /**
+     * Retrieves all tasks that are candidates for rollback.
+     * @param allMigrationTasks
+     * @param rollbackLevels
+     * @param currentPatchInfoStore
+     * @return
+     * @throws MigrationException
+     */
    public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException;
 }

@@ -15,25 +15,37 @@
 package com.tacitknowledge.util.migration;
 
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
-public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrategy{
+/*
+ * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
+ */
 
-    public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException {
+public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrategy
+{
 
-        if (patchInfoStore == null) {
+    public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException
+    {
+
+        if (patchInfoStore == null)
+        {
             throw new IllegalArgumentException("Patch Info Store should not be null");
         }
 
         return !patchInfoStore.isPatchApplied(migrationLevel);
     }
 
-    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException {
+    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException
+    {
 
-        if( currentPatchInfoStore == null || patchInfoStore == null ){
+        if (currentPatchInfoStore == null || patchInfoStore == null)
+        {
             throw new IllegalArgumentException("currentPatchInfoStore and patchInfoStore should not be null");
         }
         Set<Integer> currentPatchInfoStorePatchesApplied = currentPatchInfoStore.getPatchesApplied();
@@ -42,7 +54,8 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
         return currentPatchInfoStorePatchesApplied.equals(patchInfoStorePatchesApplied);
     }
 
-    public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException {
+    public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException
+    {
 
         validateRollbackLevels(rollbackLevels);
 
@@ -50,22 +63,27 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
         List<MigrationTask> rollbackCandidates = new ArrayList<MigrationTask>();
 
 
-        for( MigrationTask migrationTask : allMigrationTasks){
-            if( rollbacksLevelList.contains( migrationTask.getLevel())
-                    && currentPatchInfoStore.isPatchApplied( migrationTask.getLevel())){
-                rollbackCandidates.add( migrationTask );
+        for (MigrationTask migrationTask : allMigrationTasks)
+        {
+            if (rollbacksLevelList.contains(migrationTask.getLevel())
+                    && currentPatchInfoStore.isPatchApplied(migrationTask.getLevel()))
+            {
+                rollbackCandidates.add(migrationTask);
             }
         }
 
         return rollbackCandidates;
     }
 
-    private void validateRollbackLevels(int[] rollbackLevels) throws MigrationException {
-        if( rollbackLevels == null){
+    private void validateRollbackLevels(int[] rollbackLevels) throws MigrationException
+    {
+        if (rollbackLevels == null)
+        {
             throw new MigrationException("rollbackLevels should not be null");
         }
 
-        if (rollbackLevels.length == 0) {
+        if (rollbackLevels.length == 0)
+        {
             throw new MigrationException("rollbackLevels should not be empty");
         }
     }

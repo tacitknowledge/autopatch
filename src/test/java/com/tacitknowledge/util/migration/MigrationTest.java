@@ -246,7 +246,7 @@ public class MigrationTest extends MigrationListenerTestBase
         try
         {
             TestMigrationTask2.setPatchLevelOverride(new Integer(7));
-            runner.doMigrations(new MockBuilder().getPatchInfoStore(0), context);
+            runner.doMigrations(MockBuilder.getPatchInfoStore(0), context);
             fail("Expected a MigrationException due to a task patch level conflict");
         }
         catch (MigrationException e)
@@ -265,7 +265,7 @@ public class MigrationTest extends MigrationListenerTestBase
         try
         {
             TestMigrationTask2.setPatchLevelOverride(null);
-            runner.doMigrations(new MockBuilder().getPatchInfoStore(0), new TestMigrationContext());
+            runner.doMigrations(MockBuilder.getPatchInfoStore(0), new TestMigrationContext());
             fail("Expected a MigrationException due to a null patch level");
         }
         catch (MigrationException e)
