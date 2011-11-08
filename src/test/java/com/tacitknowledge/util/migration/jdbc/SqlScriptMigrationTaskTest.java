@@ -50,11 +50,6 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
     private SqlScriptMigrationTask task = null;
 
     /**
-     * The mock JDBC connection to use during the tests
-     */
-    private MockConnection conn = null;
-
-    /**
      * The <code>JDBCMigrationConteext</code> used for testing
      */
     private DataSourceMigrationContext context = new DataSourceMigrationContext();
@@ -66,7 +61,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
     {
 	super.setUp();
 
-	conn = getJDBCMockObjectFactory().getMockConnection();
+	MockConnection conn = getJDBCMockObjectFactory().getMockConnection();
 
 	context = new DataSourceMigrationContext();
 	context.setDataSource(new ConnectionWrapperDataSource(conn));

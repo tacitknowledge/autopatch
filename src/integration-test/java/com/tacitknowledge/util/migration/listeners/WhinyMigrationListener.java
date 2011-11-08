@@ -1,16 +1,15 @@
 package com.tacitknowledge.util.migration.listeners;
 
 
-import java.util.Properties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.MigrationTask;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.Properties;
 
 
 /**
@@ -18,13 +17,15 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
  */
 public class WhinyMigrationListener implements MigrationListener
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(WhinyMigrationListener.class);
-    
+
     protected String getTaskInfo(MigrationTask task, MigrationContext context)
     {
         String ctxInfo = "";
-        if(context instanceof JdbcMigrationContext)
+        if (context instanceof JdbcMigrationContext)
         {
             JdbcMigrationContext ctx = (JdbcMigrationContext) context;
             ctxInfo += ctx.getSystemName() + " : " + ctx.getDatabaseName();
@@ -32,7 +33,7 @@ public class WhinyMigrationListener implements MigrationListener
 
         return "Task => (" + task.toString() + "), Context => (" + ctxInfo + ")";
     }
-    
+
     public void migrationFailed(MigrationTask task, MigrationContext context, MigrationException e) throws MigrationException
     {
         log.debug("MIGRATION FAILED, " + getTaskInfo(task, context) + " WAHHH!!!");

@@ -18,7 +18,6 @@ package com.tacitknowledge.util.migration;
 import com.tacitknowledge.util.migration.builders.MockBuilder;
 import com.tacitknowledge.util.migration.tasks.rollback.*;
 import junit.framework.TestCase;
-import org.apache.commons.collections.iterators.ArrayListIterator;
 import org.easymock.IMocksControl;
 
 import java.util.ArrayList;
@@ -26,17 +25,17 @@ import java.util.List;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createControl;
+
 /**
  * Test the {@link OrderedMigrationRunnerStrategy} class.
  *
  * @author Oscar Gonzalez (oscar@tacitknowledge.com)
  */
-public class OrderedMigrationRunnerStrategyTest  extends TestCase
+public class OrderedMigrationRunnerStrategyTest extends TestCase
 {
 
     private MigrationRunnerStrategy migrationRunnerStrategy;
     private List<MigrationTask> allMigrationTasks;
-    private IMocksControl mockControl;
     private PatchInfoStore currentPatchInfoStore;
 
     public void setUp() throws Exception
@@ -44,19 +43,20 @@ public class OrderedMigrationRunnerStrategyTest  extends TestCase
         super.setUp();
         migrationRunnerStrategy = new OrderedMigrationRunnerStrategy();
         allMigrationTasks = new ArrayList<MigrationTask>();
-        mockControl = createControl();
+        IMocksControl mockControl = createControl();
         currentPatchInfoStore = mockControl.createMock(PatchInfoStore.class);
         allMigrationTasks.add(new TestRollbackableTask1());
         allMigrationTasks.add(new TestRollbackableTask2());
         allMigrationTasks.add(new TestRollbackableTask3());
         allMigrationTasks.add(new TestRollbackableTask4());
         allMigrationTasks.add(new TestRollbackableTask5());
-        expect( currentPatchInfoStore.getPatchLevel()).andReturn( 12 );
+        expect(currentPatchInfoStore.getPatchLevel()).andReturn(12);
         mockControl.replay();
 
     }
 
-    public void testShouldMigrationsRunInOrder() throws MigrationException {
+    public void testShouldMigrationsRunInOrder() throws MigrationException
+    {
         PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(2);
 
         assertTrue("Should be able to run migration if current level is below migration level",
@@ -64,101 +64,121 @@ public class OrderedMigrationRunnerStrategyTest  extends TestCase
 
     }
 
-    public void testShouldMigrationFailIfCurrentLevelIsAboveMigrationLevel() throws MigrationException {
+    public void testShouldMigrationFailIfCurrentLevelIsAboveMigrationLevel() throws MigrationException
+    {
         PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3);
         assertFalse("Should not be able to run migration if current level is above migration level",
                 migrationRunnerStrategy.shouldMigrationRun(2, patchInfoStore));
 
     }
 
-    public void testShouldMigrationFailIfCurrentAndMigrationLevelAreEquals() throws MigrationException {
+    public void testShouldMigrationFailIfCurrentAndMigrationLevelAreEquals() throws MigrationException
+    {
 
         PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3);
         assertFalse("Should not be able to run migration if current level and migration level are equal",
                 migrationRunnerStrategy.shouldMigrationRun(3, patchInfoStore));
     }
 
-    public void testSystemIsSynchronized( ) throws MigrationException {
+    public void testSystemIsSynchronized() throws MigrationException
+    {
 
         PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(3);
-        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3);;
+        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3);
 
-        boolean systemSync = migrationRunnerStrategy.isSynchronized( currentPatchInfoStore, patchInfoStore );
+        boolean systemSync = migrationRunnerStrategy.isSynchronized(currentPatchInfoStore, patchInfoStore);
 
-        assertTrue("System should be synchronized", systemSync );
+        assertTrue("System should be synchronized", systemSync);
     }
 
-    public void testSystemIsNotSynchronized( ) throws MigrationException {
+    public void testSystemIsNotSynchronized() throws MigrationException
+    {
         PatchInfoStore patchInfoStore = MockBuilder.getPatchInfoStore(4);
-        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3);;
+        PatchInfoStore currentPatchInfoStore = MockBuilder.getPatchInfoStore(3);
 
 
-        boolean systemSync = migrationRunnerStrategy.isSynchronized( currentPatchInfoStore, patchInfoStore );
+        boolean systemSync = migrationRunnerStrategy.isSynchronized(currentPatchInfoStore, patchInfoStore);
 
         assertFalse("System shouldn't be synchronized", systemSync);
     }
 
-    public void testShouldMigrationThrowIllegalArgumentExceptionIfPatchInfoStoreParametersAreNullWhenIsSync( ) throws MigrationException {
+    public void testShouldMigrationThrowIllegalArgumentExceptionIfPatchInfoStoreParametersAreNullWhenIsSync() throws MigrationException
+    {
 
-        try{
-            migrationRunnerStrategy.isSynchronized( null, null );
+        try
+        {
+            migrationRunnerStrategy.isSynchronized(null, null);
             fail("If arguments are null an Illegal Argument Exception should have been thrown");
-        }catch(IllegalArgumentException exception ){
+        } catch (IllegalArgumentException exception)
+        {
 
         }
 
     }
 
-    public void testGetRollbackCandidatesAction( ) throws MigrationException {
+    public void testGetRollbackCandidatesAction() throws MigrationException
+    {
 
         int[] rollbackLevels = new int[]{9};
 
         List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
 
-        assertEquals( "Expected rollback candidates should be 3",3, rollbackCandidates.size());
+        assertEquals("Expected rollback candidates should be 3", 3, rollbackCandidates.size());
 
     }
 
-    public void testGetRollbackCandidatesRollbackLevelsShouldContainOnlyOneLevel() throws MigrationException {
+    public void testGetRollbackCandidatesRollbackLevelsShouldContainOnlyOneLevel() throws MigrationException
+    {
 
-        int[] rollbackLevels = new int[]{9,10};
-        try{
+        int[] rollbackLevels = new int[]{9, 10};
+        try
+        {
             List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
-            fail( "MigrationException is expected due to the strategy does not support more than one rollbackLevel");
-        }catch( MigrationException exception){
+            fail("MigrationException is expected due to the strategy does not support more than one rollbackLevel");
+        } catch (MigrationException exception)
+        {
 
         }
     }
 
-    public void testGetRollbackCandidatesRollbackLevelShouldBeLowerThanCurrentPatchLevel(){
+    public void testGetRollbackCandidatesRollbackLevelShouldBeLowerThanCurrentPatchLevel()
+    {
         int[] rollbackLevels = new int[]{13};
 
-        try {
+        try
+        {
             List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
             fail("The rollbackLevel should be lower than the currentPatchLevel");
-        } catch (MigrationException e) {
+        } catch (MigrationException e)
+        {
 
         }
     }
 
-    public void testGetRollbackCandidatesRollbackLevelShouldNotBeNull(){
+    public void testGetRollbackCandidatesRollbackLevelShouldNotBeNull()
+    {
         int[] rollbackLevels = null;
 
-        try {
+        try
+        {
             List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
             fail("The rollbackLevel should not be null");
-        } catch (MigrationException e) {
+        } catch (MigrationException e)
+        {
 
         }
     }
 
-    public void testGetRollbackCandidatesRollbackLevelShouldNotBeEmpty(){
+    public void testGetRollbackCandidatesRollbackLevelShouldNotBeEmpty()
+    {
         int[] rollbackLevels = new int[]{};
 
-        try {
+        try
+        {
             List<MigrationTask> rollbackCandidates = migrationRunnerStrategy.getRollbackCandidates(allMigrationTasks, rollbackLevels, currentPatchInfoStore);
             fail("The rollbackLevel should not be empty");
-        } catch (MigrationException e) {
+        } catch (MigrationException e)
+        {
 
         }
     }

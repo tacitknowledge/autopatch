@@ -25,8 +25,7 @@ import com.tacitknowledge.util.migration.TestMigrationContext;
  * 
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
-public abstract class BaseTestRollbackableMigrationTask extends
-	MigrationTaskSupport
+public abstract class BaseTestRollbackableMigrationTask extends	MigrationTaskSupport
 {
     /**
      * Create a new <code>BaseTestRollbackableMigrationTask</code>.
@@ -44,6 +43,8 @@ public abstract class BaseTestRollbackableMigrationTask extends
 
     /**
      * Perform a rollback
+     * @param context migration context
+     * @throws MigrationException if an error happens
      */
     public void down(MigrationContext context) throws MigrationException
     {
@@ -56,6 +57,7 @@ public abstract class BaseTestRollbackableMigrationTask extends
 
     /**
      * Return true indicating that rollback is supported
+     * @return true if rollback is supported.
      */
     public boolean isRollbackSupported()
     {

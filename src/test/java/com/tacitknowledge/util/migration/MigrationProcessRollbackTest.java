@@ -20,7 +20,6 @@ import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask2;
 import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask3;
 import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask4;
 import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask5;
-import org.apache.commons.collections.iterators.ArrayListIterator;
 import org.easymock.EasyMock;
 import org.easymock.MockControl;
 import org.easymock.classextension.IMocksControl;
@@ -40,29 +39,33 @@ import static org.easymock.classextension.EasyMock.createStrictControl;
  */
 public class MigrationProcessRollbackTest extends MigrationListenerTestBase
 {
-    /** The class under test */
+    /**
+     * The class under test
+     */
     private MigrationProcess runner = null;
-    
-    /** Test migration context */
+
+    /**
+     * Test migration context
+     */
     private TestMigrationContext context = null;
     private MockControl patchInfoStoreControl;
     private PatchInfoStore patchInfoStore;
     private PatchInfoStore currentPatchInfoStore;
     private IMocksControl mockControl;
     private MigrationRunnerStrategy migrationStrategy;
-    private List<MigrationTask> rollbackCandidates;
-    private static final int[] ROLLBACK_LEVELS = new int[] {8};
+
+    private static final int[] ROLLBACK_LEVELS = new int[]{8};
 
     /**
      * Constructor for MigrationProcessRollbackTest.
-     * 
+     *
      * @param name the name of the test to run
      */
     public MigrationProcessRollbackTest(String name)
     {
         super(name);
     }
-    
+
     /**
      * @see junit.framework.TestCase#setUp()
      */
@@ -83,6 +86,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
 
         mockControl = createStrictControl();
         migrationStrategy = mockControl.createMock(MigrationRunnerStrategy.class);
+        List<MigrationTask> rollbackCandidates;
         rollbackCandidates = new ArrayList<MigrationTask>();
         rollbackCandidates.add(new TestRollbackableTask5());
         rollbackCandidates.add(new TestRollbackableTask4());
@@ -92,7 +96,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>>anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(Collections.EMPTY_LIST);
 
     }
-    
+
     /**
      * @see junit.framework.TestCase#tearDown()
      */
@@ -103,10 +107,10 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         // TestMigrationTask2.reset();
         // TestMigrationTask3.setFail(false);
     }
-    
+
     /**
      * This method tests the basic rollback functionality.
-     * 
+     *
      * @throws MigrationException
      */
     public void testRollbackAllTasks() throws MigrationException
@@ -132,16 +136,16 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
 
         // execute the rollback
         mockControl.replay();
-        runner.setMigrationRunnerStrategy( migrationStrategy );
+        runner.setMigrationRunnerStrategy(migrationStrategy);
         level = runner.doRollbacks(currentPatchInfoStore, ROLLBACK_LEVELS, context, false);
         assertEquals(4, level);
         assertEquals(4, getRollbackSuccessCount());
 
     }
-    
+
     /**
      * This method tests the basic rollback functionality.
-     * 
+     *
      * @throws MigrationException
      */
     public void testRollbackPartialTasks() throws MigrationException
@@ -156,67 +160,67 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         runner.doPostPatchMigrations(context);
         assertEquals(4, level);
         assertEquals(4, getMigrationSuccessCount());
-        
+
         assertFalse(context.hasExecuted("TestRollbackableTask1"));
         assertTrue(context.hasExecuted("TestRollbackableTask2"));
         assertTrue(context.hasExecuted("TestRollbackableTask3"));
         assertTrue(context.hasExecuted("TestRollbackableTask4"));
         assertTrue(context.hasExecuted("TestRollbackableTask5"));
-        
+
         // execute the rollback
         mockControl.replay();
-        runner.setMigrationRunnerStrategy( migrationStrategy );
+        runner.setMigrationRunnerStrategy(migrationStrategy);
         level = runner.doRollbacks(currentPatchInfoStore, ROLLBACK_LEVELS, context, false);
         assertEquals(4, level);
         assertEquals(4, getRollbackSuccessCount());
     }
-    
+
     /**
      * This method tests the scneario when a non rollbackable task is attempted to rollback.
      * Note that in this scenario, the forceRollback is false.
-     * 
+     *
      * @throws MigrationException
      */
     public void testRollbackNotRollbackableTask() throws MigrationException
     {
         doInitialMigrations();
-        
+
         // execute the rollback
         try
         {
-            int [] rollbackLevels = new int[] {7};
+            int[] rollbackLevels = new int[]{7};
             runner.doRollbacks(currentPatchInfoStore, rollbackLevels, context, false);
-        } 
-        catch (MigrationException me)
+        } catch (MigrationException me)
         {
             // expecting exception
         }
         assertEquals(0, getRollbackSuccessCount());
     }
-    
+
     /**
      * This tests the forceRollback functionality.
+     *
      * @throws MigrationException
      */
     public void testForceRollback() throws MigrationException
     {
         doInitialMigrations();
-        
+
         // execute the rollback
         try
         {
-            int [] rollbackLevels = new int[] {7};
+            int[] rollbackLevels = new int[]{7};
             runner.doRollbacks(currentPatchInfoStore, rollbackLevels, context, true);
-        } 
-        catch (MigrationException me)
+        } catch (MigrationException me)
         {
             // expecting exception
         }
         assertEquals(5, getRollbackSuccessCount());
     }
-    
+
     /**
      * this is a private helper method to perform initial migrations
+     *
      * @throws MigrationException
      */
     private void doInitialMigrations() throws MigrationException
@@ -230,18 +234,18 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         runner.doPostPatchMigrations(context);
         assertEquals(5, level);
         assertEquals(5, getMigrationSuccessCount());
-        
+
         assertTrue(context.hasExecuted("TestRollbackableTask1"));
         assertTrue(context.hasExecuted("TestRollbackableTask2"));
         assertTrue(context.hasExecuted("TestRollbackableTask3"));
         assertTrue(context.hasExecuted("TestRollbackableTask4"));
         assertTrue(context.hasExecuted("TestRollbackableTask5"));
     }
-    
+
     /**
      * this tests the scenario when the user tries to rollback to a level
      * which is greater than the current patch level.
-     * 
+     *
      * @throws MigrationException
      */
     public void testInvalidRollbackLevel() throws MigrationException
@@ -256,7 +260,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         runner.doPostPatchMigrations(context);
         assertEquals(5, level);
         assertEquals(5, getMigrationSuccessCount());
-        
+
         assertTrue(context.hasExecuted("TestRollbackableTask1"));
         assertTrue(context.hasExecuted("TestRollbackableTask2"));
         assertTrue(context.hasExecuted("TestRollbackableTask3"));
@@ -266,21 +270,20 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
 
         try
         {
-            PatchInfoStore patchInfoStoreBasedOnLevel=MockBuilder.getPatchInfoStore(level);
-            int [] rollbackLevels = new int[] {7};
+            PatchInfoStore patchInfoStoreBasedOnLevel = MockBuilder.getPatchInfoStore(level);
+            int[] rollbackLevels = new int[]{7};
             level = runner.doRollbacks(patchInfoStoreBasedOnLevel, rollbackLevels, context, false);
-        } 
-        catch (MigrationException me)
+        } catch (MigrationException me)
         {
             // expected
         }
-        
+
     }
-    
+
     /**
-     * this test checks that the system correctly when a rollback is attempted 
+     * this test checks that the system correctly when a rollback is attempted
      * on a non-rollbackable task.
-     * 
+     *
      * @throws MigrationException
      */
     public void testMigrationTaskRollback() throws MigrationException
@@ -289,7 +292,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         runner.addPatchResourceDirectory(getClass().getPackage().getName()
                 + ".tasks.rollback.migrationtasks");
         List l = runner.getMigrationTasks();
-        
+
         assertEquals(6, l.size());
 
         patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 7, MockControl.ONE_OR_MORE);
@@ -305,14 +308,13 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         assertTrue(context.hasExecuted("TestRollbackableTask4"));
         assertTrue(context.hasExecuted("TestRollbackableTask5"));
         assertTrue(context.hasExecuted("TestMigrationTaskRollback1"));
-        
+
         try
         {
-            PatchInfoStore nestedPatchInfoStore=MockBuilder.getPatchInfoStore(13);
-            int [] rollbackLevels = new int[] {12};
+            PatchInfoStore nestedPatchInfoStore = MockBuilder.getPatchInfoStore(13);
+            int[] rollbackLevels = new int[]{12};
             level = runner.doRollbacks(nestedPatchInfoStore, rollbackLevels, context, false);
-        } 
-        catch (MigrationException me)
+        } catch (MigrationException me)
         {
             // expected
         }
