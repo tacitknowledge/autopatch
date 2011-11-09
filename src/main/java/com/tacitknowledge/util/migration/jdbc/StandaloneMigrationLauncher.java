@@ -15,39 +15,39 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
+import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
-import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
-
 /**
  * Launches the migration process as a standalone application.
- * <p>
+ * <p/>
  * This class expects the following Java environment parameters:
  * <ul>
  * <li>migration.systemname - the name of the logical system being migrated</li>
  * <li>migration.settings (optional) - the name of the settings file to use for
  * migration</li>
  * </ul>
- * <p>
+ * <p/>
  * Below is an example of how this class can be configured in build.xml:
- * 
+ *
  * <pre>
  *   ...
  *  &lt;target name=&quot;patch.database&quot; description=&quot;Runs the migration system&quot;&gt;
- *   &lt;java 
+ *   &lt;java
  *       fork=&quot;true&quot;
- *       classpathref=&quot;patch.classpath&quot; 
- *       failonerror=&quot;true&quot; 
+ *       classpathref=&quot;patch.classpath&quot;
+ *       failonerror=&quot;true&quot;
  *       classname=&quot;com.tacitknowledge.util.migration.jdbc.StandaloneMigrationLauncher&quot;&gt;
  *     &lt;sysproperty key=&quot;migration.systemname&quot; value=&quot;${application.name}&quot;/&gt;
  *   &lt;/java&gt;
  * &lt;/target&gt;
  *   ...
  * </pre>
- * 
+ *
  * @author Mike Hardy (mike@tacitknowledge.com)
  * @see com.tacitknowledge.util.migration.MigrationProcess
  */
@@ -68,23 +68,26 @@ public final class StandaloneMigrationLauncher
      */
     private static Log log = LogFactory.getLog(StandaloneMigrationLauncher.class);
 
-    /**
-     * Private constructor - this object shouldn't be instantiated
-     */
-    private StandaloneMigrationLauncher()
-    {
-        // does nothing
-    }
+    private MigrationUtil migrationUtil;
 
     /**
      * Run the migrations for the given system name
-     * 
-     * @param arguments
-     *                the command line arguments, if any
-     * @exception Exception
-     *                    if anything goes wrong
+     *
+     * @param arguments the command line arguments, if any
+     * @throws Exception if anything goes wrong
      */
     public static void main(final String[] arguments) throws Exception
+    {
+        MigrationUtil migrationUtil = new MigrationUtil();
+        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactoryLoader().createFactory();
+        migrationUtil.setLauncherFactory(launcherFactory);
+
+        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher();
+        migrationLauncher.setMigrationUtil(migrationUtil);
+        migrationLauncher.run(arguments);
+    }
+
+    void run(String[] arguments) throws Exception
     {
 
         String migrationSystemName = ConfigurationUtil.getRequiredParam("migration.systemname",
@@ -93,7 +96,7 @@ public final class StandaloneMigrationLauncher
                 .getProperties(), arguments, 1);
 
         boolean isRollback = false;
-        int rollbackLevel = -1;
+        int[] rollbackLevels = new int[]{};
         boolean forceRollback = false;
 
         for (int i = 0; i < arguments.length; i++)
@@ -109,16 +112,20 @@ public final class StandaloneMigrationLauncher
                     String argument2 = arguments[i + 1];
 
                     if (argument2 != null)
-                    {
-                        rollbackLevel = Integer.parseInt(argument2);
+                    {   try
+                        {
+                            rollbackLevels = getRollbackLevels(argument2);
+                        }catch( NumberFormatException nfe ){
+                            throw new MigrationException("The rollbacklevels should be integers separated by a comma");
+                        }
                     }
                 }
 
-                if (rollbackLevel == -1)
+                if (rollbackLevels.length == 0)
                 {
                     // this indicates that the rollback level has not been set
                     throw new MigrationException(
-                            "The rollback flag requires a following integer parameter to indicate the rollback level.");
+                            "The rollback flag requires a following integer parameter or a list of integer parameters separated by comma to indicate the rollback level(s).");
                 }
             }
 
@@ -134,23 +141,45 @@ public final class StandaloneMigrationLauncher
         // task is executed, the patch level is incremented, etc.
         try
         {
+
             if (isRollback)
             {
-                log
-                        .info("Found rollback flag. AutoPatch will attempt to rollback the system to patch level "
-                                + rollbackLevel + ".");
-                new MigrationUtil().doRollbacks(migrationSystemName, migrationSettings, new int[]{rollbackLevel}, forceRollback);
-            }
+                String infoMessage = "Found rollback flag. AutoPatch will attempt to rollback the system to patch level(s) "
+                        + ArrayUtils.toString( rollbackLevels ) + ".";
+                log.info(infoMessage);
 
-            else
+                migrationUtil.doRollbacks(migrationSystemName, migrationSettings, rollbackLevels, forceRollback);
+            } else
             {
-                MigrationUtil.doMigrations(migrationSystemName, migrationSettings);
+                migrationUtil.doMigrations(migrationSystemName, migrationSettings);
             }
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             log.error(e);
             throw e;
         }
     }
+
+    private int[] getRollbackLevels(String rollbackLevelsString) throws NumberFormatException
+    {
+        String[] rollbackLevelsStringArray = rollbackLevelsString.split(",");
+        int[] rollbackLevels = new int[rollbackLevelsStringArray.length];
+
+        for (int i = 0; i < rollbackLevelsStringArray.length; i++)
+        {
+            rollbackLevels[i] = Integer.parseInt(rollbackLevelsStringArray[i]);
+        }
+        return rollbackLevels;
+    }
+
+    public void setMigrationUtil(MigrationUtil migrationUtil)
+    {
+        this.migrationUtil = migrationUtil;
+    }
+
+    public MigrationUtil getMigrationUtil()
+    {
+        return migrationUtil;
+    }
+
 }
