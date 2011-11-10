@@ -36,6 +36,8 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
+ * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
  * @see com.tacitknowledge.util.migration.MigrationProcess
  */
 public class DistributedMigrationProcess extends MigrationProcess

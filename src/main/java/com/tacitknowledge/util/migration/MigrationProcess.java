@@ -67,6 +67,8 @@ import org.apache.commons.logging.LogFactory;
  * </pre>
  * 
  * @author Scott Askew (scott@tacitknowledge.com)
+ * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
  */
 public class MigrationProcess
 {

@@ -22,6 +22,8 @@ import java.util.Set;
  * of the system, as well as whether patches are currently being applied
  * 
  * @author Mike Hardy (mike@tacitknowledge.com)
+ * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
  */
 public interface PatchInfoStore
 {

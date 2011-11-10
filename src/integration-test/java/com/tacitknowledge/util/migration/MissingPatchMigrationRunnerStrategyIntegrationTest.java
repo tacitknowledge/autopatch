@@ -24,7 +24,10 @@ import org.apache.commons.logging.LogFactory;
 
 import java.sql.*;
 
-
+/*
+ * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
+ */
 public class MissingPatchMigrationRunnerStrategyIntegrationTest extends AutoPatchIntegrationTestBase {
 
     /**

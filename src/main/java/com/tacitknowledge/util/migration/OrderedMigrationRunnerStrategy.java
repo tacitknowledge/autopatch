@@ -28,6 +28,8 @@ import java.util.List;
  * is considered missing.
  *
  * @author Oscar Gonzalez (oscar@tacitknowledge.com)
+ * @author Hemri Herrera (hemri@tacitknowledge.com)
+ * @author Ulises Pulido (upulido@tacitknowledge.com)
  */
 public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
 {
