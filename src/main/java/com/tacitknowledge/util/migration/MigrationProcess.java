@@ -15,16 +15,10 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.*;
 
 /**
  * Discovers and executes a sequence of system patches. Patches take the form of
@@ -34,25 +28,25 @@ import org.apache.commons.logging.LogFactory;
  * No two tasks can return the same result for <code>getOrder</code>, and
  * this class will throw a <code>MigrationException</code> should such a
  * situation occur.
- * <p>
+ * <p/>
  * One useful pre-defined <code>MigrationTask</code> is
  * <code>SqlScriptMigrationTask</code>, which wraps a .SQL file and executes
  * all statements inside it. Any file in the migration task search path that
  * matches the pattern "^patch(\\d++)(?!-rollback)_?(.+)?\\.sql" will be wrapped with the
- * <code>SqlScriptMigrationTask</code>.  Also, you rollback scripts are specified by 
- * matching the pattern "^patch(\\d+)-rollback_(.+)\\.sql." The rollback scripts 
- * are meant to reverse a patch and will reduce the level of the system to the 
+ * <code>SqlScriptMigrationTask</code>.  Also, you rollback scripts are specified by
+ * matching the pattern "^patch(\\d+)-rollback_(.+)\\.sql." The rollback scripts
+ * are meant to reverse a patch and will reduce the level of the system to the
  * previous patch level.  The execution order for these tasks
  * is defined by the number immediately following the "patch" part of the SQL
  * script file name.
- * <p>
+ * <p/>
  * Example:
- * 
+ * <p/>
  * <pre>
  *    // Find the patches
  *    migrationRunner.addResourcePackage(&quot;com.example.myapp.migration&quot;);
  *    migrationRunner.addResourceDirectory(&quot;db/sql&quot;);
- * 
+ *
  *    try
  *    {
  *        &lt;i&gt;... figure out the current patch level...&lt;/i&gt;
@@ -65,14 +59,16 @@ import org.apache.commons.logging.LogFactory;
  *        &lt;i&gt;... rollback MigrationContext ...&lt;/i&gt;
  *    }
  * </pre>
- * 
+ *
  * @author Scott Askew (scott@tacitknowledge.com)
  * @author Hemri Herrera (hemri@tacitknowledge.com)
  * @author Ulises Pulido (upulido@tacitknowledge.com)
  */
 public class MigrationProcess
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(MigrationProcess.class);
 
     /**
@@ -123,7 +119,7 @@ public class MigrationProcess
     }
 
 
-    public void setMigrationRunnerStrategy( MigrationRunnerStrategy migrationRunnerStrategy)
+    public void setMigrationRunnerStrategy(MigrationRunnerStrategy migrationRunnerStrategy)
     {
         this.migrationRunnerStrategy = migrationRunnerStrategy;
     }
@@ -131,16 +127,17 @@ public class MigrationProcess
 
     /**
      * Sets the <code>MigrationBroadcaster</code> for the current instance.
+     *
      * @param migrationBroadcaster with the <code>MigrationBroadcaster</code> to be set
      */
     protected void setMigrationBroadcaster(MigrationBroadcaster migrationBroadcaster)
     {
-         this.broadcaster = migrationBroadcaster;
+        this.broadcaster = migrationBroadcaster;
     }
 
     /**
      * Adds the given package to the migration task search path.
-     * 
+     *
      * @param packageName the name of the package to add to the search path
      */
     public void addPatchResourcePackage(String packageName)
@@ -151,7 +148,7 @@ public class MigrationProcess
     /**
      * Adds the given classpath-relative directory to the migration task search
      * path.
-     * 
+     *
      * @param dir the name of the directory to add to the post-patch search path
      */
     public void addPatchResourceDirectory(String dir)
@@ -165,7 +162,7 @@ public class MigrationProcess
 
     /**
      * Adds the given package to the post-patch migration task search path.
-     * 
+     *
      * @param packageName the name of the package to add to the search path
      */
     public void addPostPatchResourcePackage(String packageName)
@@ -176,7 +173,7 @@ public class MigrationProcess
     /**
      * Adds the given classpath-relative directory to the post-patch migration
      * task search path.
-     * 
+     *
      * @param dir the name of the directory to add to the post-patch search path
      */
     public void addPostPatchResourceDirectory(String dir)
@@ -191,9 +188,9 @@ public class MigrationProcess
     /**
      * Adds a <code>MigrationTaskSource</code> to the list of sources that
      * provide this instance with <code>MigrationTask</code>s.
-     * 
-     * @param source the <code>MigrationTaskSource</code> to add; may not be 
-     * <code>null</code>
+     *
+     * @param source the <code>MigrationTaskSource</code> to add; may not be
+     *               <code>null</code>
      */
     public void addMigrationTaskSource(MigrationTaskSource source)
     {
@@ -210,11 +207,10 @@ public class MigrationProcess
     /**
      * Applies rollbacks to move the patch level from the current level to the
      * rollback level.
-     * 
      *
      * @param currentPatchInfoStore
-     * @param rollbackLevels an integer indicating the level the desired patch level
-     * @param context information and resources that are available to the migration tasks
+     * @param rollbackLevels        an integer indicating the level the desired patch level
+     * @param context               information and resources that are available to the migration tasks
      * @return the count of patches which were rolled back
      * @throws MigrationException
      */
@@ -275,7 +271,7 @@ public class MigrationProcess
 
     /**
      * Helper method to determine if the set of migration tasks is rollbackable
-     * 
+     *
      * @param migrations a <code>List</code> of MigrationTasks
      * @return a boolean value indicating if all of the tasks can be rolledback
      */
@@ -309,21 +305,21 @@ public class MigrationProcess
 
     /**
      * Applies necessary patches to the system.
-     * 
+     *
      * @param patchInfoStore used to execute migrations
-     * @param context information and resources that are available to the migration tasks
-     * @throws MigrationException if a migration fails
+     * @param context        information and resources that are available to the migration tasks
      * @return the number of <code>MigrationTask</code>s that have executed
+     * @throws MigrationException if a migration fails
      */
     public int doMigrations(PatchInfoStore patchInfoStore,
-                            MigrationContext context) throws MigrationException
+            MigrationContext context) throws MigrationException
     {
 
         log.trace("Starting doMigrations");
         List<MigrationTask> migrations = getMigrationTasks();
         validateTasks(migrations);
         Collections.sort(migrations);
-        int taskCount =  dryRun(patchInfoStore, context, migrations);
+        int taskCount = dryRun(patchInfoStore, context, migrations);
 
         // See if we should execute
         if (isReadOnly())
@@ -341,7 +337,7 @@ public class MigrationProcess
         taskCount = 0;
         for (MigrationTask task : migrations)
         {
-            if (migrationRunnerStrategy.shouldMigrationRun(task.getLevel() , patchInfoStore))
+            if (migrationRunnerStrategy.shouldMigrationRun(task.getLevel(), patchInfoStore))
             {
                 applyPatch(context, task, true);
                 taskCount++;
@@ -361,18 +357,18 @@ public class MigrationProcess
     }
 
     /**
-     * Performs a dry run of rollbacks.  This method determines which tasks will rollback 
+     * Performs a dry run of rollbacks.  This method determines which tasks will rollback
      * and logs this information.
-     * 
+     *
      * @param migrations a <code>List</code> of migrations
-     * @param context the <codde>MigrationContext</code> where rollbacks would occer
+     * @param context    the <codde>MigrationContext</code> where rollbacks would occer
      * @return the count of tasks which would rollback
      */
     private int rollbackDryRun(List<MigrationTask> migrations, MigrationContext context)
     {
         int taskCount = 0;
         // Roll through once, just printing out what we'll do
-        for (MigrationTask migrationTask: migrations)
+        for (MigrationTask migrationTask : migrations)
         {
             RollbackableMigrationTask task = (RollbackableMigrationTask) migrationTask;
 
@@ -394,10 +390,10 @@ public class MigrationProcess
 
     /**
      * Run post-migration tasks
-     * 
+     *
      * @param context the context to use for the post-patch migrations
      * @return the number of <code>MigrationTask</code>s that executed
-     * @exception MigrationException if a post-patch task fails
+     * @throws MigrationException if a post-patch task fails
      */
     public int doPostPatchMigrations(MigrationContext context) throws MigrationException
     {
@@ -443,9 +439,9 @@ public class MigrationProcess
 
     /**
      * This method applies a single Rollback to the system.
-     * 
-     * @param context the <code>MigrationContext</code> in which the task is rolled back
-     * @param task the <code>RollbackableMigrationTask</code> which is to be rolled back
+     *
+     * @param context   the <code>MigrationContext</code> in which the task is rolled back
+     * @param task      the <code>RollbackableMigrationTask</code> which is to be rolled back
      * @param broadcast a boolean indicating if the execution of this rollback should be broadcast to listeners
      * @throws MigrationException is thrown in case of encountering an exception
      */
@@ -500,9 +496,9 @@ public class MigrationProcess
 
     /**
      * Apply a single patch
-     * 
-     * @param context the context the patch will need during application
-     * @param task the application task to carry out
+     *
+     * @param context   the context the patch will need during application
+     * @param task      the application task to carry out
      * @param broadcast whether to broadcast to listeners that the patch applied
      * @throws MigrationException if the patch application fails
      */
@@ -550,7 +546,7 @@ public class MigrationProcess
 
     /**
      * Returns a list of all migration tasks, regardless of patch level.
-     * 
+     *
      * @return a list of all migration tasks
      * @throws MigrationException if one or more migration tasks could not be created
      */
@@ -561,7 +557,7 @@ public class MigrationProcess
 
     /**
      * Returns a list of all post-patch migration tasks
-     * 
+     *
      * @return a list of all post-patch migration tasks
      * @throws MigrationException if one or more post-patch migration tasks could not be created
      */
@@ -572,16 +568,16 @@ public class MigrationProcess
 
     /**
      * Instantiate all the MigrationTask objects in the given resource packages
-     * 
+     *
      * @param resourcePackages a List of Strings specifying package names to look for tasks in
      * @return List of MigrationTask objects instantiated from the given packages
      * @throws MigrationException if one or more post-patch migration tasks could not be
-     * created
+     *                            created
      */
     private List<MigrationTask> getTasksFromPackages(List<String> resourcePackages) throws MigrationException
     {
         List tasks = new ArrayList();
-        for (String packageName: resourcePackages)
+        for (String packageName : resourcePackages)
         {
             log.debug("Searching for patch tasks in package " + packageName);
 
@@ -616,7 +612,7 @@ public class MigrationProcess
 
     /**
      * Returns the patch level which is previous to the current level
-     * 
+     *
      * @param currentLevel the current patch level
      * @return the level of the patch that was applied previous to the current patch l
      * @throws MigrationException if there is an error retrieving the previous patch level
@@ -654,10 +650,9 @@ public class MigrationProcess
 
     /**
      * Returns the number to use when creating the next patch.
-     * 
+     *
      * @return the number to use when creating the next patch
-     * @throws MigrationException
-     *                 if the existing tasks are invalid
+     * @throws MigrationException if the existing tasks are invalid
      */
     public int getNextPatchLevel() throws MigrationException
     {
@@ -678,7 +673,7 @@ public class MigrationProcess
     /**
      * Registers the given <code>MigrationListener</code> as being interested
      * in migration task events.
-     * 
+     *
      * @param listener the listener to add; may not be <code>null</code>
      */
     public void addListener(MigrationListener listener)
@@ -691,7 +686,7 @@ public class MigrationProcess
     /**
      * Removes the given <code>MigrationListener</code> from the list of
      * listeners associated with this <code>Migration</code> instance.
-     * 
+     *
      * @param listener the listener to add; may not be <code>null</code>
      * @return <code>true</code> if the listener was located and removed,
      *         otherwise <code>false</code>.
@@ -703,7 +698,7 @@ public class MigrationProcess
 
     /**
      * Get all of the MigrationListeners
-     * 
+     *
      * @return List of MigrationListeners
      */
     public List getListeners()
@@ -713,7 +708,7 @@ public class MigrationProcess
 
     /**
      * Returns a user-friendly label for the specified task.
-     * 
+     *
      * @param task the task to create a label for
      * @return a user-friendly label for the specified task
      */
@@ -724,10 +719,9 @@ public class MigrationProcess
 
     /**
      * Ensures that no two <code>MigrationTasks</code> have the same ordering.
-     * 
+     *
      * @param migrations the list of defined migration tasks
-     * @throws MigrationException
-     *                 if the migration tasks are not correctly defined
+     * @throws MigrationException if the migration tasks are not correctly defined
      */
     public void validateTasks(List migrations) throws MigrationException
     {
@@ -757,7 +751,7 @@ public class MigrationProcess
 
     /**
      * See if we are actually applying patches, or if it is just readonly
-     * 
+     *
      * @return boolean true if we will skip application
      */
     public boolean isReadOnly()
@@ -767,7 +761,7 @@ public class MigrationProcess
 
     /**
      * Set whether or not to actually apply patches
-     * 
+     *
      * @param readOnly boolean true if we should skip application
      */
     public void setReadOnly(boolean readOnly)
@@ -778,7 +772,7 @@ public class MigrationProcess
     /**
      * Registers the given <code>MigrationListeners</code> as being interested
      * in migration task events.
-     * 
+     *
      * @param listeners the listeners to add;
      */
     public void addListeners(List listeners)
@@ -792,14 +786,15 @@ public class MigrationProcess
         }
     }
 
-    public int dryRun(PatchInfoStore patchInfoStore, MigrationContext migrationContext, List migrations) throws MigrationException {
+    public int dryRun(PatchInfoStore patchInfoStore, MigrationContext migrationContext, List migrations) throws MigrationException
+    {
         int taskCount = 0;
         // Roll through once, just printing out what we'll do
         for (Iterator i = migrations.iterator(); i.hasNext();)
         {
             MigrationTask task = (MigrationTask) i.next();
             if (migrationRunnerStrategy
-                    .shouldMigrationRun(task.getLevel().intValue() , patchInfoStore))
+                    .shouldMigrationRun(task.getLevel().intValue(), patchInfoStore))
             {
                 log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 log.debug("Task will execute in context '" + migrationContext + "'");
@@ -817,7 +812,8 @@ public class MigrationProcess
         return taskCount;
     }
 
-    public MigrationRunnerStrategy getMigrationRunnerStrategy() {
+    public MigrationRunnerStrategy getMigrationRunnerStrategy()
+    {
         return migrationRunnerStrategy;
     }
 }

@@ -19,16 +19,16 @@ import java.util.List;
 
 /**
  * A source of <code>MigrationTask</code>s.
- * 
- * @author  Scott Askew (scott@tacitknowledge.com)
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public interface MigrationTaskSource
 {
     /**
      * Returns a list of <code>MigrationTasks</code> that are in the given
      * package.
-     * 
-     * @param  packageName to package to search for migration tasks
+     *
+     * @param packageName to package to search for migration tasks
      * @return a list of migration tasks; if not tasks were found, then an empty
      *         list must be returned.
      * @throws MigrationException if an unrecoverable error occurs

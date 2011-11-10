@@ -15,31 +15,30 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 import com.tacitknowledge.util.discovery.WebAppResourceListSource;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 /**
- * Used to configure the migration engine using JNDI and properties 
- * set in the servlet context for a web application.  This newer class 
- * removes the need to use a migration.properties file.  Instead, set the 
+ * Used to configure the migration engine using JNDI and properties
+ * set in the servlet context for a web application.  This newer class
+ * removes the need to use a migration.properties file.  Instead, set the
  * following properties (context-param) in the web.xml file:
- * 
+ * <p/>
  * <ul>
  * <li>migration.systemname - name of the system to update
  * <li>migration.databasetype - ex: mysql
  * <li>migration.patchpath - colon separated path to look for files
  * <li>migration.datasource - ex: jdbc/clickstream
  * </ul>
- * All properties listed above are required.  
- * 
+ * All properties listed above are required.
+ *
  * @author Chris A. (chris@tacitknowledge.com)
  */
 public class WebAppJNDIMigrationLauncher implements ServletContextListener
@@ -49,13 +48,15 @@ public class WebAppJNDIMigrationLauncher implements ServletContextListener
      * This should always be true, but you can never be too careful.
      */
     private static boolean firstRun = true;
-    
+
     /**
      * Class logger
      */
     private static Log log = LogFactory.getLog(WebAppJNDIMigrationLauncher.class);
-    
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     public void contextInitialized(ServletContextEvent sce)
     {
         try
@@ -66,10 +67,10 @@ public class WebAppJNDIMigrationLauncher implements ServletContextListener
             if (firstRun)
             {
                 ClassDiscoveryUtil.addResourceListSource(
-                    new WebAppResourceListSource(sce.getServletContext().getRealPath("/WEB-INF")));
+                        new WebAppResourceListSource(sce.getServletContext().getRealPath("/WEB-INF")));
             }
             firstRun = false;
-            
+
             // The MigrationLauncher is responsible for handling the interaction
             // between the PatchTable and the underlying MigrationTasks; as each
             // task is executed, the patch level is incremented, etc.
@@ -97,12 +98,14 @@ public class WebAppJNDIMigrationLauncher implements ServletContextListener
             e.printStackTrace(System.out);
             System.err.println(e.getMessage());
             e.printStackTrace(System.err);
-            
+
             throw e;
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void contextDestroyed(ServletContextEvent sce)
     {
         log.debug("context is being destroyed " + sce);

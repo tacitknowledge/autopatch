@@ -15,53 +15,54 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.util.Map;
-
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
+import java.util.Map;
 
 /**
- * Launches the migration process as a standalone application.  
- * <p>
+ * Launches the migration process as a standalone application.
+ * <p/>
  * This class expects the following Java environment parameters:
  * <ul>
- *    <li>migration.systemname - the name of the logical system being migrated</li>
+ * <li>migration.systemname - the name of the logical system being migrated</li>
  * </ul>
- * <p>
- * Alternatively, you can pass the migration system name on the command line as the 
+ * <p/>
+ * Alternatively, you can pass the migration system name on the command line as the
  * first argument.
- * <p>
+ * <p/>
  * Below is an example of how this class can be configured in an Ant build.xml file:
  * <pre>
  *   ...
  *  &lt;target name="patch.information" description="Prints out information about patch levels"&gt;
- *   &lt;java 
+ *   &lt;java
  *       fork="true"
- *       classpathref="patch.classpath" 
- *       failonerror="true" 
+ *       classpathref="patch.classpath"
+ *       failonerror="true"
  *       classname="com.tacitknowledge.util.migration.jdbc.DistributedMigrationInformation"&gt;
  *     &lt;sysproperty key="migration.systemname" value="${application.name}"/&gt;
  *   &lt;/java&gt;
  * &lt;/target&gt;
  *   ...
- * </pre> 
- * 
- * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.DistributedMigrationProcess
- * @see     com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory
+ * </pre>
+ *
+ * @author Mike Hardy (mike@tacitknowledge.com)
+ * @see com.tacitknowledge.util.migration.DistributedMigrationProcess
+ * @see com.tacitknowledge.util.migration.jdbc.DistributedJdbcMigrationLauncherFactory
  */
 public class DistributedMigrationInformation
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(DistributedMigrationInformation.class);
-    
+
     /**
      * Get the migration level information for the given system name
      *
      * @param arguments the command line arguments, if any (none are used)
-     * @exception Exception if anything goes wrong
+     * @throws Exception if anything goes wrong
      */
     public static void main(String[] arguments) throws Exception
     {
@@ -69,7 +70,7 @@ public class DistributedMigrationInformation
         String migrationName = System.getProperty("migration.systemname");
         String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
                 System.getProperties(), arguments, 1);
-        
+
         if (migrationName == null)
         {
             if ((arguments != null) && (arguments.length > 0))
@@ -79,16 +80,16 @@ public class DistributedMigrationInformation
             else
             {
                 throw new IllegalArgumentException("The migration.systemname "
-                                                   + "system property is required");
+                        + "system property is required");
             }
         }
-       // info.getMigrationInformation(migrationName);
-        info.getMigrationInformation(migrationName, migrationSettings);    
+        // info.getMigrationInformation(migrationName);
+        info.getMigrationInformation(migrationName, migrationSettings);
     }
-    
+
     /**
      * Get the migration level information for the given system name
-     * 
+     *
      * @param systemName the name of the system
      * @return returns the current highest source code patch number
      * @throws Exception if anything goes wrong
@@ -97,11 +98,11 @@ public class DistributedMigrationInformation
     {
         return getMigrationInformation(systemName, null);
     }
-    
+
     /**
      * Get the migration level information for the given system name
-     * 
-     * @param systemName the name of the system
+     *
+     * @param systemName        the name of the system
      * @param migrationSettings name of alternate migration.properties file to use
      * @return returns the current highest source code patch number
      * @throws Exception if anything goes wrong
@@ -113,31 +114,31 @@ public class DistributedMigrationInformation
         // task is executed, the patch level is incremented, etc.
         try
         {
-            DistributedJdbcMigrationLauncherFactory factory = 
-                new DistributedJdbcMigrationLauncherFactory();
+            DistributedJdbcMigrationLauncherFactory factory =
+                    new DistributedJdbcMigrationLauncherFactory();
             DistributedJdbcMigrationLauncher launcher = null;
 
             if (migrationSettings == null)
             {
-            	log.info("Using migration.properties (default)");
-            	launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
+                log.info("Using migration.properties (default)");
+                launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName);
             }
             else
             {
-            	log.info("Using " + migrationSettings);
-            	launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName, migrationSettings);
+                log.info("Using " + migrationSettings);
+                launcher = (DistributedJdbcMigrationLauncher) factory.createMigrationLauncher(systemName, migrationSettings);
             }
             // FIXME test that the migration information is correct
             Map contextMap = launcher.getContexts();
-           
-            JdbcMigrationContext context = 
-                (JdbcMigrationContext) contextMap.keySet().iterator().next();
-            
+
+            JdbcMigrationContext context =
+                    (JdbcMigrationContext) contextMap.keySet().iterator().next();
+
             int currentLevel = launcher.getDatabasePatchLevel(context);
             int nextPatchLevel = launcher.getNextPatchLevel();
             log.info("Current Database patch level is        : " + currentLevel);
             int unappliedPatches = nextPatchLevel - launcher.getDatabasePatchLevel(context) - 1;
-            log.info("Current number of unapplied patches is : " + unappliedPatches); 
+            log.info("Current number of unapplied patches is : " + unappliedPatches);
             log.info("The next patch to author should be     : " + nextPatchLevel);
             return (nextPatchLevel - 1);
         }

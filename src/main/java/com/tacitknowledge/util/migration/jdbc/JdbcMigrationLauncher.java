@@ -15,37 +15,35 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
 import com.tacitknowledge.util.migration.*;
-import org.apache.commons.lang.StringUtils;
+import com.tacitknowledge.util.migration.jdbc.loader.FlatXmlDataSetTaskSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.jdbc.loader.FlatXmlDataSetTaskSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Core starting point for a database migration run. This class obtains a
  * connection to the database, checks its patch level, delegates the actual
  * execution of the migration tasks to a <code>MigrationProcess</code>
  * instance, and then commits and cleans everything up at the end.
- * <p>
+ * <p/>
  * This class is <b>NOT</b> threadsafe.
- * 
+ *
  * @author Scott Askew (scott@tacitknowledge.com)
  */
 public class JdbcMigrationLauncher implements RollbackListener
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(JdbcMigrationLauncher.class);
 
-    /** The <code>MigrationProcess</code> responsible for applying the patches */
+    /**
+     * The <code>MigrationProcess</code> responsible for applying the patches
+     */
     private MigrationProcess migrationProcess = null;
 
     /**
@@ -83,7 +81,9 @@ public class JdbcMigrationLauncher implements RollbackListener
      */
     private String migrationStrategy;
 
-    /** Create a new MigrationProcess and add a SqlScriptMigrationTaskSource */
+    /**
+     * Create a new MigrationProcess and add a SqlScriptMigrationTaskSource
+     */
     public JdbcMigrationLauncher()
     {
     }
@@ -148,30 +148,30 @@ public class JdbcMigrationLauncher implements RollbackListener
     /**
      * Performs the application rollbacks
      *
-     * @param context the database context to run the patches in
+     * @param context       the database context to run the patches in
      * @param rollbackLevel the level the system should rollback to
      * @return the number of patches applied
-     * @throws SQLException if an unrecoverable database error occurs while working with the patches table.
+     * @throws SQLException       if an unrecoverable database error occurs while working with the patches table.
      * @throws MigrationException if an unrecoverable error occurs during the migration
      */
     public int doRollbacks(JdbcMigrationContext context, int[] rollbackLevel)
-    throws SQLException, MigrationException
+            throws SQLException, MigrationException
     {
-    	return doRollbacks(context,rollbackLevel, false);
+        return doRollbacks(context, rollbackLevel, false);
     }
 
     /**
      * Performs the application rollbacks
      *
-     * @param context the database context to run the patches in
+     * @param context       the database context to run the patches in
      * @param rollbackLevel the level the system should rollback to
      * @param forceRollback is a boolean indicating if the application should ignore a check to see if all patches are rollbackable
      * @return the number of patches applied
-     * @throws SQLException if an unrecoverable database error occurs while working with the patches table.
+     * @throws SQLException       if an unrecoverable database error occurs while working with the patches table.
      * @throws MigrationException if an unrecoverable error occurs during the migration
      */
     public int doRollbacks(JdbcMigrationContext context, int[] rollbackLevel, boolean forceRollback)
-    throws SQLException, MigrationException
+            throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
 
@@ -236,21 +236,27 @@ public class JdbcMigrationLauncher implements RollbackListener
      * @return an integer indicating how many patches were rolled back
      * @throws MigrationException is thrown in case of an error while rolling back
      */
-    public int doRollbacks(int[] rollbackLevel) throws MigrationException {
+    public int doRollbacks(int[] rollbackLevel) throws MigrationException
+    {
 
-        if (contexts.size() == 0) {
+        if (contexts.size() == 0)
+        {
             throw new MigrationException(
                     "You must configure a migration context");
         }
         int rollbackCount = 0;
 
-        try {
+        try
+        {
 
-            for (JdbcMigrationContext context : contexts.keySet()) {
+            for (JdbcMigrationContext context : contexts.keySet())
+            {
                 rollbackCount = doRollbacks(context, rollbackLevel);
                 log.info("Executed " + rollbackCount + " patches for context " + context);
             }
-        } catch (SQLException se) {
+        }
+        catch (SQLException se)
+        {
             throw new MigrationException("SqlException during rollback", se);
         }
 
@@ -265,22 +271,28 @@ public class JdbcMigrationLauncher implements RollbackListener
      * @return an integer indicating how many patches were rolled back
      * @throws MigrationException is thrown in case of an error while rolling back
      */
-    public int doRollbacks(int[] rollbackLevel, boolean forceRollback) throws MigrationException {
-        if (contexts.size() == 0) {
+    public int doRollbacks(int[] rollbackLevel, boolean forceRollback) throws MigrationException
+    {
+        if (contexts.size() == 0)
+        {
             throw new MigrationException(
                     "You must configure a migration context");
         }
 
         int rollbackCount = 0;
 
-        try {
+        try
+        {
 
-            for (JdbcMigrationContext context : contexts.keySet()) {
+            for (JdbcMigrationContext context : contexts.keySet())
+            {
                 rollbackCount = doRollbacks(context, rollbackLevel, forceRollback);
                 log.info("Executed " + rollbackCount + " patches for context " + context);
             }
 
-        } catch (SQLException se) {
+        }
+        catch (SQLException se)
+        {
             throw new MigrationException("SqlException during rollback", se);
         }
 
@@ -366,13 +378,17 @@ public class JdbcMigrationLauncher implements RollbackListener
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void migrationStarted(MigrationTask task, MigrationContext ctx) throws MigrationException
     {
         log.debug("Started task " + task.getName() + " for context " + ctx);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void migrationSuccessful(MigrationTask task, MigrationContext ctx) throws MigrationException
     {
         log.debug("Task " + task.getName() + " was successful for context " + ctx + " in launcher " + this);
@@ -390,9 +406,11 @@ public class JdbcMigrationLauncher implements RollbackListener
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void migrationFailed(MigrationTask task, MigrationContext ctx, MigrationException e)
-        throws MigrationException
+            throws MigrationException
     {
         log.debug("Task " + task.getName() + " failed for context " + ctx, e);
     }
@@ -402,7 +420,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      *
      * @param ctx the migration context to get the patch level for
      * @return int representing the current database patch level
-     * @exception MigrationException if there is a database connection error, or the patch level can't be determined
+     * @throws MigrationException if there is a database connection error, or the patch level can't be determined
      */
     public int getDatabasePatchLevel(MigrationContext ctx) throws MigrationException
     {
@@ -414,7 +432,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      * Get the next patch level, for use when creating a new patch
      *
      * @return int representing the first unused patch number
-     * @exception MigrationException if the next patch level can't be determined
+     * @throws MigrationException if the next patch level can't be determined
      */
     public int getNextPatchLevel() throws MigrationException
     {
@@ -449,7 +467,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      *
      * @param context the database context to run the patches in
      * @return the number of patches applied
-     * @throws SQLException if an unrecoverable database error occurs while working with the patches table.
+     * @throws SQLException       if an unrecoverable database error occurs while working with the patches table.
      * @throws MigrationException if an unrecoverable error occurs during the migration
      */
     protected int doMigrations(JdbcMigrationContext context) throws SQLException, MigrationException
@@ -563,7 +581,7 @@ public class JdbcMigrationLauncher implements RollbackListener
      * @throws MigrationException if an unrecoverable error occurs
      */
     private void waitForFreeLock(JdbcMigrationContext context) throws MigrationException
-	{
+    {
         PatchInfoStore piStore = (PatchInfoStore) contexts.get(context);
         log.debug("about to wait for free lock");
         for (int i = 0; piStore.isPatchStoreLocked(); i++)
@@ -599,7 +617,7 @@ public class JdbcMigrationLauncher implements RollbackListener
             }
         }
         log.debug("done waiting for free lock");
-	}
+    }
 
     /**
      * Get how long to wait for the patch store lock
@@ -628,7 +646,8 @@ public class JdbcMigrationLauncher implements RollbackListener
      */
     public MigrationProcess getMigrationProcess()
     {
-        if (migrationProcess == null) {
+        if (migrationProcess == null)
+        {
             setMigrationProcess(getNewMigrationProcess());
 
         }
@@ -712,23 +731,29 @@ public class JdbcMigrationLauncher implements RollbackListener
     {
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void rollbackFailed(RollbackableMigrationTask task, MigrationContext context, MigrationException e)
-	    throws MigrationException
+            throws MigrationException
     {
         log.debug("Task " + task.getName() + " failed for context " + context, e);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void rollbackStarted(RollbackableMigrationTask task, MigrationContext context) throws MigrationException
     {
         log.debug("Started rollback " + task.getName() + " for context " + context);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void rollbackSuccessful(RollbackableMigrationTask task, int rollbackLevel, MigrationContext context) throws MigrationException
     {
-        log.debug("Rollback of task " + task.getName()	+ " was successful for context " + context + " in launcher " + this);
+        log.debug("Rollback of task " + task.getName() + " was successful for context " + context + " in launcher " + this);
         int patchLevel = task.getLevel().intValue();
 
         // update all of our controlled patch tables
@@ -739,11 +764,13 @@ public class JdbcMigrationLauncher implements RollbackListener
         }
     }
 
-    public void setMigrationStrategy(String migrationStrategy) {
+    public void setMigrationStrategy(String migrationStrategy)
+    {
         this.migrationStrategy = migrationStrategy;
     }
 
-    public String getMigrationStrategy() {
+    public String getMigrationStrategy()
+    {
         return migrationStrategy;
     }
 }

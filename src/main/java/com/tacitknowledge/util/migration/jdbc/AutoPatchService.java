@@ -15,16 +15,14 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.sql.DataSource;
-
+import com.tacitknowledge.util.migration.MigrationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.MigrationException;
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Creates an AutoPatch environment using a configuration supplied by dependency
@@ -34,48 +32,66 @@ import com.tacitknowledge.util.migration.MigrationException;
  */
 public class AutoPatchService extends JdbcMigrationLauncherFactory
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(AutoPatchService.class);
-    
-    /** The name of the schema to patch */
+
+    /**
+     * The name of the schema to patch
+     */
     private String systemName = null;
-    
-    /** The data source used to patch the schema */
+
+    /**
+     * The data source used to patch the schema
+     */
     private DataSource dataSource = null;
-    
-    /** The type of database */
+
+    /**
+     * The type of database
+     */
     private String databaseType = null;
-    
-    /** The path to the SQL patches */
+
+    /**
+     * The path to the SQL patches
+     */
     private String patchPath = null;
-    
-    /** The patch to the post-patch tasks */
+
+    /**
+     * The patch to the post-patch tasks
+     */
     private String postPatchPath = null;
-    
-    /** Whether we really want to apply the patches, or just look */
+
+    /**
+     * Whether we really want to apply the patches, or just look
+     */
     private boolean readOnly = false;
-    
-    /** The number of times to wait for the lock before overriding it. -1 is infinite */
+
+    /**
+     * The number of times to wait for the lock before overriding it. -1 is infinite
+     */
     private int lockPollRetries = -1;
-    
-    /** A set of contexts, in case you want multi-node patches */
+
+    /**
+     * A set of contexts, in case you want multi-node patches
+     */
     private List contexts = new ArrayList();
 
     /**
      * Patches the database, if necessary.
-     * 
+     *
      * @throws MigrationException if an unexpected error occurs
      */
     public void patch() throws MigrationException
     {
         JdbcMigrationLauncher launcher = getLauncher();
-        
+
         try
         {
             log.info("Applying patches....");
             int patchesApplied = launcher.doMigrations();
             log.info("Applied " + patchesApplied + " "
-                + (patchesApplied == 1 ? "patch" : "patches") + ".");
+                    + (patchesApplied == 1 ? "patch" : "patches") + ".");
         }
         catch (MigrationException e)
         {
@@ -85,13 +101,13 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
 
     /**
      * Configure and return a JdbcMigrationLauncher to use for patching
-     * 
+     *
      * @return JdbcMigrationLauncher configured from injected properties
      */
     public JdbcMigrationLauncher getLauncher()
     {
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
-        
+
         // If no one has added a collection of contexts to the service,
         // then take the single-context property configuration and set it in
         if (contexts.size() == 0)
@@ -99,7 +115,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
             launcher.addContext(getContext());
         }
         // otherwise, add the collection of contexts in there
-        else 
+        else
         {
             for (Iterator i = contexts.iterator(); i.hasNext();)
             {
@@ -116,7 +132,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     /**
      * Configure and return a DataSourceMigrationContext from this object's
      * injected properties
-     * 
+     *
      * @return DataSourceMigrationContext configured from injected properties
      */
     protected DataSourceMigrationContext getContext()
@@ -135,7 +151,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         return dataSource;
     }
-    
+
     /**
      * @param dataSource The dataSource to set.
      */
@@ -143,7 +159,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         this.dataSource = dataSource;
     }
-    
+
     /**
      * @return Returns the systemName.
      */
@@ -151,7 +167,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         return systemName;
     }
-    
+
     /**
      * @param systemName The systemName to set.
      */
@@ -159,7 +175,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         this.systemName = systemName;
     }
-    
+
     /**
      * @return Returns the databaseType.
      */
@@ -167,7 +183,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         return databaseType;
     }
-    
+
     /**
      * @param dialect The databaseType to set.
      */
@@ -175,7 +191,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         this.databaseType = dialect;
     }
-    
+
     /**
      * @return Returns the patchPath.
      */
@@ -183,7 +199,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         return patchPath;
     }
-    
+
     /**
      * @param patchPath The patchPath to set.
      */
@@ -191,7 +207,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         this.patchPath = patchPath;
     }
-    
+
     /**
      * @return Returns the postPatchPath.
      */
@@ -199,7 +215,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
     {
         return postPatchPath;
     }
-    
+
     /**
      * @param postPatchPath The postPatchPath to set.
      */
@@ -210,7 +226,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
 
     /**
      * See if we are actually applying patches, or if it is just readonly
-     * 
+     *
      * @return boolean true if we will skip application
      */
     public boolean isReadOnly()
@@ -220,7 +236,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
 
     /**
      * Set whether or not to actually apply patches
-     * 
+     *
      * @param readOnly boolean true if we should skip application
      */
     public void setReadOnly(boolean readOnly)
@@ -230,7 +246,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
 
     /**
      * Return the number of times to poll the lock before overriding it. -1 is infinite
-     * 
+     *
      * @return int either -1 for infinite or number of times to poll before override
      */
     public int getLockPollRetries()
@@ -240,7 +256,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
 
     /**
      * Set the number of times to poll the lock before overriding it. -1 is infinite
-     * 
+     *
      * @param lockPollRetries either -1 for infinite or number of times to poll before override
      */
     public void setLockPollRetries(int lockPollRetries)
@@ -250,7 +266,7 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
 
     /**
      * Get the list of database contexts for multi-node configuration
-     * 
+     *
      * @return List of JdbcMigrationContext objects for multi-node, or empty List
      */
     public List getContexts()
@@ -260,14 +276,14 @@ public class AutoPatchService extends JdbcMigrationLauncherFactory
 
     /**
      * Set the list of database contexts for multi-node configuration
-     * 
+     *
      * @param contexts List of JdbcMigrationContext objects for multi-node, or empty list
      */
     public void setContexts(List contexts)
     {
         this.contexts = contexts;
     }
-    
+
     /**
      * Add a database context to the list of database contexts for multi-node configuration
      *

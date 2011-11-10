@@ -15,25 +15,18 @@
 
 package com.tacitknowledge.util.migration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-
-import org.apache.commons.collections.CollectionUtils;
+import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
+import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
-import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Discovers and executes a sequence of system patches from multiple controlled
  * systems, each of which has its own MigrationProcess.
- * 
+ *
  * @author Mike Hardy (mike@tacitknowledge.com)
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  * @author Hemri Herrera (hemri@tacitknowledge.com)
@@ -42,10 +35,14 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
  */
 public class DistributedMigrationProcess extends MigrationProcess
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(DistributedMigrationProcess.class);
 
-    /** The JdbcMigrationLaunchers we are controlling, keyed by system name */
+    /**
+     * The JdbcMigrationLaunchers we are controlling, keyed by system name
+     */
     private HashMap controlledSystems = new HashMap();
 
     /**
@@ -54,27 +51,26 @@ public class DistributedMigrationProcess extends MigrationProcess
      * nodes. This is not enabled by default because in a distributed system, if
      * there are cross schema dependencies, then the patching of the node may
      * fail since it is being patched 'out of order'.
-     * 
+     * <p/>
      * For example:
-     * 
+     * <p/>
      * system 1 has one node system 2 has one node
-     * 
+     * <p/>
      * patch1 applies to system1 and creates a table patch2 applies to system2
      * and creates a table that references the table in system1 patch3 applies
      * to system2, dropping the reference to the table in system1 patch4 applies
      * to system1, dropping the table.
-     * 
+     * <p/>
      * Later, to add capacity, system2 has a node added. When the second node is
      * forcibly 'synced' patches 2 and 3 are applied to it. The patching fails
      * when patch2 is applied because the table no longer exists in system1.
-     * 
+     * <p/>
      * Therefore, forcing a sync is usually safe for systems that don't contain
      * external references, but should not be used for interdependent systems.
-     * 
+     * <p/>
      * Instead, it would be better to import the schema from a node already at
      * the current patch level using database tools, then the new node can
      * participate in the regular patching process.
-     * 
      */
     private boolean forceSync = false;
 
@@ -89,12 +85,13 @@ public class DistributedMigrationProcess extends MigrationProcess
     /**
      * Execute a dry run of the rollback process and return a count of the
      * number of tasks which will rollback.
-     * 
-     * @param rollbacks a <code>List</code> of RollbackableMigrationTasks
+     *
+     * @param rollbacks              a <code>List</code> of RollbackableMigrationTasks
      * @param rollbacksWithLaunchers a <code>LinkedHashMap</code> of task to launcher
      * @return count of the number of rollbacks
      */
-    protected final int rollbackDryRun(final List rollbacks, final LinkedHashMap rollbacksWithLaunchers)
+    protected final int rollbackDryRun(final List rollbacks,
+            final LinkedHashMap rollbacksWithLaunchers)
     {
         // take the list of rollbacks
         // iterate through the rollbacks
@@ -128,12 +125,14 @@ public class DistributedMigrationProcess extends MigrationProcess
     /**
      * Execute a dry run of the patch process and return a count of the number
      * of patches we would have executed.
-     * 
-     * @param currentPatchInfoStore The current patch info store
+     *
+     * @param currentPatchInfoStore   The current patch info store
      * @param migrationsWithLaunchers a map of migration task to launcher
      * @return count of the number of patches
      */
-    protected final int patchDryRun(final PatchInfoStore currentPatchInfoStore, final LinkedHashMap migrationsWithLaunchers) throws MigrationException {
+    protected final int patchDryRun(final PatchInfoStore currentPatchInfoStore,
+            final LinkedHashMap migrationsWithLaunchers) throws MigrationException
+    {
         int taskCount = 0;
 
         for (Iterator i = migrationsWithLaunchers.entrySet().iterator(); i.hasNext();)
@@ -143,7 +142,7 @@ public class DistributedMigrationProcess extends MigrationProcess
             JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) entry.getValue();
 
 
-            if (getMigrationRunnerStrategy().shouldMigrationRun(task.getLevel(),currentPatchInfoStore))
+            if (getMigrationRunnerStrategy().shouldMigrationRun(task.getLevel(), currentPatchInfoStore))
             {
                 log.info("Will execute patch task '" + getTaskLabel(task) + "'");
                 if (log.isDebugEnabled())
@@ -165,13 +164,12 @@ public class DistributedMigrationProcess extends MigrationProcess
 
     /**
      * Applies the necessary rollbacks to the system.
-     * 
      *
      * @param currentPatchInfoStore
-     * @param rollbackLevels the level that the system should rollback to
-     * @param context information and resources that are available to the migration tasks
-     * @throws MigrationException if a rollback fails
+     * @param rollbackLevels        the level that the system should rollback to
+     * @param context               information and resources that are available to the migration tasks
      * @return the number of <code>RollbackableMigrationTasks</code> which have been rolled back
+     * @throws MigrationException if a rollback fails
      * @Override
      */
     public final int doRollbacks(final PatchInfoStore currentPatchInfoStore, final int[] rollbackLevels, final MigrationContext context,
@@ -245,15 +243,15 @@ public class DistributedMigrationProcess extends MigrationProcess
 
     /**
      * Applies necessary patches to the system.
-     * 
+     *
      * @param patchInfoStore of the system to run
-     * @param context information and resources that are available to the migration tasks
-     * @throws MigrationException if a migration fails
+     * @param context        information and resources that are available to the migration tasks
      * @return the number of <code>MigrationTask</code>s that have executed
+     * @throws MigrationException if a migration fails
      * @Override
      */
     public final int doMigrations(final PatchInfoStore patchInfoStore,
-                                  final MigrationContext context) throws MigrationException
+            final MigrationContext context) throws MigrationException
     {
         log.debug("Starting doMigrations");
         // Get all the migrations, with their launchers, then get the list of
@@ -334,9 +332,9 @@ public class DistributedMigrationProcess extends MigrationProcess
                     MigrationContext launcherContext = (MigrationContext) j.next();
                     PatchInfoStore patchInfoStoreOfContext =
                             (PatchInfoStore) launcher.getContexts().get(
-                            launcherContext);
+                                    launcherContext);
 
-                    if ( !getMigrationRunnerStrategy().isSynchronized(patchInfoStore, patchInfoStoreOfContext) )
+                    if (!getMigrationRunnerStrategy().isSynchronized(patchInfoStore, patchInfoStoreOfContext))
                     {
                         outOfSyncContexts.add(launcherContext);
                     }
@@ -372,9 +370,9 @@ public class DistributedMigrationProcess extends MigrationProcess
 
     /**
      * Validates that the controlled systems are all at the current patch level.
-     * 
-     * @throws MigrationException if all the controlled systems are not at the current patch level.
+     *
      * @param currentPatchInfoStore
+     * @throws MigrationException if all the controlled systems are not at the current patch level.
      */
     protected final void validateControlledSystems(final PatchInfoStore currentPatchInfoStore) throws MigrationException
     {
@@ -411,7 +409,7 @@ public class DistributedMigrationProcess extends MigrationProcess
     /**
      * Returns a LinkedHashMap of task/launcher pairings, regardless of patch
      * level.
-     * 
+     *
      * @return LinkedHashMap containing MigrationTask / JdbcMigrationLauncher
      *         pairings
      * @throws MigrationException if one or more migration tasks could not be created
@@ -453,7 +451,7 @@ public class DistributedMigrationProcess extends MigrationProcess
 
     /**
      * Returns a List of MigrationTasks, regardless of patch level.
-     * 
+     *
      * @return List containing MigrationTask objects
      * @throws MigrationException if one or more migration tasks could not be created
      */
@@ -493,7 +491,7 @@ public class DistributedMigrationProcess extends MigrationProcess
 
     /**
      * Get the list of systems we are controlling
-     * 
+     *
      * @return HashMap of JdbcMigrationLauncher objects keyed by String system
      *         names
      */
@@ -504,7 +502,7 @@ public class DistributedMigrationProcess extends MigrationProcess
 
     /**
      * Set the list of systems to control
-     * 
+     *
      * @param controlledSystems HashMap of system name / JdbcMigrationLauncher pairs
      */
     public final void setControlledSystems(final HashMap controlledSystems)

@@ -15,33 +15,36 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import com.tacitknowledge.util.migration.MigrationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.tacitknowledge.util.migration.MigrationException;
-
 /**
- * Support using AutoPatch via injection and allows you to directly set the patch level. 
+ * Support using AutoPatch via injection and allows you to directly set the patch level.
  * Jacques Morel contributed this originally.
- * 
+ *
  * @author Jacques Morel
  */
 public class AutoPatchSupport
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(AutoPatchSupport.class);
 
-    /** The launcher we'll use */
+    /**
+     * The launcher we'll use
+     */
     private JdbcMigrationLauncher launcher;
 
     /**
-     * Create a new support component for the given system name. 
+     * Create a new support component for the given system name.
      * This will use create a factory for you.
-     * 
+     *
      * @param systemName the name of the system to be patched
      * @throws MigrationException if there is a problem
      * @see JdbcMigrationLauncherFactoryLoader
@@ -54,9 +57,9 @@ public class AutoPatchSupport
 
     /**
      * Create support component with the given factory and system name
-     * 
+     *
      * @param launcherFactory the factory to use for migrations
-     * @param systemName the system to patch
+     * @param systemName      the system to patch
      * @throws MigrationException if there is any problem
      */
     public AutoPatchSupport(JdbcMigrationLauncherFactory launcherFactory,
@@ -67,7 +70,7 @@ public class AutoPatchSupport
 
     /**
      * Create a support component with the given configured launcher
-     * 
+     *
      * @param launcher the launcher to use for the migrations
      */
     public AutoPatchSupport(JdbcMigrationLauncher launcher)
@@ -77,7 +80,7 @@ public class AutoPatchSupport
 
     /**
      * Set the patch level to the specified level
-     * 
+     *
      * @param patchLevel the level to set the patch table to
      * @throws MigrationException if the store can't be locked
      */
@@ -93,13 +96,13 @@ public class AutoPatchSupport
             patchTable.lockPatchStore();
             patchTable.updatePatchLevel(patchLevel);
             log.info("Set the patch level to " + patchLevel + " for context " + migrationContext);
-            patchTable.unlockPatchStore();            
+            patchTable.unlockPatchStore();
         }
     }
 
     /**
      * Get the current patch level
-     * 
+     *
      * @return int with the patch level in the patch database
      * @throws MigrationException if there is a problem getting the patch level
      */
@@ -111,10 +114,10 @@ public class AutoPatchSupport
         // FIXME test that getting the patch level works
         return firstPatchTable.getPatchLevel();
     }
-    
+
     /**
      * Get the highest patch level of all the configured patches
-     * 
+     *
      * @return int with the highest patch level
      * @throws MigrationException if there is problem getting the patch level
      */

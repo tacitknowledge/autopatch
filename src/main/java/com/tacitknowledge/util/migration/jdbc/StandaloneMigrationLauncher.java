@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  * </ul>
  * <p/>
  * Below is an example of how this class can be configured in build.xml:
- *
+ * <p/>
  * <pre>
  *   ...
  *  &lt;target name=&quot;patch.database&quot; description=&quot;Runs the migration system&quot;&gt;
@@ -112,10 +112,13 @@ public final class StandaloneMigrationLauncher
                     String argument2 = arguments[i + 1];
 
                     if (argument2 != null)
-                    {   try
+                    {
+                        try
                         {
                             rollbackLevels = getRollbackLevels(argument2);
-                        }catch( NumberFormatException nfe ){
+                        }
+                        catch (NumberFormatException nfe)
+                        {
                             throw new MigrationException("The rollbacklevels should be integers separated by a comma");
                         }
                     }
@@ -145,15 +148,17 @@ public final class StandaloneMigrationLauncher
             if (isRollback)
             {
                 String infoMessage = "Found rollback flag. AutoPatch will attempt to rollback the system to patch level(s) "
-                        + ArrayUtils.toString( rollbackLevels ) + ".";
+                        + ArrayUtils.toString(rollbackLevels) + ".";
                 log.info(infoMessage);
 
                 migrationUtil.doRollbacks(migrationSystemName, migrationSettings, rollbackLevels, forceRollback);
-            } else
+            }
+            else
             {
                 migrationUtil.doMigrations(migrationSystemName, migrationSettings);
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             log.error(e);
             throw e;

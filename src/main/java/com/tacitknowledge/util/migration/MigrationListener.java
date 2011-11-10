@@ -19,8 +19,8 @@ import java.util.Properties;
 
 /**
  * Receives notifications regarding migration task migrations.
- * 
- * @author  Scott Askew (scott@tacitknowledge.com)
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public interface MigrationListener
 {
@@ -28,39 +28,40 @@ public interface MigrationListener
      * Initialize the migration listener.  This provides an opportunity
      * for the MigrationListener to initialize itself before patching
      * begins.
+     *
      * @param properties The properties loaded from migration.properties
      */
     public void initialize(String systemName, Properties properties) throws MigrationException;
-    
+
     /**
      * Notifies the listener that the given task is about to start execution.
-     * 
-     * @param  task the recently finished task
-     * @param  context the migration context
+     *
+     * @param task    the recently finished task
+     * @param context the migration context
      * @throws MigrationException if an unrecoverable error occurs
      */
     public void migrationStarted(MigrationTask task, MigrationContext context)
-        throws MigrationException;
-    
+            throws MigrationException;
+
     /**
-     * Notifies the listener that the given task has completed execution. 
-     * 
-     * @param  task the recently finished task
-     * @param  context the migration context
+     * Notifies the listener that the given task has completed execution.
+     *
+     * @param task    the recently finished task
+     * @param context the migration context
      * @throws MigrationException if an unrecoverable error occurs
      */
     public void migrationSuccessful(MigrationTask task, MigrationContext context)
-        throws MigrationException;
+            throws MigrationException;
 
     /**
-     * Notifies the listener that the given task has completed execution. 
-     * 
-     * @param  task the recently finished task
-     * @param  context the migration context
-     * @param  e the <code>MigrationException</code> thrown by the task
+     * Notifies the listener that the given task has completed execution.
+     *
+     * @param task    the recently finished task
+     * @param context the migration context
+     * @param e       the <code>MigrationException</code> thrown by the task
      * @throws MigrationException if an unrecoverable error occurs
      */
     public void migrationFailed(MigrationTask task,
-        MigrationContext context, MigrationException e) throws MigrationException;
+            MigrationContext context, MigrationException e) throws MigrationException;
 
 }

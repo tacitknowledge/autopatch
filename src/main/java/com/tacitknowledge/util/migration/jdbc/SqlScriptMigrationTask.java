@@ -15,6 +15,15 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import com.tacitknowledge.util.migration.MigrationContext;
+import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.MigrationTaskSupport;
+import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
+import com.tacitknowledge.util.migration.jdbc.util.SybaseUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,20 +36,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.tacitknowledge.util.migration.MigrationContext;
-import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationTaskSupport;
-import com.tacitknowledge.util.migration.jdbc.util.SqlUtil;
-import com.tacitknowledge.util.migration.jdbc.util.SybaseUtil;
-
 /**
- * Adaptss a SQL or DDL database patch for use with the AutoPatch framework.  
- *  
- * @author  Scott Askew (scott@tacitknowledge.com)
+ * Adaptss a SQL or DDL database patch for use with the AutoPatch framework.
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public class SqlScriptMigrationTask extends MigrationTaskSupport
 {
@@ -48,18 +47,18 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
      * Class logger
      */
     private static Log log = LogFactory.getLog(SqlScriptMigrationTask.class);
-    
+
     /**
      * The SQL to execute
      */
     private String sql = null;
-    
+
     /**
      * SQL to migrate down a patch level
      */
     private String downSql = null;
-    
-    
+
+
     /**
      * Creates a new <code>SqlScriptMigrationTask</code>.
      */
@@ -67,34 +66,34 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
     {
         // do nothing
     }
-    
+
     /**
      * Creates a new <code>SqlScriptMigrationTask</code>
-     * 
-     * @param name the name of the SQL script to execute; this is just an
-     * 	      identifier and does not have to correspond to a file name 
-     * @param level the patch level of the migration task
-     * @param upSql the SQL to execute to migrate the patch level up one
+     *
+     * @param name    the name of the SQL script to execute; this is just an
+     *                identifier and does not have to correspond to a file name
+     * @param level   the patch level of the migration task
+     * @param upSql   the SQL to execute to migrate the patch level up one
      * @param downSql the SQL to execute to rollback to this patch
      */
     public SqlScriptMigrationTask(String name, int level, String upSql, String downSql)
     {
-	setName(name);
-	setLevel(new Integer(level));
-	this.sql = upSql;
-	this.downSql = downSql;
-	
-	setRollbackSupported(!"".equals(downSql));
+        setName(name);
+        setLevel(new Integer(level));
+        this.sql = upSql;
+        this.downSql = downSql;
+
+        setRollbackSupported(!"".equals(downSql));
     }
-    
+
     /**
      * Creates a new <code>SqlScriptMigrationTask</code>
      *
-     * @param name the name of the SQL script to execute; this is just an
-     *        identifier and does not have to correspond to a file name 
+     * @param name  the name of the SQL script to execute; this is just an
+     *              identifier and does not have to correspond to a file name
      * @param level the patch level of the migration task
-     * @param sql the SQL to execute	
-     */ 
+     * @param sql   the SQL to execute
+     */
     public SqlScriptMigrationTask(String name, int level, String sql)
     {
         setName(name);
@@ -102,15 +101,15 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         this.sql = sql;
         this.downSql = "";
     }
-    
+
     /**
      * Creates a new <code>SqlScriptMigrationTask</code> containing the SQL
      * contained in the given <code>InputStream</code>.
      *
-     * @param  name the name of the SQL script to execute; this is just an
-     *         identifier and does not have to correspond to a file name 
-     * @param  level the patch level of the migration task
-     * @param  is the source of the SQL to execute
+     * @param name  the name of the SQL script to execute; this is just an
+     *              identifier and does not have to correspond to a file name
+     * @param level the patch level of the migration task
+     * @param is    the source of the SQL to execute
      * @throws IOException if there was problem reading the input stream
      */
     public SqlScriptMigrationTask(String name, int level, InputStream is) throws IOException
@@ -127,31 +126,35 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         }
         sql = sqlBuffer.toString();
     }
-    
-    /** {@inheritDoc} */
-    public void up(MigrationContext context) throws MigrationException 
+
+    /**
+     * {@inheritDoc}
+     */
+    public void up(MigrationContext context) throws MigrationException
     {
-	executeSql(context, sql);
+        executeSql(context, sql);
     }
-    
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     public void down(MigrationContext context) throws MigrationException
     {
-	executeSql(context, downSql);
+        executeSql(context, downSql);
     }
-    
+
     /**
      * Executes the passed sql in the passed context.
-     * 
-     * @param ctx the <code>MigrationContext> to execute the SQL in
+     *
+     * @param ctx       the <code>MigrationContext> to execute the SQL in
      * @param sqlToExec the SQL to execute
      * @throws MigrationException thrown if there is an error when executing the SQL
      */
-    private void executeSql(MigrationContext ctx, String sqlToExec) 
-    	throws MigrationException
+    private void executeSql(MigrationContext ctx, String sqlToExec)
+            throws MigrationException
     {
         JdbcMigrationContext context = (JdbcMigrationContext) ctx;
-        
+
         Connection conn = null;
         Statement stmt = null;
         String sqlStatement = "";
@@ -159,7 +162,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         try
         {
             conn = context.getConnection();
-            
+
             // cleaning the slate before we execute the patch.
             // This was inspired by a Sybase ASE server that did not allow
             // ALTER TABLE statements in multi-statement transactions.  Instead of putting
@@ -173,11 +176,11 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                 log.debug(getName() + ": Attempting to execute: " + sqlStatement);
 
                 stmt = conn.createStatement();
-                
+
                 // handle sybase special case with illegal commands in multi
                 // command transactions
-                if (isSybase(context) 
-                      && SybaseUtil.containsIllegalMultiStatementTransactionCommand(sqlStatement))
+                if (isSybase(context)
+                        && SybaseUtil.containsIllegalMultiStatementTransactionCommand(sqlStatement))
                 {
                     log.warn("Committing current transaction since patch " + getName()
                             + " contains commands that are not allowed in multi statement"
@@ -194,15 +197,15 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
 
                 SqlUtil.close(null, stmt, null);
             }
-            
+
             context.commit();
         }
         catch (Exception e)
         {
             String message = getName() + ": Error running SQL at statement number "
-                + listIterator.previousIndex() + " \"" + sqlStatement + "\"";
+                    + listIterator.previousIndex() + " \"" + sqlStatement + "\"";
             log.error(message, e);
-            
+
             if (e instanceof SQLException)
             {
                 if (((SQLException) e).getNextException() != null)
@@ -210,7 +213,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                     log.error("Chained SQL Exception", ((SQLException) e).getNextException());
                 }
             }
-            
+
             context.rollback();
             throw new MigrationException(message, e);
         }
@@ -219,20 +222,20 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
             SqlUtil.close(null, stmt, null);
         }
     }
-    
-    public List getSqlStatements(JdbcMigrationContext context) 
+
+    public List getSqlStatements(JdbcMigrationContext context)
     {
-	return getSqlStatements(context, sql);
+        return getSqlStatements(context, sql);
     }
-    
+
     /**
      * Parses the SQL/DDL to execute and returns a list of individual statements.  For database
      * types that support mulitple statements in a single <code>Statement.execute</code> call,
      * this method will return a one-element <code>List</code> containing the entire SQL
      * file.
-     * 
-     * @param  context the MigrationContext, to figure out db type and if it 
-     *                 can handle multiple statements at once
+     *
+     * @param context the MigrationContext, to figure out db type and if it
+     *                can handle multiple statements at once
      * @return a list of SQL and DDL statements to execute
      */
     public List getSqlStatements(JdbcMigrationContext context, String sqlStatements)
@@ -243,7 +246,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
             statements.add(sqlStatements);
             return statements;
         }
-        
+
         StringBuffer currentStatement = new StringBuffer();
         boolean inQuotedString = false;
         boolean inComment = false;
@@ -254,15 +257,15 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
             {
                 inComment = false;
             }
-            
+
             if (!inComment)
             {
                 switch (sqlChars[i])
                 {
-                    case '-' :
-                    case '/' :
+                    case '-':
+                    case '/':
                         if (!inQuotedString && i + 1 < sqlChars.length
-                            && sqlChars[i + 1] == sqlChars[i])
+                                && sqlChars[i + 1] == sqlChars[i])
                         {
                             inComment = true;
                         }
@@ -271,20 +274,20 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                             currentStatement.append(sqlChars[i]);
                         }
                         break;
-                    case '\'' :
+                    case '\'':
                         inQuotedString = !inQuotedString;
                         currentStatement.append(sqlChars[i]);
                         break;
-                    case ';' :
+                    case ';':
                         if (!inQuotedString)
                         {
                             // If we're in a stored procedure, just keep rolling
                             if (isStoredProcedure(context.getDatabaseType().getDatabaseType(),
-                                                  currentStatement.toString())) 
+                                    currentStatement.toString()))
                             {
                                 currentStatement.append(sqlChars[i]);
                             }
-                            else 
+                            else
                             {
                                 statements.add(currentStatement.toString().trim());
                                 currentStatement = new StringBuffer();
@@ -310,7 +313,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                             // read from current index to previous line terminator 
                             // or start of sequence
                             StringBuffer previous = new StringBuffer();
-                            for (int j = i - 1; j >= 0; j--) 
+                            for (int j = i - 1; j >= 0; j--)
                             {
                                 char c = sqlChars[j];
                                 previous.append(c);
@@ -319,16 +322,16 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                                     break;
                                 }
                             }
-                            
+
                             // reverse previous, since we've been walking backwards, but appending
                             previous = previous.reverse();
-                            
+
                             // read from current index to upcoming line terminator 
                             // or end of sequence.  If it is the GO delimiter, 
                             // we skip up to line terminator
                             StringBuffer after = new StringBuffer();
-                            int newIndex = 0; 
-                            for (int k = i + 1; k < sqlChars.length; k++) 
+                            int newIndex = 0;
+                            for (int k = i + 1; k < sqlChars.length; k++)
                             {
                                 char c = sqlChars[k];
                                 after.append(c);
@@ -338,12 +341,12 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                                     break;
                                 }
                             }
-                            
+
                             // check against the pattern if its a GO delimiter
                             String possibleDelimiter = previous
-                                .append(sqlChars[i]).append(after).toString();
+                                    .append(sqlChars[i]).append(after).toString();
                             final String delimiterPattern = "^\\s*[Gg][Oo]\\s*$";
-                            
+
                             if (Pattern.matches(delimiterPattern, possibleDelimiter))
                             {
                                 // if it's blank, don't bother adding it since Sybase
@@ -368,7 +371,7 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                             currentStatement.append(sqlChars[i]);
                         }
                         break;
-                    default :
+                    default:
                         currentStatement.append(sqlChars[i]);
                         break;
                 }
@@ -378,56 +381,58 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         {
             statements.add(currentStatement.toString().trim());
         }
-        
+
         return statements;
     }
-    
+
     /**
      * Return true if the string represents a stored procedure
-     * 
+     *
      * @param databaseType the type of the database
-     * @param statement the statement that may be a stored procedure
+     * @param statement    the statement that may be a stored procedure
      * @return true if the statement is a stored procedure for the given db type
      */
     protected boolean isStoredProcedure(String databaseType, String statement)
     {
         String currentStatement = statement.trim().toLowerCase();
-        if ("oracle".equals(databaseType) 
-                && (currentStatement.startsWith("begin") 
-                        || currentStatement.startsWith("create or replace method") 
-                        || currentStatement.startsWith("create or replace function") 
-                        || currentStatement.startsWith("create or replace procedure") 
-                        || currentStatement.startsWith("create or replace package")))
+        if ("oracle".equals(databaseType)
+                && (currentStatement.startsWith("begin")
+                || currentStatement.startsWith("create or replace method")
+                || currentStatement.startsWith("create or replace function")
+                || currentStatement.startsWith("create or replace procedure")
+                || currentStatement.startsWith("create or replace package")))
         {
             return true;
         }
         if ("mysql".equals(databaseType)
                 && (currentStatement.startsWith("create procedure")
-                        || currentStatement.startsWith("create function")))
+                || currentStatement.startsWith("create function")))
         {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * return true if c is a line terminator as detailed in
      * http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html
+     *
      * @param c the char to test
      * @return true if it is a line terminator
      */
     protected boolean isLineTerminator(char c)
     {
         return (c == '\n') // newline
-            || (c == '\r') // carriage return
-            || (c == '\u0085') // next-line
-            || (c == '\u2028') // line-separator
-            || (c == '\u2029'); // paragraph separator
+                || (c == '\r') // carriage return
+                || (c == '\u0085') // next-line
+                || (c == '\u2028') // line-separator
+                || (c == '\u2029'); // paragraph separator
     }
-    
+
     /**
      * Check if the current migration context is against a sybase database.
+     *
      * @param context the context to check.
      * @return true if context is in a sybase database.
      */
@@ -436,7 +441,9 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
         return context.getDatabaseType().getDatabaseType().equalsIgnoreCase("sybase");
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public String toString()
     {
         return getName();

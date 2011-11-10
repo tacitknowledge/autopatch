@@ -15,28 +15,27 @@
 
 package com.tacitknowledge.util.migration.jdbc.util;
 
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.sql.*;
+import java.util.Properties;
+
 /**
  * Utility class for dealing with JDBC.
- * 
- * @author  Scott Askew (scott@tacitknowledge.com)
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public final class SqlUtil
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(SqlUtil.class);
-    
-    /** Hidden constructor for utility class */
+
+    /**
+     * Hidden constructor for utility class
+     */
     private SqlUtil()
     {
         // Hidden
@@ -44,16 +43,16 @@ public final class SqlUtil
 
     /**
      * Ensures the given connection, statement, and result are properly closed.
-     * 
+     *
      * @param conn the connection to close; may be <code>null</code>
      * @param stmt the statement to close; may be <code>null</code>
-     * @param rs the result set to close; may be <code>null</code>
+     * @param rs   the result set to close; may be <code>null</code>
      */
     public static void close(Connection conn, Statement stmt, ResultSet rs)
     {
         if (rs != null)
         {
-            try 
+            try
             {
                 log.debug("Closing ResultSet: " + rs.toString());
                 rs.close();
@@ -66,7 +65,7 @@ public final class SqlUtil
 
         if (stmt != null)
         {
-            try 
+            try
             {
                 log.debug("Closing Statement: " + stmt.toString());
                 stmt.close();
@@ -79,7 +78,7 @@ public final class SqlUtil
 
         if (conn != null)
         {
-            try 
+            try
             {
                 if (!conn.isClosed())
                 {
@@ -97,20 +96,20 @@ public final class SqlUtil
             }
         }
     }
-    
+
     /**
-     * Established and returns a connection based on the specified parameters. 
-     * 
-     * @param  driver the JDBC driver to use
-     * @param  url the database URL
-     * @param  user the username
-     * @param  pass the password
+     * Established and returns a connection based on the specified parameters.
+     *
+     * @param driver the JDBC driver to use
+     * @param url    the database URL
+     * @param user   the username
+     * @param pass   the password
      * @return a JDBC connection
      * @throws ClassNotFoundException if the driver could not be loaded
-     * @throws SQLException if a connnection could not be made to the database
+     * @throws SQLException           if a connnection could not be made to the database
      */
-    public static Connection getConnection(String driver, String url, String user, String pass) 
-        throws ClassNotFoundException, SQLException
+    public static Connection getConnection(String driver, String url, String user, String pass)
+            throws ClassNotFoundException, SQLException
     {
         Connection conn = null;
         try
@@ -133,29 +132,29 @@ public final class SqlUtil
              * a shot at finding the driver in cases where DriverManager fails.  
              * This 'may be' a security hole which is why DriverManager implements 
              * things in such a way that it doesn't use the current thread context class loader.
-             */ 
-            try 
+             */
+            try
             {
                 Class driverClass =
-                    Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
+                        Class.forName(driver, true, Thread.currentThread().getContextClassLoader());
                 Driver driverImpl = (Driver) driverClass.newInstance();
                 Properties props = new Properties();
                 props.put("user", user);
                 props.put("password", pass);
                 conn = driverImpl.connect(url, props);
-            } 
-            catch (InstantiationException ie) 
+            }
+            catch (InstantiationException ie)
             {
                 log.debug(ie);
                 throw new SQLException(ie.getMessage());
-            } 
-            catch (IllegalAccessException iae) 
+            }
+            catch (IllegalAccessException iae)
             {
                 log.debug(iae);
                 throw new SQLException(iae.getMessage());
             }
         }
-        
+
         return conn;
     }
 }

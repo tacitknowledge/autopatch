@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Manages the <code>MessageListener</code> that are associated with a
  * <code>Rollback</code> instance.
- * 
+ *
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
 class RollbackBroadcaster
@@ -52,94 +52,94 @@ class RollbackBroadcaster
 
     /**
      * Notifies all registered listeners of a migration task event.
-     * 
-     * @param task the task that is being or that has been executed
-     * @param context the context in which the task was executed
-     * @param eventType TASK_START, TASK_SUCCESS, or TASK_FAIL
+     *
+     * @param task          the task that is being or that has been executed
+     * @param context       the context in which the task was executed
+     * @param eventType     TASK_START, TASK_SUCCESS, or TASK_FAIL
      * @param rollbackLevel
-     * @param e the exception thrown by the task if the task failed
+     * @param e             the exception thrown by the task if the task failed
      * @throws MigrationException if one of the listeners threw an exception
      */
     public void notifyListeners(RollbackableMigrationTask task,
-	    MigrationContext context, MigrationException e, int eventType, int rollbackLevel)
-	    throws MigrationException
+            MigrationContext context, MigrationException e, int eventType, int rollbackLevel)
+            throws MigrationException
     {
-	for (Iterator i = listeners.iterator(); i.hasNext();)
-	{
-	    RollbackListener listener = (RollbackListener) i.next();
-	    switch (eventType)
-	    {
-	    case TASK_START:
-		listener.rollbackStarted(task, context);
-		break;
+        for (Iterator i = listeners.iterator(); i.hasNext();)
+        {
+            RollbackListener listener = (RollbackListener) i.next();
+            switch (eventType)
+            {
+                case TASK_START:
+                    listener.rollbackStarted(task, context);
+                    break;
 
-	    case TASK_SUCCESS:
-		listener.rollbackSuccessful(task, rollbackLevel, context);
-		break;
+                case TASK_SUCCESS:
+                    listener.rollbackSuccessful(task, rollbackLevel, context);
+                    break;
 
-	    case TASK_FAILED:
-		listener.rollbackFailed(task, context, e);
-		break;
+                case TASK_FAILED:
+                    listener.rollbackFailed(task, context, e);
+                    break;
 
-	    default:
-		throw new IllegalArgumentException("Unknown event type");
-	    }
-	}
+                default:
+                    throw new IllegalArgumentException("Unknown event type");
+            }
+        }
     }
 
     /**
      * Notifies all registered listeners of a migration task event.
-     * 
-     * @param task the task that is being or that has been executed
-     * @param context the context in which the task was executed
+     *
+     * @param task      the task that is being or that has been executed
+     * @param context   the context in which the task was executed
      * @param eventType TASK_START, TASK_SUCCESS, or TASK_FAIL
      * @throws MigrationException if one of the listeners threw an exception
      */
     public void notifyListeners(RollbackableMigrationTask task,
-	    MigrationContext context, int eventType, int rollbackLevel) throws MigrationException
+            MigrationContext context, int eventType, int rollbackLevel) throws MigrationException
     {
-	notifyListeners(task, context, null, eventType, rollbackLevel);
+        notifyListeners(task, context, null, eventType, rollbackLevel);
     }
 
     /**
      * Registers the given <code>MigrationListener</code> as being interested
      * in migration task events.
-     * 
+     *
      * @param listener the listener to add; may not be <code>null</code>
      */
     public void addListener(RollbackListener listener)
     {
-	if (listener == null)
-	{
-	    throw new IllegalArgumentException("listener cannot be null");
-	}
-	listeners.add(listener);
+        if (listener == null)
+        {
+            throw new IllegalArgumentException("listener cannot be null");
+        }
+        listeners.add(listener);
     }
 
     /**
      * Removes the given <code>MigrationListener</code> from the list of
      * listeners associated with the <code>Migration</code> instance.
-     * 
+     *
      * @param listener the listener to add; may not be <code>null</code>
      * @return <code>true</code> if the listener was located and removed,
      *         otherwise <code>false</code>.
      */
     public boolean removeListener(RollbackListener listener)
     {
-	if (listener == null)
-	{
-	    throw new IllegalArgumentException("listener cannot be null");
-	}
-	return listeners.remove(listener);
+        if (listener == null)
+        {
+            throw new IllegalArgumentException("listener cannot be null");
+        }
+        return listeners.remove(listener);
     }
 
     /**
      * Get the list of listeners
-     * 
+     *
      * @return List of MigrationListener objects
      */
     public List getListeners()
     {
-	return listeners;
+        return listeners;
     }
 }

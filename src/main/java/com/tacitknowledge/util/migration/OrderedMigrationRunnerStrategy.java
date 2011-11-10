@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * Helps to get information about how the migrations should run based in an ordered stategy, i.e.
  * If the level of the <code>MigrationTask</code> is greater than the current level and
  * the <code>MigrationTask</code>has not yet been applied. Then the information of that migration
@@ -33,20 +32,24 @@ import java.util.List;
  */
 public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
 {
-    public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException {
+    public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException
+    {
         return migrationLevel > patchInfoStore.getPatchLevel();
     }
 
-    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException {
+    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException
+    {
 
-        if( currentPatchInfoStore == null || patchInfoStore == null ){
+        if (currentPatchInfoStore == null || patchInfoStore == null)
+        {
             throw new IllegalArgumentException("currentPatchInfoStore and patchInfoStore should not be null");
         }
 
         return currentPatchInfoStore.getPatchLevel() == patchInfoStore.getPatchLevel();
     }
 
-    public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException {
+    public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException
+    {
         validateRollbackLevel(rollbackLevels);
 
         int rollbackLevel = rollbackLevels[0];
@@ -64,23 +67,27 @@ public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
         migrationCandidates.addAll(allMigrationTasks);
         CollectionUtils.filter(migrationCandidates, rollbackPredicate);
         Collections.sort(migrationCandidates);
-         // need to reverse the list do we apply the rollbacks in descending
+        // need to reverse the list do we apply the rollbacks in descending
         // order
         Collections.reverse(migrationCandidates);
         return migrationCandidates;
 
     }
 
-    private void validateRollbackLevel(int[] rollbackLevels) throws MigrationException {
-        if( rollbackLevels == null){
+    private void validateRollbackLevel(int[] rollbackLevels) throws MigrationException
+    {
+        if (rollbackLevels == null)
+        {
             throw new MigrationException("rollbackLevels should not be null");
         }
 
-        if( rollbackLevels.length == 0 ){
+        if (rollbackLevels.length == 0)
+        {
             throw new MigrationException("rollbackLevels should not be empty");
         }
 
-        if( rollbackLevels.length > 1){
+        if (rollbackLevels.length > 1)
+        {
             throw new MigrationException("OrderedMigrationRunnerStrategy only supports one rollbackLevel");
         }
     }

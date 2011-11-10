@@ -16,16 +16,12 @@
 package com.tacitknowledge.util.migration.builders;
 
 import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationRunnerStrategy;
 import com.tacitknowledge.util.migration.PatchInfoStore;
-import org.apache.commons.lang.ArrayUtils;
-import org.easymock.MockControl;
 import org.easymock.classextension.IMocksControl;
 
 import java.util.Properties;
 import java.util.Set;
 
-import static org.easymock.EasyMock.endsWith;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createStrictControl;
 
@@ -37,21 +33,24 @@ import static org.easymock.classextension.EasyMock.createStrictControl;
 public class MockBuilder
 {
 
-    public static PatchInfoStore getPatchInfoStore(int patchLevel) throws MigrationException {
+    public static PatchInfoStore getPatchInfoStore(int patchLevel) throws MigrationException
+    {
         return getPatchInfoStore(patchLevel, null);
     }
 
-    public static PatchInfoStore getPatchInfoStore(int patchLevel, Set<Integer> patchesApplied) throws MigrationException
+    public static PatchInfoStore getPatchInfoStore(int patchLevel, Set<Integer> patchesApplied)
+            throws MigrationException
     {
         IMocksControl patchInfoStoreControl = createStrictControl();
         PatchInfoStore patchInfoStoreMock = patchInfoStoreControl.createMock(PatchInfoStore.class);
-        expect( patchInfoStoreMock.getPatchLevel()).andReturn(patchLevel).anyTimes();
+        expect(patchInfoStoreMock.getPatchLevel()).andReturn(patchLevel).anyTimes();
         expect(patchInfoStoreMock.getPatchesApplied()).andReturn(patchesApplied);
         patchInfoStoreControl.replay();
         return patchInfoStoreMock;
     }
 
-    public static Properties getPropertiesWithSystemConfiguration( String system, String strategy ){
+    public static Properties getPropertiesWithSystemConfiguration(String system, String strategy)
+    {
         Properties properties = new Properties();
         properties.setProperty(system + ".jdbc.database.type", "hsqldb");
         properties.setProperty(system + ".patch.path", "systemPath");
@@ -64,10 +63,12 @@ public class MockBuilder
         return properties;
     }
 
-    public static Properties getPropertiesWithDistributedSystemConfiguration( String system, String strategy, String subsystems ){
-        Properties properties = getPropertiesWithSystemConfiguration(system,strategy);
+    public static Properties getPropertiesWithDistributedSystemConfiguration(String system,
+            String strategy, String subsystems)
+    {
+        Properties properties = getPropertiesWithSystemConfiguration(system, strategy);
         properties.setProperty(system + ".context", system);
-        properties.setProperty(system + ".controlled.systems", subsystems );
+        properties.setProperty(system + ".controlled.systems", subsystems);
 
         return properties;
     }

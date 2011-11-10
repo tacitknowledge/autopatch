@@ -15,33 +15,34 @@
 
 package com.tacitknowledge.util.migration.jdbc.loader;
 
+import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
+import com.tacitknowledge.util.migration.MigrationException;
+import com.tacitknowledge.util.migration.MigrationTask;
+import com.tacitknowledge.util.migration.MigrationTaskSource;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.tacitknowledge.util.migration.MigrationTask;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
-import com.tacitknowledge.util.migration.MigrationException;
-import com.tacitknowledge.util.migration.MigrationTaskSource;
-
 /**
- * Search a package (directory) for xml files that match a specific pattern 
+ * Search a package (directory) for xml files that match a specific pattern
  * and returns corresponding {@link FlatXmlDataSetMigrationTask}s.  The name
  * of each script must follow the pattern of &quot;patch(\d+)(_.+)?\.xml&quot;.
- * 
+ *
  * @author Alex Soto (apsoto@gmail.com)
  */
-public class FlatXmlDataSetTaskSource implements MigrationTaskSource 
+public class FlatXmlDataSetTaskSource implements MigrationTaskSource
 {
 
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(FlatXmlDataSetTaskSource.class);
-    
+
     /**
      * The regular expression used to match XML patch files.
      */
@@ -67,10 +68,10 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource
     /**
      * Creates a list of {@link FlatXmlDataSetMigrationTask}s based on the array
      * of xml files.
-     *  
-     * @param  xmlFiles the classpath-relative array of xml files
+     *
+     * @param xmlFiles the classpath-relative array of xml files
      * @return a list of {@link FlatXmlDataSetMigrationTask}
-     * @throws MigrationException in unexpected error occurs 
+     * @throws MigrationException in unexpected error occurs
      */
     private List<MigrationTask> createMigrationTasks(String[] xmlFiles) throws MigrationException
     {
@@ -87,15 +88,15 @@ public class FlatXmlDataSetTaskSource implements MigrationTaskSource
 
             // Get the patch number out of the file name
             Matcher matcher = p.matcher(xmlFilename);
-            if (!matcher.matches() || matcher.groupCount() != 2) 
+            if (!matcher.matches() || matcher.groupCount() != 2)
             {
                 throw new MigrationException("Invalid XML patch name: " + xmlFilename);
             }
-            
+
             FlatXmlDataSetMigrationTask task = new FlatXmlDataSetMigrationTask();
             task.setLevel(new Integer(Integer.parseInt(matcher.group(1))));
             task.setName(xmlPathname);
-            tasks.add(task);                
+            tasks.add(task);
 
         }
         return tasks;

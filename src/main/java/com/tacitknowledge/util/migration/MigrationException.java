@@ -17,14 +17,14 @@ package com.tacitknowledge.util.migration;
 
 /**
  * An exception we can use to type things as we send problems up
- * 
- * @author  Scott Askew (scott@tacitknowledge.com)
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public class MigrationException extends Exception
 {
-    /** 
+    /**
      * Make a new MigrationException with the given message
-     * 
+     *
      * @param message the message to include in the exception
      */
     public MigrationException(String message)
@@ -34,9 +34,9 @@ public class MigrationException extends Exception
 
     /**
      * Make a new MigrationException with the given message and cause
-     * 
+     *
      * @param message the message to include in the exception
-     * @param cause the cause of the problem
+     * @param cause   the cause of the problem
      */
     public MigrationException(String message, Throwable cause)
     {

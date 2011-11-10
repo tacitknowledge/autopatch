@@ -17,7 +17,7 @@ package com.tacitknowledge.util.migration;
 
 /**
  * A single, idempotent and migration task, which also supports rollbacks.
- * 
+ *
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
 public interface RollbackableMigrationTask extends MigrationTask
@@ -25,41 +25,37 @@ public interface RollbackableMigrationTask extends MigrationTask
 
     /**
      * Performs a migration
-     * 
-     * @param context
-     *                the <code>MigrationContext</code> for this run.
-     * @throws MigrationException
-     *                 if an unexpected error occurs
+     *
+     * @param context the <code>MigrationContext</code> for this run.
+     * @throws MigrationException if an unexpected error occurs
      */
     public void up(MigrationContext context) throws MigrationException;
 
     /**
      * Performs a rollback
-     * 
-     * @param context
-     *                the <code>MigrationContext</code> for this run.
-     * @throws MigrationException
-     *                 if an unexpected error occurrs
+     *
+     * @param context the <code>MigrationContext</code> for this run.
+     * @throws MigrationException if an unexpected error occurrs
      */
     public void down(MigrationContext context) throws MigrationException;
 
     /**
      * Returns a boolean indicating if this task can be rolled back.
-     * 
+     *
      * @return a boolean indicating if the task can be rolled back.
      */
     public boolean isRollbackSupported();
-    
+
     /**
-     * Returns the name of this migration task. 
-     * 
+     * Returns the name of this migration task.
+     *
      * @return the name of this migration task
      */
     public String getName();
-    
+
     /**
      * Returns the relative order in which this migration should occur.
-     * 
+     *
      * @return the relative order in which this migration should occur; may never
      *         return <code>null</code>
      */

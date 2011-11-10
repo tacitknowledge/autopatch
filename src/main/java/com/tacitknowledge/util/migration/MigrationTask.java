@@ -17,29 +17,29 @@ package com.tacitknowledge.util.migration;
 
 /**
  * A single, idempotent migration task.
- * 
- * @author  Scott Askew (scott@tacitknowledge.com)
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public interface MigrationTask extends Comparable
 {
     /**
      * Performs a migration
-     * 
-     * @param  context the <code>MigrationContext</code> for this run
+     *
+     * @param context the <code>MigrationContext</code> for this run
      * @throws MigrationException if an unexpected error occurred
      */
     public void migrate(MigrationContext context) throws MigrationException;
-    
+
     /**
-     * Returns the name of this migration task. 
-     * 
+     * Returns the name of this migration task.
+     *
      * @return the name of this migration task
      */
     public String getName();
-    
+
     /**
      * Returns the relative order in which this migration should occur.
-     * 
+     *
      * @return the relative order in which this migration should occur; may never
      *         return <code>null</code>
      */

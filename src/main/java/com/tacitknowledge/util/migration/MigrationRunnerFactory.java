@@ -26,25 +26,31 @@ import org.apache.commons.logging.LogFactory;
  * @author Oscar Gonzalez (oscar@tacitknowledge.com)
  */
 
-public class MigrationRunnerFactory {
+public class MigrationRunnerFactory
+{
 
     private static Log log = LogFactory.getLog(MigrationRunnerFactory.class);
     public static final String DEFAULT_MIGRATION_STRATEGY = "com.tacitknowledge.util.migration.OrderedMigrationRunnerStrategy";
 
-    public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy) {
+    public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy)
+    {
 
         log.info("Strategy received '" + strategy + "'");
 
-        if (StringUtils.isBlank(strategy)) {
+        if (StringUtils.isBlank(strategy))
+        {
             return new OrderedMigrationRunnerStrategy();
 
         }
 
-        try {
+        try
+        {
             Class c = Class.forName(strategy.trim());
             MigrationRunnerStrategy runnerStrategy = (MigrationRunnerStrategy) c.newInstance();
             return runnerStrategy;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new IllegalArgumentException("Strategy selected " + strategy + " cannot be instantiated ", e);
         }
 

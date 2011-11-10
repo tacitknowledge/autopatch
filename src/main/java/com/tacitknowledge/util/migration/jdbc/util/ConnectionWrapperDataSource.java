@@ -15,16 +15,15 @@
 
 package com.tacitknowledge.util.migration.jdbc.util;
 
+import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
 /**
  * A partial <code>DataSource</code> implementation that simply wraps a single,
  * already opened <code>Connection</code>.
- * <p>
+ * <p/>
  * Only the two <code>getConnection</code> methods are supported.
  *
  * @author Scott Askew (scott@tacitknowledge.com)
@@ -35,18 +34,18 @@ public class ConnectionWrapperDataSource implements DataSource
      * The message used in <code>UnsupportedOperationException</code>s.
      */
     public static final String UNSUPPORTED_OPERATION_EXCEPTION_MSG
-        = ConnectionWrapperDataSource.class 
-        + " is not a fully functioning DataSource and only"
-        + " supports the getConnection methods.";
+            = ConnectionWrapperDataSource.class
+            + " is not a fully functioning DataSource and only"
+            + " supports the getConnection methods.";
 
     /**
      * The underlying connection
      */
     private Connection connection = null;
-    
+
     /**
-     * Creates a new <code>ConnectionWrapperDataSource</code>. 
-     * 
+     * Creates a new <code>ConnectionWrapperDataSource</code>.
+     *
      * @param connection the connection to use for this data source
      */
     public ConnectionWrapperDataSource(Connection connection)
@@ -54,49 +53,65 @@ public class ConnectionWrapperDataSource implements DataSource
         this.connection = connection;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Connection getConnection() throws SQLException
     {
         return connection;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Connection getConnection(String user, String pass) throws SQLException
     {
         return connection;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public PrintWriter getLogWriter() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void setLogWriter(PrintWriter arg0) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public int getLoginTimeout() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void setLoginTimeout(int arg0) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public boolean isWrapperFor(Class iface)
     {
         return connection != null && iface.isAssignableFrom(connection.getClass());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Object unwrap(Class iface)
     {
         return connection;

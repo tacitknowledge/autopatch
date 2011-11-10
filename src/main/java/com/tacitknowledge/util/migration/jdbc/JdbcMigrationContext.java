@@ -15,15 +15,15 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import com.tacitknowledge.util.migration.MigrationContext;
 import com.tacitknowledge.util.migration.MigrationException;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
- * Contains the configuration and resources for a database patch run.  
- * 
+ * Contains the configuration and resources for a database patch run.
+ *
  * @author Scott Askew (scott@tacitknowledge.com)
  */
 public interface JdbcMigrationContext extends MigrationContext
@@ -36,28 +36,32 @@ public interface JdbcMigrationContext extends MigrationContext
     /**
      * Returns a database connection to use. The creator
      * of the JdbcMigrationContext are responsible for closing the connection.
-     * 
+     *
      * @return the database connection to use
      * @throws SQLException if an unexpected error occurs
      */
     public Connection getConnection() throws SQLException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void commit() throws MigrationException;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void rollback() throws MigrationException;
 
     /**
      * @return the name of the system to patch
      */
     public String getSystemName();
-    
+
     /**
      * @return In a federated distributed configuration this should be some
-     *          unique name to identify each node in the system.  In other 
-     *          configurations where is typically only one node per system,
-     *          the system name should suffice.  
+     *         unique name to identify each node in the system.  In other
+     *         configurations where is typically only one node per system,
+     *         the system name should suffice.
      */
     public String getDatabaseName();
 

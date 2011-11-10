@@ -15,38 +15,37 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
-
 
 /**
- * Launches the migration process as a standalone application.  
- * <p>
+ * Launches the migration process as a standalone application.
+ * <p/>
  * This class expects the following Java environment parameters:
  * <ul>
- *    <li>migration.systemname - the name of the logical system being migrated</li>
+ * <li>migration.systemname - the name of the logical system being migrated</li>
  * </ul>
- * <p>
+ * <p/>
  * Below is an example of how this class can be configured in build.xml:
  * <pre>
  *   ...
  *  &lt;target name="patch.database" description="Runs the migration system"&gt;
- *   &lt;java 
+ *   &lt;java
  *       fork="true"
- *       classpathref="patch.classpath" 
- *       failonerror="true" 
+ *       classpathref="patch.classpath"
+ *       failonerror="true"
  *       classname=
  *         "com.tacitknowledge.util.migration.jdbc.DistributedStandaloneMigrationLauncher"&gt;
  *     &lt;sysproperty key="migration.systemname" value="${application.name}"/&gt;
  *   &lt;/java&gt;
  * &lt;/target&gt;
  *   ...
- * </pre> 
- * 
- * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.DistributedMigrationProcess
+ * </pre>
+ *
+ * @author Mike Hardy (mike@tacitknowledge.com)
+ * @see com.tacitknowledge.util.migration.DistributedMigrationProcess
  */
 public class DistributedStandaloneMigrationLauncher
 {
@@ -54,36 +53,36 @@ public class DistributedStandaloneMigrationLauncher
      * Class logger
      */
     private static Log log = LogFactory.getLog(DistributedStandaloneMigrationLauncher.class);
-    
+
     /**
      * Private constructor - this object shouldn't be instantiated
      */
     private DistributedStandaloneMigrationLauncher()
-    { 
+    {
         // does nothing
     }
-    
+
     /**
      * Run the migrations for the given system name
      *
      * @param arguments the command line arguments, if any (none are used)
-     * @exception Exception if anything goes wrong
+     * @throws Exception if anything goes wrong
      */
     public static void main(String[] arguments) throws Exception
     {
-        String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", 
+        String systemName = ConfigurationUtil.getRequiredParam("migration.systemname",
                 System.getProperties(), arguments);
-        
+
         String migrationSettings = ConfigurationUtil.getOptionalParam("migration.settings",
-                System.getProperties(), arguments, 1);        
-        
+                System.getProperties(), arguments, 1);
+
         // The MigrationLauncher is responsible for handling the interaction
         // between the PatchTable and the underlying MigrationTasks; as each
         // task is executed, the patch level is incremented, etc.
         try
         {
-            DistributedJdbcMigrationLauncherFactory factory = 
-                new DistributedJdbcMigrationLauncherFactory();
+            DistributedJdbcMigrationLauncherFactory factory =
+                    new DistributedJdbcMigrationLauncherFactory();
             JdbcMigrationLauncher launcher = null;
 
             if (migrationSettings == null)
@@ -95,9 +94,9 @@ public class DistributedStandaloneMigrationLauncher
             {
                 log.info("Using " + migrationSettings);
                 launcher = factory.createMigrationLauncher(systemName, migrationSettings);
-            }            	
+            }
             launcher.doMigrations();
-            
+
         }
         catch (Exception e)
         {

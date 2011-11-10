@@ -4,11 +4,10 @@ import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactory;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncherFactoryLoader;
-
-import javax.servlet.ServletContextEvent;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import javax.servlet.ServletContextEvent;
 
 /**
  * A utility class for migration initialization needs
@@ -17,14 +16,18 @@ import org.apache.commons.logging.LogFactory;
  */
 public class MigrationUtil
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(MigrationUtil.class);
 
-    public JdbcMigrationLauncherFactory getLauncherFactory() {
+    public JdbcMigrationLauncherFactory getLauncherFactory()
+    {
         return launcherFactory;
     }
 
-    public void setLauncherFactory(JdbcMigrationLauncherFactory launcherFactory) {
+    public void setLauncherFactory(JdbcMigrationLauncherFactory launcherFactory)
+    {
         this.launcherFactory = launcherFactory;
     }
 
@@ -33,31 +36,29 @@ public class MigrationUtil
 
     /**
      * Helper method to initiate the migration process.
-     * 
-     * @param  sce the <code>ServletContextEvent</code> being handled
+     *
+     * @param sce the <code>ServletContextEvent</code> being handled
      * @throws MigrationException
      */
     public static void doMigrations(final ServletContextEvent sce) throws MigrationException
     {
-        JdbcMigrationLauncherFactory launcherFactory = 
+        JdbcMigrationLauncherFactory launcherFactory =
                 new JdbcMigrationLauncherFactoryLoader().createFactory();
         JdbcMigrationLauncher launcher = launcherFactory.createMigrationLauncher(sce);
         launcher.doMigrations();
     }
-    
+
     /**
      * Helper method to initiate the migration process.
-     * 
-     * @param migrationSystemName
-     *                the name of the system to migrate
-     * @param migrationSettings
-     *                additional properties for migration
+     *
+     * @param migrationSystemName the name of the system to migrate
+     * @param migrationSettings   additional properties for migration
      * @throws MigrationException
      */
     public static void doMigrations(final String migrationSystemName,
             final String migrationSettings) throws MigrationException
     {
-        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactoryLoader ()
+        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactoryLoader()
                 .createFactory();
         JdbcMigrationLauncher launcher = null;
 
@@ -75,14 +76,12 @@ public class MigrationUtil
 
         launcher.doMigrations();
     }
-    
+
     /**
      * Helper method to initiate the migration process.
-     * 
-     * @param migrationSystemName
-     *                the name of the system to migrate
-     * @param migrationSettings
-     *                additional properties for migration
+     *
+     * @param migrationSystemName the name of the system to migrate
+     * @param migrationSettings   additional properties for migration
      * @throws MigrationException
      */
     public void doRollbacks(final String migrationSystemName,

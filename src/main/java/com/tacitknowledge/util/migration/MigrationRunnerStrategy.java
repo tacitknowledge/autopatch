@@ -30,28 +30,31 @@ public interface MigrationRunnerStrategy
 {
     /**
      * Determines if a <code>MigrationTask</code> is able to run.
-      * @param migrationLevel of the <code>MigrationTask</code> to be check as in int
+     *
+     * @param migrationLevel of the <code>MigrationTask</code> to be check as in int
      * @param patchInfoStore object representing patch level information
      * @return boolean value telling us if we should run the migration or not.
      */
-   public boolean shouldMigrationRun(int migrationLevel , PatchInfoStore patchInfoStore) throws MigrationException;
+    public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException;
 
     /**
      * Determines if two stores are synchronized to each other.
+     *
      * @param currentPatchInfoStore
      * @param patchInfoStore
      * @return
      * @throws MigrationException
      */
-   public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException;
+    public boolean isSynchronized(PatchInfoStore currentPatchInfoStore, PatchInfoStore patchInfoStore) throws MigrationException;
 
     /**
      * Retrieves all tasks that are candidates for rollback.
+     *
      * @param allMigrationTasks
      * @param rollbackLevels
      * @param currentPatchInfoStore
      * @return
      * @throws MigrationException
      */
-   public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException;
+    public List<MigrationTask> getRollbackCandidates(List<MigrationTask> allMigrationTasks, int[] rollbackLevels, PatchInfoStore currentPatchInfoStore) throws MigrationException;
 }

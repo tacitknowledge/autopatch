@@ -15,18 +15,17 @@
 
 package com.tacitknowledge.util.migration.jdbc.util;
 
+import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import javax.sql.DataSource;
 
 /**
  * A partial <code>DataSource</code> implementation that can be used in environments
  * where the containing application (usually an applications server) does not
  * provide a pooled DataSource.  This can be used to run migrations from standalone
  * applications.
- * <p>
+ * <p/>
  * Only the two <code>getConnection</code> methods are supported.
  *
  * @author Scott Askew (scott@tacitknowledge.com)
@@ -37,52 +36,55 @@ public class NonPooledDataSource implements DataSource
      * The message used in <code>UnsupportedOperationException</code>s.
      */
     public static final String UNSUPPORTED_OPERATION_EXCEPTION_MSG
-        = NonPooledDataSource.class 
-        + " is not a fully functioning DataSource and only"
-        + " supports the getConnection methods.";
+            = NonPooledDataSource.class
+            + " is not a fully functioning DataSource and only"
+            + " supports the getConnection methods.";
 
     /**
-     * The name of the database driver class 
+     * The name of the database driver class
      */
     private String driverClass = null;
-    
+
     /**
      * The JDBC URL
      */
     private String databaseUrl = null;
-    
+
     /**
      * The user to login as
      */
     private String username = null;
-    
+
     /**
      * The database password
      */
     private String password = null;
-    
+
     /**
      * Creates a new <code>BasicDataSource</code>.
-     *
      */
     public NonPooledDataSource()
     {
         // Default constructor
     }
-    
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     public Connection getConnection() throws SQLException
     {
         return getConnection(getUsername(), getPassword());
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Connection getConnection(String user, String pass) throws SQLException
     {
         try
         {
-            return SqlUtil.getConnection(getDriverClass(), getDatabaseUrl(), 
-                                         getUsername(), getPassword());
+            return SqlUtil.getConnection(getDriverClass(), getDatabaseUrl(),
+                    getUsername(), getPassword());
         }
         catch (ClassNotFoundException e)
         {
@@ -90,40 +92,48 @@ public class NonPooledDataSource implements DataSource
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public PrintWriter getLogWriter() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void setLogWriter(PrintWriter arg0) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public int getLoginTimeout() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void setLoginTimeout(int arg0) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
     }
-    
-    /** 
+
+    /**
      * Get the database URL
-     * 
+     *
      * @return the database url to use
      */
     public String getDatabaseUrl()
     {
         return databaseUrl;
     }
-    
+
     /**
      * @param databaseUrl The databaseUrl to set.
      */
@@ -131,6 +141,7 @@ public class NonPooledDataSource implements DataSource
     {
         this.databaseUrl = databaseUrl;
     }
+
     /**
      * @return Returns the driverClass.
      */
@@ -138,6 +149,7 @@ public class NonPooledDataSource implements DataSource
     {
         return driverClass;
     }
+
     /**
      * @param driverClass The driverClass to set.
      */
@@ -145,6 +157,7 @@ public class NonPooledDataSource implements DataSource
     {
         this.driverClass = driverClass;
     }
+
     /**
      * @return Returns the password.
      */
@@ -152,6 +165,7 @@ public class NonPooledDataSource implements DataSource
     {
         return password;
     }
+
     /**
      * @param password The password to set.
      */
@@ -159,6 +173,7 @@ public class NonPooledDataSource implements DataSource
     {
         this.password = password;
     }
+
     /**
      * @return Returns the username.
      */
@@ -166,6 +181,7 @@ public class NonPooledDataSource implements DataSource
     {
         return username;
     }
+
     /**
      * @param username The username to set.
      */
@@ -173,14 +189,18 @@ public class NonPooledDataSource implements DataSource
     {
         this.username = username;
     }
-    
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean isWrapperFor(Class iface)
     {
         return false;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Object unwrap(Class iface)
     {
         return null;
@@ -188,16 +208,16 @@ public class NonPooledDataSource implements DataSource
 
     /**
      * Useful for debugging
-     * 
+     *
      * @return String with state
      */
     public String toString()
     {
         return
-            "NonPooledDataSource["
-            + getDriverClass() + "/"
-            + getDatabaseUrl() + "/"
-            + getUsername() + "/"
-            + "(password omitted)" + "]";
+                "NonPooledDataSource["
+                        + getDriverClass() + "/"
+                        + getDatabaseUrl() + "/"
+                        + getUsername() + "/"
+                        + "(password omitted)" + "]";
     }
 }

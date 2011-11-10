@@ -19,8 +19,8 @@ import java.util.Properties;
 
 /**
  * Receives notifications regarding task rollbacks.
- * 
- * @author  Artie Pesh-Imam (apeshimam@tacitknowledge.com)
+ *
+ * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
 public interface RollbackListener extends MigrationListener
 {
@@ -28,40 +28,42 @@ public interface RollbackListener extends MigrationListener
      * Initialize the rollback listener.  This provides an opportunity
      * for the RollbackListener to initialize itself before patching
      * begins.
+     *
      * @param properties The properties loaded from migration.properties
      */
     public void initialize(String systemName, Properties properties) throws MigrationException;
-    
+
     /**
      * Notifies the listener that the given rollback is about to start execution.
-     * 
-     * @param  task the recently finished task
-     * @param  context the migration context
+     *
+     * @param task    the recently finished task
+     * @param context the migration context
      * @throws MigrationException if an unrecoverable error occurs
      */
     public void rollbackStarted(RollbackableMigrationTask task, MigrationContext context)
-        throws MigrationException;
-    
-    /**
-     * Notifies the listener that the given roolback has completed execution. 
-     * 
-     * @param  task the recently finished task
-     * @param  context the migration context
-     * @throws MigrationException if an unrecoverable error occurs
-     */
-    public void rollbackSuccessful(RollbackableMigrationTask task, int rollbackLevel, MigrationContext context)
-        throws MigrationException;
+            throws MigrationException;
 
     /**
-     * Notifies the listener that the given rollback has completed execution. 
-     * 
-     * @param  task the recently finished task
-     * @param  context the migration context
-     * @param  e the <code>MigrationException</code> thrown by the task
+     * Notifies the listener that the given roolback has completed execution.
+     *
+     * @param task    the recently finished task
+     * @param context the migration context
+     * @throws MigrationException if an unrecoverable error occurs
+     */
+    public void rollbackSuccessful(RollbackableMigrationTask task, int rollbackLevel,
+            MigrationContext context)
+            throws MigrationException;
+
+    /**
+     * Notifies the listener that the given rollback has completed execution.
+     *
+     * @param task    the recently finished task
+     * @param context the migration context
+     * @param e       the <code>MigrationException</code> thrown by the task
      * @throws MigrationException if an unrecoverable error occurs
      */
     public void rollbackFailed(RollbackableMigrationTask task,
-        MigrationContext context, MigrationException e) throws MigrationException;
+            MigrationContext context, MigrationException e) throws MigrationException;
 
 }
 

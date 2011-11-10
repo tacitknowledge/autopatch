@@ -15,30 +15,28 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.tacitknowledge.util.discovery.ClassDiscoveryUtil;
 import com.tacitknowledge.util.discovery.WebAppResourceListSource;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 /**
  * Launches the migration process upon application context creation.  This class
  * is intentionally fail-fast, meaning that it throws a RuntimeException if any
  * problems arise during migration and will prevent the web application from
  * being fully deployed.
- * <p>
+ * <p/>
  * This class expects the following servlet context init parameters:
  * <ul>
- *    <li>migration.systemname - the name of the logical system being migrated</li>
+ * <li>migration.systemname - the name of the logical system being migrated</li>
  * </ul>
- * <p>
+ * <p/>
  * Below is an example of how this class can be configured in web.xml:
  * <pre>
  *   ...
@@ -55,10 +53,10 @@ import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
  *       &lt;/listener-class&gt;
  *   &lt;/listener&gt;
  *   ...
- * </pre> 
- * 
- * @author  Scott Askew (scott@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.MigrationProcess
+ * </pre>
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
+ * @see com.tacitknowledge.util.migration.MigrationProcess
  */
 public class WebAppMigrationLauncher implements ServletContextListener
 {
@@ -67,13 +65,15 @@ public class WebAppMigrationLauncher implements ServletContextListener
      * This should always be true, but you can never be too careful.
      */
     private static boolean firstRun = true;
-    
+
     /**
      * Class logger
      */
     private static Log log = LogFactory.getLog(WebAppMigrationLauncher.class);
-    
-    /** {@inheritDoc} */
+
+    /**
+     * {@inheritDoc}
+     */
     public void contextInitialized(ServletContextEvent sce)
     {
         try
@@ -84,13 +84,13 @@ public class WebAppMigrationLauncher implements ServletContextListener
             if (firstRun)
             {
                 ClassDiscoveryUtil.addResourceListSource(
-                    new WebAppResourceListSource(sce.getServletContext().getRealPath("/WEB-INF")));
+                        new WebAppResourceListSource(sce.getServletContext().getRealPath("/WEB-INF")));
             }
             firstRun = false;
-            
+
             String systemName = ConfigurationUtil.getRequiredParam("migration.systemname", sce, this);
             String settings = ConfigurationUtil.getOptionalParam("migration.settings", sce, this);
-            
+
             // The MigrationLauncher is responsible for handling the interaction
             // between the PatchTable and the underlying MigrationTasks; as each
             // task is executed, the patch level is incremented, etc.
@@ -118,12 +118,14 @@ public class WebAppMigrationLauncher implements ServletContextListener
             e.printStackTrace(System.out);
             System.err.println(e.getMessage());
             e.printStackTrace(System.err);
-            
+
             throw e;
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void contextDestroyed(ServletContextEvent sce)
     {
         log.debug("context is being destroyed " + sce);

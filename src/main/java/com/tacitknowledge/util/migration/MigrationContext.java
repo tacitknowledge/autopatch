@@ -17,9 +17,9 @@ package com.tacitknowledge.util.migration;
 
 
 /**
- * Provides system resources to migration tasks. 
- * 
- * @author  Scott Askew (scott@tacitknowledge.com)
+ * Provides system resources to migration tasks.
+ *
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public interface MigrationContext
 {
@@ -30,17 +30,17 @@ public interface MigrationContext
 
     /**
      * Commits the current migration transaction.
-     * 
+     *
      * @throws MigrationException if there was an unrecoverable error committing
-     *         the transaction
+     *                            the transaction
      */
     public void commit() throws MigrationException;
-    
+
     /**
-     * Rolls back the current migration transaction. 
-     * 
+     * Rolls back the current migration transaction.
+     *
      * @throws MigrationException if there was an unrecoverable error committing
-     *         the transaction
+     *                            the transaction
      */
     public void rollback() throws MigrationException;
 }

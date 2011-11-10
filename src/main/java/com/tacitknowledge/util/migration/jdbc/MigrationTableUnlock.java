@@ -15,31 +15,32 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.util.Iterator;
-import java.util.Map;
-
+import com.tacitknowledge.util.migration.MigrationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.MigrationContext;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Allows you to force-unlock a migration table with an orphaned lock. Should
  * be used in the same way that MigrationInformation is used
- * 
- * @author  Mike Hardy (mike@tacitknowledge.com)
- * @see     com.tacitknowledge.util.migration.jdbc.MigrationInformation
+ *
+ * @author Mike Hardy (mike@tacitknowledge.com)
+ * @see com.tacitknowledge.util.migration.jdbc.MigrationInformation
  */
 public class MigrationTableUnlock
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(MigrationTableUnlock.class);
-    
+
     /**
      * Get the migration level information for the given system name
      *
      * @param arguments the command line arguments, if any (none are used)
-     * @exception Exception if anything goes wrong
+     * @throws Exception if anything goes wrong
      */
     public static void main(String[] arguments) throws Exception
     {
@@ -54,27 +55,27 @@ public class MigrationTableUnlock
             else
             {
                 throw new IllegalArgumentException("The migration.systemname "
-                                                   + "system property is required");
+                        + "system property is required");
             }
         }
         unlock.tableUnlock(migrationName);
     }
-    
+
     /**
      * unlock the patch table for the given system name
-     * 
+     *
      * @param systemName the name of the system
      * @throws Exception if anything goes wrong
      */
     public void tableUnlock(String systemName) throws Exception
     {
-    	tableUnlock(systemName, MigrationContext.MIGRATION_CONFIG_FILE);
+        tableUnlock(systemName, MigrationContext.MIGRATION_CONFIG_FILE);
     }
-    
+
     /**
      * unlock the patch table for the given system name
-     * 
-     * @param systemName the name of the system
+     *
+     * @param systemName        the name of the system
      * @param migrationSettings migration settings file
      * @throws Exception if anything goes wrong
      */
@@ -85,10 +86,10 @@ public class MigrationTableUnlock
         // task is executed, the patch level is incremented, etc.
         try
         {   //TODO should be injected
-            JdbcMigrationLauncherFactory launcherFactory = 
-                new JdbcMigrationLauncherFactoryLoader().createFactory();
+            JdbcMigrationLauncherFactory launcherFactory =
+                    new JdbcMigrationLauncherFactoryLoader().createFactory();
             JdbcMigrationLauncher launcher = launcherFactory.createMigrationLauncher(systemName, migrationSettings);
-            
+
             // Print out information for all contexts
             Map contextMap = launcher.getContexts();
             for (Iterator contextIter = contextMap.keySet().iterator(); contextIter.hasNext();)

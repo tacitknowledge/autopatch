@@ -14,16 +14,15 @@
  */
 
 package com.tacitknowledge.util.migration.jdbc;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.tacitknowledge.util.migration.DistributedMigrationProcess;
 import com.tacitknowledge.util.migration.MigrationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Creates an DistributedAutoPatch environment using a configuration supplied by dependency
@@ -33,45 +32,61 @@ import com.tacitknowledge.util.migration.MigrationException;
  */
 public class DistributedAutoPatchService extends DistributedJdbcMigrationLauncherFactory
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(AutoPatchService.class);
-    
-    /** The name of the schema to patch */
+
+    /**
+     * The name of the schema to patch
+     */
     private String systemName = null;
-    
-    /** The data source used to store data about all the systems being patched */
+
+    /**
+     * The data source used to store data about all the systems being patched
+     */
     private DataSource dataSource = null;
-    
-    /** The type of database */
+
+    /**
+     * The type of database
+     */
     private String databaseType = null;
-    
-    /** The AutoPatchServices this object should control */
+
+    /**
+     * The AutoPatchServices this object should control
+     */
     private AutoPatchService[] controlledSystems = null;
-    
-    /** The patch to the post-patch tasks */
+
+    /**
+     * The patch to the post-patch tasks
+     */
     private String postPatchPath = null;
-    
-    /** Whether we actually want to apply patches, or just look */
+
+    /**
+     * Whether we actually want to apply patches, or just look
+     */
     private boolean readOnly = false;
-    
-    /** The number of times to wait for the lock before overriding it. -1 is infinite */
+
+    /**
+     * The number of times to wait for the lock before overriding it. -1 is infinite
+     */
     private int lockPollRetries = -1;
 
     /**
      * Patches all of the databases in your distributed system, if necessary.
-     * 
+     *
      * @throws MigrationException if an unexpected error occurs
      */
     public void patch() throws MigrationException
     {
         DistributedJdbcMigrationLauncher launcher = getLauncher();
-        
+
         try
         {
             log.info("Applying patches....");
             int patchesApplied = launcher.doMigrations();
             log.info("Applied " + patchesApplied + " "
-                + (patchesApplied == 1 ? "patch" : "patches") + ".");
+                    + (patchesApplied == 1 ? "patch" : "patches") + ".");
         }
         catch (MigrationException e)
         {
@@ -81,14 +96,14 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
 
     /**
      * Configure and return a DistributedJdbcMigrationLauncher to use for patching
-     * 
+     *
      * @return DistributedJdbcMigrationLauncher configured from injected properties
      */
     public DistributedJdbcMigrationLauncher getLauncher()
     {
         DistributedJdbcMigrationLauncher launcher = getDistributedJdbcMigrationLauncher();
         launcher.addContext(getContext());
-        
+
         // Grab the controlled systems and subjugate them
         HashMap controlledLaunchers = new HashMap();
         for (int i = 0; i < controlledSystems.length; i++)
@@ -99,27 +114,27 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
             // We need the system name, all of the contexts should be the same, take the first
             // FIXME should the system name be on the launcher instead of the context?
             Map subContextMap = subLauncher.getContexts();
-            String subSystemName = 
-                ((JdbcMigrationContext) subContextMap.keySet().iterator().next()).getSystemName();
+            String subSystemName =
+                    ((JdbcMigrationContext) subContextMap.keySet().iterator().next()).getSystemName();
             controlledLaunchers.put(subSystemName, subLauncher);
-            
+
             // Make sure the controlled migration process gets migration events
             launcher.getMigrationProcess().addListener(subLauncher);
         }
-        
+
         ((DistributedMigrationProcess) launcher.getMigrationProcess())
-            .setControlledSystems(controlledLaunchers);
+                .setControlledSystems(controlledLaunchers);
         launcher.setPostPatchPath(getPostPatchPath());
         launcher.setReadOnly(isReadOnly());
         launcher.setLockPollRetries(getLockPollRetries());
-        
+
         return launcher;
     }
 
     /**
      * Configure and return a DataSourceMigrationContext from this object's
      * injected properties
-     * 
+     *
      * @return DataSourceMigrationContext configured from injected properties
      */
     private DataSourceMigrationContext getContext()
@@ -138,7 +153,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         return dataSource;
     }
-    
+
     /**
      * @param dataSource The dataSource to set.
      */
@@ -146,7 +161,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         this.dataSource = dataSource;
     }
-    
+
     /**
      * @return Returns the systemName.
      */
@@ -154,7 +169,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         return systemName;
     }
-    
+
     /**
      * @param systemName The systemName to set.
      */
@@ -162,7 +177,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         this.systemName = systemName;
     }
-    
+
     /**
      * @return Returns the databaseType.
      */
@@ -170,7 +185,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         return databaseType;
     }
-    
+
     /**
      * @param dialect The databaseType to set.
      */
@@ -178,7 +193,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         this.databaseType = dialect;
     }
-    
+
     /**
      * @return the controlled AutoPatchService objects
      */
@@ -186,16 +201,17 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         return controlledSystems;
     }
-    
+
     /**
-     * Takes an Array of AutoPatchService objects to control when patching 
+     * Takes an Array of AutoPatchService objects to control when patching
+     *
      * @param controlledSystems the AutoPatchService objects to control
      */
     public void setControlledSystems(AutoPatchService[] controlledSystems)
     {
         this.controlledSystems = controlledSystems;
     }
-    
+
     /**
      * @return Returns the postPatchPath.
      */
@@ -203,7 +219,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
     {
         return postPatchPath;
     }
-    
+
     /**
      * @param postPatchPath The postPatchPath to set.
      */
@@ -214,7 +230,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
 
     /**
      * See if we are actually applying patches, or if it is just readonly
-     * 
+     *
      * @return boolean true if we will skip application
      */
     public boolean isReadOnly()
@@ -224,7 +240,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
 
     /**
      * Set whether or not to actually apply patches
-     * 
+     *
      * @param readOnly boolean true if we should skip application
      */
     public void setReadOnly(boolean readOnly)
@@ -234,7 +250,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
 
     /**
      * Return the number of times to poll the lock before overriding it. -1 is infinite
-     * 
+     *
      * @return int either -1 for infinite or number of times to poll before override
      */
     public int getLockPollRetries()
@@ -244,7 +260,7 @@ public class DistributedAutoPatchService extends DistributedJdbcMigrationLaunche
 
     /**
      * Set the number of times to poll the lock before overriding it. -1 is infinite
-     * 
+     *
      * @param lockPollRetries either -1 for infinite or number of times to poll before override
      */
     public void setLockPollRetries(int lockPollRetries)

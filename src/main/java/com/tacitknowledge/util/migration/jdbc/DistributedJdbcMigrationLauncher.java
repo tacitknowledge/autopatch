@@ -21,12 +21,12 @@ import com.tacitknowledge.util.migration.MigrationProcess;
 import com.tacitknowledge.util.migration.MigrationRunnerFactory;
 
 /**
- * Core starting point for a distributed database migration run.  
- * This class obtains a connection to the orchestration database, 
- * checks its patch level, delegates the actual execution of the 
- * migration tasks to a <code>MigrationProcess</code> instance, 
+ * Core starting point for a distributed database migration run.
+ * This class obtains a connection to the orchestration database,
+ * checks its patch level, delegates the actual execution of the
+ * migration tasks to a <code>MigrationProcess</code> instance,
  * and then commits and cleans everything up at the end.
- * <p>
+ * <p/>
  * This class is <b>NOT</b> threadsafe.
  *
  * @author Mike Hardy (mike@tacitknowledge.com)
@@ -40,7 +40,7 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
     {
         super();
     }
-    
+
     /**
      * Create a new <code>MigrationLancher</code>.
      *
@@ -50,11 +50,11 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
     {
         super(context);
     }
-    
+
     /**
      * Override the sub-class so we get a DistributedMigrationProcess instead of the
      * normal one
-     * 
+     *
      * @return DistributedMigrationProcess
      */
     public MigrationProcess getNewMigrationProcess()
@@ -64,13 +64,13 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
                 (MigrationRunnerFactory.getMigrationRunnerStrategy(getMigrationStrategy()));
         return migrationProcess;
     }
-    
+
     /**
      * Starts the application migration process across all configured contexts
      *
      * @return the number of patches applied
      * @throws MigrationException if an unrecoverable error occurs during
-     *         the migration
+     *                            the migration
      */
     public int doMigrations() throws MigrationException
     {
@@ -78,16 +78,16 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
         {
             throw new MigrationException("You must configure a migration context");
         }
-        
+
         return super.doMigrations();
     }
-    
+
     /**
      * Starts the application migration process across all configured contexts
      *
      * @return the number of patches applied
      * @throws MigrationException if an unrecoverable error occurs during
-     *         the migration
+     *                            the migration
      */
     public int doRollbacks(int rollbackLevel) throws MigrationException
     {
@@ -95,7 +95,7 @@ public class DistributedJdbcMigrationLauncher extends JdbcMigrationLauncher
         {
             throw new MigrationException("You must configure a migration context");
         }
-        
-        return super.doRollbacks(new int[] {rollbackLevel});
-    }    
+
+        return super.doRollbacks(new int[]{rollbackLevel});
+    }
 }

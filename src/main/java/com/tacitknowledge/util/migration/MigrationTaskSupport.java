@@ -17,7 +17,7 @@ package com.tacitknowledge.util.migration;
 
 /**
  * Convenience base class for migration tasks.
- * 
+ *
  * @author Scott Askew (scott@tacitknowledge.com)
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  */
@@ -25,13 +25,19 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
 {
     protected boolean isRollbackSupported = false;
 
-    /** The name of this migration task */
+    /**
+     * The name of this migration task
+     */
     private String name;
 
-    /** The relative order in which this test should run */
+    /**
+     * The relative order in which this test should run
+     */
     private Integer level;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public String getName()
     {
         return name;
@@ -39,16 +45,17 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
 
     /**
      * Sets the name of this migration task.
-     * 
-     * @param name
-     *                the name of this migration task
+     *
+     * @param name the name of this migration task
      */
     public void setName(String name)
     {
         this.name = name;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public Integer getLevel()
     {
         return level;
@@ -56,16 +63,17 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
 
     /**
      * Sets the relative order in which this test should run
-     * 
-     * @param lvl
-     *                the relative order in which this test should run
+     *
+     * @param lvl the relative order in which this test should run
      */
     public void setLevel(Integer lvl)
     {
         this.level = lvl;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public int compareTo(Object o)
     {
         MigrationTask task = (MigrationTask) o;
@@ -94,7 +102,7 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
 
     /**
      * Sets the isRollbackSupported attribute
-     * 
+     *
      * @param isRollbackSupported
      */
     public void setRollbackSupported(boolean isRollbackSupported)

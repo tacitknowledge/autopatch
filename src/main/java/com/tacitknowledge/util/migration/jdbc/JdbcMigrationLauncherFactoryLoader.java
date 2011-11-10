@@ -22,49 +22,51 @@ import org.apache.commons.logging.LogFactory;
  * Load a MigrationLauncherFactory. This will default to loading the
  * JdbcMigrationLauncherFactory, but will examine the system properties
  * for a property called "migration.factory" and load that one if specified
- * 
+ *
  * @author Jacques Morel
  */
-public class JdbcMigrationLauncherFactoryLoader 
+public class JdbcMigrationLauncherFactoryLoader
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(JdbcMigrationLauncherFactoryLoader.class);
-    
+
 
     /**
      * Create the JdbcMigrationLauncherFactory
-     * 
+     *
      * @return JdbcMigrationLauncherFactory (or subclass)
      */
-    public  JdbcMigrationLauncherFactory createFactory()
+    public JdbcMigrationLauncherFactory createFactory()
     {
         // Get the factory name from the system properties if possible
         String factoryName = System.getProperties().getProperty("migration.factory");
-        if (factoryName == null) 
+        if (factoryName == null)
         {
-            factoryName = JdbcMigrationLauncherFactory.class.getName();   
+            factoryName = JdbcMigrationLauncherFactory.class.getName();
         }
         log.debug("Creating JdbcMigrationLauncher using " + factoryName);
-        
+
         // Load the factory
         Class factoryClass = null;
-        try 
+        try
         {
             factoryClass = Class.forName(factoryName);
-        } 
-        catch (ClassNotFoundException e) 
-        {
-            throw new IllegalArgumentException("Migration factory class '" 
-                                               + factoryName +  "' not found.  Aborting.");
         }
-        try 
+        catch (ClassNotFoundException e)
+        {
+            throw new IllegalArgumentException("Migration factory class '"
+                    + factoryName + "' not found.  Aborting.");
+        }
+        try
         {
             return (JdbcMigrationLauncherFactory) factoryClass.newInstance();
-        } 
-        catch (Exception e) 
+        }
+        catch (Exception e)
         {
-            throw new RuntimeException("Problem while instantiating factory class '" 
-                                       + factoryName + "'.  Aborting.", e);
+            throw new RuntimeException("Problem while instantiating factory class '"
+                    + factoryName + "'.  Aborting.", e);
         }
     }
 }

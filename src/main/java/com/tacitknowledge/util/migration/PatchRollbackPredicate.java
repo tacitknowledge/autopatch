@@ -18,9 +18,9 @@ package com.tacitknowledge.util.migration;
 import org.apache.commons.collections.Predicate;
 
 /**
- * This class defines a predicate for CollectionUtils which evaluates if a 
+ * This class defines a predicate for CollectionUtils which evaluates if a
  * given RollbackableMigrationTask should remain in the collection
- * 
+ *
  * @author Artie Pesh-Imam (apeshimam@tacitknowledge.com)
  * @see Predicate
  */
@@ -31,27 +31,27 @@ public class PatchRollbackPredicate implements Predicate
     private int currentPatchLevel = Integer.MAX_VALUE;
 
     /**
-     * Constructor for this predicate.  The current patch level and the rollback 
+     * Constructor for this predicate.  The current patch level and the rollback
      * patch level are set in this constructor.
-     * 
+     *
      * @param currentPatchLevel
      * @param rollbackPatchLevel
      */
     public PatchRollbackPredicate(int currentPatchLevel, int rollbackPatchLevel)
     {
-	this.rollbackPatchLevel = rollbackPatchLevel;
-	this.currentPatchLevel = currentPatchLevel;
+        this.rollbackPatchLevel = rollbackPatchLevel;
+        this.currentPatchLevel = currentPatchLevel;
     }
 
     /**
      * The evaluate method returns false if the passed object is:
      * <ul>
-     * 	<li>null</li>
-     *  <li>not an instance of <code>RollbackableMigrationTask</code></li>
-     *  <li>the level associated with the task is less than the rollback patch level </li>
-     *  <li>the level associated with the task is greater than the current patch level</li>
+     * <li>null</li>
+     * <li>not an instance of <code>RollbackableMigrationTask</code></li>
+     * <li>the level associated with the task is less than the rollback patch level </li>
+     * <li>the level associated with the task is greater than the current patch level</li>
      * </ul>
-     * 
+     *
      * @param obj the Object to be evaluated
      * @boolean a boolean indicating if the object falls within the valid range for
      * this rollback
@@ -59,15 +59,15 @@ public class PatchRollbackPredicate implements Predicate
     public boolean evaluate(Object obj)
     {
 
-	if (obj == null)
-	    return false;
+        if (obj == null)
+            return false;
 
-	if (!(obj instanceof RollbackableMigrationTask))
-	    return false;
+        if (!(obj instanceof RollbackableMigrationTask))
+            return false;
 
-	RollbackableMigrationTask task = (RollbackableMigrationTask) obj;
-	final int level = task.getLevel().intValue();
+        RollbackableMigrationTask task = (RollbackableMigrationTask) obj;
+        final int level = task.getLevel().intValue();
 
-	return ((level > rollbackPatchLevel) && (level <= currentPatchLevel));
+        return ((level > rollbackPatchLevel) && (level <= currentPatchLevel));
     }
 }

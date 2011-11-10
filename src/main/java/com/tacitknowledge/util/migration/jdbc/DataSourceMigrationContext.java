@@ -15,39 +15,49 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
+import com.tacitknowledge.util.migration.MigrationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tacitknowledge.util.migration.MigrationException;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Provides JDBC resources to migration tasks.
  *
- * @author  Scott Askew (scott@tacitknowledge.com)
+ * @author Scott Askew (scott@tacitknowledge.com)
  */
 public class DataSourceMigrationContext implements JdbcMigrationContext
 {
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static Log log = LogFactory.getLog(JdbcMigrationContext.class);
 
-    /** The database connection to use */
+    /**
+     * The database connection to use
+     */
     private Connection connection = null;
 
-    /** The DataSource to use */
+    /**
+     * The DataSource to use
+     */
     private DataSource dataSource = null;
 
-    /** The name of the system being patched */
+    /**
+     * The name of the system being patched
+     */
     private String systemName = null;
 
-    /** The name of the system being patched */
+    /**
+     * The name of the system being patched
+     */
     private DatabaseType databaseType = null;
 
-    /** The databasename */
+    /**
+     * The databasename
+     */
     private String databaseName = "";
 
     /**
@@ -73,7 +83,9 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
         return connection;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void commit() throws MigrationException
     {
         try
@@ -93,7 +105,9 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public void rollback() throws MigrationException
     {
         try
@@ -171,23 +185,23 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
         if (name.length() > MAX_SYSTEMNAME_LENGTH)
         {
             throw new IllegalArgumentException("systemName cannot be longer than "
-                + MAX_SYSTEMNAME_LENGTH + " characters");
+                    + MAX_SYSTEMNAME_LENGTH + " characters");
         }
         this.systemName = name;
     }
-    
+
     /**
      * Useful for debugging
-     * 
+     *
      * @return String with state information
      */
     public String toString()
     {
-        return 
-            "DataSourceMigrationContext[" 
-            + getDatabaseType() + "/"
-            + getSystemName() + "/"
-            + getDataSource() + "]";
+        return
+                "DataSourceMigrationContext["
+                        + getDatabaseType() + "/"
+                        + getSystemName() + "/"
+                        + getDataSource() + "]";
     }
 
     /**
@@ -195,14 +209,15 @@ public class DataSourceMigrationContext implements JdbcMigrationContext
      */
     public String getDatabaseName()
     {
-        return this.databaseName ;
+        return this.databaseName;
     }
-    
+
     /**
      * Set the database name.
+     *
      * @param databaseName the name
      */
-    public void setDatabaseName(String databaseName) 
+    public void setDatabaseName(String databaseName)
     {
         this.databaseName = databaseName;
     }
