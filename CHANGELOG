@@ -1,9 +1,12 @@
 Changelog for AutoPatch
 =======================
 
-Version HEAD <CHANGE UPON RELEASE>
+Version 1.3
 ----------------------------------
-- nothing yet (1.2 just released)
+- Support for branching. There is a new property "migration.strategy" that can
+  be used to indicate how AutoPatch should determine which patches need to be
+  run (ordered or missing patches). See more here:
+  https://github.com/tacitknowledge/autopatch/wiki/How-to-Migrate-to-AutoPatch-1.3
 
 Version 1.2.0-b3
 ---------------------------------
