@@ -2,6 +2,7 @@
 .project
 .clover
 .settings
+.classpath
 bin
 build
 dist
