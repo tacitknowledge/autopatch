@@ -27,7 +27,7 @@
     <source.jdk>1.4</source.jdk>
     <target.jdk>1.4</target.jdk>
     <unit.tests.pattern>**/*Test.java</unit.tests.pattern>
-    <integration.tests.pattern>**/MigrationUnlockTest.java,**/MultiNodeAutoPatchTest.java</integration.tests.pattern>
+    <integration.tests.pattern>**/MigrationUnlockTest.java,**/MultiNodeAutoPatchTest.java,**/MultiServerRaceConditionTest.java</integration.tests.pattern>
   </properties>
 
   <licenses>

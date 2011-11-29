@@ -289,9 +289,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         // Test-specific setup
         // Return a non-empty set in response to the patch lock query
         PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
-        MockResultSet rs = h.createResultSet();
-        rs.addRow(new String[] {"T"});
-        h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
+        h.prepareUpdateCount(table.getSql("lock.obtain"), 0, new String[] {"milestone"});
         
         try
         {
@@ -303,11 +301,11 @@ public class PatchTableTest extends JDBCTestCaseAdapter
             // Expected
         }
         
-        verifyPreparedStatementNotPresent(table.getSql("lock.obtain"));
+        verifyPreparedStatementParameter(table.getSql("lock.obtain"), 1, "milestone");
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();
-        verifyNotCommitted();
+        verifyCommitted();
     }
 
     /**
@@ -321,8 +319,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         // Test-specific setup
         // Return an empty set in response to the patch lock query
         PreparedStatementResultSetHandler h = conn.getPreparedStatementResultSetHandler();
-        MockResultSet rs = h.createResultSet();
-        h.prepareResultSet(table.getSql("lock.read"), rs, new String[] {"milestone"});
+        h.prepareUpdateCount(table.getSql("lock.obtain"), 1, new String[] {"milestone"});
         
         table.lockPatchStore();
 
