@@ -28,7 +28,7 @@
         <target.jdk>1.4</target.jdk>
         <unit.tests.pattern>**/*Test.java</unit.tests.pattern>
         <integration.tests.pattern>
-            **/MigrationUnlockTest.java,**/MultiNodeAutoPatchTest.java,**/MissingPatchMigrationRunnerStrategyIntegrationTest.java
+            **/MigrationUnlockTest.java,**/MultiNodeAutoPatchTest.java,**/MissingPatchMigrationRunnerStrategyIntegrationTest.java,**/MultiServerRaceConditionTest.java
         </integration.tests.pattern>
     </properties>
 

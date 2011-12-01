@@ -98,7 +98,7 @@ public class PatchTable implements PatchInfoStore
         {
             conn = context.getConnection();
 
-            stmt = conn.prepareStatement(getSql("level.read"));
+            stmt = conn.prepareStatement(getSql("level.table.exists"));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
             log.debug("'patches' table already exists.");
@@ -127,6 +127,9 @@ public class PatchTable implements PatchInfoStore
                 }
                 stmt.execute();
                 context.commit();
+
+                // We don't yet have a patch record for this system; create one
+                createSystemPatchRecord();
             }
             catch (SQLException sqle)
             {
@@ -171,8 +174,6 @@ public class PatchTable implements PatchInfoStore
             stmt = null;
             rs = null;
 
-            // We don't yet have a patch record for this system; create one
-            createSystemPatchRecord();
             return 0;
         }
         catch (SQLException e)
@@ -256,11 +257,11 @@ public class PatchTable implements PatchInfoStore
      */
     public void lockPatchStore() throws MigrationException, IllegalStateException
     {
-        if (isPatchStoreLocked())
+        createPatchStoreIfNeeded();
+        if (!updatePatchLock(true))
         {
             throw new IllegalStateException("Patch table is already locked!");
         }
-        updatePatchLock(true);
     }
 
     /**
@@ -377,13 +378,15 @@ public class PatchTable implements PatchInfoStore
     }
 
     /**
-     * Obtains or releases a lock for this system in the patches table.
+     * Obtains or releases a lock for this system in the patches table.  If the lock
+     * was not obtained or released, then <code>false</code> is returned.
      *
-     * @param lock <code>true</code> if a lock is to be obtained, <code>false</code>
-     *             if it is to be removed
+     * @param  lock <code>true</code> if a lock is to be obtained, <code>false</code>
+     *         if it is to be removed
+     * @return true if the lock was updated successfully, otherwise false
      * @throws MigrationException if an unrecoverable database error occurs
      */
-    private void updatePatchLock(boolean lock) throws MigrationException
+    private boolean updatePatchLock(boolean lock) throws MigrationException
     {
         String sqlkey = (lock) ? "lock.obtain" : "lock.release";
         Connection conn = null;
@@ -402,8 +405,15 @@ public class PatchTable implements PatchInfoStore
             {
                 stmt.setString(2, context.getSystemName());
             }
-            stmt.execute();
+
+            int rowsUpdated = stmt.executeUpdate();
+            boolean lockUpdated = (rowsUpdated == 1);
             context.commit();
+            if (log.isDebugEnabled())
+            {
+                log.debug(((lock) ? "Obtained" : "Released") + " lock? " + lockUpdated);
+            }
+            return lockUpdated;
         }
         catch (SQLException e)
         {

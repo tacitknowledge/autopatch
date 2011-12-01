@@ -316,6 +316,13 @@ public class JdbcMigrationLauncherFactory
             launcher.setLockPollRetries(Integer.parseInt(lockPollRetries));
         }
 
+        // See if they want to change the amount of time to wait between lock polls
+        String lockPollMillis = props.getProperty(system + ".lockPollMillis");
+        if (lockPollMillis != null)
+        {
+            launcher.setLockPollMillis(Integer.parseInt(lockPollMillis));
+        }
+
         // TODO refactor the database name extraction from this and the servlet example
         String databases = props.getProperty(system + ".jdbc.systems");
         String[] databaseNames;
