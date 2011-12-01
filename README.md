@@ -46,3 +46,8 @@ You can include AutoPath in your Maven project via:
       <version>1.3.0</version>
     </dependency>
 
+Help
+====
+
+If you have a question about AutoPatch feel free to post it up to our
+new [AutoPatch Google Group](http://groups.google.com/group/autopatch-users/).
