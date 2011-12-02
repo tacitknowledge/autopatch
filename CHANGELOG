@@ -1,6 +1,14 @@
 Changelog for AutoPatch
 =======================
 
+Version 1.3.1
+----------------------------------
+Two bug fixes:
+  Issue #28. Fixes multi-server race condition
+  Issue #27: Modifying property files to use system_name and patch_level combination to be the primary key.
+
+Thanks to Jeff Kolesky for the fixes!
+
 Version 1.3
 ----------------------------------
 - Support for branching. There is a new property "migration.strategy" that can
