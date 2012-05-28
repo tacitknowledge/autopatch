@@ -54,15 +54,8 @@ public final class SqlUtil
         {
             try
             {
-            	if (!rs.isClosed())
-            	{
-	                log.debug("Closing ResultSet: " + rs.toString());
-	                rs.close();
-            	}
-            	else
-            	{
-            		log.debug("ResultSet (" + rs.toString() + ") already closed.");
-            	}
+                log.debug("Closing ResultSet: " + rs.toString());
+                rs.close();
             }
             catch (SQLException e)
             {
@@ -74,15 +67,8 @@ public final class SqlUtil
         {
             try
             {
-            	if (!stmt.isClosed())
-            	{
-	                log.debug("Closing Statement: " + stmt.toString());
-	                stmt.close();
-            	}
-            	else
-            	{
-            		log.debug("Statement (" + stmt.toString() + ") already closed.");
-            	}
+                log.debug("Closing Statement: " + stmt.toString());
+                stmt.close();
             }
             catch (SQLException e)
             {

@@ -292,7 +292,6 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 	statement.execute("");
 	statementControl.setMatcher(MockControl.ALWAYS_MATCHER);
 	statementControl.setReturnValue(true, MockControl.ONE_OR_MORE);
-	statementControl.expectAndReturn(statement.isClosed(), false, MockControl.ONE_OR_MORE);
 	statement.close();
 	statementControl.setVoidCallable(MockControl.ONE_OR_MORE);
 
