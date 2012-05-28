@@ -387,9 +387,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hsqldb</groupId>
+            <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.2.4</version>
+            <version>1.8.0.7</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
