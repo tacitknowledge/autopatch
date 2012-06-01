@@ -1,6 +1,11 @@
 Changelog for AutoPatch
 =======================
 
+Version 1.4.0
+----------------------------------
+- Bumped JDK requirement to 1.6. It's about time.
+- Fixed ResultSet closing bug, thanks to github/misnomer.
+
 Version 1.3.3
 ----------------------------------
 - Adjusted lock.obtain query to overcome mysql's 1093 error

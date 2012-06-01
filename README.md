@@ -31,6 +31,11 @@ This represents streamlined environment maintenance, allowing developers
 to cheaply have their own databases and all databases to stay in synch
 with massively lower costs and no environment skew.
 
+Requirements
+------------
+
+* Java 6. That's it.
+
 
 Where do I get AutoPatch?
 -------------------------
@@ -43,7 +48,7 @@ You can include AutoPath in your Maven project via:
     <dependency>
       <groupId>com.tacitknowledge</groupId>
       <artifactId>autopatch</artifact>
-      <version>1.3.3</version>
+      <version>1.4.0</version>
     </dependency>
 
 Help
