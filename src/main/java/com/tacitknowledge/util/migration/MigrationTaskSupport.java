@@ -28,7 +28,7 @@ public abstract class MigrationTaskSupport implements RollbackableMigrationTask
     /**
      * The name of this migration task
      */
-    private String name;
+    private String name = this.getClass().getName();
 
     /**
      * The relative order in which this test should run
