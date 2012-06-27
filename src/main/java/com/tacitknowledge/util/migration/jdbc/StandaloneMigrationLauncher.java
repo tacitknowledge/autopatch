@@ -15,12 +15,14 @@
 
 package com.tacitknowledge.util.migration.jdbc;
 
+import com.tacitknowledge.util.migration.AutopatchRegistry;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.picocontainer.PicoContainer;
 
 /**
  * Launches the migration process as a standalone application.
@@ -70,6 +72,11 @@ public final class StandaloneMigrationLauncher
 
     private MigrationUtil migrationUtil;
 
+    public StandaloneMigrationLauncher(MigrationUtil migrationUtil)
+    {
+        this.migrationUtil = migrationUtil;
+    }
+
     /**
      * Run the migrations for the given system name
      *
@@ -78,13 +85,14 @@ public final class StandaloneMigrationLauncher
      */
     public static void main(final String[] arguments) throws Exception
     {
-        MigrationUtil migrationUtil = new MigrationUtil();
-        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactoryLoader().createFactory();
-        migrationUtil.setLauncherFactory(launcherFactory);
+        AutopatchRegistry registry = new AutopatchRegistry();
+        PicoContainer pico = registry.configureContainer();
 
-        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher();
-        migrationLauncher.setMigrationUtil(migrationUtil);
+        JdbcMigrationLauncherFactory launcherFactory = new JdbcMigrationLauncherFactoryLoader().createFactory();
+        StandaloneMigrationLauncher migrationLauncher = pico.getComponent(StandaloneMigrationLauncher.class);
+        migrationLauncher.getMigrationUtil().setLauncherFactory(launcherFactory);
         migrationLauncher.run(arguments);
+        registry.destroyContainer();
     }
 
     void run(String[] arguments) throws Exception

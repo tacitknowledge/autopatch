@@ -88,7 +88,6 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
 
         // Make sure we get notification of any migrations
         launcher.getMigrationProcess().addListener(this);
-
         context = new TestMigrationContext();
     }
 

@@ -19,11 +19,11 @@ public class StandaloneMigrationLauncherTest extends TestCase
 
     public void testShouldRunMigrationsForcingRollback() throws Exception
     {
-        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher();
-        String[] arguments = new String[]{"orders","migration.properties","-force", "-rollback", "1"};
-
         IMocksControl mockControl = createStrictControl();
         MigrationUtil migrationUtil = mockControl.createMock(MigrationUtil.class);
+        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher(migrationUtil);
+        String[] arguments = new String[]{"orders","migration.properties","-force", "-rollback", "1"};
+
 
         migrationUtil.doRollbacks(eq("orders"), eq("migration.properties"), EasyMock.<int[]>anyObject(), eq(true));
         mockControl.replay();
@@ -37,16 +37,13 @@ public class StandaloneMigrationLauncherTest extends TestCase
 
     public void testShouldRunMigrationsMultipleRollbacks() throws Exception
     {
-        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher();
-        String[] arguments = new String[]{"orders","migration.properties","-force", "-rollback", "1,2,3,4,5,6"};
-
         IMocksControl mockControl = createStrictControl();
         MigrationUtil migrationUtil = mockControl.createMock(MigrationUtil.class);
+        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher(migrationUtil);
+        String[] arguments = new String[]{"orders","migration.properties","-force", "-rollback", "1,2,3,4,5,6"};
 
         migrationUtil.doRollbacks(eq("orders"), eq("migration.properties"), EasyMock.<int[]>anyObject(), eq(true));
         mockControl.replay();
-
-        migrationLauncher.setMigrationUtil(migrationUtil);
         migrationLauncher.run(arguments);
 
         mockControl.verify();
@@ -55,7 +52,9 @@ public class StandaloneMigrationLauncherTest extends TestCase
 
     public void testShouldRunMigrationsMultipleRollbacksInvalidRollbackLevels() throws Exception
     {
-        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher();
+        IMocksControl mockControl = createStrictControl();
+        MigrationUtil migrationUtil = mockControl.createMock(MigrationUtil.class);
+        StandaloneMigrationLauncher migrationLauncher = new StandaloneMigrationLauncher(migrationUtil);
         String[] arguments = new String[]{"orders","migration.properties","-force", "-rollback", "1,2C,3B,4D,5A,600"};
 
         try {

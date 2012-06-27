@@ -40,10 +40,11 @@ public class MigrationUtilTest extends TestCase{
 
     protected void setUp() throws Exception {
         super.setUp();
-        migrationUtil = new MigrationUtil();
+
         mockControl = createStrictControl();
         launcherFactoryMock = mockControl.createMock(JdbcMigrationLauncherFactory.class);
         launcherMock = mockControl.createMock( JdbcMigrationLauncher.class );
+        migrationUtil = new MigrationUtil();
         migrationUtil.setLauncherFactory(launcherFactoryMock);
     }
 

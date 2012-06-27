@@ -16,9 +16,7 @@ import javax.servlet.ServletContextEvent;
  */
 public class MigrationUtil
 {
-    /**
-     * Class logger
-     */
+
     private static Log log = LogFactory.getLog(MigrationUtil.class);
 
     public JdbcMigrationLauncherFactory getLauncherFactory()
