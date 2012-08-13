@@ -47,7 +47,7 @@ You can include AutoPath in your Maven project via:
 
     <dependency>
       <groupId>com.tacitknowledge</groupId>
-      <artifactId>autopatch</artifact>
+      <artifactId>autopatch</artifactId>
       <version>1.4.0</version>
     </dependency>
 
