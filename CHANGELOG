@@ -1,6 +1,14 @@
 Changelog for AutoPatch
 =======================
 
+Version 1.4.2
+----------------------------------
+- Merged pull request 31 from Brian Jaress : "Fix for abstract method errors"
+
+Version 1.4.1
+----------------------------------
+- Added PicoContainer support.
+
 Version 1.4.0
 ----------------------------------
 - Fixed #30 - MigrationTaskSupport now has a default value for the 'name' property.
