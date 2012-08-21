@@ -51,91 +51,91 @@ public final class SqlUtil
     public static void close(Connection conn, Statement stmt, ResultSet rs)
     {
         if (rs != null)
-		{
-			try
-			{
-				boolean rsIsOpen = true;
-				try
-				{
-					rsIsOpen = !rs.isClosed();
-				}
-				catch (AbstractMethodError e)
-				{
-					log.debug("AbstractMethodError closing ResultSet.  ResultSet might be a DelegatingResultSet with a badly implemented (i.e. missing) delegation to isClosed().", e);
-				}
-				if (rsIsOpen)
-				{
-					log.debug("Closing ResultSet: " + rs.toString());
-					rs.close();
-				}
-				else
-				{
-					log.debug("ResultSet (" + rs.toString() + ") already closed.");
-				}
-			}
-			catch (SQLException e)
-			{
-				log.error("Error closing ResultSet", e);
-			}
-		}
+        {
+            try
+            {
+                boolean rsIsOpen = true;
+                try
+                {
+                    rsIsOpen = !rs.isClosed();
+                }
+                catch (AbstractMethodError e)
+                {
+                    log.debug("AbstractMethodError closing ResultSet.  ResultSet might be a DelegatingResultSet with a badly implemented (i.e. missing) delegation to isClosed().", e);
+                }
+                if (rsIsOpen)
+                {
+                    log.debug("Closing ResultSet: " + rs.toString());
+                    rs.close();
+                }
+                else
+                {
+                    log.debug("ResultSet (" + rs.toString() + ") already closed.");
+                }
+            }
+            catch (SQLException e)
+            {
+                log.error("Error closing ResultSet", e);
+            }
+        }
 
         if (stmt != null)
-		{
-			try
-			{
-				boolean stmtIsOpen = true;
-				try
-				{
-					stmtIsOpen = !stmt.isClosed();
-				}
-				catch (AbstractMethodError e)
-				{
-					log.debug("AbstractMethodError closing Statement.", e);
-				}
-				if (stmtIsOpen)
-				{
-					log.debug("Closing Statement: " + stmt.toString());
-					stmt.close();
-				}
-				else
-				{
-					log.debug("Statement (" + stmt.toString() + ") already closed.");
-				}
-			}
-			catch (SQLException e)
-			{
-				log.error("Error closing Statement", e);
-			}
-		}
+        {
+            try
+            {
+                boolean stmtIsOpen = true;
+                try
+                {
+                    stmtIsOpen = !stmt.isClosed();
+                }
+                catch (AbstractMethodError e)
+                {
+                    log.debug("AbstractMethodError closing Statement.", e);
+                }
+                if (stmtIsOpen)
+                {
+                    log.debug("Closing Statement: " + stmt.toString());
+                    stmt.close();
+                }
+                else
+                {
+                    log.debug("Statement (" + stmt.toString() + ") already closed.");
+                }
+            }
+            catch (SQLException e)
+            {
+                log.error("Error closing Statement", e);
+            }
+        }
 
         if (conn != null)
-		{
-			try
-			{
-				boolean connIsOpen = true;
-				try
-				{
-					connIsOpen = !conn.isClosed();
-				}
-				catch (AbstractMethodError e)
-				{
-					log.debug("AbstractMethodError closing Connection.", e);
-				}
-				if (connIsOpen)
-				{
-					log.debug("Closing Connection " + conn.toString());
-					conn.close();
-				}
-				else
-				{
-					log.debug("Connection (" + conn.toString() + ") already closed.");
-				}
-			}
-			catch (SQLException e)
-			{
-				log.error("Error closing Connection", e);
-			}
-		}
+        {
+            try
+            {
+                boolean connIsOpen = true;
+                try
+                {
+                    connIsOpen = !conn.isClosed();
+                }
+                catch (AbstractMethodError e)
+                {
+                    log.debug("AbstractMethodError closing Connection.", e);
+                }
+                if (connIsOpen)
+                {
+                    log.debug("Closing Connection " + conn.toString());
+                    conn.close();
+                }
+                else
+                {
+                    log.debug("Connection (" + conn.toString() + ") already closed.");
+                }
+            }
+            catch (SQLException e)
+            {
+                log.error("Error closing Connection", e);
+            }
+        }
     }
 
     /**
