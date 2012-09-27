@@ -1,11 +1,11 @@
 /* Copyright 2004 Tacit Knowledge
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -101,6 +101,10 @@ public class PatchTable implements PatchInfoStore
             stmt = conn.prepareStatement(getSql("level.table.exists"));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
+            if (!rs.next()) {
+                // We don't yet have a patch record for this system; create one
+                createSystemPatchRecord();
+            }
             log.debug("'patches' table already exists.");
             tableExistenceValidated = true;
         }
