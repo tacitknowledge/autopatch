@@ -12,3 +12,5 @@ target
 *.iws
 .idea
 *.externalToolBuilders
+*.bak
+*.tmp
