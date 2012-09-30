@@ -222,7 +222,7 @@ public class DistributedMigrationProcessTest extends TestCase
         boolean forceRollback=false;
         int rollbacksApplied = distributedMigrationProcess.doRollbacks(patchInfoStoreMock,rollbackLevels,migrationContextMock,forceRollback);
 
-        assertEquals("Two rollbacks should be applied", 3, rollbacksApplied);
+        assertEquals("Rollbacks should have been applied", 3, rollbacksApplied);
     }
 
 }
