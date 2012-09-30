@@ -15,7 +15,7 @@
 package com.tacitknowledge.util.migration;
 
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
