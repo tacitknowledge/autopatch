@@ -327,4 +327,23 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 	connectionControl.verify();
     }
 
+    /**
+     * Tests that comments in stored procedures aren't stripped
+     *
+     * @throws IOException
+     *                 if an unexpected error occurs.
+     */
+    public void testCommentsPreservedInStoredProcedures() throws IOException
+    {
+        InputStream is = getClass().getResourceAsStream("test/stored_procedure.sql");
+        assertNotNull(is);
+        task = new SqlScriptMigrationTask("stored_procedure.sql", 1, is);
+
+        MockDatabaseType dbType = new MockDatabaseType("mysql");
+        dbType.setMultipleStatementsSupported(false);
+        context.setDatabaseType(dbType);
+        List statements = task.getSqlStatements(context);
+        assertEquals(1, statements.size());
+        assertTrue(statements.get(0).toString().contains("-- test comment"));
+    }
 }
