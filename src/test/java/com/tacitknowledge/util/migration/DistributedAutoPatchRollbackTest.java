@@ -140,6 +140,10 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
         currentPatchInfoStore = MockBuilder.getPatchInfoStore(12);
     }
 
+    protected void tearDown() throws Exception {
+        System.clearProperty("migration.factory");
+        super.tearDown();
+    }
     /**
      * Make sure that the task loading works correctly
      * 
