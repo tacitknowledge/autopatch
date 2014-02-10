@@ -21,16 +21,17 @@ import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask3;
 import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask4;
 import com.tacitknowledge.util.migration.tasks.rollback.TestRollbackableTask5;
 import org.easymock.EasyMock;
-import org.easymock.MockControl;
 import org.easymock.classextension.IMocksControl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createStrictControl;
+
 
 /**
  * This class defines unit tests for the Rollback functionality.
@@ -48,7 +49,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
      * Test migration context
      */
     private TestMigrationContext context = null;
-    private MockControl patchInfoStoreControl;
+    private IMocksControl patchInfoStoreControl;
     private PatchInfoStore patchInfoStore;
     private PatchInfoStore currentPatchInfoStore;
     private IMocksControl mockControl;
@@ -80,8 +81,8 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
                 + ".tasks.post");
         runner.addListener(this);
         context = new TestMigrationContext();
-        patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
-        patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
+        patchInfoStoreControl = createStrictControl();
+        patchInfoStore = patchInfoStoreControl.createMock(PatchInfoStore.class);
         currentPatchInfoStore = MockBuilder.getPatchInfoStore(12);
 
         mockControl = createStrictControl();
@@ -92,8 +93,8 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         rollbackCandidates.add(new TestRollbackableTask4());
         rollbackCandidates.add(new TestRollbackableTask3());
         rollbackCandidates.add(new TestRollbackableTask2());
-        expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>>anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(rollbackCandidates);
-        expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>>anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(Collections.EMPTY_LIST);
+        expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>> anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(rollbackCandidates);
+        expect(migrationStrategy.getRollbackCandidates(EasyMock.<List<MigrationTask>> anyObject(), eq(ROLLBACK_LEVELS), eq(currentPatchInfoStore))).andReturn(Collections.EMPTY_LIST);
 
     }
 
@@ -118,7 +119,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         List migrationTasks = runner.getMigrationTasks();
         assertEquals(5, migrationTasks.size());
 
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 1, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(1).atLeastOnce();
         patchInfoStoreControl.replay();
 
         int level = runner.doMigrations(patchInfoStore, context);
@@ -153,7 +154,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(5, l.size());
 
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 8, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(8).atLeastOnce();
         patchInfoStoreControl.replay();
 
         int level = runner.doMigrations(patchInfoStore, context);
@@ -228,7 +229,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(5, l.size());
 
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 0, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(0).atLeastOnce();
         patchInfoStoreControl.replay();
         int level = runner.doMigrations(patchInfoStore, context);
         runner.doPostPatchMigrations(context);
@@ -253,7 +254,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(5, l.size());
 
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 0, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(0).atLeastOnce();
         patchInfoStoreControl.replay();
 
         int level = runner.doMigrations(patchInfoStore, context);
@@ -295,7 +296,7 @@ public class MigrationProcessRollbackTest extends MigrationListenerTestBase
 
         assertEquals(6, l.size());
 
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 7, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(7).atLeastOnce();
         patchInfoStoreControl.replay();
 
         int level = runner.doMigrations(patchInfoStore, context);

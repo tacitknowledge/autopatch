@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.easymock.MockControl;
+import org.easymock.IMocksControl;
 
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.mock.jdbc.MockConnection;
@@ -35,6 +35,12 @@ import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationTaskSupport;
 import com.tacitknowledge.util.migration.RollbackableMigrationTask;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
+
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createStrictControl;
+import static org.easymock.classextension.EasyMock.createControl;
+import static org.easymock.EasyMock.expect;
 
 /**
  * Tests the <code>SqlScriptMigrationTask</code>.
@@ -274,34 +280,25 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 	int numStatements = task.getSqlStatements(context).size();
 
 	// setup mocks to verify commits are called
-	MockControl dataSourceControl = MockControl
-		.createControl(DataSource.class);
-	DataSource dataSource = (DataSource) dataSourceControl.getMock();
+	IMocksControl dataSourceControl = createStrictControl();
+	DataSource dataSource = dataSourceControl.createMock(DataSource.class);
 	context.setDataSource(dataSource);
 
-	MockControl connectionControl = MockControl
-		.createControl(Connection.class);
-	Connection connection = (Connection) connectionControl.getMock();
+	IMocksControl connectionControl = createControl();
+	Connection connection = connectionControl.createMock(Connection.class);
 
-	dataSourceControl.expectAndReturn(dataSource.getConnection(),
-		connection);
+	expect(dataSource.getConnection()).andReturn(connection);
 
-	MockControl statementControl = MockControl
-		.createControl(Statement.class);
-	Statement statement = (Statement) statementControl.getMock();
-	statement.execute("");
-	statementControl.setMatcher(MockControl.ALWAYS_MATCHER);
-	statementControl.setReturnValue(true, MockControl.ONE_OR_MORE);
-	statementControl.expectAndReturn(statement.isClosed(), false, MockControl.ONE_OR_MORE);
+	IMocksControl statementControl = createControl();
+	Statement statement = statementControl.createMock(Statement.class);
+	expect(statement.execute((String) anyObject())).andReturn(true).atLeastOnce();
+	expect(statement.isClosed()).andReturn(false).atLeastOnce();
 	statement.close();
-	statementControl.setVoidCallable(MockControl.ONE_OR_MORE);
+	expectLastCall().atLeastOnce();
 
-	connectionControl.expectAndReturn(connection.isClosed(), false,
-		MockControl.ONE_OR_MORE);
-	connectionControl.expectAndReturn(connection.createStatement(),
-		statement, numStatements);
-	connectionControl.expectAndReturn(connection.getAutoCommit(), false,
-		MockControl.ONE_OR_MORE);
+	expect(connection.isClosed()).andReturn(false).atLeastOnce();
+	expect(connection.createStatement()).andReturn(statement).anyTimes();
+	expect(connection.getAutoCommit()).andReturn(false).atLeastOnce();
 	connection.commit();
 	/*
 	 * Magic Number 4 derived from the assumption that the fixture sql
@@ -315,7 +312,7 @@ public class SqlScriptMigrationTaskTest extends JDBCTestCaseAdapter
 	 * Therefore, if you add more illegal statements to the fixture, add 2
 	 * more commit call's for each illegal statement.
 	 */
-	connectionControl.setVoidCallable(4);
+	expectLastCall().times(4);
 
 	dataSourceControl.replay();
 	connectionControl.replay();

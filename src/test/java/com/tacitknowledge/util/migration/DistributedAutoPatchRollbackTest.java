@@ -23,7 +23,6 @@ import com.tacitknowledge.util.migration.tasks.rollback.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.easymock.EasyMock;
-import org.easymock.MockControl;
 
 import com.mockrunner.mock.jdbc.MockDataSource;
 import org.easymock.classextension.IMocksControl;
@@ -31,6 +30,7 @@ import org.easymock.classextension.IMocksControl;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createControl;
+import static org.easymock.classextension.EasyMock.createStrictControl;
 
 /**
  * Test the Distributed auto patch service to make sure it configures and runs
@@ -315,10 +315,9 @@ public class DistributedAutoPatchRollbackTest extends MigrationListenerTestBase
             for(Iterator it = launcher.getContexts().keySet().iterator(); it.hasNext(); )
             {
                 MigrationContext ctx = (MigrationContext) it.next();
-                MockControl patchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-                PatchInfoStore patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
-                patchInfoStore.getPatchLevel();
-                patchInfoStoreControl.setReturnValue(levelToReport);
+                IMocksControl patchInfoStoreControl = createStrictControl();
+                PatchInfoStore patchInfoStore = patchInfoStoreControl.createMock(PatchInfoStore.class);
+                expect(patchInfoStore.getPatchLevel()).andReturn(levelToReport);
                 patchInfoStoreControl.replay();
                 launcher.getContexts().put(ctx, patchInfoStore);
             }
