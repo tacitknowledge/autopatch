@@ -193,6 +193,18 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
     }
 
     /**
+     * Verify that the postpatch path can be set
+     *
+     * @throws Exception if there is a problem
+     */
+    public void testSetPostpatchPath() throws Exception {
+        String postpatchPath = "com.tacitknowledge.util.migration.tasks.post";
+        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher(context);
+        testLauncher.setPostPatchPath(postpatchPath);
+        assertEquals(postpatchPath, testLauncher.getPostPatchPath());
+    }
+
+    /**
      * Test doing migrations with a lock race from a quick cluster
      *
      * @throws Exception if there is a problem

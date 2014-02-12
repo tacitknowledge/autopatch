@@ -369,11 +369,11 @@ public class JdbcMigrationLauncher implements RollbackListener
             String path = st.nextToken();
             if (path.indexOf('/') > -1)
             {
-                migrationProcess.addPostPatchResourceDirectory(path);
+                getMigrationProcess().addPostPatchResourceDirectory(path);
             }
             else
             {
-                migrationProcess.addPostPatchResourcePackage(path);
+                getMigrationProcess().addPostPatchResourcePackage(path);
             }
         }
     }
