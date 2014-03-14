@@ -170,7 +170,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyPreparedStatementParameter(0, 1, "milestone");
         verifyPreparedStatementNotPresent(table.getSql("patches.create"));
     }
-    
+
     /**
      * Validates that <code>getPatchLevel</code> works on an existing system.
      * 
@@ -221,6 +221,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testUpdatePatchLevel() throws Exception
     {
+        ensurePatchTableExists();
+
         handler = conn.getPreparedStatementResultSetHandler();
         MockResultSet rs = handler.createResultSet();
         rs.addRow(new Integer[]{new Integer(12)});
@@ -233,7 +235,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         commonVerifications();
         verifyCommitted();
     }
-    
+
     /**
      * Validates that <code>isPatchTableLocked</code> works when no lock exists.
      * 
@@ -241,6 +243,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testIsPatchTableNotLocked() throws Exception
     {
+        ensurePatchTableExists();
+
         // Test-specific setup
         // Return a non-empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
@@ -260,6 +264,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testIsPatchTableLocked() throws Exception
     {
+        ensurePatchTableExists();
+
         // Test-specific setup
         // Return a non-empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
@@ -280,6 +286,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testLockPatchTableWhenAlreadyLocked() throws Exception
     {
+        ensurePatchTableExists();
+
         // Test-specific setup
         // Return a non-empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
@@ -309,6 +317,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testLockPatchTableWhenNotAlreadyLocked() throws Exception
     {
+        ensurePatchTableExists();
+
         // Test-specific setup
         // Return an empty set in response to the patch lock query
         handler = conn.getPreparedStatementResultSetHandler();
@@ -403,6 +413,13 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();
+    }
+
+    private void ensurePatchTableExists() {
+        handler = conn.getPreparedStatementResultSetHandler();
+        MockResultSet rs = handler.createResultSet();
+        rs.addRow(new Integer[]{new Integer(0)});
+        handler.prepareResultSet(table.getSql("level.table.exists"), rs, new String[]{"milestone"});
     }
 
 
