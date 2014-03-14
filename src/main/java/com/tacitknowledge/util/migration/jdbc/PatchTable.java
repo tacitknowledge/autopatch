@@ -101,6 +101,10 @@ public class PatchTable implements PatchInfoStore
             stmt = conn.prepareStatement(getSql("level.table.exists"));
             stmt.setString(1, context.getSystemName());
             rs = stmt.executeQuery();
+            if (!rs.next()) {
+                // We don't yet have a patch record for this system; create one
+                createSystemPatchRecord();
+            }
             log.debug("'patches' table already exists.");
             tableExistenceValidated = true;
         }
