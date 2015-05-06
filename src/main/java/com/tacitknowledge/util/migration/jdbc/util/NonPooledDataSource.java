@@ -16,9 +16,14 @@
 package com.tacitknowledge.util.migration.jdbc.util;
 
 import javax.sql.DataSource;
+
+
+import java.util.logging.Logger;
+
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * A partial <code>DataSource</code> implementation that can be used in environments
@@ -32,6 +37,10 @@ import java.sql.SQLException;
  */
 public class NonPooledDataSource implements DataSource
 {
+    /**
+     * Class logger
+     */
+    private static final Logger LOG = Logger.getLogger(NonPooledDataSource.class.getName());
     /**
      * The message used in <code>UnsupportedOperationException</code>s.
      */
@@ -219,5 +228,10 @@ public class NonPooledDataSource implements DataSource
                         + getDatabaseUrl() + "/"
                         + getUsername() + "/"
                         + "(password omitted)" + "]";
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return LOG;
     }
 }

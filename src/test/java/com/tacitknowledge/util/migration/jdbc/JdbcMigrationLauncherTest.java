@@ -43,7 +43,7 @@ import static org.easymock.classextension.EasyMock.createStrictControl;
  * @author Mike Hardy (mike@tacitknowledge.com)
  */
 public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
-    private static final String ORDERED_MIGRATION_STRATEGY = "com.tacitknowledge.util.migration.OrderedMigrationRunnerStrategy";
+    private static final String ORDERED_MIGRATION_STRATEGY = OrderedMigrationRunnerStrategy.class.getCanonicalName();
     /**
      * The mock JDBC connection to use during the tests
      */
@@ -58,7 +58,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
      * The <code>JDBCMigrationConteext</code> used for testing
      */
     private DataSourceMigrationContext context = new DataSourceMigrationContext();
-    private static final String MISSING_PATCH_MIGRATION_STRATEGY = "com.tacitknowledge.util.migration.MissingPatchMigrationRunnerStrategy";
+    private static final String MISSING_PATCH_MIGRATION_STRATEGY = MissingPatchMigrationRunnerStrategy.class.getCanonicalName();
     private IMocksControl rollbackMocksControl;
     private MigrationProcess rollbackMigrationProcessMock;
     private JdbcMigrationLauncher rollbackLauncher;

@@ -15,10 +15,14 @@
 
 package com.tacitknowledge.util.migration.jdbc.util;
 
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+
+import javax.sql.DataSource;
+
+import java.util.logging.Logger;
 
 /**
  * A partial <code>DataSource</code> implementation that simply wraps a single,
@@ -30,6 +34,7 @@ import java.sql.SQLException;
  */
 public class ConnectionWrapperDataSource implements DataSource
 {
+    private static final Logger LOG = Logger.getLogger(ConnectionWrapperDataSource.class.getName());
     /**
      * The message used in <code>UnsupportedOperationException</code>s.
      */
@@ -115,5 +120,10 @@ public class ConnectionWrapperDataSource implements DataSource
     public Object unwrap(Class iface)
     {
         return connection;
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return LOG;
     }
 }

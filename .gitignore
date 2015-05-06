@@ -12,3 +12,4 @@ target
 *.iws
 .idea
 *.externalToolBuilders
+.eclipse-pmd
