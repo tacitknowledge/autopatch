@@ -122,7 +122,6 @@ public class ConnectionWrapperDataSource implements DataSource
         return connection;
     }
 
-    @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return LOG;
     }

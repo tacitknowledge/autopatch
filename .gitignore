@@ -13,3 +13,6 @@ target
 .idea
 *.externalToolBuilders
 .eclipse-pmd
+
+# Ignore www.jenv.be file to switch java versions on OSX
+.java-version

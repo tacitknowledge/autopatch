@@ -230,7 +230,6 @@ public class NonPooledDataSource implements DataSource
                         + "(password omitted)" + "]";
     }
 
-    @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return LOG;
     }
