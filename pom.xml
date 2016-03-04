@@ -97,6 +97,9 @@
         <contributor>
             <name>Hemri Herrera</name>
         </contributor>
+        <contributor>
+            <name>Marco Rangel</name>
+        </contributor>
     </contributors>
 
     <build>
@@ -130,6 +133,14 @@
 					<target>${target.jdk}</target>
 				</configuration>
 			</plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
