@@ -98,7 +98,6 @@ public class ConnectionWrapperDataSource implements DataSource
     /**
      * {@inheritDoc}
      */
-    @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException();
     }
