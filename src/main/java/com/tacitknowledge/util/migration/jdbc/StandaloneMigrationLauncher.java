@@ -19,7 +19,7 @@ import com.tacitknowledge.util.migration.AutopatchRegistry;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.MigrationUtil;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.picocontainer.PicoContainer;

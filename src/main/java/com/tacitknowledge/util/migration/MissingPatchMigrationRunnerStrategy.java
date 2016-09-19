@@ -15,7 +15,7 @@
 package com.tacitknowledge.util.migration;
 
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +38,7 @@ public class MissingPatchMigrationRunnerStrategy implements MigrationRunnerStrat
             throw new IllegalArgumentException("Patch Info Store should not be null");
         }
 
+        // This is the crux of this migration strategy.  As long as a patch has not yet been executed, it can be.
         return !patchInfoStore.isPatchApplied(migrationLevel);
     }
 

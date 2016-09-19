@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Defines a type of database (e.g. <code>oracle</code> or <code>postgres</code>.  This
  * is used to help define the SQL that is used to update the patch table and as a hint
@@ -51,6 +54,8 @@ import java.util.Properties;
  */
 public class DatabaseType
 {
+	private static Log log = LogFactory.getLog(DatabaseType.class);
+
     /**
      * The SQL statements and properties that are unique to this database flavor.
      */
@@ -89,6 +94,16 @@ public class DatabaseType
             // this is okay, in this class, migration.properties is only used to override SQL
         }
         this.databaseType = databaseType;
+		log.debug("AutoPatch instantiated and loaded with properties per " + databasePropertiesFilename);
+		if (isMultipleStatementsSupported())
+		{
+			log.debug("AutoPatch thinks that Multiple SQL Statements can be executed at once.");
+		}
+		else
+		{
+			log.debug("AutoPatch thinks that Multiple SQL Statements must be executed separately.");
+		}
+
     }
 
     protected Properties loadProperties(String propertiesFilename, ClassLoader loader)

@@ -34,6 +34,7 @@ public class OrderedMigrationRunnerStrategy implements MigrationRunnerStrategy
 {
     public boolean shouldMigrationRun(int migrationLevel, PatchInfoStore patchInfoStore) throws MigrationException
     {
+        // This is the crux of this migration strategy.  Only patches with a patch level higher than the highest one executed so far are eligible to be excuted.
         return migrationLevel > patchInfoStore.getPatchLevel();
     }
 

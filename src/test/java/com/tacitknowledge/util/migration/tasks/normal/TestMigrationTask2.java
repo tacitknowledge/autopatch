@@ -30,7 +30,7 @@ public class TestMigrationTask2 extends BaseTestMigrationTask
     private static Integer patchLevelOverride = new Integer(5);
     
     /**
-     * Creates a new <code>TestMigrationTask3</code>.
+     * Creates a new <code>TestMigrationTask2</code>.
      */
     public TestMigrationTask2()
     {

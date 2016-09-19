@@ -766,11 +766,13 @@ public class JdbcMigrationLauncher implements RollbackListener
 
     public void setMigrationStrategy(String migrationStrategy)
     {
+    	log.debug("Setting migration strategy to: "+migrationStrategy+ " (was: "+this.migrationStrategy+")");
         this.migrationStrategy = migrationStrategy;
     }
 
     public String getMigrationStrategy()
     {
+    	log.debug("Get-accessor says migration strategy is: "+migrationStrategy);
         return migrationStrategy;
     }
 }

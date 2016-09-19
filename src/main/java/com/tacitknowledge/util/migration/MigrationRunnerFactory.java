@@ -15,7 +15,7 @@
 
 package com.tacitknowledge.util.migration;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,23 +35,24 @@ public class MigrationRunnerFactory
     public static MigrationRunnerStrategy getMigrationRunnerStrategy(String strategy)
     {
 
-        log.info("Strategy received '" + strategy + "'");
 
         if (StringUtils.isBlank(strategy))
         {
+            log.info("No migration strategy specified.  Using default: '" + DEFAULT_MIGRATION_STRATEGY + "'");
             return new OrderedMigrationRunnerStrategy();
 
         }
 
         try
         {
+            log.info("Using specified migration strategy: '" + strategy + "'");
             Class c = Class.forName(strategy.trim());
             MigrationRunnerStrategy runnerStrategy = (MigrationRunnerStrategy) c.newInstance();
             return runnerStrategy;
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("Strategy selected " + strategy + " cannot be instantiated ", e);
+            throw new IllegalArgumentException("Specified strategy (" + strategy + ") cannot be instantiated ", e);
         }
 
 

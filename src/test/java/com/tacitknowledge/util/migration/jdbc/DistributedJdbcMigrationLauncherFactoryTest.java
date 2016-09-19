@@ -206,7 +206,7 @@ public class DistributedJdbcMigrationLauncherFactoryTest extends MigrationListen
             log.debug("got exception: " + me.getMessage());
         }
 
-        currentPatchLevel = 8;
+        currentPatchLevel = 13;
         // need to mock the patch info stores to return the expected patch levels        
         setReportedPatchLevel(controlledSystems.values(), currentPatchLevel);
 

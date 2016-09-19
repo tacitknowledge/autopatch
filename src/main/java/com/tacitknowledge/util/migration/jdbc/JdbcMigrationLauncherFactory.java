@@ -20,7 +20,7 @@ import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.MigrationListener;
 import com.tacitknowledge.util.migration.jdbc.util.ConfigurationUtil;
 import com.tacitknowledge.util.migration.jdbc.util.NonPooledDataSource;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -123,6 +123,7 @@ public class JdbcMigrationLauncherFactory
     public JdbcMigrationLauncher createMigrationLauncher(ServletContextEvent sce)
             throws MigrationException
     {
+        log.info("Creating JdbcMigrationLauncher for web-application.");
         JdbcMigrationLauncher launcher = getJdbcMigrationLauncher();
         configureFromServletContext(launcher, sce);
         return launcher;
@@ -139,6 +140,14 @@ public class JdbcMigrationLauncherFactory
     private void configureFromServletContext(JdbcMigrationLauncher launcher,
             ServletContextEvent sce) throws MigrationException
     {
+    	log.debug("Configuring launcher from Servlet Context (web.xml)");
+    	
+        String migrationStrategy = sce.getServletContext().getInitParameter("migration.strategy");
+        log.debug("Servlet Container says migration.strategy = "+migrationStrategy);
+        if (!StringUtils.isBlank(migrationStrategy)) {
+        	launcher.setMigrationStrategy(migrationStrategy);
+        }
+
         String readOnly = sce.getServletContext().getInitParameter("migration.readonly");
         launcher.setReadOnly(false);
         if ("true".equals(readOnly))
@@ -155,6 +164,7 @@ public class JdbcMigrationLauncherFactory
         }
 
         String patchPath = ConfigurationUtil.getRequiredParam("migration.patchpath", sce, this);
+        log.debug("migration.patchpath (required) = "+patchPath);
         launcher.setPatchPath(patchPath);
 
         String postPatchPath = sce.getServletContext().getInitParameter("migration.postpatchpath");

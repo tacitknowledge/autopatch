@@ -436,9 +436,16 @@ public class DistributedMigrationProcess extends MigrationProcess
                 if (log.isDebugEnabled())
                 {
                     Iterator launchers = subLauncher.getContexts().keySet().iterator();
-                    String systemName = ((JdbcMigrationContext) launchers.next()).getSystemName();
-                    log.debug("\tMigration+Launcher binder found subtask " + task.getName()
+					if (!launchers.hasNext()) {
+	                    log.debug("\tMigration+Launcher binder found subtask " + task.getName()
+	                            + " with no contexts defined");
+						
+					} else {
+						JdbcMigrationContext next = (JdbcMigrationContext) launchers.next();
+						String systemName = next.getSystemName();
+                    	log.debug("\tMigration+Launcher binder found subtask " + task.getName()
                             + " for launcher context " + systemName);
+					}
                 }
 
                 // store the task, related to its launcher
