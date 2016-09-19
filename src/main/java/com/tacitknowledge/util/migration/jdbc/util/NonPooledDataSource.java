@@ -19,6 +19,8 @@ import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
 
 /**
  * A partial <code>DataSource</code> implementation that can be used in environments
@@ -114,6 +116,13 @@ public class NonPooledDataSource implements DataSource
     public int getLoginTimeout() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_EXCEPTION_MSG);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
     }
 
     /**
