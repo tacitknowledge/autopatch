@@ -372,7 +372,7 @@ public class MigrationProcess
         {
             RollbackableMigrationTask task = (RollbackableMigrationTask) migrationTask;
 
-            log.info("Will execute rollback for task '" + getTaskLabel(task) + "'");
+            log.debug("Will execute rollback for task '" + getTaskLabel(task) + "'");
             log.debug("Task will execute in context '" + context + "'");
             taskCount++;
 
@@ -796,7 +796,7 @@ public class MigrationProcess
             if (migrationRunnerStrategy
                     .shouldMigrationRun(task.getLevel().intValue(), patchInfoStore))
             {
-                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
+                log.debug("Will execute patch task '" + getTaskLabel(task) + "'");
                 log.debug("Task will execute in context '" + migrationContext + "'");
                 taskCount++;
             }

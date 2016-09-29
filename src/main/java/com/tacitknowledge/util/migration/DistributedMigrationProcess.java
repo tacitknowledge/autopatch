@@ -104,7 +104,7 @@ public class DistributedMigrationProcess extends MigrationProcess
             for (Iterator i = rollbacks.iterator(); i.hasNext();)
             {
                 RollbackableMigrationTask task = (RollbackableMigrationTask) i.next();
-                log.info("Will execute rollback for task '" + task.getName() + "'");
+                log.debug("Will execute rollback for task '" + task.getName() + "'");
                 taskCount++;
                 JdbcMigrationLauncher launcher = (JdbcMigrationLauncher) rollbacksWithLaunchers
                         .get(task);
@@ -144,7 +144,7 @@ public class DistributedMigrationProcess extends MigrationProcess
 
             if (getMigrationRunnerStrategy().shouldMigrationRun(task.getLevel(), currentPatchInfoStore))
             {
-                log.info("Will execute patch task '" + getTaskLabel(task) + "'");
+                log.debug("Will execute patch task '" + getTaskLabel(task) + "'");
                 if (log.isDebugEnabled())
                 {
                     // Get all the contexts the task will execute in
