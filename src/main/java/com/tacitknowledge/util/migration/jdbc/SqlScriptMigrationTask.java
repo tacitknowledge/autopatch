@@ -265,7 +265,9 @@ public class SqlScriptMigrationTask extends MigrationTaskSupport
                     case '-':
                     case '/':
                         if (!inQuotedString && i + 1 < sqlChars.length
-                                && sqlChars[i + 1] == sqlChars[i])
+                                && sqlChars[i + 1] == sqlChars[i]
+                                && !isStoredProcedure(context.getDatabaseType().getDatabaseType(),
+                                                      currentStatement.toString()))
                         {
                             inComment = true;
                         }
