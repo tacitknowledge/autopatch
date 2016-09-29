@@ -34,6 +34,7 @@ import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 import static org.easymock.EasyMock.anyInt;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createControl;
 import static org.easymock.classextension.EasyMock.createStrictControl;
 
@@ -66,6 +67,8 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
     private static final int[] ROLLBACK_LEVELS = new int[]{ROLLBACK_LEVEL};
     private static final int ROLLBACK_EXPECTED = 5;
     private static final boolean FORCE_ROLLBACK = false;
+    private static final String MIGRATION = "migration";
+    private static final String ROLLBACK = "rollback";
 
     /**
      * constructor that takes a name
@@ -124,6 +127,7 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         Connection connectionMock = rollbackMocksControl.createMock(Connection.class);
 
         //Dependency Interactions
+        expect(rollbackMigrationProcessMock.isReadOnly()).andReturn(false).anyTimes();
         expect(patchInfoStoreMock.isPatchStoreLocked()).andReturn(false);
         expect(patchInfoStoreMock.getPatchLevel()).andReturn(3);
         patchInfoStoreMock.lockPatchStore();
@@ -487,4 +491,45 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         rollbackMocksControl.verify();
     }
 
+    private void runReadOnlyTest(String mode) throws MigrationException{
+        IMocksControl mockControl = createControl();
+        TestJdbcMigrationLauncher testLauncher = new TestJdbcMigrationLauncher();
+
+        PatchInfoStore patchStore = mockControl.createMock(PatchInfoStore.class);
+        expect(patchStore.getPatchLevel()).andReturn(ROLLBACK_LEVEL).anyTimes();
+        MigrationProcess migrationProcess = mockControl.createMock(MigrationProcess.class);
+        expect(migrationProcess.doMigrations(patchStore, context)).andReturn(0).anyTimes();
+        expect(migrationProcess.doRollbacks(patchStore, ROLLBACK_LEVELS, context, false)).andReturn(0).anyTimes();
+        expect(migrationProcess.doPostPatchMigrations(context)).andReturn(0).anyTimes();
+        migrationProcess.addListener(testLauncher);
+        expectLastCall().anyTimes();
+        migrationProcess.addMigrationTaskSource((MigrationTaskSource) EasyMock.anyObject());
+        expectLastCall().anyTimes();
+        migrationProcess.setReadOnly(true);
+        expectLastCall();
+        expect(migrationProcess.isReadOnly()).andReturn(true).anyTimes();
+        mockControl.replay();
+
+        testLauncher.setMigrationProcess(migrationProcess);
+        testLauncher.addContext(context);
+        testLauncher.setPatchStore(patchStore);
+        testLauncher.getMigrationProcess().setReadOnly(true);
+
+        if (mode.equals(MIGRATION)) {
+            testLauncher.doMigrations();
+        } else if (mode.equals(ROLLBACK)) {
+            testLauncher.doRollbacks(ROLLBACK_LEVELS);
+        } else {
+            throw new MigrationException("Unsupported mode: " + mode);
+        }
+        mockControl.verify();
+    }
+
+    public void testDoMigrationsDoesNotUpdatePatchStoreInReadOnlyMode() throws MigrationException {
+        runReadOnlyTest(MIGRATION);
+    }
+
+    public void testDoRollbacksDoesNotUpdatePatchStoreInReadOnlyMode() throws MigrationException {
+        runReadOnlyTest(ROLLBACK);
+    }
 }

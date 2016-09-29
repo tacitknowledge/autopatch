@@ -174,11 +174,10 @@ public class JdbcMigrationLauncher implements RollbackListener
             throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
-
+        int executedPatchCount = 0;
         lockPatchStore(context);
 
         // Now apply the patches
-        int executedPatchCount = 0;
         try
         {
 
@@ -206,7 +205,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         {
             // If there was any kind of error, we don't want to eat it, but we do
             // want to unlock the patch store. So do that, then re-throw.
-            patchTable.unlockPatchStore();
+            unlockPatchStore(patchTable);
             throw me;
         }
 
@@ -220,7 +219,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         {
             try
             {
-                patchTable.unlockPatchStore();
+                unlockPatchStore(patchTable);
             }
             catch (MigrationException e)
             {
@@ -473,11 +472,10 @@ public class JdbcMigrationLauncher implements RollbackListener
     protected int doMigrations(JdbcMigrationContext context) throws SQLException, MigrationException
     {
         PatchInfoStore patchTable = createPatchStore(context);
-
+        int executedPatchCount = 0;
         lockPatchStore(context);
 
         // Now apply the patches
-        int executedPatchCount = 0;
         try
         {
 
@@ -506,7 +504,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         {
             // If there was any kind of error, we don't want to eat it, but we do
             // want to unlock the patch store. So do that, then re-throw.
-            patchTable.unlockPatchStore();
+            unlockPatchStore(patchTable);
             throw me;
         }
 
@@ -520,7 +518,7 @@ public class JdbcMigrationLauncher implements RollbackListener
         {
             try
             {
-                patchTable.unlockPatchStore();
+                unlockPatchStore(patchTable);
             }
             catch (MigrationException e)
             {
@@ -538,6 +536,11 @@ public class JdbcMigrationLauncher implements RollbackListener
      */
     private void lockPatchStore(JdbcMigrationContext context) throws MigrationException
     {
+        // Do not issue a lock and write to the database in ReadOnly mode
+        if (isReadOnly()) {
+            return;
+        }
+
         // Patch locks ensure that only one system sharing a patch store will patch
         // it at the same time.
         boolean lockObtained = false;
@@ -559,6 +562,21 @@ public class JdbcMigrationLauncher implements RollbackListener
                 // raced us to the lock and won. We re-sleep and try again.
             }
         }
+    }
+
+    /**
+     * Unlock the patch store.
+     *
+     * @param patchInfoStore PatchInfoStore to unlock
+     */
+    private void unlockPatchStore(PatchInfoStore patchInfoStore) throws MigrationException
+    {
+        // Do not issue an unlock and write to the database in ReadOnly mode
+        if (isReadOnly()) {
+            return;
+        }
+
+        patchInfoStore.unlockPatchStore();
     }
 
     /**
@@ -590,7 +608,7 @@ public class JdbcMigrationLauncher implements RollbackListener
             if ((getLockPollRetries() != -1) && (i >= getLockPollRetries()))
             {
                 log.info("Reached maximum lock poll retries (" + getLockPollRetries() + "), overriding patch lock");
-                piStore.unlockPatchStore();
+                unlockPatchStore(piStore);
             }
             else
             {
