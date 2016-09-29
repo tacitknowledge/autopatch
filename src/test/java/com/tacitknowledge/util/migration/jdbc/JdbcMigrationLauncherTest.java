@@ -24,7 +24,6 @@ import java.util.*;
 import com.tacitknowledge.util.migration.*;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.easymock.MockControl;
 
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
@@ -34,6 +33,7 @@ import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 import static org.easymock.EasyMock.anyInt;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createControl;
 import static org.easymock.classextension.EasyMock.createStrictControl;
 
@@ -205,28 +205,21 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         h.prepareGlobalResultSet(rs);
 
 
-        MockControl mockControl = MockControl.createStrictControl(PatchInfoStore.class);
-        PatchInfoStore patchStore = (PatchInfoStore) mockControl.getMock();
+        IMocksControl mockControl = createStrictControl();
+        PatchInfoStore patchStore = mockControl.createMock(PatchInfoStore.class);
 
         // First they see if it is locked, and it is, so they spin
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(true);
+        expect(patchStore.isPatchStoreLocked()).andReturn(true);
 
         // Second they see if it is locked again, and it isn't, so they try and fail and spin
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(false);
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(0);
+        expect(patchStore.isPatchStoreLocked()).andReturn(false);
+        expect(patchStore.getPatchLevel()).andReturn(0);
         patchStore.lockPatchStore();
-        mockControl.setThrowable(new IllegalStateException("The table is already locked"));
+        expectLastCall().andThrow(new IllegalStateException("The table is already locked"));
 
         // Finally they see if it is locked again, and it isn't, and it works
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(false);
-
-
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(2, MockControl.ONE_OR_MORE);
+        expect(patchStore.isPatchStoreLocked()).andReturn(false);
+        expect(patchStore.getPatchLevel()).andReturn(2).atLeastOnce();
         patchStore.lockPatchStore();
 
         IMocksControl migrationRunnerStrategyControl = createStrictControl();
@@ -266,27 +259,21 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         h.prepareGlobalResultSet(rs);
 
 
-        MockControl mockControl = MockControl.createStrictControl(PatchInfoStore.class);
-        PatchInfoStore patchStore = (PatchInfoStore) mockControl.getMock();
+        IMocksControl mockControl = createStrictControl();
+        PatchInfoStore patchStore = (PatchInfoStore) mockControl.createMock(PatchInfoStore.class);
 
         // First they see if it is locked three times, and it is, so they spin
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(true);
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(true);
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(true);
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(true);
+        expect(patchStore.isPatchStoreLocked()).andReturn(true);
+        expect(patchStore.isPatchStoreLocked()).andReturn(true);
+        expect(patchStore.isPatchStoreLocked()).andReturn(true);
+        expect(patchStore.isPatchStoreLocked()).andReturn(true);
 
         // after the third time, they unlock it
         patchStore.unlockPatchStore();
 
         // now the lock succeeds
-        patchStore.isPatchStoreLocked();
-        mockControl.setReturnValue(false);
-        patchStore.getPatchLevel();
-        mockControl.setReturnValue(2);
+        expect(patchStore.isPatchStoreLocked()).andReturn(false);
+        expect(patchStore.getPatchLevel()).andReturn(2);
         patchStore.lockPatchStore();
 
         IMocksControl migrationRunnerStrategyControl = createStrictControl();
@@ -340,32 +327,30 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         int node2PatchLevel = 0;
 
         // create mocks
-        MockControl node1ContextControl = MockControl.createControl(JdbcMigrationContext.class);
-        MockControl node2ContextControl = MockControl.createControl(JdbcMigrationContext.class);
-        JdbcMigrationContext node1Context = (JdbcMigrationContext) node1ContextControl.getMock();
-        JdbcMigrationContext node2Context = (JdbcMigrationContext) node2ContextControl.getMock();
+        IMocksControl node1ContextControl = createControl();
+        IMocksControl node2ContextControl = createControl();
+        JdbcMigrationContext node1Context = node1ContextControl.createMock(JdbcMigrationContext.class);
+        JdbcMigrationContext node2Context = node2ContextControl.createMock(JdbcMigrationContext.class);
 
-        MockControl node1PatchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-        MockControl node2PatchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-        PatchInfoStore node1PatchInfoStore = (PatchInfoStore) node1PatchInfoStoreControl.getMock();
-        PatchInfoStore node2PatchInfoStore = (PatchInfoStore) node2PatchInfoStoreControl.getMock();
+        IMocksControl node1PatchInfoStoreControl = createControl();
+        IMocksControl node2PatchInfoStoreControl = createControl();
+        PatchInfoStore node1PatchInfoStore = node1PatchInfoStoreControl.createMock(PatchInfoStore.class);
+        PatchInfoStore node2PatchInfoStore = node2PatchInfoStoreControl.createMock(PatchInfoStore.class);
 
         LinkedHashMap contexts = new LinkedHashMap();
         contexts.put(node1Context, node1PatchInfoStore);
         contexts.put(node2Context, node2PatchInfoStore);
         launcher.setContexts(contexts);
 
-        MockControl taskControl = MockControl.createControl(RollbackableMigrationTask.class);
-        MockControl contextControl = MockControl.createControl(MigrationContext.class);
-        RollbackableMigrationTask task = (RollbackableMigrationTask) taskControl.getMock();
-        MigrationContext context = (MigrationContext) contextControl.getMock();
+        IMocksControl taskControl = createControl();
+        IMocksControl contextControl = createControl();
+        RollbackableMigrationTask task = taskControl.createMock(RollbackableMigrationTask.class);
+        MigrationContext context = contextControl.createMock(MigrationContext.class);
 
         // set expectations
         // the migration successful event is for patch level 1
-        task.getLevel();
-        taskControl.setDefaultReturnValue(new Integer(migrationSuccessfulPatchLevel));
-        task.getName();
-        taskControl.setDefaultReturnValue("patch001_test.sql");
+        expect(task.getName()).andReturn("patch001_test.sql");
+        expect(task.getLevel()).andReturn(new Integer(migrationSuccessfulPatchLevel));
 
         taskControl.replay();
 
@@ -373,19 +358,15 @@ public class JdbcMigrationLauncherTest extends MigrationListenerTestBase {
         MigrationRunnerStrategy migrationStrategyMock = migrationStrategyControl.createMock(MigrationRunnerStrategy.class);
 
         // node1 is at patchlevel 2
-        node1PatchInfoStore.getPatchLevel();
-        node1PatchInfoStoreControl.setDefaultReturnValue(node1PatchLevel);
+        expect(node1PatchInfoStore.getPatchLevel()).andReturn(node1PatchLevel).anyTimes();
         node1PatchInfoStoreControl.replay();
         expect(migrationStrategyMock.shouldMigrationRun(1, node1PatchInfoStore)).andReturn(false);
 
         // node2 is at patchlevel 1
-        node2PatchInfoStore.getPatchLevel();
-        node2PatchInfoStoreControl.setDefaultReturnValue(node2PatchLevel);
-        expect(migrationStrategyMock.shouldMigrationRun(1, node2PatchInfoStore)).andReturn(true);
-
-
         node2PatchInfoStore.updatePatchLevel(migrationSuccessfulPatchLevel);
-        node2PatchInfoStoreControl.setVoidCallable();
+        expectLastCall().atLeastOnce();
+        expect(node2PatchInfoStore.getPatchLevel()).andReturn(node2PatchLevel).anyTimes();
+        expect(migrationStrategyMock.shouldMigrationRun(1, node2PatchInfoStore)).andReturn(true);
 
         node2PatchInfoStoreControl.replay();
         migrationStrategyControl.replay();

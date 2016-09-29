@@ -25,10 +25,8 @@ import com.tacitknowledge.util.migration.*;
 import com.tacitknowledge.util.migration.builders.MockBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.easymock.MockControl;
 
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
-import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.expect;

@@ -23,7 +23,6 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.easymock.MockControl;
 
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationContext;
 import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
@@ -31,7 +30,6 @@ import com.tacitknowledge.util.migration.jdbc.JdbcMigrationLauncher;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createControl;
-import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.createStrictControl;
 
 /**
@@ -82,11 +80,11 @@ public class DistributedMigrationProcessTest extends TestCase
         String systemName = "system1";
         JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
         
-        MockControl contextControl = MockControl.createControl(JdbcMigrationContext.class);
+        IMocksControl contextControl = createStrictControl();
         
-        JdbcMigrationContext context = (JdbcMigrationContext) contextControl.getMock();
-        MockControl patchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-        PatchInfoStore patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
+        JdbcMigrationContext context = contextControl.createMock(JdbcMigrationContext.class);
+        IMocksControl patchInfoStoreControl = createStrictControl();
+        PatchInfoStore patchInfoStore = patchInfoStoreControl.createMock(PatchInfoStore.class);
 
         expect(migrationRunnerStrategy.isSynchronized(currentPatchInfoStore, patchInfoStore)).andReturn(true);
 
@@ -121,23 +119,21 @@ public class DistributedMigrationProcessTest extends TestCase
         JdbcMigrationLauncher launcher = new JdbcMigrationLauncher();
         
         // first node is at the 'current' patch level
-        MockControl node1ContextControl = MockControl.createControl(JdbcMigrationContext.class);
-        JdbcMigrationContext node1Context = (JdbcMigrationContext) node1ContextControl.getMock();
-        MockControl node1PatchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-        PatchInfoStore node1PatchInfoStore = (PatchInfoStore) node1PatchInfoStoreControl.getMock();
+        IMocksControl node1ContextControl = createStrictControl();
+        JdbcMigrationContext node1Context = node1ContextControl.createMock(JdbcMigrationContext.class);
+        IMocksControl node1PatchInfoStoreControl = createStrictControl();
+        PatchInfoStore node1PatchInfoStore = node1PatchInfoStoreControl.createMock(PatchInfoStore.class);
         // setup mock patch info store to return the patch level we want
-        node1Context.getDatabaseName();
-        node1ContextControl.setReturnValue("node1", MockControl.ONE_OR_MORE);
+        expect(node1Context.getDatabaseName()).andReturn("node1").atLeastOnce();
         node1ContextControl.replay();
 
         // second node simulates a newly added database instance, it has not been patched
-        MockControl node2ContextControl = MockControl.createControl(JdbcMigrationContext.class);
-        JdbcMigrationContext node2Context = (JdbcMigrationContext) node2ContextControl.getMock();
-        MockControl node2PatchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-        PatchInfoStore node2PatchInfoStore = (PatchInfoStore) node2PatchInfoStoreControl.getMock();
+        IMocksControl node2ContextControl = createStrictControl();
+        JdbcMigrationContext node2Context = node2ContextControl.createMock(JdbcMigrationContext.class);
+        IMocksControl node2PatchInfoStoreControl = createStrictControl();
+        PatchInfoStore node2PatchInfoStore = node2PatchInfoStoreControl.createMock(PatchInfoStore.class);
         // setup mock patch info store to return the patch level we want
-        node2Context.getDatabaseName();
-        node2ContextControl.setReturnValue("node2", MockControl.ONE_OR_MORE);
+        expect(node2Context.getDatabaseName()).andReturn("node2").atLeastOnce();
         node2ContextControl.replay();
 
         // create the launcher's contexts collection

@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 
 import java.io.IOException;
@@ -65,9 +66,10 @@ public class FlatXmlDataSetMigrationTask extends MigrationTaskSupport
         JdbcMigrationContext jdbcContext = (JdbcMigrationContext) context;
         // used to close connection in finally block
         Connection contextConnection = null;
+        FlatXmlDataSetBuilder builder = new FlatXmlDataSetBuilder();
         try
         {
-            FlatXmlDataSet xmlDataSet = new FlatXmlDataSet(getXmlAsStream());
+            FlatXmlDataSet xmlDataSet = builder.build(getXmlAsStream());
             // Set contextConnection so it can be accessed in the finally block.
             contextConnection = jdbcContext.getConnection();
 

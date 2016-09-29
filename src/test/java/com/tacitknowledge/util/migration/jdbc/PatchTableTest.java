@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.easymock.MockControl;
+import org.easymock.classextension.IMocksControl;
 
 import com.mockrunner.jdbc.JDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
@@ -28,6 +28,8 @@ import com.mockrunner.mock.jdbc.MockResultSet;
 import com.tacitknowledge.util.migration.MigrationException;
 import com.tacitknowledge.util.migration.jdbc.util.ConnectionWrapperDataSource;
 
+import static org.easymock.classextension.EasyMock.createStrictControl;
+import static org.easymock.EasyMock.expect;
 /**
  * Out-of-container tests the <code>PatchTable</code> class using a
  * mock JDBC driver. 
@@ -53,7 +55,7 @@ public class PatchTableTest extends JDBCTestCaseAdapter
 
     /** Used to specify different statements in the tests */
     private PreparedStatementResultSetHandler handler = null;
-    private MockControl contextControl;
+    private IMocksControl contextControl;
     private JdbcMigrationContext mockContext;
 
 
@@ -82,8 +84,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
         context.setDatabaseType(new DatabaseType("hsqldb"));
         
         table = new PatchTable(context);
-        contextControl = MockControl.createControl(JdbcMigrationContext.class);
-        mockContext = (JdbcMigrationContext) contextControl.getMock();
+        contextControl = createStrictControl();
+        mockContext = contextControl.createMock(JdbcMigrationContext.class);
     }
     
     /**
@@ -129,13 +131,9 @@ public class PatchTableTest extends JDBCTestCaseAdapter
      */
     public void testCreatePatchesTableWithoutConnection() throws SQLException
     {
-
         // setup mock calls
-        mockContext.getDatabaseType();
-        contextControl.setReturnValue(new DatabaseType("postgres"), MockControl.ONE_OR_MORE);
-        
-        mockContext.getConnection();
-        contextControl.setThrowable(new SQLException("An exception during getConnection"));
+        expect(mockContext.getDatabaseType()).andReturn(new DatabaseType("postgres")).atLeastOnce();
+        expect(mockContext.getConnection()).andThrow(new SQLException("An exception during getConnection"));
         contextControl.replay();
         
         table = new PatchTable(mockContext);
@@ -361,11 +359,8 @@ public class PatchTableTest extends JDBCTestCaseAdapter
 
     public void testMigrationExceptionIsThrownIfSQLExceptionHappens() throws SQLException {
 
-        mockContext.getDatabaseType();
-        contextControl.setReturnValue(new DatabaseType("postgres"), MockControl.ONE_OR_MORE);
-
-        mockContext.getConnection();
-        contextControl.setThrowable(new SQLException("An exception during getConnection"));
+        expect(mockContext.getDatabaseType()).andReturn(new DatabaseType("postgres")).atLeastOnce();
+        expect(mockContext.getConnection()).andThrow(new SQLException("An exception during getConnection"));
         contextControl.replay();
 
         table = new PatchTable(mockContext);

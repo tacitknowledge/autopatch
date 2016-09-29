@@ -20,8 +20,10 @@ import java.util.List;
 import com.tacitknowledge.util.migration.builders.MockBuilder;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
-import org.easymock.MockControl;
+import org.easymock.IMocksControl;
 
+import static org.easymock.classextension.EasyMock.createStrictControl;
+import static org.easymock.EasyMock.expect;
 /**
  * Test basic migration functionality
  * 
@@ -34,7 +36,7 @@ public class MigrationTest extends MigrationListenerTestBase
     
     /** Test migration context */
     private TestMigrationContext context = null;
-    private MockControl patchInfoStoreControl;
+    private IMocksControl patchInfoStoreControl;
     private PatchInfoStore patchInfoStore;
 
     /**
@@ -60,8 +62,8 @@ public class MigrationTest extends MigrationListenerTestBase
         runner.addPostPatchResourceDirectory(getClass().getPackage().getName() + ".tasks.post");
         runner.addListener(this);
         context = new TestMigrationContext();
-        patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
-        patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
+        patchInfoStoreControl = createStrictControl();
+        patchInfoStore = patchInfoStoreControl.createMock(PatchInfoStore.class);
     }
 
     /**
@@ -85,7 +87,7 @@ public class MigrationTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(9, l.size());
 
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 0, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(0).atLeastOnce();
         patchInfoStoreControl.replay();
 
         int level = runner.doMigrations(patchInfoStore, context);
@@ -117,7 +119,7 @@ public class MigrationTest extends MigrationListenerTestBase
         assertEquals(9, l.size());
         
         // run them all once
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 0, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(0).atLeastOnce();
         patchInfoStoreControl.replay();
 
         int level = runner.doMigrations(patchInfoStore, context);
@@ -143,7 +145,7 @@ public class MigrationTest extends MigrationListenerTestBase
         setMigrationSuccessCount(0);
 
         patchInfoStoreControl.reset();
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 15, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(15).atLeastOnce();
         patchInfoStoreControl.replay();
 
         level = runner.doMigrations(patchInfoStore, context);
@@ -175,7 +177,7 @@ public class MigrationTest extends MigrationListenerTestBase
         List l = runner.getMigrationTasks();
         assertEquals(9, l.size());
 
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 9, MockControl.ONE_OR_MORE);
+        expect(patchInfoStore.getPatchLevel()).andReturn(9).atLeastOnce();
         patchInfoStoreControl.replay();
 
         int level = runner.doMigrations(patchInfoStore, context);
@@ -210,7 +212,7 @@ public class MigrationTest extends MigrationListenerTestBase
         int executedTasks = 0;
         try
         {
-            patchInfoStoreControl.expectAndReturn(patchInfoStore.getPatchLevel(), 5, MockControl.ONE_OR_MORE);
+            expect(patchInfoStore.getPatchLevel()).andReturn(5).atLeastOnce();
             patchInfoStoreControl.replay();
             executedTasks = runner.doMigrations(patchInfoStore, context);
             runner.doPostPatchMigrations(context);

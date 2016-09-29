@@ -19,10 +19,14 @@ import com.tacitknowledge.util.migration.builders.MockBuilder;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask2;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
 import junit.framework.TestCase;
-import org.easymock.MockControl;
+import org.easymock.IMocksControl;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createStrictControl;
 
 
 /**
@@ -36,15 +40,15 @@ public class MigrationProcessTest extends TestCase
 
     private MigrationProcess migrationProcess = null;
 
-    private MockControl migrationContextControl = null;
+    private IMocksControl migrationContextControl = null;
 
     private MigrationContext migrationContextMock = null;
 
-    private MockControl migrationTaskSourceControl = null;
+    private IMocksControl migrationTaskSourceControl = null;
 
     private MigrationTaskSource migrationTaskSourceMock = null;
 
-    private MockControl patchInfoStoreControl = null;
+    private IMocksControl patchInfoStoreControl = null;
 
     private PatchInfoStore patchInfoStoreMock = null;
     private PatchInfoStore patchInfoStore;
@@ -55,14 +59,13 @@ public class MigrationProcessTest extends TestCase
         migrationProcess = new MigrationProcess();
         migrationProcess.
                 setMigrationRunnerStrategy(MigrationRunnerFactory.getMigrationRunnerStrategy(null));
-        migrationContextControl = MockControl.createStrictControl(MigrationContext.class);
-        migrationContextMock =
-                (MigrationContext) migrationContextControl.getMock();
-        migrationTaskSourceControl = MockControl.createStrictControl(MigrationTaskSource.class);
-        migrationTaskSourceMock = (MigrationTaskSource) migrationTaskSourceControl.getMock();
+        migrationContextControl = createStrictControl();
+        migrationContextMock = migrationContextControl.createMock(MigrationContext.class);
+        migrationTaskSourceControl = createStrictControl();
+        migrationTaskSourceMock = migrationTaskSourceControl.createMock(MigrationTaskSource.class);
         migrationProcess.addPatchResourcePackage("testPackageName");
-        patchInfoStoreControl = MockControl.createStrictControl(PatchInfoStore.class);
-        patchInfoStoreMock = (PatchInfoStore) patchInfoStoreControl.getMock();
+        patchInfoStoreControl = createStrictControl();
+        patchInfoStoreMock = patchInfoStoreControl.createMock(PatchInfoStore.class);
         patchInfoStore = MockBuilder.getPatchInfoStore(3);
     }
 
@@ -119,7 +122,7 @@ public class MigrationProcessTest extends TestCase
     }
 
     public void testDryRunWithMigrationsInOrder() throws MigrationException {
-        patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 3, 2);
+        expect(patchInfoStoreMock.getPatchLevel()).andReturn(3).times(2);
         patchInfoStoreControl.replay();
         int taskCount = migrationProcess.dryRun(patchInfoStoreMock, migrationContextMock, getMigrationTasks());
         assertEquals("TaskCount should be equal to 2", 2, taskCount);
@@ -142,10 +145,9 @@ public class MigrationProcessTest extends TestCase
         try
         {
             migrationProcess.setReadOnly(true);
-            migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                    getMigrationTasks("testPackageName"), getMigrationTasks());
+            expect(migrationTaskSourceMock.getMigrationTasks("testPackageName")).andReturn(getMigrationTasks());
             migrationTaskSourceControl.replay();
-            patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 2, 2);
+            expect(patchInfoStoreMock.getPatchLevel()).andReturn(2).times(2);
             patchInfoStoreControl.replay();
             migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
             migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock);
@@ -163,11 +165,10 @@ public class MigrationProcessTest extends TestCase
     public void testDoMigrationInReadOnlyWithZeroTasks() throws MigrationException
     {
         migrationProcess.setReadOnly(true);
-        migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                getMigrationTasks("testPackageName"), new ArrayList());
+        expect(migrationTaskSourceMock.getMigrationTasks("testPackageName")).andReturn(new ArrayList());
         migrationTaskSourceControl.replay();
         migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
-        patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 0);
+        expect(patchInfoStoreMock.getPatchLevel()).andReturn(0);
         patchInfoStoreControl.replay();
         migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock);
     }
@@ -175,11 +176,10 @@ public class MigrationProcessTest extends TestCase
     public void testDoTwoMigrations() throws MigrationException
     {
         migrationProcess.setReadOnly(false);
-        migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                getMigrationTasks("testPackageName"), getMigrationTasks());
+        expect(migrationTaskSourceMock.getMigrationTasks("testPackageName")).andReturn(getMigrationTasks());
         migrationTaskSourceControl.replay();
         migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
-        patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 2, 4);
+        expect(patchInfoStoreMock.getPatchLevel()).andReturn(2).times(4);
         patchInfoStoreControl.replay();
         assertEquals("We should have executed 2 migrations",
                 2, migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock));
@@ -188,11 +188,10 @@ public class MigrationProcessTest extends TestCase
     public void testDontDoMigrations() throws MigrationException
     {
         migrationProcess.setReadOnly(false);
-        migrationTaskSourceControl.expectAndReturn(migrationTaskSourceMock.
-                getMigrationTasks("testPackageName"), getMigrationTasks());
+        expect(migrationTaskSourceMock.getMigrationTasks("testPackageName")).andReturn(getMigrationTasks());
         migrationTaskSourceControl.replay();
         migrationProcess.addMigrationTaskSource(migrationTaskSourceMock);
-        patchInfoStoreControl.expectAndReturn(patchInfoStoreMock.getPatchLevel(), 100, 4);
+        expect(patchInfoStoreMock.getPatchLevel()).andReturn(100).times(4);
         patchInfoStoreControl.replay();
         assertEquals("We should have executed no migrations",
                 0, migrationProcess.doMigrations(patchInfoStoreMock, migrationContextMock));

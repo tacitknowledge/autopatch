@@ -21,13 +21,12 @@ import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask3;
 import com.tacitknowledge.util.migration.tasks.normal.TestMigrationTask4;
 import com.tacitknowledge.util.migration.tasks.rollback.*;
 import junit.framework.TestCase;
-import org.easymock.EasyMock;
-import org.easymock.MockControl;
 import org.easymock.classextension.IMocksControl;
 
 import java.util.*;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createControl;
 
 /**
@@ -39,7 +38,7 @@ import static org.easymock.classextension.EasyMock.createControl;
 public class MissingPatchMigrationRunnerStrategyTest extends TestCase {
 
     private MissingPatchMigrationRunnerStrategy strategy;
-    private MockControl patchInfoStoreControl;
+    private IMocksControl patchInfoStoreControl;
     private PatchInfoStore patchInfoStore;
     private List<MigrationTask> allMigrationTasks;
     private TestRollbackableTask2 rollbackableTask2;
@@ -50,8 +49,8 @@ public class MissingPatchMigrationRunnerStrategyTest extends TestCase {
 
     protected void setUp() throws Exception {
         strategy = new MissingPatchMigrationRunnerStrategy();
-        patchInfoStoreControl = MockControl.createControl(PatchInfoStore.class);
-        patchInfoStore = (PatchInfoStore) patchInfoStoreControl.getMock();
+        patchInfoStoreControl = createControl();
+        patchInfoStore = (PatchInfoStore) patchInfoStoreControl.createMock(PatchInfoStore.class);
         allMigrationTasks = new ArrayList<MigrationTask>();
         rollbackableTask2 = new TestRollbackableTask2();
         rollbackableTask4 = new TestRollbackableTask4();
@@ -66,14 +65,14 @@ public class MissingPatchMigrationRunnerStrategyTest extends TestCase {
     }
 
     public void testShouldMigrationRunReturnsTrueIfPatchWasNotApplied() throws MigrationException {
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.isPatchApplied(5), false);
+        expect(patchInfoStore.isPatchApplied(5)).andReturn(false);
         patchInfoStoreControl.replay();
         boolean actualResult = strategy.shouldMigrationRun(5, patchInfoStore);
         assertTrue("The patch was already applied.", actualResult);
     }
 
     public void testShouldMigrationRunReturnsFalseIfPatchWasApplied() throws MigrationException {
-        patchInfoStoreControl.expectAndReturn(patchInfoStore.isPatchApplied(4), true);
+        expect(patchInfoStore.isPatchApplied(4)).andReturn(true);
         patchInfoStoreControl.replay();
         boolean actualResult = strategy.shouldMigrationRun(4, patchInfoStore);
         assertFalse("The patch was not applied.", actualResult);
